@@ -1,0 +1,116 @@
+---
+title: "Régression logistique"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+La régression logistique est fréquemment utilisée en sciences sociales car elle permet d’effectuer un
+raisonnement dit *toutes choses étant égales par ailleurs*. Plus précisément, la régression logistique a
+pour but d’isoler les effets de chaque variable, c’est-à-dire d’identifier les effets résiduels d’une 
+*variable explicative* sur une *variable d’intérêt*, une fois pris en compte les autres variables explicatives introduites
+dans le modèle. La régression logistique est ainsi prisée en épidémiologie pour identifier les facteurs associés
+à telle ou telle pathologie.
+
+La régression logistique ordinaire ou régression logistique binaire vise à expliquer une variable d’intérêt
+binaire (c’est-à-dire de type « Oui/Non »). Les variables explicatives qui seront introduites dans le modèle
+peuvent être quantitatives ou qualitatives.
+
+## Préparation des données
+
+Dans ce chapite, nous allons encore une fois utiliser les données de l’enquête *Histoire de vie*, fournies
+avec l’extension <strong data-type="package">questionr</strong>.
+
+```{r}
+library(questionr)
+data(hdv2003)
+d <- hdv2003
+```
+
+À titre d’exemple, nous allons étudier l’effet de l’âge, du sexe, du niveau d’étude, de la pratique
+religieuse et du nombre moyen d’heures passées à regarder la télévision par jour.
+
+En premier lieu, il importe de vérifier que notre variable d’intérêt (ici *sport*) est correctement codée.
+Une possibilité consiste à créer une variable booléenne (vrai / faux) selon que l’individu a pratiqué du
+sport ou non :
+
+```{r}
+d$sport2 <- FALSE
+d$sport2[d$sport == "Oui"] <- TRUE
+```
+
+
+Dans le cas présent, cette variable n’a pas de valeur manquante. Mais le cas échéant il faut bien
+renseigner `NA` pour les valeurs manquantes, les individus en question étant alors exclu de l’analyse.
+
+Il n’est pas forcément nécessaire de transformer notre variable d’intérêt en variable booléenne. En
+effet, **R** accepte sans problème une variable de type facteur. Cependant, l’ordre des valeurs d’un facteur a
+de l’importance. En effet, **R** considère toujours la première modalité comme étant la modalité de référence.
+Dans le cas de la variable d’intérêt, la modalité de référence correspond au fait de ne pas remplir le critère
+étudié, dans notre exemple au fait de ne pas avoir eu d’activité sportive au cours des douze derniers mois.
+
+Pour connaître l’ordre des modalités d’une variable de type facteur, on peut utiliser la fonction <code data-type="fonction" data-package="base">levels</code> ou bien encore tout simplement la fonction <code data-type="fonction" data-package="questionr">freq</code> :
+
+```{r}
+levels(d$sport)
+freq(d$sport)
+```
+
+Dans notre exemple, la modalité « Non » est déjà la première modalité. Il n’y a donc pas besoin de
+modifier notre variable. Si ce n’est pas le cas, il faudra modifier la modalité de référence avec la fonction
+<code data-type="fonction" data-package="stats">relevel</code> comme nous allons le voir un peu plus loin.
+
+<div class="important">
+Il est possible d’indiquer un facteur à plus de deux modalités. Dans une telle situation, **R** considérera que
+tous les modalités, sauf la modalité de référence, est une réalisation de la variable d’intérêt. Cela serait
+correct par exemple notre variable *sport* était codée ainsi : « Non », « Oui, toutes les semaines », « Oui, au
+moins une fois par mois », « Oui, moins d’une fois par mois ». Cependant, afin d’éviter tout risque d’erreur ou
+de mauvaise interprétation, il est vivement conseillé de recoder au préalable sa variable d’intérêt en un facteur à
+deux modalités.
+</div>
+
+La notion de modalité de référence s’applique également aux variables explicatives qualitatives. En
+effet, dans un modèle, tous les coefficients sont calculés par rapport à la modalité de référence. Il importe
+de choisir une modalité de référence qui fasse sens afin de faciliter l’interprétation. Par ailleurs, ce choix
+peut également dépendre de la manière dont on souhaite présenter les résultats. De manière générale on
+évitera de choisir comme référence une modalité peu représentée dans l’échantillon ou bien une modalité
+correspondant à une situation atypique.
+
+Prenons l’exemple de la variable *sexe*. Souhaite-t-on connaitre l’effet d’être une femme par rapport au
+fait d’être un homme ou bien l’effet d’être un homme par rapport au fait d’être une femme ? Si l’on opte
+pour le second, alors notre modalité de référence sera le sexe féminin. Comme est codée cette variable ?
+
+```{r}
+freq(d$sexe)
+```
+
+La modalité « Femme » s’avère ne pas être la première modalité. Nous devons appliquer la fonction
+<code data-type="fonction" data-package="stats">relevel</code> :
+
+```{r}
+d$sexe <- relevel(d$sexe, "Femme")
+freq(d$sexe)
+```
+
+Les variables *age* et *heures.tv* sont des variables quantitatives. Il importe de vérifier qu’elles sont
+bien enregistrées en tant que variables numériques. En effet, il arrive parfois que dans le fichier source les
+variables quantitatives soient renseignées sous forme de valeur textuelle et non sous forme numérique.
+
+```{r}
+str(d$age)
+str(d$heures.tv)
+```
+
+Nos deux variables sont bien renseignées sous forme numérique.
+
+Cependant, l’effet de l’âge est rarement linéaire. Un exemple trivial est par exemple le fait d’occuper
+un emploi qui sera moins fréquent aux jeunes âges et aux âges élevés. Dès lors, on pourra transformer la
+variable <var>age</var> en groupe d’âges (voir MAJ_LIEN) :
+
+```{r}
+d$grpage <- cut(d$age, c(16, 25, 45, 65, 93), right = FALSE, include.lowest = TRUE)
+freq(d$grpage)
+```
+
+

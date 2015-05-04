@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Régression logistique</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/flatly.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+
+<style type="text/css">
+
+/* padding for bootstrap navbar */
+body {
+  padding-top: 50px;
+  padding-bottom: 40px;
+}
+
+
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h2 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+.section h3 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+
+
+
+/* don't use link color in navbar */
+.dropdown-menu>li>a {
+  color: black;
+}
+
+/* some padding for disqus */
+#disqus_thread {
+  margin-top: 45px;
+}
+
+</style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href=".">analyse-R</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="index.html">Accueil</a></li>
+        <li class="dropdown">
+          <a href="pem" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Prise en main <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+             <li><a href="/">A venir</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="analyses" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Analyses <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+             <li><a href="analyses_reglog.html">Régression logistique</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="astuces" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Astuces <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+             <li><a href="/">A compléter</a></li>
+          </ul>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a href="participer" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Participer <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+              <li><a href="https://github.com/larmarange/analyse-R">analyse-R sur GitHub</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+<h1 class="title">Régression logistique</h1>
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#preparation-des-donnees">Préparation des données</a></li>
+</ul>
+</div>
+
+<p>La régression logistique est fréquemment utilisée en sciences sociales car elle permet d’effectuer un raisonnement dit <em>toutes choses étant égales par ailleurs</em>. Plus précisément, la régression logistique a pour but d’isoler les effets de chaque variable, c’est-à-dire d’identifier les effets résiduels d’une <em>variable explicative</em> sur une <em>variable d’intérêt</em>, une fois pris en compte les autres variables explicatives introduites dans le modèle. La régression logistique est ainsi prisée en épidémiologie pour identifier les facteurs associés à telle ou telle pathologie.</p>
+<p>La régression logistique ordinaire ou régression logistique binaire vise à expliquer une variable d’intérêt binaire (c’est-à-dire de type « Oui/Non »). Les variables explicatives qui seront introduites dans le modèle peuvent être quantitatives ou qualitatives.</p>
+<div id="preparation-des-donnees" class="section level2">
+<h2>Préparation des données</h2>
+<p>Dans ce chapite, nous allons encore une fois utiliser les données de l’enquête <em>Histoire de vie</em>, fournies avec l’extension <strong data-type="package">questionr</strong>.</p>
+<pre class="r"><code>library(questionr)
+data(hdv2003)
+d &lt;- hdv2003</code></pre>
+<p>À titre d’exemple, nous allons étudier l’effet de l’âge, du sexe, du niveau d’étude, de la pratique religieuse et du nombre moyen d’heures passées à regarder la télévision par jour.</p>
+<p>En premier lieu, il importe de vérifier que notre variable d’intérêt (ici <em>sport</em>) est correctement codée. Une possibilité consiste à créer une variable booléenne (vrai / faux) selon que l’individu a pratiqué du sport ou non :</p>
+<pre class="r"><code>d$sport2 &lt;- FALSE
+d$sport2[d$sport == &quot;Oui&quot;] &lt;- TRUE</code></pre>
+<p>Dans le cas présent, cette variable n’a pas de valeur manquante. Mais le cas échéant il faut bien renseigner <code>NA</code> pour les valeurs manquantes, les individus en question étant alors exclu de l’analyse.</p>
+<p>Il n’est pas forcément nécessaire de transformer notre variable d’intérêt en variable booléenne. En effet, <strong>R</strong> accepte sans problème une variable de type facteur. Cependant, l’ordre des valeurs d’un facteur a de l’importance. En effet, <strong>R</strong> considère toujours la première modalité comme étant la modalité de référence. Dans le cas de la variable d’intérêt, la modalité de référence correspond au fait de ne pas remplir le critère étudié, dans notre exemple au fait de ne pas avoir eu d’activité sportive au cours des douze derniers mois.</p>
+<p>Pour connaître l’ordre des modalités d’une variable de type facteur, on peut utiliser la fonction <code data-type="fonction" data-package="base">levels</code> ou bien encore tout simplement la fonction <code data-type="fonction" data-package="questionr">freq</code> :</p>
+<pre class="r"><code>levels(d$sport)</code></pre>
+<pre><code>[1] &quot;Non&quot; &quot;Oui&quot;</code></pre>
+<pre class="r"><code>freq(d$sport)</code></pre>
+<pre><code>       n    % val%
+Non 1277 63.8 63.8
+Oui  723 36.1 36.1
+NA     0  0.0   NA</code></pre>
+<p>Dans notre exemple, la modalité « Non » est déjà la première modalité. Il n’y a donc pas besoin de modifier notre variable. Si ce n’est pas le cas, il faudra modifier la modalité de référence avec la fonction <code data-type="fonction" data-package="stats">relevel</code> comme nous allons le voir un peu plus loin.</p>
+<div class="important">
+Il est possible d’indiquer un facteur à plus de deux modalités. Dans une telle situation, <strong>R</strong> considérera que tous les modalités, sauf la modalité de référence, est une réalisation de la variable d’intérêt. Cela serait correct par exemple notre variable <em>sport</em> était codée ainsi : « Non », « Oui, toutes les semaines », « Oui, au moins une fois par mois », « Oui, moins d’une fois par mois ». Cependant, afin d’éviter tout risque d’erreur ou de mauvaise interprétation, il est vivement conseillé de recoder au préalable sa variable d’intérêt en un facteur à deux modalités.
+</div>
+<p>La notion de modalité de référence s’applique également aux variables explicatives qualitatives. En effet, dans un modèle, tous les coefficients sont calculés par rapport à la modalité de référence. Il importe de choisir une modalité de référence qui fasse sens afin de faciliter l’interprétation. Par ailleurs, ce choix peut également dépendre de la manière dont on souhaite présenter les résultats. De manière générale on évitera de choisir comme référence une modalité peu représentée dans l’échantillon ou bien une modalité correspondant à une situation atypique.</p>
+<p>Prenons l’exemple de la variable <em>sexe</em>. Souhaite-t-on connaitre l’effet d’être une femme par rapport au fait d’être un homme ou bien l’effet d’être un homme par rapport au fait d’être une femme ? Si l’on opte pour le second, alors notre modalité de référence sera le sexe féminin. Comme est codée cette variable ?</p>
+<pre class="r"><code>freq(d$sexe)</code></pre>
+<pre><code>         n  % val%
+Homme  899 45   45
+Femme 1101 55   55
+NA       0  0   NA</code></pre>
+<p>La modalité « Femme » s’avère ne pas être la première modalité. Nous devons appliquer la fonction <code data-type="fonction" data-package="stats">relevel</code> :</p>
+<pre class="r"><code>d$sexe &lt;- relevel(d$sexe, &quot;Femme&quot;)
+freq(d$sexe)</code></pre>
+<pre><code>         n  % val%
+Femme 1101 55   55
+Homme  899 45   45
+NA       0  0   NA</code></pre>
+<p>Les variables <em>age</em> et <em>heures.tv</em> sont des variables quantitatives. Il importe de vérifier qu’elles sont bien enregistrées en tant que variables numériques. En effet, il arrive parfois que dans le fichier source les variables quantitatives soient renseignées sous forme de valeur textuelle et non sous forme numérique.</p>
+<pre class="r"><code>str(d$age)</code></pre>
+<pre><code> int [1:2000] 28 23 59 34 71 35 60 47 20 28 ...</code></pre>
+<pre class="r"><code>str(d$heures.tv)</code></pre>
+<pre><code> num [1:2000] 0 1 0 2 3 2 2.9 1 2 2 ...</code></pre>
+<p>Nos deux variables sont bien renseignées sous forme numérique.</p>
+<p>Cependant, l’effet de l’âge est rarement linéaire. Un exemple trivial est par exemple le fait d’occuper un emploi qui sera moins fréquent aux jeunes âges et aux âges élevés. Dès lors, on pourra transformer la variable <var>age</var> en groupe d’âges (voir MAJ_LIEN) :</p>
+<pre class="r"><code>d$grpage &lt;- cut(d$age, c(16, 25, 45, 65, 93), right = FALSE, include.lowest = TRUE)
+freq(d$grpage)</code></pre>
+<pre><code>          n    % val%
+[16,25) 169  8.5  8.5
+[25,45) 706 35.3 35.3
+[45,65) 745 37.2 37.3
+[65,93] 378 18.9 18.9
+NA        2  0.1   NA</code></pre>
+</div>
+
+<script>
+
+// manage active state of menu based on current page
+$(document).ready(function () {
+
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+
+    // manage active menu header
+    if (href.startsWith('pem_'))
+      $('a[href="' + 'pem' + '"]').parent().addClass('active');
+    else if (href.startsWith('analyses_'))
+      $('a[href="' + 'analyses' + '"]').parent().addClass('active');
+    else if (href.startsWith('astuces_'))
+      $('a[href="' + 'astuces' + '"]').parent().addClass('active');
+
+});
+
+</script>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+
+</body>
+</html>
