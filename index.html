@@ -18,62 +18,7 @@
 <script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
 <script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
 <script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
-
-<style type="text/css">
-
-/* padding for bootstrap navbar */
-body {
-  padding-top: 50px;
-  padding-bottom: 40px;
-}
-
-
-/* offset scroll position for anchor links (for fixed navbar)  */
-.section h2 {
-  padding-top: 55px;
-  margin-top: -55px;
-}
-.section h3 {
-  padding-top: 55px;
-  margin-top: -55px;
-}
-
-
-
-/* don't use link color in navbar */
-.dropdown-menu>li>a {
-  color: black;
-}
-
-/* some padding for disqus */
-#disqus_thread {
-  margin-top: 45px;
-}
-
-/* Plus d'espace autour du titre */
-h1 {
-  font-size: 67.5px;
-  margin: 42px 0 21px 0;
-}
-
-div.note, div.info, div.astuce, div.important, div.attention {
-  margin: 20px 0;
-  padding: 10px;
-  border: solid 1px #AAA;
-  background-color: #EEE;
-}
-
-div.note:before, div.info:before, div.astuce:before, div.important:before, div.attention:before {
-  content: attr(class);
-  display: block;
-  font-weight: bold;
-  font-variant: small-caps;
-  font-size: 1.1em;
-  letter-spacing: 2px;
-  margin-bottom: 10px;
-}
-
-</style>
+<link rel="stylesheet" href="./include/analyse-R.css" />
 
 <style type="text/css">code{white-space: pre;}</style>
 <link rel="stylesheet"
@@ -165,6 +110,13 @@ img {
 <h1 class="title">analyse-R</h1>
 </div>
 
+<div id="TOC">
+<ul>
+<li><a href="#contributeurs">Contributeurs</a></li>
+<li><a href="#table-des-matieres">Table des matières</a></li>
+<li><a href="#licence">Licence</a></li>
+</ul>
+</div>
 
 <div class="jumbotron">
 <h1>
@@ -174,7 +126,14 @@ Introduction<br />à l’analyse d’enquêtes<br /> avec R et RStudio
 Site en construction
 </p>
 </div>
-<p>Ce projet de site web est basé sur le support de cours <a href="https://github.com/larmarange/intro-r/tree/CoursM2">Introduction à l’analyse d’enquêtes avec R</a>, qui est lui-même une adaptation de l’<a href="https://github.com/juba/intro-r">Introduction à R</a> de Julien Barnier.</p>
+<p>Ce projet de site web est basé sur le support de cours <a href="https://github.com/larmarange/intro-r/tree/CoursM2">Introduction à l’analyse d’enquêtes avec R</a> de Joseph Larmarange, qui est lui-même une adaptation de l’<a href="https://github.com/juba/intro-r">Introduction à R</a> de Julien Barnier.</p>
+<div id="contributeurs" class="section level2">
+<h2>Contributeurs</h2>
+<p>Par ordre alphabétique :</p>
+<p>Julien Barnier, Julien Biaudet, Milan Bouchet-Valat, Frédérique Giraud, Joël Gombin, Mayeul Kauffmann, Joseph Larmarange, Nicolas Robette.</p>
+</div>
+<div id="table-des-matieres" class="section level2">
+<h2>Table des matières</h2>
 <div class="row">
 <div class="col-md-4">
 <p>
@@ -201,6 +160,12 @@ Site en construction
 </div>
 </div>
 </div>
+</div>
+<div id="licence" class="section level2">
+<h2>Licence</h2>
+<p>Le contenu de ce site est diffusé sous licence <em>Creative Commons Attribution - Pas d’utilisation commerciale - Partage dans les mêmes conditions</em> (<a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/" class="uri">https://creativecommons.org/licenses/by-nc-sa/3.0/fr/</a>).</p>
+<p><img src="images\by-nc-sa.png" alt="CC by-nc-sa" /></p>
+</div>
 
 <script>
 
@@ -219,6 +184,33 @@ $(document).ready(function () {
       $('a[href="' + 'analyses' + '"]').parent().addClass('active');
     else if (href.startsWith('astuces_'))
       $('a[href="' + 'astuces' + '"]').parent().addClass('active');
+
+    // Identifier les <pre> fermant
+    $('pre').next().not('pre').prev().addClass('last'); // Last <pre> of each group of <pre>
+    $('pre').last().addClass('last'); // If the last one is not followed bay anything
+
+    // Ajout liens rdocumentation
+    $("code[data-package]").each(function( index ) {
+      package = $(this).attr('data-package');
+      if ($(this).attr('data-rdocumentation') !== undefined)
+        rdocumentation = $(this).attr('data-rdocumentation');
+      else
+        rdocumentation = $(this).text();
+      fonction = $(this).text();
+      $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+package+'/functions/'+rdocumentation+'">');
+    });
+
+    $("strong.package").each(function( index ) {
+      $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+$(this).text()+'">');
+    });
+
+    // Figures
+    $("figure").each(function( index ) {
+      if ($(this).children("figcaption").length > 0)
+        $(this).children("figcaption:first").prepend('<span class="figure-number">Figure '+(index+1)+'.</span> ');
+      else
+        $(this).append($("<figcaption>").append('<span class="figure-number">Figure '+(index+1)+'</span>'));
+    });
 
 });
 
