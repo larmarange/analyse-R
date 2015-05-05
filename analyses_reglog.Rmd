@@ -6,21 +6,21 @@ title: "Régression logistique"
 source("options_communes.R")
 ```
 
-La régression logistique est fréquemment utilisée en sciences sociales car elle permet d’effectuer un
+La régression logistique est fréquemment utilisée en sciences sociales car elle permet d'effectuer un
 raisonnement dit *toutes choses étant égales par ailleurs*. Plus précisément, la régression logistique a
-pour but d’isoler les effets de chaque variable, c’est-à-dire d’identifier les effets résiduels d’une 
-*variable explicative* sur une *variable d’intérêt*, une fois pris en compte les autres variables explicatives introduites
+pour but d'isoler les effets de chaque variable, c'est-à-dire d'identifier les effets résiduels d'une 
+*variable explicative* sur une *variable d'intérêt*, une fois pris en compte les autres variables explicatives introduites
 dans le modèle. La régression logistique est ainsi prisée en épidémiologie pour identifier les facteurs associés
 à telle ou telle pathologie.
 
-La régression logistique ordinaire ou régression logistique binaire vise à expliquer une variable d’intérêt
-binaire (c’est-à-dire de type « Oui/Non »). Les variables explicatives qui seront introduites dans le modèle
+La régression logistique ordinaire ou régression logistique binaire vise à expliquer une variable d'intérêt
+binaire (c'est-à-dire de type « Oui/Non »). Les variables explicatives qui seront introduites dans le modèle
 peuvent être quantitatives ou qualitatives.
 
 ## Préparation des données
 
-Dans ce chapite, nous allons encore une fois utiliser les données de l’enquête *Histoire de vie*, fournies
-avec l’extension <strong data-type="package">questionr</strong>.
+Dans ce chapite, nous allons encore une fois utiliser les données de l'enquête *Histoire de vie*, fournies
+avec l'extension <strong class="package">questionr</strong>.
 
 ```{r}
 library(questionr)
@@ -28,11 +28,11 @@ data(hdv2003)
 d <- hdv2003
 ```
 
-À titre d’exemple, nous allons étudier l’effet de l’âge, du sexe, du niveau d’étude, de la pratique
-religieuse et du nombre moyen d’heures passées à regarder la télévision par jour.
+À titre d'exemple, nous allons étudier l'effet de l'âge, du sexe, du niveau d'étude, de la pratique
+religieuse et du nombre moyen d'heures passées à regarder la télévision par jour.
 
-En premier lieu, il importe de vérifier que notre variable d’intérêt (ici *sport*) est correctement codée.
-Une possibilité consiste à créer une variable booléenne (vrai / faux) selon que l’individu a pratiqué du
+En premier lieu, il importe de vérifier que notre variable d'intérêt (ici *sport*) est correctement codée.
+Une possibilité consiste à créer une variable booléenne (vrai / faux) selon que l'individu a pratiqué du
 sport ou non :
 
 ```{r}
@@ -41,59 +41,59 @@ d$sport2[d$sport == "Oui"] <- TRUE
 ```
 
 
-Dans le cas présent, cette variable n’a pas de valeur manquante. Mais le cas échéant il faut bien
-renseigner `NA` pour les valeurs manquantes, les individus en question étant alors exclu de l’analyse.
+Dans le cas présent, cette variable n'a pas de valeur manquante. Mais le cas échéant il faut bien
+renseigner `NA` pour les valeurs manquantes, les individus en question étant alors exclu de l'analyse.
 
-Il n’est pas forcément nécessaire de transformer notre variable d’intérêt en variable booléenne. En
-effet, **R** accepte sans problème une variable de type facteur. Cependant, l’ordre des valeurs d’un facteur a
-de l’importance. En effet, **R** considère toujours la première modalité comme étant la modalité de référence.
-Dans le cas de la variable d’intérêt, la modalité de référence correspond au fait de ne pas remplir le critère
-étudié, dans notre exemple au fait de ne pas avoir eu d’activité sportive au cours des douze derniers mois.
+Il n'est pas forcément nécessaire de transformer notre variable d'intérêt en variable booléenne. En
+effet, **R** accepte sans problème une variable de type facteur. Cependant, l'ordre des valeurs d'un facteur a
+de l'importance. En effet, **R** considère toujours la première modalité comme étant la modalité de référence.
+Dans le cas de la variable d'intérêt, la modalité de référence correspond au fait de ne pas remplir le critère
+étudié, dans notre exemple au fait de ne pas avoir eu d'activité sportive au cours des douze derniers mois.
 
-Pour connaître l’ordre des modalités d’une variable de type facteur, on peut utiliser la fonction <code data-type="fonction" data-package="base">levels</code> ou bien encore tout simplement la fonction <code data-type="fonction" data-package="questionr">freq</code> :
+Pour connaître l'ordre des modalités d'une variable de type facteur, on peut utiliser la fonction `levels`{data-package="base"} ou bien encore tout simplement la fonction `freq`{data-package="questionr"} :
 
 ```{r}
 levels(d$sport)
 freq(d$sport)
 ```
 
-Dans notre exemple, la modalité « Non » est déjà la première modalité. Il n’y a donc pas besoin de
-modifier notre variable. Si ce n’est pas le cas, il faudra modifier la modalité de référence avec la fonction
-<code data-type="fonction" data-package="stats">relevel</code> comme nous allons le voir un peu plus loin.
+Dans notre exemple, la modalité « Non » est déjà la première modalité. Il n'y a donc pas besoin de
+modifier notre variable. Si ce n'est pas le cas, il faudra modifier la modalité de référence avec la fonction
+`relevel`{data-package="stats"} comme nous allons le voir un peu plus loin.
 
 <div class="important">
-Il est possible d’indiquer un facteur à plus de deux modalités. Dans une telle situation, **R** considérera que
-tous les modalités, sauf la modalité de référence, est une réalisation de la variable d’intérêt. Cela serait
+Il est possible d'indiquer un facteur à plus de deux modalités. Dans une telle situation, **R** considérera que
+tous les modalités, sauf la modalité de référence, est une réalisation de la variable d'intérêt. Cela serait
 correct, par exemple, si notre variable *sport* était codée ainsi : « Non », « Oui, toutes les semaines », « Oui, au
-moins une fois par mois », « Oui, moins d’une fois par mois ». Cependant, afin d’éviter tout risque d’erreur ou
-de mauvaise interprétation, il est vivement conseillé de recoder au préalable sa variable d’intérêt en un facteur à
+moins une fois par mois », « Oui, moins d'une fois par mois ». Cependant, afin d'éviter tout risque d'erreur ou
+de mauvaise interprétation, il est vivement conseillé de recoder au préalable sa variable d'intérêt en un facteur à
 deux modalités.
 </div>
 
-La notion de modalité de référence s’applique également aux variables explicatives qualitatives. En
+La notion de modalité de référence s'applique également aux variables explicatives qualitatives. En
 effet, dans un modèle, tous les coefficients sont calculés par rapport à la modalité de référence. Il importe
-de choisir une modalité de référence qui fasse sens afin de faciliter l’interprétation. Par ailleurs, ce choix
+de choisir une modalité de référence qui fasse sens afin de faciliter l'interprétation. Par ailleurs, ce choix
 peut également dépendre de la manière dont on souhaite présenter les résultats. De manière générale on
-évitera de choisir comme référence une modalité peu représentée dans l’échantillon ou bien une modalité
+évitera de choisir comme référence une modalité peu représentée dans l'échantillon ou bien une modalité
 correspondant à une situation atypique.
 
-Prenons l’exemple de la variable *sexe*. Souhaite-t-on connaitre l’effet d’être une femme par rapport au
-fait d’être un homme ou bien l’effet d’être un homme par rapport au fait d’être une femme ? Si l’on opte
+Prenons l'exemple de la variable *sexe*. Souhaite-t-on connaitre l'effet d'être une femme par rapport au
+fait d'être un homme ou bien l'effet d'être un homme par rapport au fait d'être une femme ? Si l'on opte
 pour le second, alors notre modalité de référence sera le sexe féminin. Comme est codée cette variable ?
 
 ```{r}
 freq(d$sexe)
 ```
 
-La modalité « Femme » s’avère ne pas être la première modalité. Nous devons appliquer la fonction
-<code data-type="fonction" data-package="stats">relevel</code> :
+La modalité « Femme » s'avère ne pas être la première modalité. Nous devons appliquer la fonction
+`relevel`{data-package="stats"} :
 
 ```{r}
 d$sexe <- relevel(d$sexe, "Femme")
 freq(d$sexe)
 ```
 
-Les variables *age* et *heures.tv* sont des variables quantitatives. Il importe de vérifier qu’elles sont
+Les variables *age* et *heures.tv* sont des variables quantitatives. Il importe de vérifier qu'elles sont
 bien enregistrées en tant que variables numériques. En effet, il arrive parfois que dans le fichier source les
 variables quantitatives soient renseignées sous forme de valeur textuelle et non sous forme numérique.
 
@@ -104,13 +104,226 @@ str(d$heures.tv)
 
 Nos deux variables sont bien renseignées sous forme numérique.
 
-Cependant, l’effet de l’âge est rarement linéaire. Un exemple trivial est par exemple le fait d’occuper
+Cependant, l'effet de l'âge est rarement linéaire. Un exemple trivial est par exemple le fait d'occuper
 un emploi qui sera moins fréquent aux jeunes âges et aux âges élevés. Dès lors, on pourra transformer la
-variable <var>age</var> en groupe d’âges (voir MAJ_LIEN) :
+variable *age* en groupe d'âges (voir MAJ_LIEN) :
 
 ```{r}
 d$grpage <- cut(d$age, c(16, 25, 45, 65, 93), right = FALSE, include.lowest = TRUE)
 freq(d$grpage)
 ```
 
+Jetons maintenant un oeil à la variable *nivetud* :
 
+```{r}
+freq(d$nivetud)
+```
+
+En premier lieu, cette variable est détaillée en pas moins de huit modalités dont certaines sont peu
+représentées (seulement 39 individus soit 2 % n'ont jamais fait d'études par exemple). Afin d'améliorier
+notre modèle logistique, il peut être pertinent de regrouper certaines modalités (voir MAJ_LIEN) :
+
+```{r}
+d$etud <- d$nivetud
+levels(d$etud) <- c(
+  "Primaire", "Primaire", "Primaire", 
+  "Secondaire", "Secondaire", "Technique/Professionnel", 
+  "Technique/Professionnel", "Supérieur"
+  )
+freq(d$etud)
+```
+
+Notre variable comporte également 112 individus avec une valeur manquante. Si nous conservons
+cette valeur manquante, ces 112 individus seront, par défaut, exclus de l'analyse. Ces valeurs manquantes
+n'étant pas négligeable (5,6 %), nous pouvons également faire le choix de considérer ces valeurs manquantes
+comme une modalité supplémentaire. Auquel cas, nous utiliserons la fonction `add.NA`{data-package="base"} :
+
+```{r}
+levels(d$etud)
+d$etud <- addNA(d$etud)
+levels(d$etud)
+```
+
+## Régression logistique binaire
+
+La fonction `glm`{data-package="stats"} (pour <em lang="en">generalized linear models</em>) 
+permet de calculer une grande variété de modèles statistiques. 
+La régression logistique ordinaire correspond au modèle *logit* de la famille des modèles binomiaux,
+ce que l'on indique à `glm`{data-package="stats"} avec l'argument `family=binomial(logit)`.
+
+Le modèle proprement dit sera renseigné sous la forme d'une formule (MAJ_LIEN). 
+On indiquera d'abord la variable d'intérêt, suivie du signe <kbd>&#126;</kbd> puis de la liste des variables explicatives
+séparées par un signe <kbd>+</kbd>. Enfin, l'argument `data` permettra d'indiquer notre tableau de données.
+
+```{r}
+reg <- glm(sport ~ sexe + grpage + etud + relig + heures.tv, data = d, family = binomial(logit))
+reg
+```
+
+<div class="info">
+Il est possible de spécifier des modèles plus complexes. Par exemple, `x:y` permet d'indiquer l'interaction
+entre les variables *x* et *y*. `x * y` sera équivalent à `x + y + x:y`. Pour aller plus loin, voir 
+<http://ww2.coastal.edu/kingw/statistics/R-tutorials/formulae.html>.
+</div>
+
+Une présentation plus complète des résultats est obtenue avec la méthode `summary`{data-package="stats" data-rdocumentation="summary.glm"} :
+
+```{r}
+summary(reg)
+```
+
+Dans le cadre d'un modèle logistique, généralement on ne présente pas les coefficients du modèle mais
+leur valeur exponentielle, cette dernière correspondant en effet à des *odds ratio*, également appelés 
+*rapports des cotes*. L'odds ratio diffère du *risque relatif*. Cependent son interprétation est similaire. 
+Un odds ratio de 1 signifie l'absence d'effet. Un odds ratio largement supérieur à 1 correspond à une
+augmentation du phénomène étudié et un odds ratio largement inféieur à 1 correspond à une diminution du 
+phénomène étudié^[Pour plus de détails, voir <http://www.spc.univ-lyon1.fr/polycop/odds%20ratio.htm>.].
+
+La fonction `coef`{data-package="stats"} permet d'obtenir les coefficients d'un modèle, 
+`confint`{data-package="stats"} leurs intervalles de confiance
+et `exp`{data-package="base" data-rdocumentation="log"} de calculer l'exponentiel. 
+Les odds ratio et leurs intervalles de confiance s'obtiennent ainsi :
+
+```{r}
+exp(coef(reg))
+exp(confint(reg))
+```
+
+On pourra faciliter la lecture en combinant les deux :
+
+```{r}
+exp(cbind(coef(reg), confint(reg)))
+```
+
+Pour savoir si un odds ratio diffère significativement de 1 (ce qui est identique au fait que le coefficient
+soit différent de 0), on pourra se référer à la colonne *Pr(>|z|)* obtenue avec `summary`{data-package="stats" data-rdocumentation="summary.glm"}.
+
+Si vous disposez de l'extension <strong class="package">questionr</strong>, la fonction `odds.ratio`{data-pacakge="questionr"} permet de calculer directement les odds ratio, leur intervalles de confiance et les p-value :
+
+```{r}
+library(questionr)
+odds.ratio(reg)
+```
+
+L'extension <strong class="package">effects</strong> propose une représentation graphique résumant les effets de chaque variable du modèle. Pour cela, il suffit d'appliquer la méthode `plot`{data-package="effects" data-rdocumentation="summary.effect"} au résultat de la fonction `allEffects`{data-package="effects" data-rdocumentation="effect"}. Nous obtenons alors la [figure ci-dessous](#reglog_alleffects).
+
+<figure id="reglog_alleffects">
+```{r plot_allEffects, warning=FALSE}
+library(effects)
+plot(allEffects(reg))
+```
+<figcaption>Représentation graphique de l'effet de chaque variable du modèle logistique</figcaption>
+</figure>
+
+
+Une manière de tester la qualité d'un modèle est le calcul d'une *matrice de confusion*, c'est-à-dire le
+tableau croisé des valeurs observées et celles des valeurs prédites en appliquant le modèle aux données
+d'origine.
+
+La méthode `predict`{data-package="stats" data-rdocumentation="predict.glm"} avec l'argument `type="response"`
+permet d'appliquer notre modèle logistique à un tableau de données et renvoie pour chaque individu 
+la probabilité qu'il ait vécu le phénomène étudié.
+
+```{r}
+sport.pred <- predict(reg, type = "response", newdata = d)
+head(sport.pred)
+```
+
+
+Or notre variable étudiée est de type binaire. Nous devons donc transformer nos probabilités prédites
+en une variable du type « oui / non ». Usuellement, les probabilités prédites seront réunies en deux groupes
+selon qu'elles soient supérieures ou inférieures à la moitié. La matrice de confusion est alors égale à :
+
+```{r}
+table(sport.pred > 0.5, d$sport)
+```
+
+Nous avons donc 583 (384+199) prédictions incorrectes sur un total de 1993, soit un taux de mauvais
+classement de 29,3 %.
+
+## Sélection de modèles
+
+Il est toujours tentant lorsque l'on recherche les facteurs associés à un phénomène d'inclure un nombre
+important de variables explicatives potentielles dans un mmodèle logistique. Cependant, un tel modèle
+n'est pas forcément le plus efficace et certaines variables n'auront probablement pas d'effet significatif sur
+la variable d'intérêt.
+
+La technique de *sélection descendante pas à pas* est une approche visant à améliorer son modèle
+explicatif^[Il existe également des méthodes de *sélection ascendante pas à pas*, mais nous les aborderons pas ici.]. 
+On réalise un premier modèle avec toutes les variables spécifiées, puis on regarde s'il est possible
+d'améliorer le modèle en supprimant une des variables du modèle. Si plusieurs variables permettent
+d'améliorer le modèle, on supprimera la variable dont la suppression améliorera le plus le modèle. Puis on
+recommence le même procédé pour voir si la suppression d'une seconde variable peut encore améliorer le
+modèle et ainsi de suite. Lorsque le modèle ne peut plus être améliorer par la suppresion d'une variable,
+on s'arrête.
+
+Il faut également définir un critère pour déterminer la qualité d'un modèle. L'un des plus utilisés est
+le *Akaike Information Criterion* ou AIC. Plus l'AIC sera faible, meilleure sera le modèle.
+
+La fonction `step`{data-package="stats"} permet justement de sélectionner le meilleur modèle 
+par une procédure pas à pas descendante basée sur la minimisation de l'AIC. La fonction affiche à l'écran 
+les différentes étapes de la sélection et renvoie le modèle final.
+
+```{r}
+reg2 <- step(reg)
+```
+
+Le modèle initial a un AIC de 2114,8. À la première étape, il apparait que la suppression de la variable
+religion permet diminuer l'AIC à 2109,1. Lors de la seconde étape, toute suppression d'une autre variable
+ferait augmenter l'AIC. La procédure s'arrête donc.
+
+## Régression logistique multinomiale
+
+La régression logistique multinomiale est une extension de la régression logistique aux variables qualitatives
+à trois modalités ou plus. Dans ce cas de figure, chaque modalité de la variable d'intérêt sera
+comparée à la modalité de réference. Les odds ratio seront donc exprimés par rapport à cette dernière.
+
+Nous allons prendre pour exemple la variable *trav.satisf*, à savoir la satisfaction ou l'insatisfaction
+au travail.
+
+```{r}
+freq(d$trav.satisf)
+```
+
+Nous allons choisir comme modalité de référence la position intermédiaire, à savoir l'« équilibre ».
+
+```{r}
+d$trav.satisf <- relevel(d$trav.satisf, "Equilibre")
+```
+
+Enfin, nous allons aussi en profiter pour raccourcir les étiquettes de la variable *trav.imp* :
+
+```{r}
+levels(d$trav.imp) <- c("Le plus", "Aussi", "Moins", "Peu")
+```
+
+Pour calculer un modèle logistique multinomial, nous allons utiliser la fonction `multinom`{data-package="nnet"} de l'extension
+<strong class="package">nnet</strong>^[Une alternative est d'avoir recours à l'extension 
+<strong class=""package>mlogit</strong> que nous n'aborderons pas ici. Voir 
+<http://www.ats.ucla.edu/stat/r/dae/mlogit.htm> (en anglais) pour plus de détails.].
+La syntaxe de `multinom`{data-package="nnet"} est similaire à celle de `glm`{data-package="stats"}, 
+le paramètre `family` en moins.
+
+```{r}
+library(nnet)
+regm <- multinom(trav.satisf ~ sexe + etud + grpage + trav.imp, data = d)
+```
+
+Comme pour la régression logistique, il est possible de réaliser une sélection pas à pas descendante :
+
+```{r}
+regm2 <- step(regm)
+```
+
+La plupart des fonctions vues précédemment fonctionnent :
+
+```{r}
+summary(regm2)
+odds.ratio(regm2)
+```
+
+De même, il est possible de calculer la matrice de confusion :
+
+```{r}
+table(predict(regm2, newdata = d), d$trav.satisf)
+```
