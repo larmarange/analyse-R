@@ -1,0 +1,783 @@
+---
+title: "Manipulation de données"
+---
+
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+<div class="note">
+La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre du support de cours
+[Introduction à R](https://github.com/juba/intro-r).
+</div>
+
+<div class="info">
+Cette partie est un peu aride et pas forcément très intuitive. Elle aborde cependant la base de tous les
+traitements et manipulation de données sous **R**, et mérite donc qu'on s'y arrête un moment, ou qu'on y
+revienne un peu plus tard en cas de saturation. . .
+</div>
+
+## Variables
+
+Le type d'objet utilisé par **R** pour stocker des tableaux de données s'appelle un *data frame*. Celui-ci
+comporte des observations en ligne et des variables en colonnes. On accède aux variables d'un *data frame*
+avec l'opérateur `$`.
+
+Dans ce qui suit on travaillera sur le jeu de données tiré de l'enquête *Histoire de vie*, fourni avec
+l'extension <strong class="package">questionr</strong>, mais aussi sur le jeu de données tiré du recensement 1999 
+et disponible dans la même extension.
+
+```{r, warning=FALSE}
+library(questionr)
+data(hdv2003)
+d <- hdv2003
+data(rp99)
+```
+
+### Types de variables
+
+On peut considérer qu'il existe quatre type de variables dans **R** :
+
+* les variables *numériques*, ou quantitatives ;
+* les *facteurs*, qui prennent leurs valeurs dans un ensemble défini de modalités. Elles correspondent en général aux questions fermées d'un questionnaire ;
+* les variables *caractères* ou *texte*, qui contiennent des chaînes de caractères plus ou moins longues. On les utilise pour les questions ouvertes ou les champs libres ;
+* les variables *booléennes*, qui ne peuvent prendre que la valeur vrai (`TRUE`) ou faux (`FALSE`). On les utilise dans **R** pour les calculs et les recodages.
+
+Pour connaître le type d'une variable donnée, on peut utiliser la fonction `class`{data-package="base"}.
+
+Classe R      | Type de variable
+------------- | -------------
+factor        | facteur
+integer       | numérique
+double        | numérique
+numeric       | numérique
+character     | caractère/texte
+logical       | booléenne
+
+
+```{r}
+class(d$age)
+class(d$sexe)
+class(c(TRUE, TRUE, FALSE))
+```
+
+
+La fonction `str`{data-package="utils"} permet également d'avoir un listing de toutes les variables d'un tableau de données
+et indique le type de chacune d'elle.
+
+```{r}
+str(d)
+```
+
+### Renommer des variables
+
+Une opération courante lorsqu'on a importé des variables depuis une source de données externe consiste
+à renommer les variables importées. Sous **R** les noms de variables doivent être à la fois courts et explicites.
+
+<div class="important">
+Les noms de variables peuvent contenir des lettres, des chiffres (mais ils ne peuvent pas commencer par un
+chiffre), les symboles `.` et `_` et doivent commencer par une lettre. **R** fait la différence entre les majuscules
+et les minuscules, ce qui signifie que *x* et **X** sont deux noms de variable différents. On évitera également d'utiliser des
+caractères accentués dans les noms de variable. Comme les espaces ne sont pas autorisés, on pourra les remplacer
+par un point ou un tiret bas.
+</div>
+
+On peut lister les noms des variables d'un tableau de données (*data.frame*) à l'aide de la fonction `names`{data-package="base"} :
+
+```{r}
+names(d)
+```
+
+Cette fonction peut également être utilisée pour renommer l'ensemble des variables. Si par exemple
+on souhaitait passer les noms de toutes les variables en majuscules, on pourrait faire :
+
+```{r}
+d.maj <- d
+names(d.maj) <- c("ID", "AGE", "SEXE", "NIVETUD", "POIDS", "OCCUP", "QUALIF",
+  "FRERES.SOEURS", "CLSO", "RELIG", "TRAV.IMP", "TRAV.SATISF", "HARD.ROCK",
+  "LECTURE.BD", "PECHE.CHASSE", "CUISINE", "BRICOL", "CINEMA", "SPORT", "HEURES.TV")
+summary(d.maj$SEXE)
+```
+
+Ce type de renommage peut être utile lorsqu'on souhaite passer en revue tous les noms de variables
+d'un fichier importé pour les corriger le cas échéant. Pour faciliter un peu ce travail pas forcément
+passionant, on peut utiliser la fonction `dput`{data-package="base"} :
+
+```{r}
+dput(names(d))
+```
+
+On obtient en résultat la liste des variables sous forme de vecteur déclaré. On n'a plus alors qu'à
+copier/coller cette chaîne, rajouter `names(d) <-` devant et modifier un à un les noms des variables.
+
+Si on souhaite seulement modifier le nom d'une variable, on peut utiliser la fonction
+`rename.variable`{data-package="questionr"} de l'extension <strong class="package">questionr</strong>. 
+Celle-ci prend en argument le tableau de données, le nom actuel de la variable
+et le nouveau nom. Par exemple, si on veut renommer la variable *bricol* du tableau de données `d` en
+*bricolage* :
+
+```{r}
+d <- rename.variable(d, "bricol", "bricolage")
+table(d$bricolage)
+```
+
+### Facteurs
+
+Parmi les différents types de variables, les facteurs (*factor*) sont à la fois à part et très utilisés, car
+ils vont correspondre à la plupart des variables issues d'une question fermée dans un questionnaire.
+
+Les facteurs prennent leurs valeurs dans un ensemble de modalités prédéfinies et ne peuvent en prendre
+d'autres. La liste des valeurs possibles est donnée par la fonction `levels`{data-package="base"} :
+
+```{r}
+levels(d$sexe)
+```
+
+Si on veut modifier la valeur du sexe du premier individu de notre tableau de données avec une valeur
+non autorisée, on obient un message d'erreur et une valeur manquante est utilisée à la place :
+
+```{r}
+d$sexe[1] <- "Chihuahua"
+d$sexe[1]
+d$sexe[1] <- "Homme"
+d$sexe[1]
+```
+
+On peut très facilement créer un facteur à partir d'une variable de type caractères avec la fonction
+`factor`{data-package="base"} :
+
+```{r}
+v <- factor(c("H", "H", "F", "H"))
+v
+```
+
+Par défaut, les niveaux d'un facteur nouvellement créés sont l'ensemble des valeurs de la variable
+caractères, ordonnées par ordre alphabétique. Cette ordre des niveaux est utilisé à chaque fois qu'on
+utilise des fonctions comme `table`{data-package="base"}, par exemple :
+
+```{r}
+table(v)
+```
+
+On peut modifier cet ordre au moment de la création du facteur en utilisant l'option `levels` :
+
+```{r}
+v <- factor(c("H", "H", "F", "H"), levels = c("H", "F"))
+table(v)
+```
+
+On peut aussi modifier l'ordre des niveaux d'une variable déjà existante :
+
+```{r}
+d$qualif <- factor(d$qualif, levels = c("Ouvrier specialise", "Ouvrier qualifie",
+  "Employe", "Technicien", "Profession intermediaire", "Cadre", "Autre"))
+table(d$qualif)
+```
+
+<div class="astuce">
+L'extension <strong class="package">questionr</strong> propose une *interface interactive* pour 
+le réordonnancement des niveaux d'un facteur. Cette fonction, nommée `iorder`{data-package="questionr"}, 
+vous permet de réordonner les modalités de manière graphique et de générer le code **R** correspondant.
+
+Dans l'exemple précédant, si vous exécutez :
+
+```{r, eval=FALSE}
+iorder(d, "qualif")
+```
+
+**RStudio** devrait ouvrir une fenêtre semblable à celle de la figure ci-dessous.
+
+![Interface de la commande iorder](images/capture_iorder.png)
+
+Vous pouvez alors déplacer les modalités par glisser-déposer, vérifier le résultat dans l'onglet *Vérification*
+et, une fois le résultat satisfaisant, récupérer le code généré pour l'inclure dans votre script.
+</div>
+
+On peut également modifier les niveaux eux-mêmes. Imaginons que l'on souhaite créer une nouvelle
+variable *qualif.abr* contenant les noms abrégés des catégories socioprofessionnelles de *qualif*. On peut
+alors procéder comme suit :
+
+```{r}
+d$qualif.abr <- factor(d$qualif, levels = c("Ouvrier specialise", "Ouvrier qualifie",
+  "Employe", "Technicien", "Profession intermediaire", "Cadre", "Autre"),
+ labels = c("OS", "OQ", "Empl", "Tech", "Interm", "Cadre", "Autre"))
+table(d$qualif.abr)
+```
+
+Dans ce qui précède, le paramètre `levels` de `factor`{data-package="base"} permet de spécifier 
+quels sont les niveaux retenus dans le facteur résultat, ainsi que leur ordre. 
+Le paramètre `labels`, lui, permet de modifier les noms de
+ces niveaux dans le facteur résultat. Il est donc capital d'indiquer les noms de `labels` exactement dans le
+même ordre que les niveaux de `levels`. Pour s'assurer de ne pas avoir commis d'erreur, il est recommandé
+d'effectuer un tableau croisé entre l'ancien et le nouveau facteur :
+
+```{r}
+table(d$qualif, d$qualif.abr)
+```
+
+On a donc ici un premier moyen d'effectuer un recodage des modalités d'une variable de type facteur.
+D'autres méthodes existent, voir chapitre (MAJ_LIEN).
+
+À noter que par défaut, les valeurs manquantes ne sont pas considérées comme un niveau de facteur.
+On peut cependant les transformer en niveau en utilisant la fonction 
+`addNA`{data-package="base" data-rdocumentation="factor"}. 
+Ceci signifie cependant qu'elle ne seront plus considérées comme manquantes par **R** mais
+comme une modalité à part entière :
+
+```{r}
+summary(d$trav.satisf)
+summary(addNA(d$trav.satisf))
+```
+
+## Indexation
+
+L'indexation est l'une des fonctionnalités les plus puissantes mais aussi les plus difficiles à maîtriser de
+**R**. Il s'agit d'opérations permettant de sélectionner des sous-ensembles d'observations et/ou de variables
+en fonction de différents critères. L'indexation peut porter sur des vecteurs, des matrices ou des tableaux
+de données.
+
+Le principe est toujours le même : on indique, entre crochets et à la suite du nom de l'objet à indexer,
+une série de conditions indiquant ce que l'on garde ou non. Ces conditions peuvent être de différents
+types.
+
+### Indexation directe
+
+Le mode le plus simple d'indexation consiste à indiquer la position des éléments à conserver. Dans le
+cas d'un vecteur cela permet de sélectionner un ou plusieurs éléments de ce vecteur.
+
+Soit le vecteur suivant :
+
+```{r}
+v <- c("a", "b", "c", "d", "e", "f", "g")
+```
+
+Si on souhaite le premier élément du vecteur, on peut faire :
+
+```{r}
+v[1]
+```
+
+Si on souhaite les trois premiers éléments ou les éléments 2, 6 et 7 :
+
+```{r}
+v[1:3]
+v[c(2, 6, 7)]
+```
+
+Si on veut le dernier élément :
+
+```{r}
+v[length(v)]
+```
+
+Dans le cas de matrices ou de tableaux de données, l'indexation prend deux arguments séparés par une
+virgule : le premier concerne les lignes et le second les colonnes. Ainsi, si on veut l'élément correspondant
+à la troisième ligne et à la cinquième colonne du tableau de données `d` :
+
+```{r}
+d[3, 5]
+```
+
+On peut également indiquer des vecteurs :
+
+```{r}
+d[1:3, 1:2]
+```
+
+Si on laisse l'un des deux critères vides, on sélectionne l'intégralité des lignes ou des colonnes. Ainsi
+si l'on veut seulement la cinquième colonne ou les deux premières lignes :
+
+```{r}
+str(d[, 5])
+str(d[1:2, ])
+```
+
+Enfin, si on préfixe les arguments avec le signe <kbd>-</kbd>, ceci signifie « tous les éléments sauf ceux
+indiqués ». Si par exemple on veut tous les éléments de `v` sauf le premier :
+
+```{r}
+v[-1]
+```
+
+Bien sûr, tous ces critères se combinent et on peut stocker le résultat dans un nouvel objet. Dans cet
+exemple `d2` contiendra les trois premières lignes de `d` ainsi que la 50^e^ ligne mais sans les colonnes 2 et 5 à 14.
+
+```{r}
+d2 <- d[c(1:3,50), -c(2, 5:13)]
+str(d2)
+```
+
+### Indexation par nom
+
+Un autre mode d'indexation consiste à fournir non pas un numéro mais un nom sous forme de chaîne
+de caractères. On l'utilise couramment pour sélectionner les variables d'un tableau de données. Ainsi, les
+deux écritures suivantes sont équivalentes^[Une différence entre les deux est que `$` admet une correspondance
+partielle du nom de variable, si celle-ci est unique.
+Ainsi, `d$cls` renverra bien la variable *clso*, tandis que `d$c` renverra `NULL`, 
+du fait que plusieurs variables de *d* commencent par la lettre *c*.] :
+
+```{r, results='hide'}
+d$clso
+d[, "clso"]
+```
+
+Là aussi on peut utiliser un vecteur pour sélectionner plusieurs noms et récupérer un « sous-tableau »
+de données :
+
+```{r, results='hide'}
+d2 <- d[, c("id", "sexe", "age")]
+```
+
+Les noms peuvent également être utilisés pour les observations (lignes) d'un tableau de données si
+celles-ci ont été munies d'un nom avec la fonction `row.names`{data-package="base"}. 
+Par défaut les noms de ligne sont leur numéro d'ordre, 
+mais on peut leur assigner comme nom la valeur d'une variable d'identifiant. Ainsi, on
+peut assigner aux lignes du jeu de données `rp99` le nom des communes correspondantes :
+
+```{r, results='hide'}
+data(rp99)
+row.names(rp99) <- rp99$nom
+```
+On peut alors accéder directement aux communes en donnant leur nom :
+
+```{r, results='hide'}
+rp99[c("VILLEURBANNE", "OULLINS"), ]
+```
+
+Par contre il n'est pas possible d'utiliser directement l'opérateur `-` comme pour l'indexation
+directe. Pour exclure une colonne en fonction de son nom, on doit uiliser une autre forme d'indexation,
+l'*indexation par condition*, expliquée dans la section suivante. On peut ainsi faire...
+
+```{r, results='hide'}
+d[, names(d) != "qualif"]
+```
+
+... pour sélectionner toutes les colonnes sauf celle qui s'appelle *qualif*.
+
+### Indexation par condition
+
+#### Tests et conditions
+
+Une condition est une expression logique dont le résultat est soit `TRUE` (vrai) soit `FALSE` (faux).
+
+Une condition comprend la plupart du temps un opérateur de comparaison. Les plus courants sont
+les suivants :
+
+Opérateur   | Signification
+:----------:|:-------------
+`==` | égal à
+`!=` | différent de
+`>` | strictement supérieur à
+`<` | strictement inférieur à
+`>=` | supérieur ou égal à
+`<=` | inférieur ou égal à
+
+Voyons tout de suite un exemple :
+
+```{r}
+str(d$sexe == "Homme")
+```
+
+Que s'est-il passé ? Nous avons fourni à **R** une condition qui signifie « la valeur de la variable *sexe*
+vaut "Homme" ». Et il nous a renvoyé un vecteur avec autant d'éléments qu'il y'a d'observations dans `d`,
+et dont la valeur est `TRUE` si l'observation correspond à un homme et `FALSE` dans les autres cas.
+
+Prenons un autre exemple. On n'affichera cette fois que les premiers éléments de notre variable d'intérêt
+à l'aide de la fonction `head`{data-package="utils"} :
+
+```{r}
+head(d$age)
+head(d$age > 40)
+```
+
+On voit bien ici qu'à chaque élément du vecteur `d$age` dont la valeur est supérieure à 40 correspond
+un élément `TRUE` dans le résultat de la condition.
+
+On peut combiner ou modifier des conditions à l'aide des opérateurs logiques habituels :
+
+Opérateur  |  Signification
+:---------:|:---------------
+`&` | et logique
+`|` | ou logique
+`!` | négation logique
+
+Comment les utilise-t-on ? Voyons tout de suite des exemples. Supposons que je veuille déterminer
+quels sont dans mon échantillon les hommes ouvriers spécialisés :
+
+```{r, results='hide'}
+d$sexe == "Homme" & d$qualif == "Ouvrier specialise"
+```
+
+Si je souhaite identifier les personnes qui bricolent ou qui font la cuisine :
+
+```{r, results='hide'}
+d$bricol == "Oui" | d$cuisine == "Oui"
+```
+
+Si je souhaite isoler les femmes qui ont entre 20 et 34 ans :
+
+```{r, results='hide'}
+d$sexe == "Femme" & d$age >= 20 & d$age <= 34
+```
+
+Si je souhaite récupérer les enquêtés qui ne sont pas cadres, on peut utiliser l'une des deux formes
+suivantes :
+
+```{r, results='hide'}
+d$qualif != "Cadre"
+!(d$qualif == "Cadre")
+```
+
+Lorsqu'on mélange « et » et « ou » il est nécessaire d'utiliser des parenthèses pour différencier les
+blocs. La condition suivante identifie les femmes qui sont soit cadre, soit employée :
+
+```{r, results='hide'}
+d$sexe == "Femme" & (d$qualif == "Employe" | d$qualif == "Cadre")
+```
+
+L'opérateur `%in%`{data-package="base" data-rdocumentation="match"} peut être très utile : 
+il teste si une valeur fait partie des éléments d'un vecteur. Ainsi
+on pourrait remplacer la condition précédente par :
+
+```{r, results='hide'}
+d$sexe == "Femme" & d$qualif %in% c("Employe", "Cadre")
+```
+
+Enfin, signalons qu'on peut utiliser les fonctions `table`{data-package="base"} ou `summary`{data-package="base"}
+pour avoir une idée du résultat de notre condition :
+
+```{r}
+table(d$sexe)
+table(d$sexe == "Homme")
+summary(d$sexe == "Homme")
+```
+
+#### Utilisation pour l'indexation
+
+L'utilisation des conditions pour l'indexation est assez simple : si on indexe un vecteur avec un vecteur
+booléen, seuls les éléments correspondant à TRUE seront conservés.
+
+Ainsi, si on fait :
+
+```{r}
+dh <- d[d$sexe == "Homme", ]
+```
+
+On obtiendra un nouveau tableau de données comportant l'ensemble des variables de `d`, mais seulement
+les observations pour lesquelles la variable *sexe* vaut « Homme ».
+
+La plupart du temps ce type d'indexation s'applique aux lignes, mais on peut aussi l'utiliser sur
+les colonnes d'un tableau de données. L'exemple suivant, un peu compliqué, sélectionne uniquement les
+variables dont le nom commence par *a* ou *s* :
+
+```{r}
+d2 <- d[, substr(names(d), 0, 1) %in% c("a", "s")]
+```
+
+On peut évidemment combiner les différents type d'indexation. L'exemple suivant sélectionne les
+femmes de plus de 40 ans et ne conserve que les variables *qualif* et *relig*.
+
+```{r}
+d2 <- d[d$sexe == "Femme" & d$age > 40, c("qualif", "relig")]
+```
+
+#### Valeurs manquantes dans les conditions
+Une remarque importante : quand l'un des termes d'une condition comporte une valeur manquante
+(`NA`), le résultat de cette condition n'est pas toujours `TRUE` ou `FALSE`, il peut aussi 
+être à son tour une valeur manquante.
+
+```{r}
+v <- c(1:5, NA)
+v
+v > 3
+```
+
+On voit que le test `NA > 3` ne renvoie ni vrai ni faux, mais `NA`.
+
+Le résultat d'une condition peut donc comporter un grand nombre de valeurs manquantes :
+
+```{r}
+summary(d$trav.satisf == "Satisfaction")
+```
+
+Une autre conséquence importante de ce comportement est qu'on ne peut pas utiliser l'opérateur 
+l'expression `== NA` pour tester la présence de valeurs manquantes. 
+On utilisera à la place la fonction *ad hoc* `is.na`{data-package="base" data-rdocumentation="NA"}.
+
+On comprendra mieux le problème avec l'exemple suivant :
+
+```{r}
+v <- c(1, NA)
+v
+v == NA
+is.na(v)
+```
+
+Pour compliquer encore un peu le tout, lorsqu'on utilise une condition pour l'indexation, si la condition
+renvoie `NA`, **R** ne sélectionne pas l'élément mais retourne quand même la valeur `NA`. Ceci aura donc des
+conséquences pour l'extraction de sous-populations (voir section ci-après MAJ LIEN)^[Si vous utilisez
+l'extenstion <strong class="package">data.table</strong>, la gestion des valeurs manquantes est 
+quelque peu différente. Voir chapitre MAJ_LIEN.].
+
+### Indexation et assignation
+
+Dans tous les exemples précédents, on a utilisé l'indexation pour extraire une partie d'un vecteur ou
+d'un tableau de données, en plaçant l'opération d'indexation à droite de l'opérateur `<-`.
+
+Mais l'indexation peut également être placée à gauche de cet opérateur. Dans ce cas, les éléments
+sélectionnés par l'indexation sont alors remplacés par les valeurs indiquées à droite de l'opérateur `<-`.
+
+Prenons donc un exemple simple :
+
+```{r}
+v <- 1:5
+v
+v[1] <- 3
+v
+```
+
+Cette fois, au lieu d'utiliser quelque chose comme `x <- v[1]`, qui aurait placé la valeur du premier
+élément de `v` dans `x`, on a utilisé `v[1] <- 3`, ce qui a mis à jour le premier élément de `v` avec la valeur 3.
+Ceci fonctionne également pour les tableaux de données et pour les différents types d'indexation
+évoqués précédemment :
+
+```{r}
+d[257, "sexe"] <- "Homme"
+```
+
+Enfin on peut modifier plusieurs éléments d'un seul coup soit en fournissant un vecteur, soit en profitant
+du mécanisme de recyclage. Les deux commandes suivantes sont ainsi rigoureusement équivalentes :
+
+```{r}
+d[c(257, 438, 889), "sexe"] <- c("Homme", "Homme", "Homme")
+d[c(257, 438, 889), "sexe"] <- "Homme"
+```
+
+On commence à voir comment l'utilisation de l'indexation par conditions et de l'assignation va nous
+permettre de faire des recodages.
+
+```{r}
+d$gr.age[d$age >= 20 & d$age <= 30] <- "20-30 ans"
+d$gr.age[is.na(d$age)] <- "Inconnu"
+```
+
+## Sous-populations
+
+### Par indexation
+
+La première manière de construire des sous-populations est d'utiliser l'indexation par conditions. On
+peut ainsi facilement sélectionner une partie des observations suivant un ou plusieurs critères et placer le
+résultat dans un nouveau tableau de données.
+
+Par exemple si on souhaite isoler les hommes et les femmes :
+
+```{r}
+dh <- d[d$sexe == "Homme", ]
+df <- d[d$sexe == "Femme", ]
+table(d$sexe)
+dim(dh)
+dim(df)
+```
+
+On a à partir de là trois tableaux de données, `d` comportant la population totale, `dh` seulement les
+hommes et `df` seulement les femmes.
+
+On peut évidemment combiner plusieurs critères :
+
+```{r}
+dh.25 <- d[d$sexe == "Homme" & d$age <= 25, ]
+dim(dh.25)
+```
+
+Si on utilise directement l'indexation, il convient cependant d'être extrêmement prudent avec les valeurs
+manquantes. Comme indiqué précédemment, la présence d'une valeur manquante dans une condition
+fait que celle-ci est évaluée en `NA` et qu'au final la ligne correspondante est conservée par l'indexation :
+
+```{r}
+summary(d$trav.satisf)
+d.satisf <- d[d$trav.satisf == "Satisfaction", ]
+dim(d.satisf)
+```
+
+Comme on le voit, ici `d.satisf` contient les individus ayant la modalité *Satisfaction* mais aussi ceux
+ayant une valeur manquante `NA`. C'est pourquoi il faut toujours soit vérifier au préalable qu'on n'a pas
+de valeurs manquantes dans les variables de la condition, soit exclure explicitement les `NA` de la manière
+suivante :
+
+```{r}
+d.satisf <- d[d$trav.satisf == "Satisfaction" & !is.na(d$trav.satisf), ]
+dim(d.satisf)
+```
+
+C'est notamment pour cette raison qu'on préfèrera le plus souvent utiliser la fonction `subset`{data-package="base"}.
+
+### Fonction subset
+
+La fonction `subset`{data-package="base"} permet d'extraire des sous-populations de manière plus simple et un peu plus
+intuitive que l'indexation directe.
+
+Celle-ci prend trois arguments principaux :
+* le nom de l'objet de départ ;
+* une condition sur les observations (`subset`) ;
+* éventuellement une condition sur les colonnes (`select`).
+
+Reprenons tout de suite un exemple déjà vu :
+
+```{r}
+dh <- subset(d, sexe == "Homme")
+df <- subset(d, sexe == "Femme")
+```
+
+L'utilisation de `subset`{data-package="base"} présente plusieurs avantages. 
+Le premier est d'économiser quelques touches.
+On n'est en effet pas obligé de saisir le nom du tableau de données 
+dans la condition sur les lignes. Ainsi
+les deux commandes suivantes sont équivalentes :
+
+```{r}
+dh <- subset(d, d$sexe == "Homme")
+dh <- subset(d, sexe == "Homme")
+```
+
+Le second avantage est que `subset`{data-package="base"} s'occupe du problème 
+des valeurs manquantes évoquées précédemment
+et les exclut de lui-même, contrairement au comportement par défaut :
+
+```{r}
+summary(d$trav.satisf)
+d.satisf <- d[d$trav.satisf == "Satisfaction", ]
+dim(d.satisf)
+d.satisf <- subset(d, trav.satisf == "Satisfaction")
+dim(d.satisf)
+```
+
+Enfin, l'utilisation de l'argument `select` est simplifié pour l'expression de condition sur les colonnes.
+On peut ainsi spécifier les noms de variable sans guillemets et leur appliquer directement l'opérateur
+d'exclusion `-` :
+
+```{r}
+d2 <- subset(d, select = c(sexe, sport))
+d2 <- subset(d, age > 25, select = -c(id, age, cinema))
+```
+
+### Fonction tapply
+
+<div class="note">
+Cette section documente une fonction qui peut être très utile, mais pas forcément indispensable au
+départ.
+</div>
+
+La fonction `tapply`{data-package="base"} n'est qu'indirectement liée à la notion de sous-population, 
+mais peut permettre d'éviter d'avoir à créer ces sous-populations dans certains cas.
+
+Son fonctionnement est assez simple, mais pas forcément intuitif. La fonction prend trois arguments :
+un vecteur, un facteur et une fonction. Elle applique ensuite la fonction aux éléments du vecteur 
+correspondant à un même niveau du facteur. Vite, un exemple !
+
+```{r}
+tapply(d$age, d$sexe, mean)
+```
+
+Qu'est-ce que ça signifie ? Ici `tapply`{data-package="base"} a sélectionné toutes les observations 
+correspondant à « Homme », puis appliqué la fonction `mean`{data-package="base"} 
+aux valeurs de *age* correspondantes. Puis elle a fait de même pour les
+observations correspondant à « Femme ». On a donc ici la moyenne d'âge chez les hommes et chez les
+femmes.
+
+On peut fournir à peu près n'importe quelle fonction à `tapply`{data-package="base"} :
+
+```{r}
+tapply(d$bricol, d$sexe, freq)
+```
+
+Les arguments supplémentaires fournis à `tapply`{data-package="base"} sont en fait fournis 
+directement à la fonction appelée.
+
+```{r}
+tapply(d$bricol, d$sexe, freq, total = TRUE)
+```
+
+<div class="note">
+La fonction `by`{data-package="base"} est un équivalent (pour les tableaux de données) de 
+`tapply`{data-package="base"}. La présentation des résultats diffère légèrement.
+
+```{r}
+tapply(d$age, d$sexe, mean)
+by(d$age, d$sexe, mean)
+```
+</div>
+
+## Recodages
+
+Le recodage de variables est une opération extrêmement fréquente lors du traitement d'enquête. Celuici
+utilise soit l'une des formes d'indexation décrites précédemment, soit des fonctions *ad hoc* de **R**.
+
+On passe ici en revue différents types de recodage parmi les plus courants. Les exemples s'appuient,
+comme précédemment, sur l'extrait de l'enquête *Histoire de vie* :
+
+```{r}
+data(hdv2003)
+d <- hdv2003
+```
+
+### Convertir une variable
+
+Il peut arriver qu'on veuille transformer une variable d'un type dans un autre.
+
+Par exemple, on peut considérer que la variable numérique *freres.soeurs* est une « fausse » variable
+numérique et qu'une représentation sous forme de facteur serait plus adéquate. Dans ce cas il suffit de
+faire appel à la fonction `factor`{data-package="base"} :
+
+```{r}
+d$fs.fac <- factor(d$freres.soeurs)
+levels(d$fs.fac)
+```
+
+La conversion d'une variable caractères en facteur se fait de la même manière.
+
+La conversion d'un facteur ou d'une variable numérique en variable caractères peut se faire à l'aide
+de la fonction `as.character`{data-package="base" data-rdocumentation="character"} :
+
+```{r}
+d$fs.char <- as.character(d$freres.soeurs)
+d$qualif.char <- as.character(d$qualif)
+```
+
+La conversion d'un facteur en caractères est fréquemment utilisé lors des recodages du fait qu'il est
+impossible d'ajouter de nouvelles modalités à un facteur de cette manière. Par exemple, la première des
+commandes suivantes génère un message d'avertissement, tandis que les deux autres fonctionnent :
+
+```{r}
+d.temp <- d
+d.temp$qualif[d.temp$qualif == "Ouvrier specialise"] <- "Ouvrier"
+d$qualif.char <- as.character(d$qualif)
+d$qualif.char[d$qualif.char == "Ouvrier specialise"] <- "Ouvrier"
+```
+
+Dans le premier cas, le message d'avertissement indique que toutes les modalités « Ouvrier specialise »
+de notre variable *qualif* ont été remplacées par des valeurs manquantes `NA`.
+
+Enfin, une variable de type caractères dont les valeurs seraient des nombres peut être convertie en
+variable numérique avec la fonction `as.numeric`{data-package="base" data-rdocumentation="numeric"}. 
+
+```{r}
+v <- c("1","3.1415","4","5.6","1","4")
+v
+as.numeric(v)
+```
+
+<div class="attention">
+Lorsque l'on convertit un facteur avec `as.numeric`{data-package="base" data-rdocumentation="numeric"},
+on obtient le numéro de chaque facteur (première modalité, seconde modalité, etc.).
+Si la valeur numérique qui nous intéresse est en fait contenu dans le nom des modalités,
+il faut connvertir au préalable notre facteur en variable textuelle.
+
+```{r}
+vf <- factor(v)
+vf
+as.numeric(vf)
+as.numeric(as.character(vf))
+```
+</div>
+

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Manipulation de données</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/flatly.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<link rel="stylesheet" href="./include/analyse-R.css" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href=".">analyse-R</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="index.html">Accueil</a></li>
+        <li class="dropdown">
+          <a href="pem" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Prise en main <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+             <li><a href="pem_manipulation.html">Manipulation de données</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="analyses" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Analyses <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+             <li><a href="analyses_reglog.html">Régression logistique</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="astuces" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Astuces <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+             <li><a href="/">A compléter</a></li>
+          </ul>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a href="participer" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Participer <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+              <li><a href="https://github.com/larmarange/analyse-R">analyse-R sur GitHub</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+<h1 class="title">Manipulation de données</h1>
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#variables">Variables</a><ul>
+<li><a href="#types-de-variables">Types de variables</a></li>
+<li><a href="#renommer-des-variables">Renommer des variables</a></li>
+<li><a href="#facteurs">Facteurs</a></li>
+</ul></li>
+<li><a href="#indexation">Indexation</a><ul>
+<li><a href="#indexation-directe">Indexation directe</a></li>
+<li><a href="#indexation-par-nom">Indexation par nom</a></li>
+<li><a href="#indexation-par-condition">Indexation par condition</a></li>
+<li><a href="#indexation-et-assignation">Indexation et assignation</a></li>
+</ul></li>
+<li><a href="#sous-populations">Sous-populations</a><ul>
+<li><a href="#par-indexation">Par indexation</a></li>
+<li><a href="#fonction-subset">Fonction subset</a></li>
+<li><a href="#fonction-tapply">Fonction tapply</a></li>
+</ul></li>
+<li><a href="#recodages">Recodages</a><ul>
+<li><a href="#convertir-une-variable">Convertir une variable</a></li>
+</ul></li>
+</ul>
+</div>
+
+<div class="note">
+La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre du support de cours <a href="https://github.com/juba/intro-r">Introduction à R</a>.
+</div>
+<div class="info">
+Cette partie est un peu aride et pas forcément très intuitive. Elle aborde cependant la base de tous les traitements et manipulation de données sous <strong>R</strong>, et mérite donc qu’on s’y arrête un moment, ou qu’on y revienne un peu plus tard en cas de saturation. . .
+</div>
+<div id="variables" class="section level2">
+<h2>Variables</h2>
+<p>Le type d’objet utilisé par <strong>R</strong> pour stocker des tableaux de données s’appelle un <em>data frame</em>. Celui-ci comporte des observations en ligne et des variables en colonnes. On accède aux variables d’un <em>data frame</em> avec l’opérateur <code>$</code>.</p>
+<p>Dans ce qui suit on travaillera sur le jeu de données tiré de l’enquête <em>Histoire de vie</em>, fourni avec l’extension <strong class="package">questionr</strong>, mais aussi sur le jeu de données tiré du recensement 1999 et disponible dans la même extension.</p>
+<pre class="r"><code>library(questionr)
+data(hdv2003)
+d &lt;- hdv2003
+data(rp99)</code></pre>
+<div id="types-de-variables" class="section level3">
+<h3>Types de variables</h3>
+<p>On peut considérer qu’il existe quatre type de variables dans <strong>R</strong> :</p>
+<ul>
+<li>les variables <em>numériques</em>, ou quantitatives ;</li>
+<li>les <em>facteurs</em>, qui prennent leurs valeurs dans un ensemble défini de modalités. Elles correspondent en général aux questions fermées d’un questionnaire ;</li>
+<li>les variables <em>caractères</em> ou <em>texte</em>, qui contiennent des chaînes de caractères plus ou moins longues. On les utilise pour les questions ouvertes ou les champs libres ;</li>
+<li>les variables <em>booléennes</em>, qui ne peuvent prendre que la valeur vrai (<code>TRUE</code>) ou faux (<code>FALSE</code>). On les utilise dans <strong>R</strong> pour les calculs et les recodages.</li>
+</ul>
+<p>Pour connaître le type d’une variable donnée, on peut utiliser la fonction <code data-package="base">class</code>.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Classe R</th>
+<th align="left">Type de variable</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">factor</td>
+<td align="left">facteur</td>
+</tr>
+<tr class="even">
+<td align="left">integer</td>
+<td align="left">numérique</td>
+</tr>
+<tr class="odd">
+<td align="left">double</td>
+<td align="left">numérique</td>
+</tr>
+<tr class="even">
+<td align="left">numeric</td>
+<td align="left">numérique</td>
+</tr>
+<tr class="odd">
+<td align="left">character</td>
+<td align="left">caractère/texte</td>
+</tr>
+<tr class="even">
+<td align="left">logical</td>
+<td align="left">booléenne</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>class(d$age)</code></pre>
+<pre><code>[1] &quot;integer&quot;</code></pre>
+<pre class="r"><code>class(d$sexe)</code></pre>
+<pre><code>[1] &quot;factor&quot;</code></pre>
+<pre class="r"><code>class(c(TRUE, TRUE, FALSE))</code></pre>
+<pre><code>[1] &quot;logical&quot;</code></pre>
+<p>La fonction <code data-package="utils">str</code> permet également d’avoir un listing de toutes les variables d’un tableau de données et indique le type de chacune d’elle.</p>
+<pre class="r"><code>str(d)</code></pre>
+<pre><code>&#39;data.frame&#39;:   2000 obs. of  20 variables:
+ $ id           : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ age          : int  28 23 59 34 71 35 60 47 20 28 ...
+ $ sexe         : Factor w/ 2 levels &quot;Homme&quot;,&quot;Femme&quot;: 2 2 1 1 2 2 2 1 2 1 ...
+ $ nivetud      : Factor w/ 8 levels &quot;N&#39;a jamais fait d&#39;etudes&quot;,..: 8 NA 3 8 3 6 3 6 NA 7 ...
+ $ poids        : num  2634 9738 3994 5732 4329 ...
+ $ occup        : Factor w/ 7 levels &quot;Exerce une profession&quot;,..: 1 3 1 1 4 1 6 1 3 1 ...
+ $ qualif       : Factor w/ 7 levels &quot;Ouvrier specialise&quot;,..: 6 NA 3 3 6 6 2 2 NA 7 ...
+ $ freres.soeurs: int  8 2 2 1 0 5 1 5 4 2 ...
+ $ clso         : Factor w/ 3 levels &quot;Oui&quot;,&quot;Non&quot;,&quot;Ne sait pas&quot;: 1 1 2 2 1 2 1 2 1 2 ...
+ $ relig        : Factor w/ 6 levels &quot;Pratiquant regulier&quot;,..: 4 4 4 3 1 4 3 4 3 2 ...
+ $ trav.imp     : Factor w/ 4 levels &quot;Le plus important&quot;,..: 4 NA 2 3 NA 1 NA 4 NA 3 ...
+ $ trav.satisf  : Factor w/ 3 levels &quot;Satisfaction&quot;,..: 2 NA 3 1 NA 3 NA 2 NA 1 ...
+ $ hard.rock    : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+ $ lecture.bd   : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+ $ peche.chasse : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1 1 1 1 1 2 2 1 1 ...
+ $ cuisine      : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 2 1 1 2 1 1 2 2 1 1 ...
+ $ bricol       : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1 1 2 1 1 1 2 1 1 ...
+ $ cinema       : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 2 1 2 1 2 1 1 2 2 ...
+ $ sport        : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 2 2 2 1 2 1 1 1 2 ...
+ $ heures.tv    : num  0 1 0 2 3 2 2.9 1 2 2 ...</code></pre>
+</div>
+<div id="renommer-des-variables" class="section level3">
+<h3>Renommer des variables</h3>
+<p>Une opération courante lorsqu’on a importé des variables depuis une source de données externe consiste à renommer les variables importées. Sous <strong>R</strong> les noms de variables doivent être à la fois courts et explicites.</p>
+<div class="important">
+Les noms de variables peuvent contenir des lettres, des chiffres (mais ils ne peuvent pas commencer par un chiffre), les symboles <code>.</code> et <code>_</code> et doivent commencer par une lettre. <strong>R</strong> fait la différence entre les majuscules et les minuscules, ce qui signifie que <em>x</em> et <strong>X</strong> sont deux noms de variable différents. On évitera également d’utiliser des caractères accentués dans les noms de variable. Comme les espaces ne sont pas autorisés, on pourra les remplacer par un point ou un tiret bas.
+</div>
+<p>On peut lister les noms des variables d’un tableau de données (<em>data.frame</em>) à l’aide de la fonction <code data-package="base">names</code> :</p>
+<pre class="r"><code>names(d)</code></pre>
+<pre><code> [1] &quot;id&quot;            &quot;age&quot;           &quot;sexe&quot;          &quot;nivetud&quot;      
+ [5] &quot;poids&quot;         &quot;occup&quot;         &quot;qualif&quot;        &quot;freres.soeurs&quot;
+ [9] &quot;clso&quot;          &quot;relig&quot;         &quot;trav.imp&quot;      &quot;trav.satisf&quot;  
+[13] &quot;hard.rock&quot;     &quot;lecture.bd&quot;    &quot;peche.chasse&quot;  &quot;cuisine&quot;      
+[17] &quot;bricol&quot;        &quot;cinema&quot;        &quot;sport&quot;         &quot;heures.tv&quot;    </code></pre>
+<p>Cette fonction peut également être utilisée pour renommer l’ensemble des variables. Si par exemple on souhaitait passer les noms de toutes les variables en majuscules, on pourrait faire :</p>
+<pre class="r"><code>d.maj &lt;- d
+names(d.maj) &lt;- c(&quot;ID&quot;, &quot;AGE&quot;, &quot;SEXE&quot;, &quot;NIVETUD&quot;, &quot;POIDS&quot;, &quot;OCCUP&quot;, &quot;QUALIF&quot;, 
+    &quot;FRERES.SOEURS&quot;, &quot;CLSO&quot;, &quot;RELIG&quot;, &quot;TRAV.IMP&quot;, &quot;TRAV.SATISF&quot;, &quot;HARD.ROCK&quot;, 
+    &quot;LECTURE.BD&quot;, &quot;PECHE.CHASSE&quot;, &quot;CUISINE&quot;, &quot;BRICOL&quot;, &quot;CINEMA&quot;, &quot;SPORT&quot;, &quot;HEURES.TV&quot;)
+summary(d.maj$SEXE)</code></pre>
+<pre><code>Homme Femme 
+  899  1101 </code></pre>
+<p>Ce type de renommage peut être utile lorsqu’on souhaite passer en revue tous les noms de variables d’un fichier importé pour les corriger le cas échéant. Pour faciliter un peu ce travail pas forcément passionant, on peut utiliser la fonction <code data-package="base">dput</code> :</p>
+<pre class="r"><code>dput(names(d))</code></pre>
+<pre><code>c(&quot;id&quot;, &quot;age&quot;, &quot;sexe&quot;, &quot;nivetud&quot;, &quot;poids&quot;, &quot;occup&quot;, &quot;qualif&quot;, 
+&quot;freres.soeurs&quot;, &quot;clso&quot;, &quot;relig&quot;, &quot;trav.imp&quot;, &quot;trav.satisf&quot;, 
+&quot;hard.rock&quot;, &quot;lecture.bd&quot;, &quot;peche.chasse&quot;, &quot;cuisine&quot;, &quot;bricol&quot;, 
+&quot;cinema&quot;, &quot;sport&quot;, &quot;heures.tv&quot;)</code></pre>
+<p>On obtient en résultat la liste des variables sous forme de vecteur déclaré. On n’a plus alors qu’à copier/coller cette chaîne, rajouter <code>names(d) &lt;-</code> devant et modifier un à un les noms des variables.</p>
+<p>Si on souhaite seulement modifier le nom d’une variable, on peut utiliser la fonction <code data-package="questionr">rename.variable</code> de l’extension <strong class="package">questionr</strong>. Celle-ci prend en argument le tableau de données, le nom actuel de la variable et le nouveau nom. Par exemple, si on veut renommer la variable <em>bricol</em> du tableau de données <code>d</code> en <em>bricolage</em> :</p>
+<pre class="r"><code>d &lt;- rename.variable(d, &quot;bricol&quot;, &quot;bricolage&quot;)
+table(d$bricolage)</code></pre>
+<pre><code>
+ Non  Oui 
+1147  853 </code></pre>
+</div>
+<div id="facteurs" class="section level3">
+<h3>Facteurs</h3>
+<p>Parmi les différents types de variables, les facteurs (<em>factor</em>) sont à la fois à part et très utilisés, car ils vont correspondre à la plupart des variables issues d’une question fermée dans un questionnaire.</p>
+<p>Les facteurs prennent leurs valeurs dans un ensemble de modalités prédéfinies et ne peuvent en prendre d’autres. La liste des valeurs possibles est donnée par la fonction <code data-package="base">levels</code> :</p>
+<pre class="r"><code>levels(d$sexe)</code></pre>
+<pre><code>[1] &quot;Homme&quot; &quot;Femme&quot;</code></pre>
+<p>Si on veut modifier la valeur du sexe du premier individu de notre tableau de données avec une valeur non autorisée, on obient un message d’erreur et une valeur manquante est utilisée à la place :</p>
+<pre class="r"><code>d$sexe[1] &lt;- &quot;Chihuahua&quot;</code></pre>
+<pre><code>Warning in `[&lt;-.factor`(`*tmp*`, 1, value = structure(c(NA, 2L, 1L, 1L, :
+invalid factor level, NA generated</code></pre>
+<pre class="r"><code>d$sexe[1]</code></pre>
+<pre><code>[1] &lt;NA&gt;
+Levels: Homme Femme</code></pre>
+<pre class="r"><code>d$sexe[1] &lt;- &quot;Homme&quot;
+d$sexe[1]</code></pre>
+<pre><code>[1] Homme
+Levels: Homme Femme</code></pre>
+<p>On peut très facilement créer un facteur à partir d’une variable de type caractères avec la fonction <code data-package="base">factor</code> :</p>
+<pre class="r"><code>v &lt;- factor(c(&quot;H&quot;, &quot;H&quot;, &quot;F&quot;, &quot;H&quot;))
+v</code></pre>
+<pre><code>[1] H H F H
+Levels: F H</code></pre>
+<p>Par défaut, les niveaux d’un facteur nouvellement créés sont l’ensemble des valeurs de la variable caractères, ordonnées par ordre alphabétique. Cette ordre des niveaux est utilisé à chaque fois qu’on utilise des fonctions comme <code data-package="base">table</code>, par exemple :</p>
+<pre class="r"><code>table(v)</code></pre>
+<pre><code>v
+F H 
+1 3 </code></pre>
+<p>On peut modifier cet ordre au moment de la création du facteur en utilisant l’option <code>levels</code> :</p>
+<pre class="r"><code>v &lt;- factor(c(&quot;H&quot;, &quot;H&quot;, &quot;F&quot;, &quot;H&quot;), levels = c(&quot;H&quot;, &quot;F&quot;))
+table(v)</code></pre>
+<pre><code>v
+H F 
+3 1 </code></pre>
+<p>On peut aussi modifier l’ordre des niveaux d’une variable déjà existante :</p>
+<pre class="r"><code>d$qualif &lt;- factor(d$qualif, levels = c(&quot;Ouvrier specialise&quot;, &quot;Ouvrier qualifie&quot;, 
+    &quot;Employe&quot;, &quot;Technicien&quot;, &quot;Profession intermediaire&quot;, &quot;Cadre&quot;, &quot;Autre&quot;))
+table(d$qualif)</code></pre>
+<pre><code>
+      Ouvrier specialise         Ouvrier qualifie                  Employe 
+                     203                      292                      594 
+              Technicien Profession intermediaire                    Cadre 
+                      86                      160                      260 
+                   Autre 
+                      58 </code></pre>
+<div class="astuce">
+<p>L’extension <strong class="package">questionr</strong> propose une <em>interface interactive</em> pour le réordonnancement des niveaux d’un facteur. Cette fonction, nommée <code data-package="questionr">iorder</code>, vous permet de réordonner les modalités de manière graphique et de générer le code <strong>R</strong> correspondant.</p>
+<p>Dans l’exemple précédant, si vous exécutez :</p>
+<pre class="r"><code>iorder(d, &quot;qualif&quot;)</code></pre>
+<p><strong>RStudio</strong> devrait ouvrir une fenêtre semblable à celle de la figure ci-dessous.</p>
+<p><img src="images/capture_iorder.png" alt="Interface de la commande iorder" /></p>
+Vous pouvez alors déplacer les modalités par glisser-déposer, vérifier le résultat dans l’onglet <em>Vérification</em> et, une fois le résultat satisfaisant, récupérer le code généré pour l’inclure dans votre script.
+</div>
+<p>On peut également modifier les niveaux eux-mêmes. Imaginons que l’on souhaite créer une nouvelle variable <em>qualif.abr</em> contenant les noms abrégés des catégories socioprofessionnelles de <em>qualif</em>. On peut alors procéder comme suit :</p>
+<pre class="r"><code>d$qualif.abr &lt;- factor(d$qualif, levels = c(&quot;Ouvrier specialise&quot;, &quot;Ouvrier qualifie&quot;, 
+    &quot;Employe&quot;, &quot;Technicien&quot;, &quot;Profession intermediaire&quot;, &quot;Cadre&quot;, &quot;Autre&quot;), 
+    labels = c(&quot;OS&quot;, &quot;OQ&quot;, &quot;Empl&quot;, &quot;Tech&quot;, &quot;Interm&quot;, &quot;Cadre&quot;, &quot;Autre&quot;))
+table(d$qualif.abr)</code></pre>
+<pre><code>
+    OS     OQ   Empl   Tech Interm  Cadre  Autre 
+   203    292    594     86    160    260     58 </code></pre>
+<p>Dans ce qui précède, le paramètre <code>levels</code> de <code data-package="base">factor</code> permet de spécifier quels sont les niveaux retenus dans le facteur résultat, ainsi que leur ordre. Le paramètre <code>labels</code>, lui, permet de modifier les noms de ces niveaux dans le facteur résultat. Il est donc capital d’indiquer les noms de <code>labels</code> exactement dans le même ordre que les niveaux de <code>levels</code>. Pour s’assurer de ne pas avoir commis d’erreur, il est recommandé d’effectuer un tableau croisé entre l’ancien et le nouveau facteur :</p>
+<pre class="r"><code>table(d$qualif, d$qualif.abr)</code></pre>
+<pre><code>                          
+                            OS  OQ Empl Tech Interm Cadre Autre
+  Ouvrier specialise       203   0    0    0      0     0     0
+  Ouvrier qualifie           0 292    0    0      0     0     0
+  Employe                    0   0  594    0      0     0     0
+  Technicien                 0   0    0   86      0     0     0
+  Profession intermediaire   0   0    0    0    160     0     0
+  Cadre                      0   0    0    0      0   260     0
+  Autre                      0   0    0    0      0     0    58</code></pre>
+<p>On a donc ici un premier moyen d’effectuer un recodage des modalités d’une variable de type facteur. D’autres méthodes existent, voir chapitre (MAJ_LIEN).</p>
+<p>À noter que par défaut, les valeurs manquantes ne sont pas considérées comme un niveau de facteur. On peut cependant les transformer en niveau en utilisant la fonction <code data-package="base" data-rdocumentation="factor">addNA</code>. Ceci signifie cependant qu’elle ne seront plus considérées comme manquantes par <strong>R</strong> mais comme une modalité à part entière :</p>
+<pre class="r"><code>summary(d$trav.satisf)</code></pre>
+<pre><code>  Satisfaction Insatisfaction      Equilibre           NA&#39;s 
+           480            117            451            952 </code></pre>
+<pre class="r"><code>summary(addNA(d$trav.satisf))</code></pre>
+<pre><code>  Satisfaction Insatisfaction      Equilibre           &lt;NA&gt; 
+           480            117            451            952 </code></pre>
+</div>
+</div>
+<div id="indexation" class="section level2">
+<h2>Indexation</h2>
+<p>L’indexation est l’une des fonctionnalités les plus puissantes mais aussi les plus difficiles à maîtriser de <strong>R</strong>. Il s’agit d’opérations permettant de sélectionner des sous-ensembles d’observations et/ou de variables en fonction de différents critères. L’indexation peut porter sur des vecteurs, des matrices ou des tableaux de données.</p>
+<p>Le principe est toujours le même : on indique, entre crochets et à la suite du nom de l’objet à indexer, une série de conditions indiquant ce que l’on garde ou non. Ces conditions peuvent être de différents types.</p>
+<div id="indexation-directe" class="section level3">
+<h3>Indexation directe</h3>
+<p>Le mode le plus simple d’indexation consiste à indiquer la position des éléments à conserver. Dans le cas d’un vecteur cela permet de sélectionner un ou plusieurs éléments de ce vecteur.</p>
+<p>Soit le vecteur suivant :</p>
+<pre class="r"><code>v &lt;- c(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;, &quot;e&quot;, &quot;f&quot;, &quot;g&quot;)</code></pre>
+<p>Si on souhaite le premier élément du vecteur, on peut faire :</p>
+<pre class="r"><code>v[1]</code></pre>
+<pre><code>[1] &quot;a&quot;</code></pre>
+<p>Si on souhaite les trois premiers éléments ou les éléments 2, 6 et 7 :</p>
+<pre class="r"><code>v[1:3]</code></pre>
+<pre><code>[1] &quot;a&quot; &quot;b&quot; &quot;c&quot;</code></pre>
+<pre class="r"><code>v[c(2, 6, 7)]</code></pre>
+<pre><code>[1] &quot;b&quot; &quot;f&quot; &quot;g&quot;</code></pre>
+<p>Si on veut le dernier élément :</p>
+<pre class="r"><code>v[length(v)]</code></pre>
+<pre><code>[1] &quot;g&quot;</code></pre>
+<p>Dans le cas de matrices ou de tableaux de données, l’indexation prend deux arguments séparés par une virgule : le premier concerne les lignes et le second les colonnes. Ainsi, si on veut l’élément correspondant à la troisième ligne et à la cinquième colonne du tableau de données <code>d</code> :</p>
+<pre class="r"><code>d[3, 5]</code></pre>
+<pre><code>[1] 3994.102</code></pre>
+<p>On peut également indiquer des vecteurs :</p>
+<pre class="r"><code>d[1:3, 1:2]</code></pre>
+<pre><code>  id age
+1  1  28
+2  2  23
+3  3  59</code></pre>
+<p>Si on laisse l’un des deux critères vides, on sélectionne l’intégralité des lignes ou des colonnes. Ainsi si l’on veut seulement la cinquième colonne ou les deux premières lignes :</p>
+<pre class="r"><code>str(d[, 5])</code></pre>
+<pre><code> num [1:2000] 2634 9738 3994 5732 4329 ...</code></pre>
+<pre class="r"><code>str(d[1:2, ])</code></pre>
+<pre><code>&#39;data.frame&#39;:   2 obs. of  21 variables:
+ $ id           : int  1 2
+ $ age          : int  28 23
+ $ sexe         : Factor w/ 2 levels &quot;Homme&quot;,&quot;Femme&quot;: 1 2
+ $ nivetud      : Factor w/ 8 levels &quot;N&#39;a jamais fait d&#39;etudes&quot;,..: 8 NA
+ $ poids        : num  2634 9738
+ $ occup        : Factor w/ 7 levels &quot;Exerce une profession&quot;,..: 1 3
+ $ qualif       : Factor w/ 7 levels &quot;Ouvrier specialise&quot;,..: 3 NA
+ $ freres.soeurs: int  8 2
+ $ clso         : Factor w/ 3 levels &quot;Oui&quot;,&quot;Non&quot;,&quot;Ne sait pas&quot;: 1 1
+ $ relig        : Factor w/ 6 levels &quot;Pratiquant regulier&quot;,..: 4 4
+ $ trav.imp     : Factor w/ 4 levels &quot;Le plus important&quot;,..: 4 NA
+ $ trav.satisf  : Factor w/ 3 levels &quot;Satisfaction&quot;,..: 2 NA
+ $ hard.rock    : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1
+ $ lecture.bd   : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1
+ $ peche.chasse : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1
+ $ cuisine      : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 2 1
+ $ bricolage    : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1
+ $ cinema       : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 2
+ $ sport        : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 2
+ $ heures.tv    : num  0 1
+ $ qualif.abr   : Factor w/ 7 levels &quot;OS&quot;,&quot;OQ&quot;,&quot;Empl&quot;,..: 3 NA</code></pre>
+<p>Enfin, si on préfixe les arguments avec le signe <kbd>-</kbd>, ceci signifie « tous les éléments sauf ceux indiqués ». Si par exemple on veut tous les éléments de <code>v</code> sauf le premier :</p>
+<pre class="r"><code>v[-1]</code></pre>
+<pre><code>[1] &quot;b&quot; &quot;c&quot; &quot;d&quot; &quot;e&quot; &quot;f&quot; &quot;g&quot;</code></pre>
+<p>Bien sûr, tous ces critères se combinent et on peut stocker le résultat dans un nouvel objet. Dans cet exemple <code>d2</code> contiendra les trois premières lignes de <code>d</code> ainsi que la 50<sup>e</sup> ligne mais sans les colonnes 2 et 5 à 14.</p>
+<pre class="r"><code>d2 &lt;- d[c(1:3, 50), -c(2, 5:13)]
+str(d2)</code></pre>
+<pre><code>&#39;data.frame&#39;:   4 obs. of  11 variables:
+ $ id          : int  1 2 3 50
+ $ sexe        : Factor w/ 2 levels &quot;Homme&quot;,&quot;Femme&quot;: 1 2 1 2
+ $ nivetud     : Factor w/ 8 levels &quot;N&#39;a jamais fait d&#39;etudes&quot;,..: 8 NA 3 8
+ $ lecture.bd  : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1 1 1
+ $ peche.chasse: Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1 1 1
+ $ cuisine     : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 2 1 1 1
+ $ bricolage   : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1 1 1
+ $ cinema      : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 2 1 1
+ $ sport       : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 2 2 1
+ $ heures.tv   : num  0 1 0 0
+ $ qualif.abr  : Factor w/ 7 levels &quot;OS&quot;,&quot;OQ&quot;,&quot;Empl&quot;,..: 3 NA 4 6</code></pre>
+</div>
+<div id="indexation-par-nom" class="section level3">
+<h3>Indexation par nom</h3>
+<p>Un autre mode d’indexation consiste à fournir non pas un numéro mais un nom sous forme de chaîne de caractères. On l’utilise couramment pour sélectionner les variables d’un tableau de données. Ainsi, les deux écritures suivantes sont équivalentes<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> :</p>
+<pre class="r"><code>d$clso
+d[, &quot;clso&quot;]</code></pre>
+<p>Là aussi on peut utiliser un vecteur pour sélectionner plusieurs noms et récupérer un « sous-tableau » de données :</p>
+<pre class="r"><code>d2 &lt;- d[, c(&quot;id&quot;, &quot;sexe&quot;, &quot;age&quot;)]</code></pre>
+<p>Les noms peuvent également être utilisés pour les observations (lignes) d’un tableau de données si celles-ci ont été munies d’un nom avec la fonction <code data-package="base">row.names</code>. Par défaut les noms de ligne sont leur numéro d’ordre, mais on peut leur assigner comme nom la valeur d’une variable d’identifiant. Ainsi, on peut assigner aux lignes du jeu de données <code>rp99</code> le nom des communes correspondantes :</p>
+<pre class="r"><code>data(rp99)
+row.names(rp99) &lt;- rp99$nom</code></pre>
+<p>On peut alors accéder directement aux communes en donnant leur nom :</p>
+<pre class="r"><code>rp99[c(&quot;VILLEURBANNE&quot;, &quot;OULLINS&quot;), ]</code></pre>
+<p>Par contre il n’est pas possible d’utiliser directement l’opérateur <code>-</code> comme pour l’indexation directe. Pour exclure une colonne en fonction de son nom, on doit uiliser une autre forme d’indexation, l’<em>indexation par condition</em>, expliquée dans la section suivante. On peut ainsi faire…</p>
+<pre class="r"><code>d[, names(d) != &quot;qualif&quot;]</code></pre>
+<p>… pour sélectionner toutes les colonnes sauf celle qui s’appelle <em>qualif</em>.</p>
+</div>
+<div id="indexation-par-condition" class="section level3">
+<h3>Indexation par condition</h3>
+<div id="tests-et-conditions" class="section level4">
+<h4>Tests et conditions</h4>
+<p>Une condition est une expression logique dont le résultat est soit <code>TRUE</code> (vrai) soit <code>FALSE</code> (faux).</p>
+<p>Une condition comprend la plupart du temps un opérateur de comparaison. Les plus courants sont les suivants :</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">Opérateur</th>
+<th align="left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><code>==</code></td>
+<td align="left">égal à</td>
+</tr>
+<tr class="even">
+<td align="center"><code>!=</code></td>
+<td align="left">différent de</td>
+</tr>
+<tr class="odd">
+<td align="center"><code>&gt;</code></td>
+<td align="left">strictement supérieur à</td>
+</tr>
+<tr class="even">
+<td align="center"><code>&lt;</code></td>
+<td align="left">strictement inférieur à</td>
+</tr>
+<tr class="odd">
+<td align="center"><code>&gt;=</code></td>
+<td align="left">supérieur ou égal à</td>
+</tr>
+<tr class="even">
+<td align="center"><code>&lt;=</code></td>
+<td align="left">inférieur ou égal à</td>
+</tr>
+</tbody>
+</table>
+<p>Voyons tout de suite un exemple :</p>
+<pre class="r"><code>str(d$sexe == &quot;Homme&quot;)</code></pre>
+<pre><code> logi [1:2000] TRUE FALSE TRUE TRUE FALSE FALSE ...</code></pre>
+<p>Que s’est-il passé ? Nous avons fourni à <strong>R</strong> une condition qui signifie « la valeur de la variable <em>sexe</em> vaut “Homme” ». Et il nous a renvoyé un vecteur avec autant d’éléments qu’il y’a d’observations dans <code>d</code>, et dont la valeur est <code>TRUE</code> si l’observation correspond à un homme et <code>FALSE</code> dans les autres cas.</p>
+<p>Prenons un autre exemple. On n’affichera cette fois que les premiers éléments de notre variable d’intérêt à l’aide de la fonction <code data-package="utils">head</code> :</p>
+<pre class="r"><code>head(d$age)</code></pre>
+<pre><code>[1] 28 23 59 34 71 35</code></pre>
+<pre class="r"><code>head(d$age &gt; 40)</code></pre>
+<pre><code>[1] FALSE FALSE  TRUE FALSE  TRUE FALSE</code></pre>
+<p>On voit bien ici qu’à chaque élément du vecteur <code>d$age</code> dont la valeur est supérieure à 40 correspond un élément <code>TRUE</code> dans le résultat de la condition.</p>
+<p>On peut combiner ou modifier des conditions à l’aide des opérateurs logiques habituels :</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">Opérateur</th>
+<th align="left">Signification</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><code>&amp;</code></td>
+<td align="left">et logique</td>
+</tr>
+<tr class="even">
+<td align="center"><code>|</code></td>
+<td align="left">ou logique</td>
+</tr>
+<tr class="odd">
+<td align="center"><code>!</code></td>
+<td align="left">négation logique</td>
+</tr>
+</tbody>
+</table>
+<p>Comment les utilise-t-on ? Voyons tout de suite des exemples. Supposons que je veuille déterminer quels sont dans mon échantillon les hommes ouvriers spécialisés :</p>
+<pre class="r"><code>d$sexe == &quot;Homme&quot; &amp; d$qualif == &quot;Ouvrier specialise&quot;</code></pre>
+<p>Si je souhaite identifier les personnes qui bricolent ou qui font la cuisine :</p>
+<pre class="r"><code>d$bricol == &quot;Oui&quot; | d$cuisine == &quot;Oui&quot;</code></pre>
+<p>Si je souhaite isoler les femmes qui ont entre 20 et 34 ans :</p>
+<pre class="r"><code>d$sexe == &quot;Femme&quot; &amp; d$age &gt;= 20 &amp; d$age &lt;= 34</code></pre>
+<p>Si je souhaite récupérer les enquêtés qui ne sont pas cadres, on peut utiliser l’une des deux formes suivantes :</p>
+<pre class="r"><code>d$qualif != &quot;Cadre&quot;
+!(d$qualif == &quot;Cadre&quot;)</code></pre>
+<p>Lorsqu’on mélange « et » et « ou » il est nécessaire d’utiliser des parenthèses pour différencier les blocs. La condition suivante identifie les femmes qui sont soit cadre, soit employée :</p>
+<pre class="r"><code>d$sexe == &quot;Femme&quot; &amp; (d$qualif == &quot;Employe&quot; | d$qualif == &quot;Cadre&quot;)</code></pre>
+<p>L’opérateur <code data-package="base" data-rdocumentation="match">%in%</code> peut être très utile : il teste si une valeur fait partie des éléments d’un vecteur. Ainsi on pourrait remplacer la condition précédente par :</p>
+<pre class="r"><code>d$sexe == &quot;Femme&quot; &amp; d$qualif %in% c(&quot;Employe&quot;, &quot;Cadre&quot;)</code></pre>
+<p>Enfin, signalons qu’on peut utiliser les fonctions <code data-package="base">table</code> ou <code data-package="base">summary</code> pour avoir une idée du résultat de notre condition :</p>
+<pre class="r"><code>table(d$sexe)</code></pre>
+<pre><code>
+Homme Femme 
+  900  1100 </code></pre>
+<pre class="r"><code>table(d$sexe == &quot;Homme&quot;)</code></pre>
+<pre><code>
+FALSE  TRUE 
+ 1100   900 </code></pre>
+<pre class="r"><code>summary(d$sexe == &quot;Homme&quot;)</code></pre>
+<pre><code>   Mode   FALSE    TRUE    NA&#39;s 
+logical    1100     900       0 </code></pre>
+</div>
+<div id="utilisation-pour-lindexation" class="section level4">
+<h4>Utilisation pour l’indexation</h4>
+<p>L’utilisation des conditions pour l’indexation est assez simple : si on indexe un vecteur avec un vecteur booléen, seuls les éléments correspondant à TRUE seront conservés.</p>
+<p>Ainsi, si on fait :</p>
+<pre class="r"><code>dh &lt;- d[d$sexe == &quot;Homme&quot;, ]</code></pre>
+<p>On obtiendra un nouveau tableau de données comportant l’ensemble des variables de <code>d</code>, mais seulement les observations pour lesquelles la variable <em>sexe</em> vaut « Homme ».</p>
+<p>La plupart du temps ce type d’indexation s’applique aux lignes, mais on peut aussi l’utiliser sur les colonnes d’un tableau de données. L’exemple suivant, un peu compliqué, sélectionne uniquement les variables dont le nom commence par <em>a</em> ou <em>s</em> :</p>
+<pre class="r"><code>d2 &lt;- d[, substr(names(d), 0, 1) %in% c(&quot;a&quot;, &quot;s&quot;)]</code></pre>
+<p>On peut évidemment combiner les différents type d’indexation. L’exemple suivant sélectionne les femmes de plus de 40 ans et ne conserve que les variables <em>qualif</em> et <em>relig</em>.</p>
+<pre class="r"><code>d2 &lt;- d[d$sexe == &quot;Femme&quot; &amp; d$age &gt; 40, c(&quot;qualif&quot;, &quot;relig&quot;)]</code></pre>
+</div>
+<div id="valeurs-manquantes-dans-les-conditions" class="section level4">
+<h4>Valeurs manquantes dans les conditions</h4>
+<p>Une remarque importante : quand l’un des termes d’une condition comporte une valeur manquante (<code>NA</code>), le résultat de cette condition n’est pas toujours <code>TRUE</code> ou <code>FALSE</code>, il peut aussi être à son tour une valeur manquante.</p>
+<pre class="r"><code>v &lt;- c(1:5, NA)
+v</code></pre>
+<pre><code>[1]  1  2  3  4  5 NA</code></pre>
+<pre class="r"><code>v &gt; 3</code></pre>
+<pre><code>[1] FALSE FALSE FALSE  TRUE  TRUE    NA</code></pre>
+<p>On voit que le test <code>NA &gt; 3</code> ne renvoie ni vrai ni faux, mais <code>NA</code>.</p>
+<p>Le résultat d’une condition peut donc comporter un grand nombre de valeurs manquantes :</p>
+<pre class="r"><code>summary(d$trav.satisf == &quot;Satisfaction&quot;)</code></pre>
+<pre><code>   Mode   FALSE    TRUE    NA&#39;s 
+logical     568     480     952 </code></pre>
+<p>Une autre conséquence importante de ce comportement est qu’on ne peut pas utiliser l’opérateur l’expression <code>== NA</code> pour tester la présence de valeurs manquantes. On utilisera à la place la fonction <em>ad hoc</em> <code data-package="base" data-rdocumentation="NA">is.na</code>.</p>
+<p>On comprendra mieux le problème avec l’exemple suivant :</p>
+<pre class="r"><code>v &lt;- c(1, NA)
+v</code></pre>
+<pre><code>[1]  1 NA</code></pre>
+<pre class="r"><code>v == NA</code></pre>
+<pre><code>[1] NA NA</code></pre>
+<pre class="r"><code>is.na(v)</code></pre>
+<pre><code>[1] FALSE  TRUE</code></pre>
+<p>Pour compliquer encore un peu le tout, lorsqu’on utilise une condition pour l’indexation, si la condition renvoie <code>NA</code>, <strong>R</strong> ne sélectionne pas l’élément mais retourne quand même la valeur <code>NA</code>. Ceci aura donc des conséquences pour l’extraction de sous-populations (voir section ci-après MAJ LIEN)<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>.</p>
+</div>
+</div>
+<div id="indexation-et-assignation" class="section level3">
+<h3>Indexation et assignation</h3>
+<p>Dans tous les exemples précédents, on a utilisé l’indexation pour extraire une partie d’un vecteur ou d’un tableau de données, en plaçant l’opération d’indexation à droite de l’opérateur <code>&lt;-</code>.</p>
+<p>Mais l’indexation peut également être placée à gauche de cet opérateur. Dans ce cas, les éléments sélectionnés par l’indexation sont alors remplacés par les valeurs indiquées à droite de l’opérateur <code>&lt;-</code>.</p>
+<p>Prenons donc un exemple simple :</p>
+<pre class="r"><code>v &lt;- 1:5
+v</code></pre>
+<pre><code>[1] 1 2 3 4 5</code></pre>
+<pre class="r"><code>v[1] &lt;- 3
+v</code></pre>
+<pre><code>[1] 3 2 3 4 5</code></pre>
+<p>Cette fois, au lieu d’utiliser quelque chose comme <code>x &lt;- v[1]</code>, qui aurait placé la valeur du premier élément de <code>v</code> dans <code>x</code>, on a utilisé <code>v[1] &lt;- 3</code>, ce qui a mis à jour le premier élément de <code>v</code> avec la valeur 3. Ceci fonctionne également pour les tableaux de données et pour les différents types d’indexation évoqués précédemment :</p>
+<pre class="r"><code>d[257, &quot;sexe&quot;] &lt;- &quot;Homme&quot;</code></pre>
+<p>Enfin on peut modifier plusieurs éléments d’un seul coup soit en fournissant un vecteur, soit en profitant du mécanisme de recyclage. Les deux commandes suivantes sont ainsi rigoureusement équivalentes :</p>
+<pre class="r"><code>d[c(257, 438, 889), &quot;sexe&quot;] &lt;- c(&quot;Homme&quot;, &quot;Homme&quot;, &quot;Homme&quot;)
+d[c(257, 438, 889), &quot;sexe&quot;] &lt;- &quot;Homme&quot;</code></pre>
+<p>On commence à voir comment l’utilisation de l’indexation par conditions et de l’assignation va nous permettre de faire des recodages.</p>
+<pre class="r"><code>d$gr.age[d$age &gt;= 20 &amp; d$age &lt;= 30] &lt;- &quot;20-30 ans&quot;
+d$gr.age[is.na(d$age)] &lt;- &quot;Inconnu&quot;</code></pre>
+</div>
+</div>
+<div id="sous-populations" class="section level2">
+<h2>Sous-populations</h2>
+<div id="par-indexation" class="section level3">
+<h3>Par indexation</h3>
+<p>La première manière de construire des sous-populations est d’utiliser l’indexation par conditions. On peut ainsi facilement sélectionner une partie des observations suivant un ou plusieurs critères et placer le résultat dans un nouveau tableau de données.</p>
+<p>Par exemple si on souhaite isoler les hommes et les femmes :</p>
+<pre class="r"><code>dh &lt;- d[d$sexe == &quot;Homme&quot;, ]
+df &lt;- d[d$sexe == &quot;Femme&quot;, ]
+table(d$sexe)</code></pre>
+<pre><code>
+Homme Femme 
+  901  1099 </code></pre>
+<pre class="r"><code>dim(dh)</code></pre>
+<pre><code>[1] 901  22</code></pre>
+<pre class="r"><code>dim(df)</code></pre>
+<pre><code>[1] 1099   22</code></pre>
+<p>On a à partir de là trois tableaux de données, <code>d</code> comportant la population totale, <code>dh</code> seulement les hommes et <code>df</code> seulement les femmes.</p>
+<p>On peut évidemment combiner plusieurs critères :</p>
+<pre class="r"><code>dh.25 &lt;- d[d$sexe == &quot;Homme&quot; &amp; d$age &lt;= 25, ]
+dim(dh.25)</code></pre>
+<pre><code>[1] 87 22</code></pre>
+<p>Si on utilise directement l’indexation, il convient cependant d’être extrêmement prudent avec les valeurs manquantes. Comme indiqué précédemment, la présence d’une valeur manquante dans une condition fait que celle-ci est évaluée en <code>NA</code> et qu’au final la ligne correspondante est conservée par l’indexation :</p>
+<pre class="r"><code>summary(d$trav.satisf)</code></pre>
+<pre><code>  Satisfaction Insatisfaction      Equilibre           NA&#39;s 
+           480            117            451            952 </code></pre>
+<pre class="r"><code>d.satisf &lt;- d[d$trav.satisf == &quot;Satisfaction&quot;, ]
+dim(d.satisf)</code></pre>
+<pre><code>[1] 1432   22</code></pre>
+<p>Comme on le voit, ici <code>d.satisf</code> contient les individus ayant la modalité <em>Satisfaction</em> mais aussi ceux ayant une valeur manquante <code>NA</code>. C’est pourquoi il faut toujours soit vérifier au préalable qu’on n’a pas de valeurs manquantes dans les variables de la condition, soit exclure explicitement les <code>NA</code> de la manière suivante :</p>
+<pre class="r"><code>d.satisf &lt;- d[d$trav.satisf == &quot;Satisfaction&quot; &amp; !is.na(d$trav.satisf), ]
+dim(d.satisf)</code></pre>
+<pre><code>[1] 480  22</code></pre>
+<p>C’est notamment pour cette raison qu’on préfèrera le plus souvent utiliser la fonction <code data-package="base">subset</code>.</p>
+</div>
+<div id="fonction-subset" class="section level3">
+<h3>Fonction subset</h3>
+<p>La fonction <code data-package="base">subset</code> permet d’extraire des sous-populations de manière plus simple et un peu plus intuitive que l’indexation directe.</p>
+<p>Celle-ci prend trois arguments principaux : * le nom de l’objet de départ ; * une condition sur les observations (<code>subset</code>) ; * éventuellement une condition sur les colonnes (<code>select</code>).</p>
+<p>Reprenons tout de suite un exemple déjà vu :</p>
+<pre class="r"><code>dh &lt;- subset(d, sexe == &quot;Homme&quot;)
+df &lt;- subset(d, sexe == &quot;Femme&quot;)</code></pre>
+<p>L’utilisation de <code data-package="base">subset</code> présente plusieurs avantages. Le premier est d’économiser quelques touches. On n’est en effet pas obligé de saisir le nom du tableau de données dans la condition sur les lignes. Ainsi les deux commandes suivantes sont équivalentes :</p>
+<pre class="r"><code>dh &lt;- subset(d, d$sexe == &quot;Homme&quot;)
+dh &lt;- subset(d, sexe == &quot;Homme&quot;)</code></pre>
+<p>Le second avantage est que <code data-package="base">subset</code> s’occupe du problème des valeurs manquantes évoquées précédemment et les exclut de lui-même, contrairement au comportement par défaut :</p>
+<pre class="r"><code>summary(d$trav.satisf)</code></pre>
+<pre><code>  Satisfaction Insatisfaction      Equilibre           NA&#39;s 
+           480            117            451            952 </code></pre>
+<pre class="r"><code>d.satisf &lt;- d[d$trav.satisf == &quot;Satisfaction&quot;, ]
+dim(d.satisf)</code></pre>
+<pre><code>[1] 1432   22</code></pre>
+<pre class="r"><code>d.satisf &lt;- subset(d, trav.satisf == &quot;Satisfaction&quot;)
+dim(d.satisf)</code></pre>
+<pre><code>[1] 480  22</code></pre>
+<p>Enfin, l’utilisation de l’argument <code>select</code> est simplifié pour l’expression de condition sur les colonnes. On peut ainsi spécifier les noms de variable sans guillemets et leur appliquer directement l’opérateur d’exclusion <code>-</code> :</p>
+<pre class="r"><code>d2 &lt;- subset(d, select = c(sexe, sport))
+d2 &lt;- subset(d, age &gt; 25, select = -c(id, age, cinema))</code></pre>
+</div>
+<div id="fonction-tapply" class="section level3">
+<h3>Fonction tapply</h3>
+<div class="note">
+Cette section documente une fonction qui peut être très utile, mais pas forcément indispensable au départ.
+</div>
+<p>La fonction <code data-package="base">tapply</code> n’est qu’indirectement liée à la notion de sous-population, mais peut permettre d’éviter d’avoir à créer ces sous-populations dans certains cas.</p>
+<p>Son fonctionnement est assez simple, mais pas forcément intuitif. La fonction prend trois arguments : un vecteur, un facteur et une fonction. Elle applique ensuite la fonction aux éléments du vecteur correspondant à un même niveau du facteur. Vite, un exemple !</p>
+<pre class="r"><code>tapply(d$age, d$sexe, mean)</code></pre>
+<pre><code>   Homme    Femme 
+48.10655 48.19836 </code></pre>
+<p>Qu’est-ce que ça signifie ? Ici <code data-package="base">tapply</code> a sélectionné toutes les observations correspondant à « Homme », puis appliqué la fonction <code data-package="base">mean</code> aux valeurs de <em>age</em> correspondantes. Puis elle a fait de même pour les observations correspondant à « Femme ». On a donc ici la moyenne d’âge chez les hommes et chez les femmes.</p>
+<p>On peut fournir à peu près n’importe quelle fonction à <code data-package="base">tapply</code> :</p>
+<pre class="r"><code>tapply(d$bricol, d$sexe, freq)</code></pre>
+<pre><code>$Homme
+      n    % val%
+Non 386 42.8 42.8
+Oui 515 57.2 57.2
+NA    0  0.0   NA
+
+$Femme
+      n    % val%
+Non 761 69.2 69.2
+Oui 338 30.8 30.8
+NA    0  0.0   NA</code></pre>
+<p>Les arguments supplémentaires fournis à <code data-package="base">tapply</code> sont en fait fournis directement à la fonction appelée.</p>
+<pre class="r"><code>tapply(d$bricol, d$sexe, freq, total = TRUE)</code></pre>
+<pre><code>$Homme
+        n     %  val%
+Non   386  42.8  42.8
+Oui   515  57.2  57.2
+NA      0   0.0    NA
+Total 901 100.0 100.0
+
+$Femme
+         n     %  val%
+Non    761  69.2  69.2
+Oui    338  30.8  30.8
+NA       0   0.0    NA
+Total 1099 100.0 100.0</code></pre>
+<div class="note">
+<p>La fonction <code data-package="base">by</code> est un équivalent (pour les tableaux de données) de <code data-package="base">tapply</code>. La présentation des résultats diffère légèrement.</p>
+<pre class="r"><code>tapply(d$age, d$sexe, mean)</code></pre>
+<pre><code>   Homme    Femme 
+48.10655 48.19836 </code></pre>
+<pre class="r"><code>by(d$age, d$sexe, mean)</code></pre>
+<pre><code>d$sexe: Homme
+[1] 48.10655
+-------------------------------------------------------- 
+d$sexe: Femme
+[1] 48.19836</code></pre>
+</div>
+</div>
+</div>
+<div id="recodages" class="section level2">
+<h2>Recodages</h2>
+<p>Le recodage de variables est une opération extrêmement fréquente lors du traitement d’enquête. Celuici utilise soit l’une des formes d’indexation décrites précédemment, soit des fonctions <em>ad hoc</em> de <strong>R</strong>.</p>
+<p>On passe ici en revue différents types de recodage parmi les plus courants. Les exemples s’appuient, comme précédemment, sur l’extrait de l’enquête <em>Histoire de vie</em> :</p>
+<pre class="r"><code>data(hdv2003)
+d &lt;- hdv2003</code></pre>
+<div id="convertir-une-variable" class="section level3">
+<h3>Convertir une variable</h3>
+<p>Il peut arriver qu’on veuille transformer une variable d’un type dans un autre.</p>
+<p>Par exemple, on peut considérer que la variable numérique <em>freres.soeurs</em> est une « fausse » variable numérique et qu’une représentation sous forme de facteur serait plus adéquate. Dans ce cas il suffit de faire appel à la fonction <code data-package="base">factor</code> :</p>
+<pre class="r"><code>d$fs.fac &lt;- factor(d$freres.soeurs)
+levels(d$fs.fac)</code></pre>
+<pre><code> [1] &quot;0&quot;  &quot;1&quot;  &quot;2&quot;  &quot;3&quot;  &quot;4&quot;  &quot;5&quot;  &quot;6&quot;  &quot;7&quot;  &quot;8&quot;  &quot;9&quot;  &quot;10&quot; &quot;11&quot; &quot;12&quot; &quot;13&quot;
+[15] &quot;14&quot; &quot;15&quot; &quot;16&quot; &quot;18&quot; &quot;22&quot;</code></pre>
+<p>La conversion d’une variable caractères en facteur se fait de la même manière.</p>
+<p>La conversion d’un facteur ou d’une variable numérique en variable caractères peut se faire à l’aide de la fonction <code data-package="base" data-rdocumentation="character">as.character</code> :</p>
+<pre class="r"><code>d$fs.char &lt;- as.character(d$freres.soeurs)
+d$qualif.char &lt;- as.character(d$qualif)</code></pre>
+<p>La conversion d’un facteur en caractères est fréquemment utilisé lors des recodages du fait qu’il est impossible d’ajouter de nouvelles modalités à un facteur de cette manière. Par exemple, la première des commandes suivantes génère un message d’avertissement, tandis que les deux autres fonctionnent :</p>
+<pre class="r"><code>d.temp &lt;- d
+d.temp$qualif[d.temp$qualif == &quot;Ouvrier specialise&quot;] &lt;- &quot;Ouvrier&quot;</code></pre>
+<pre><code>Warning in `[&lt;-.factor`(`*tmp*`, d.temp$qualif == &quot;Ouvrier specialise&quot;, :
+invalid factor level, NA generated</code></pre>
+<pre class="r"><code>d$qualif.char &lt;- as.character(d$qualif)
+d$qualif.char[d$qualif.char == &quot;Ouvrier specialise&quot;] &lt;- &quot;Ouvrier&quot;</code></pre>
+<p>Dans le premier cas, le message d’avertissement indique que toutes les modalités « Ouvrier specialise » de notre variable <em>qualif</em> ont été remplacées par des valeurs manquantes <code>NA</code>.</p>
+<p>Enfin, une variable de type caractères dont les valeurs seraient des nombres peut être convertie en variable numérique avec la fonction <code data-package="base" data-rdocumentation="numeric">as.numeric</code>.</p>
+<pre class="r"><code>v &lt;- c(&quot;1&quot;, &quot;3.1415&quot;, &quot;4&quot;, &quot;5.6&quot;, &quot;1&quot;, &quot;4&quot;)
+v</code></pre>
+<pre><code>[1] &quot;1&quot;      &quot;3.1415&quot; &quot;4&quot;      &quot;5.6&quot;    &quot;1&quot;      &quot;4&quot;     </code></pre>
+<pre class="r"><code>as.numeric(v)</code></pre>
+<pre><code>[1] 1.0000 3.1415 4.0000 5.6000 1.0000 4.0000</code></pre>
+<div class="attention">
+<p>Lorsque l’on convertit un facteur avec <code data-package="base" data-rdocumentation="numeric">as.numeric</code>, on obtient le numéro de chaque facteur (première modalité, seconde modalité, etc.). Si la valeur numérique qui nous intéresse est en fait contenu dans le nom des modalités, il faut connvertir au préalable notre facteur en variable textuelle.</p>
+<pre class="r"><code>vf &lt;- factor(v)
+vf</code></pre>
+<pre><code>[1] 1      3.1415 4      5.6    1      4     
+Levels: 1 3.1415 4 5.6</code></pre>
+<pre class="r"><code>as.numeric(vf)</code></pre>
+<pre><code>[1] 1 2 3 4 1 3</code></pre>
+<pre class="r"><code>as.numeric(as.character(vf))</code></pre>
+<pre><code>[1] 1.0000 3.1415 4.0000 5.6000 1.0000 4.0000</code></pre>
+</div>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Une différence entre les deux est que <code>$</code> admet une correspondance partielle du nom de variable, si celle-ci est unique. Ainsi, <code>d$cls</code> renverra bien la variable <em>clso</em>, tandis que <code>d$c</code> renverra <code>NULL</code>, du fait que plusieurs variables de <em>d</em> commencent par la lettre <em>c</em>.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>Si vous utilisez l’extenstion <strong class="package">data.table</strong>, la gestion des valeurs manquantes est quelque peu différente. Voir chapitre MAJ_LIEN.<a href="#fnref2">↩</a></p></li>
+</ol>
+</div>
+
+<script>
+
+// manage active state of menu based on current page
+$(document).ready(function () {
+
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+
+    // manage active menu header
+    if (href.startsWith('pem_'))
+      $('a[href="' + 'pem' + '"]').parent().addClass('active');
+    else if (href.startsWith('analyses_'))
+      $('a[href="' + 'analyses' + '"]').parent().addClass('active');
+    else if (href.startsWith('astuces_'))
+      $('a[href="' + 'astuces' + '"]').parent().addClass('active');
+
+    // Identifier les <pre> fermant
+    $('pre').next().not('pre').prev().addClass('last'); // Last <pre> of each group of <pre>
+    $('pre').last().addClass('last'); // If the last one is not followed bay anything
+
+    // Ajout liens rdocumentation
+    $("code[data-package]").each(function( index ) {
+      package = $(this).attr('data-package');
+      if ($(this).attr('data-rdocumentation') !== undefined)
+        rdocumentation = $(this).attr('data-rdocumentation');
+      else
+        rdocumentation = $(this).text();
+      fonction = $(this).text();
+      $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+package+'/functions/'+rdocumentation+'">');
+    });
+
+    $("strong.package").each(function( index ) {
+      $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+$(this).text()+'">');
+    });
+
+    // Figures
+    $("figure").each(function( index ) {
+      if ($(this).children("figcaption").length > 0)
+        $(this).children("figcaption:first").prepend('<span class="figure-number">Figure '+(index+1)+'.</span> ');
+      else
+        $(this).append($("<figcaption>").append('<span class="figure-number">Figure '+(index+1)+'</span>'));
+    });
+
+});
+
+</script>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+
+</body>
+</html>
