@@ -781,3 +781,920 @@ as.numeric(as.character(vf))
 ```
 </div>
 
+### Découper une variable numérique en classes
+
+Le premier type de recodage consiste à découper une variable de type numérique en un certain nombre
+de classes. On utilise pour cela la fonction `cut`{data-package="base"}.
+
+Celle-ci prend, outre la variable à découper, un certain nombre d'arguments :
+
+* `breaks` indique soit le nombre de classes souhaité, soit, si on lui fournit un vecteur, les limites des
+classes ;
+* `labels` permet de modifier les noms de modalités attribués aux classes ;
+* `include.lowest` et `right` influent sur la manière dont les valeurs situées à la frontière des classes
+seront inclues ou exclues ;
+* `dig.lab` indique le nombre de chiffres après la virgule à conserver dans les noms de modalités.
+
+Prenons tout de suite un exemple et tentons de découper notre variable *age* en cinq classes et de
+placer le résultat dans une nouvelle variable nommée *age5cl* :
+
+```{r}
+d$age5cl <- cut(d$age, 5)
+table(d$age5cl)
+```
+
+Par défaut **R** nous a bien créé cinq classes d'amplitudes égales. La première classe va de 16,9 à 32,2
+ans (en fait de 17 à 32), etc.
+
+Les frontières de classe seraient plus présentables si elles utilisaient des nombres ronds. On va donc
+spécifier manuellement le découpage souhaité, par tranches de 20 ans :
+
+```{r}
+d$age20 <- cut(d$age, c(0, 20, 40, 60, 80, 100))
+table(d$age20)
+```
+
+On aurait pu tenir compte des âges extrêmes pour la première et la dernière valeur :
+
+```{r}
+range(d$age)
+d$age20 <- cut(d$age, c(17, 20, 40, 60, 80, 93))
+table(d$age20)
+```
+
+Les symboles dans les noms attribués aux classes ont leur importance : `(` signifie que la frontière de la
+classe est exclue, tandis que `[` signifie qu'elle est incluse. Ainsi, `(20,40]` signifie « strictement supérieur
+à 20 et inférieur ou égal à 40 ».
+
+On remarque que du coup, dans notre exemple précédent, la valeur minimale, 17, est exclue de notre
+première classe, et qu'une observation est donc absente de ce découpage. Pour résoudre ce problème on
+peut soit faire commencer la première classe à 16, soit utiliser l'option `include.lowest=TRUE` :
+
+```{r}
+d$age20 <- cut(d$age, c(16, 20, 40, 60, 80, 93))
+table(d$age20)
+d$age20 <- cut(d$age, c(17, 20, 40, 60, 80, 93), include.lowest = TRUE)
+table(d$age20)
+```
+
+On peut également modifier le sens des intervalles avec l'option `right=FALSE`, et indiquer manuellement
+les noms des modalités avec `labels` :
+
+```{r}
+d$age20 <- cut(d$age, c(16, 20, 40, 60, 80, 93), right = FALSE, include.lowest = TRUE)
+table(d$age20)
+d$age20 <- cut(d$age, c(17, 20, 40, 60, 80, 93), include.lowest = TRUE, labels = c("<20ans", "21-40 ans", "41-60ans", "61-80ans", ">80ans"))
+table(d$age20)
+```
+
+<div class="astuce">
+L'extension <strong class="package">questionr</strong> propose une interface interactive à la fonction 
+`cut`{data-package="base"}, nommée `icut`{data-package="questionr"}. Elle s'utilise de la manière
+suivante :
+
+```{r, eval=FALSE}
+icut(d, age)
+```
+
+**RStudio** devrait ouvrir une fenêtre semblable à l'image ci-dessous.
+
+![Capture d'écran d'icut](images/capture_icut.png)
+
+Vous pouvez alors indiquer les limites de vos classes ainsi que quelques options complémentaires. Ces
+limites sont représentées graphiquement sur l'histogramme de la variable d'origine.
+
+L'onglet *Vérification* affiche un tri à plat et un graphique en barres de la nouvelle variable. Une fois le
+résultat satisfaisant, vous pouvez récupérer le code généré pour l'inclure dans votre script.
+
+L'extension <strong class="package">questionr</strong> propose aussi une fonction 
+`quant.cut`{data-package="questionr"} permettant de découper une variable
+numérique en un nombre de classes donné ayant des efffectifs semblables. 
+Il suffit de lui passer le nombre de classes en argument :
+
+```{r}
+d$age6cl <- quant.cut(d$age, 6)
+table(d$age6cl)
+```
+
+`quant.cut`{data-package="questionr"} admet les mêmes autres options que 
+`cut`{data-package="base"} (`include.lowest`, `right`, `labels`. . . ).
+</div>
+
+### Regrouper les modalités d'une variable
+
+Pour regrouper les modalités d'une variable qualitative (d'un facteur le plus souvent), on peut utiliser
+directement l'indexation.
+
+Ainsi, si on veut recoder la variable qualif dans une variable qualif.reg plus « compacte », on peut
+utiliser :
+
+```{r}
+table(d$qualif)
+d$qualif.reg[d$qualif == "Ouvrier specialise"] <- "Ouvrier"
+d$qualif.reg[d$qualif == "Ouvrier qualifie"] <- "Ouvrier"
+d$qualif.reg[d$qualif == "Employe"] <- "Employe"
+d$qualif.reg[d$qualif == "Profession intermediaire"] <- "Intermediaire"
+d$qualif.reg[d$qualif == "Technicien"] <- "Intermediaire"
+d$qualif.reg[d$qualif == "Cadre"] <- "Cadre"
+d$qualif.reg[d$qualif == "Autre"] <- "Autre"
+table(d$qualif.reg)
+```
+
+On aurait pu représenter ce recodage de manière plus compacte, notamment en commençant par
+copier le contenu de *qualif* dans *qualif.reg*, ce qui permet de ne pas s'occuper de ce qui ne change pas.
+
+Il est cependant nécessaire de ne pas copier *qualif* sous forme de facteur, sinon on ne pourrait ajouter
+de nouvelles modalités. On copie donc la version caractères de qualif grâce à la fonction 
+`as.character`{data-package="base" data-rdocumentation="character"} :
+
+```{r}
+d$qualif.reg <- as.character(d$qualif)
+d$qualif.reg[d$qualif == "Ouvrier specialise"] <- "Ouvrier"
+d$qualif.reg[d$qualif == "Ouvrier qualifie"] <- "Ouvrier"
+d$qualif.reg[d$qualif == "Profession intermediaire"] <- "Intermediaire"
+d$qualif.reg[d$qualif == "Technicien"] <- "Intermediaire"
+table(d$qualif.reg)
+```
+
+On peut faire une version encore plus compacte en utilisant l'opérateur logique *ou* (`|`) :
+
+```{r}
+d$qualif.reg <- as.character(d$qualif)
+d$qualif.reg[d$qualif == "Ouvrier specialise" | d$qualif == "Ouvrier qualifie"] <- "Ouvrier"
+d$qualif.reg[d$qualif == "Profession intermediaire" | d$qualif == "Technicien"] <- "Intermediaire"
+table(d$qualif.reg)
+```
+
+Enfin, pour terminer ce petit tour d'horizon, on peut également remplacer l'opérateur `|` par `%in%`, qui
+peut parfois être plus lisible :
+
+```{r}
+d$qualif.reg <- as.character(d$qualif)
+d$qualif.reg[d$qualif %in% c("Ouvrier specialise", "Ouvrier qualifie")] <- "Ouvrier"
+d$qualif.reg[d$qualif %in% c("Profession intermediaire", "Technicien")] <- "Intermediaire"
+table(d$qualif.reg)
+```
+
+Dans tous les cas le résultat obtenu est une variable de type caractère. On pourra la convertir en
+facteur par un simple :
+
+```{r}
+d$qualif.reg <- factor(d$qualif.reg)
+```
+
+Si on souhaite recoder les valeurs manquantes, il suffit de faire appel à la fonction 
+`is.na`{data-package="base" data-rdocumentation="NA"} :
+
+```{r}
+table(d$trav.satisf)
+d$trav.satisf.reg <- as.character(d$trav.satisf)
+d$trav.satisf.reg[is.na(d$trav.satisf)] <- "Manquant"
+table(d$trav.satisf.reg)
+```
+
+<div class="astuce">
+<strong class="package">questionr</strong> propose une interface interactive pour le recodage 
+d'une variable qualitative (renommage et regroupement de modalités). 
+Cette fonction, nommée `irec`{data-package="questionr"}, s'utilise de la manière suivante :
+
+```{r, eval=FALSE}
+irec(d, qualif)
+```
+
+**RStudio** va alors ouvrir une fenêtre semblable à l'image ci-dessous :
+
+![Capture de irec](images/capture_irec.png)
+
+Vous pouvez alors sélectionner différentes options, et pour chaque ancienne modalité, indiquer la
+nouvelle valeur correspondante. Pour regrouper des modalités, il suffit de leur assigner des nouvelles
+valeurs identiques. Dans tous les cas n'hésitez pas à expérimenter, l'interface se contente de générer du
+code R à copier/coller dans votre script mais ne l'exécute pas, et ne modifie donc jamais vos données !
+
+L'onglet *Vérification* affiche un tri croisé de l'ancienne et de la nouvelle variable pour vérifier que le recodage
+est correct. Une fois le résultat satisfaisant, vous pouvez récupérer le code généré dans l'onglet *Code* pour
+l'inclure dans votre script.
+</div>
+
+### Variables calculées
+
+La création d'une variable numérique à partir de calculs sur une ou plusieurs autres variables numériques
+se fait très simplement.
+
+Supposons que l'on souhaite calculer une variable indiquant l'écart entre le nombre d'heures passées
+à regarder la télévision et la moyenne globale de cette variable. On pourrait alors faire :
+
+```{r}
+range(d$heures.tv, na.rm = TRUE)
+mean(d$heures.tv, na.rm = TRUE)
+d$ecart.heures.tv <- d$heures.tv - mean(d$heures.tv, na.rm = TRUE)
+range(d$ecart.heures.tv, na.rm = TRUE)
+mean(d$ecart.heures.tv, na.rm = TRUE)
+```
+
+Autre exemple tiré du jeu de données `rp99` : si on souhaite calculer le pourcentage d'actifs dans chaque
+commune, on peut diviser la population active *pop.act* par la population totale *pop.tot*.
+
+```{r}
+rp99$part.actifs <- rp99$pop.act/rp99$pop.tot * 100
+```
+
+### Combiner plusieurs variables
+
+La combinaison de plusieurs variables se fait à l'aide des techniques d'indexation déjà décrites précédemment.
+Le plus compliqué est d'arriver à formuler des conditions parfois complexes de manière
+rigoureuse.
+
+On peut ainsi vouloir combiner plusieurs variables qualitatives en une seule :
+
+```{r}
+d$act.manuelles <- NA
+d$act.manuelles[d$cuisine == "Oui" & d$bricol == "Oui"] <- "Cuisine et Bricolage"
+d$act.manuelles[d$cuisine == "Oui" & d$bricol == "Non"] <- "Cuisine seulement"
+d$act.manuelles[d$cuisine == "Non" & d$bricol == "Oui"] <- "Bricolage seulement"
+d$act.manuelles[d$cuisine == "Non" & d$bricol == "Non"] <- "Ni cuisine ni bricolage"
+table(d$act.manuelles)
+```
+
+On peut également combiner variables qualitatives et variables quantitatives :
+
+```{r}
+d$age.sexe <- NA
+d$age.sexe[d$sexe == "Homme" & d$age < 40] <- "Homme moins de 40 ans"
+d$age.sexe[d$sexe == "Homme" & d$age >= 40] <- "Homme plus de 40 ans"
+d$age.sexe[d$sexe == "Femme" & d$age < 40] <- "Femme moins de 40 ans"
+d$age.sexe[d$sexe == "Femme" & d$age >= 40] <- "Femme plus de 40 ans"
+table(d$age.sexe)
+```
+
+Les combinaisons de variables un peu complexes nécessitent parfois un petit travail de réflexion. En
+particulier, l'ordre des commandes de recodage a parfois une influence dans le résultat final.
+
+### Variables scores
+
+Une variable score est une variable calculée en additionnant des poids accordés aux modalités d'une
+série de variables qualitatives.
+
+Pour prendre un exemple tout à fait arbitraire, imaginons que nous souhaitons calculer un score
+d'activités extérieures. Dans ce score on considère que le fait d'aller au cinéma « pèse » 10, celui de
+pêcher ou chasser vaut 30 et celui de faire du sport vaut 20. On pourrait alors calculer notre score de la
+manière suivante :
+
+```{r}
+d$score.ext <- 0
+d$score.ext[d$cinema == "Oui"] <- d$score.ext[d$cinema == "Oui"] + 10
+d$score.ext[d$peche.chasse == "Oui"] <- d$score.ext[d$peche.chasse == "Oui"] + 30
+d$score.ext[d$sport == "Oui"] <- d$score.ext[d$sport == "Oui"] + 20
+table(d$score.ext)
+```
+
+Cette notation étant un peu lourde, on peut l'alléger un peu en utilisant la fonction `ifelse`{data-package="ifelse"}.
+Celle-ci prend en argument une condition et deux valeurs.
+Si la condition est vraie elle retourne la première valeur,
+sinon elle retourne la seconde.
+
+```{r}
+d$score.ext <- 0
+d$score.ext <- ifelse(d$cinema == "Oui", 10, 0) + ifelse(d$peche.chasse == "Oui", 30, 0) + ifelse(d$sport == "Oui", 20, 0)
+table(d$score.ext)
+```
+
+### Vérification des recodages
+
+Il est très important de vérifier, notamment après les recodages les plus complexes, qu'on a bien obtenu
+le résultat escompté. Les deux points les plus sensibles étant les valeurs manquantes et les erreurs dans
+les conditions.
+
+Pour vérifier tout cela le plus simple est sans doute de faire des tableaux croisés entre la variable
+recodée et celles ayant servi au recodage, à l'aide de la fonction `table`{data-package="base"},
+et de vérifier le nombre de valeurs manquantes dans la variable recodée 
+avec `summary`{data-package="base"}, `freq`{data-package="questionr"} ou `table`{data-package="base"}.
+
+Par exemple :
+
+```{r}
+d$act.manuelles <- NA
+d$act.manuelles[d$cuisine == "Oui" & d$bricol == "Oui"] <- "Cuisine et Bricolage"
+d$act.manuelles[d$cuisine == "Oui" & d$bricol == "Non"] <- "Cuisine seulement"
+d$act.manuelles[d$cuisine == "Non" & d$bricol == "Oui"] <- "Bricolage seulement"
+d$act.manuelles[d$cuisine == "Non" & d$bricol == "Non"] <- "Ni cuisine ni bricolage"
+table(d$act.manuelles, d$cuisine)
+table(d$act.manuelles, d$bricol)
+```
+
+## Tri de tables
+
+La fonction `sort`{data-package="base"} permet de trier les éléments d'un vecteur.
+
+```{r}
+sort(c(2, 5, 6, 1, 8))
+```
+
+On peut appliquer cette fonction à une variable, mais celle-ci ne permet que d'ordonner les valeurs
+de cette variable, et pas l'ensemble du tableau de données dont elle fait partie. Pour cela nous avons
+besoin d'une autre fonction, nommée `order`{data-package="base"}. 
+Celle-ci ne renvoie pas les valeurs du vecteur triées, mais les emplacements de ces valeurs.
+
+Un exemple pour comprendre :
+
+```{r}
+order(c(15, 20, 10))
+```
+
+Le résultat renvoyé signifie que la plus petite valeur est la valeur située en 3^e^ position, suivie de
+celle en 1^ère^ position et de celle en 2^e^ position. Tout cela ne paraît pas passionnant à première vue,
+mais si on mélange ce résultat avec un peu d'indexation directe, ça devient intéressant. . .
+
+```{r}
+head(order(d$age))
+```
+
+Ce que cette fonction renvoie, c'est l'ordre dans lequel on doit placer les éléments de age, et donc par
+extension les lignes de `d`, pour que la variable soit triée par ordre croissant. 
+Par conséquent, si on fait :
+
+```{r}
+d.tri <- d[order(d$age), ]
+```
+
+Alors on a trié les lignes de d par ordre d'âge croissant ! Et si on fait un petit :
+
+```{r}
+head(d.tri, 3)
+```
+
+On a les caractéristiques des trois enquêtés les plus jeunes.
+
+On peut évidemment trier par ordre décroissant en utilisant l'option `decreasing=TRUE`. On peut donc
+afficher les caractéristiques des trois individus les plus âgés avec :
+
+```{r}
+head(d[order(d$age, decreasing = TRUE), ], 3)
+```
+
+## Fusion de tables
+
+Lorsqu'on traite de grosses enquêtes, notamment les enquêtes de l'INSEE, on a souvent à gérer des
+données réparties dans plusieurs tables, soit du fait de la construction du questionnaire, soit du fait de
+contraintes techniques (fichiers **dbf** ou **Excel** limités à 256 colonnes, par exemple).
+
+Une opération relativement courante consiste à fusionner plusieurs tables pour regrouper tout ou
+partie des données dans un unique tableau.
+
+Nous allons simuler artificiellement une telle situation en créant deux tables à partir de l'extrait de
+l'enquête *Histoire de vie* :
+
+```{r}
+data(hdv2003)
+d <- hdv2003
+dim(d)
+d1 <- subset(d, select = c("id", "age", "sexe"))
+dim(d1)
+d2 <- subset(d, select = c("id", "clso"))
+dim(d2)
+```
+
+On a donc deux tableaux de données, `d1` et `d2`, comportant chacun 2000 lignes et respectivement 3 et
+2 colonnes. Comment les rassembler pour n'en former qu'un ?
+
+Intuitivement, cela paraît simple. Il suffit de « coller » `d2` à la droite de `d1`, comme dans l'exemple
+suivant.
+
+<style media="screen" type="text/css">
+table.exemple_df td, 
+table.exemple_df th {
+  text-align: center;
+  padding: 3px 10px;
+}
+table.exemple_df th {
+  border-bottom: solid 1px #999;
+}
+
+table.exemple_df td + td,
+table.exemple_df th + th {
+  border-left: solid 1px #999;
+}
+
+table.exemple_operateur td {
+  font-size: 3em;
+  padding: 20px;
+}
+</style>
+
+<table style="margin: 11px auto;">
+<tr>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v1</th><th>v2</th>
+</tr>
+<tr>
+  <td>1</td><td>H</td><td>12</td>
+</tr>
+<tr>
+  <td>2</td><td>H</td><td>17</td>
+</tr>
+<tr>
+  <td>3</td><td>F</td><td>41</td>
+</tr>
+<tr>
+  <td>4</td><td>F</td><td>9</td>
+</tr>
+<tr>
+  <td>...</td><td>...</td><td>...</td>
+</tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_operateur">
+<tr><td>+</td></tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v3</th>
+</tr>
+<tr>
+  <td>1</td><td>rouge</td>
+</tr>
+<tr>
+  <td>2</td><td>bleu</td>
+</tr>
+<tr>
+  <td>3</td><td>bleu</td>
+</tr>
+<tr>
+  <td>4</td><td>rouge</td>
+</tr>
+<tr>
+  <td>...</td><td>...</td><td>...</td>
+</tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_operateur">
+<tr><td>=</td></tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v1</th><th>v2</th><th>v3</th>
+</tr>
+<tr>
+  <td>1</td><td>H</td><td>12</td><td>rouge</td>
+</tr>
+<tr>
+  <td>2</td><td>H</td><td>17</td><td>bleu</td>
+</tr>
+<tr>
+  <td>3</td><td>F</td><td>41</td><td>bleu</td>
+</tr>
+<tr>
+  <td>4</td><td>F</td><td>9</td><td>rouge</td>
+</tr>
+<tr>
+  <td>...</td><td>...</td><td>...</td><td>...</td>
+</tr>
+</table>
+</td>
+
+</tr>
+</table>
+
+Cela semble fonctionner. La fonction qui permet d'effectuer cette opération sous **R** 
+s'appelle `cbind`{data-package="base"}, elle « colle » des tableaux côte à côte en regroupant 
+leurs colonnes^[L’équivalent de `cbind`{data-package="base"} pour les lignes s’appelle 
+`rbind`{data-package="base" data-rdocumentation="cbind"}.].
+
+```{r}
+head(cbind(d1, d2))
+```
+
+À part le fait qu'on a une colonne *id* en double, le résultat semble satisfaisant. À première vue
+seulement. Imaginons maintenant que nous avons travaillé sur `d1` et `d2`, et que nous avons ordonné les
+lignes de d1 selon l'âge des enquêtés :
+
+```{r}
+d1 <- d1[order(d1$age), ]
+```
+
+Répétons l'opération de collage :
+
+```{r}
+head(cbind(d1, d2))
+```
+
+Que constate-t-on ? La présence de la variable *id* en double nous permet de voir que les identifiants
+ne coïncident plus ! En regroupant nos colonnes nous avons donc attribué à des individus les réponses
+d'autres individus.
+
+La commande `cbind`{data-package="base"} ne peut en effet fonctionner que si les deux tableaux ont exactement
+le même nombre de lignes, et dans le même ordre, ce qui n'est pas le cas ici.
+
+On va donc être obligé de pocéder à une *fusion* des deux tableaux, qui va permettre de rendre à
+chaque ligne ce qui lui appartient. Pour cela nous avons besoin d'un identifiant qui permet d'identifier
+chaque ligne de manière unique et qui doit être présent dans tous les tableaux. Dans notre cas, c'est
+plutôt rapide, il s'agit de la variable *id*.
+
+Une fois l'identifiant identifié^[Si vous me passez l’expression. . .], 
+on peut utiliser la commande `merge`{data-package="base"}. Celle-ci va fusionner les deux
+tableaux en supprimant les colonnes en double et en regroupant les lignes selon leurs identifiants :
+
+```{r}
+d.complet <- merge(d1, d2, by = "id")
+head(d.complet)
+```
+
+Ici l'utilisation de la fonction est plutôt simple car nous sommes dans le cas de figure idéal : les lignes
+correspondent parfaitement et l'identifiant est clairement identifié. Parfois les choses peuvent être un peu
+plus compliquées :
+
+* parfois les identifiants n'ont pas le même nom dans les deux tableaux. On peut alors les spécifier
+  par les options `by.x` et `by.y` ;
+* parfois les deux tableaux comportent des colonnes (hors identifiants) ayant le même nom. 
+  `merge`{data-package="base"} conserve dans ce cas ces deux colonnes mais les renomme en 
+  les suffixant par *.x* pour celles provenant du premier tableau et *.y* pour celles du second ;
+* parfois on n'a pas d'identifiant unique préétabli, mais on en construit un à partir de plusieurs
+  variables. On peut alors donner un vecteur en paramètres de l'option `by`, par exemple
+  `by=c("nom","prenom","date.naissance")`.
+  
+Une subtilité supplémentaire intervient lorsque les deux tableaux fusionnés n'ont pas exactement les
+mêmes lignes. Par défaut, `merge`{data-package="base"} ne conserve que les lignes présentes dans les deux tableaux :
+
+<table style="margin: 11px auto;">
+<tr>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v1</th>
+</tr>
+<tr>
+  <td>1</td><td>H</td>
+</tr>
+<tr>
+  <td>2</td><td>H</td>
+</tr>
+<tr>
+  <td>3</td><td>F</td>
+</tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_operateur">
+<tr><td>+</td></tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v2</th>
+</tr>
+<tr>
+  <td>1</td><td>10</td>
+</tr>
+<tr>
+  <td>2</td><td>15</td>
+</tr>
+<tr>
+  <td>5</td><td>31</td>
+</tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_operateur">
+<tr><td>=</td></tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v1</th><th>v2</th>
+</tr>
+<tr>
+  <td>1</td><td>H</td><td>10</td>
+</tr>
+<tr>
+  <td>2</td><td>H</td><td>15</td>
+</tr>
+</table>
+</td>
+
+</tr>
+</table>
+
+On peut cependant modifier ce comportement avec les options `all.x` et `all.y`.
+
+Ainsi, `all.x=TRUE` indique de conserver toutes les lignes du premier tableau. 
+Dans ce cas `merge`{data-package="base"} donne une valeur `NA`
+pour ces lignes aux colonnes provenant du second tableau. Ce qui donnerait :
+
+<table style="margin: 11px auto;">
+<tr>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v1</th>
+</tr>
+<tr>
+  <td>1</td><td>H</td>
+</tr>
+<tr>
+  <td>2</td><td>H</td>
+</tr>
+<tr>
+  <td>3</td><td>F</td>
+</tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_operateur">
+<tr><td>+</td></tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v2</th>
+</tr>
+<tr>
+  <td>1</td><td>10</td>
+</tr>
+<tr>
+  <td>2</td><td>15</td>
+</tr>
+<tr>
+  <td>5</td><td>31</td>
+</tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_operateur">
+<tr><td>=</td></tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v1</th><th>v2</th>
+</tr>
+<tr>
+  <td>1</td><td>H</td><td>10</td>
+</tr>
+<tr>
+  <td>2</td><td>H</td><td>15</td>
+</tr>
+<tr>
+  <td>3</td><td>F</td><td>`NA`</td>
+</tr>
+</table>
+</td>
+
+</tr>
+</table>
+
+L'option `all.y=TRUE` fait la même chose en conservant toutes les lignes du second tableau. 
+
+<table style="margin: 11px auto;">
+<tr>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v1</th>
+</tr>
+<tr>
+  <td>1</td><td>H</td>
+</tr>
+<tr>
+  <td>2</td><td>H</td>
+</tr>
+<tr>
+  <td>3</td><td>F</td>
+</tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_operateur">
+<tr><td>+</td></tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v2</th>
+</tr>
+<tr>
+  <td>1</td><td>10</td>
+</tr>
+<tr>
+  <td>2</td><td>15</td>
+</tr>
+<tr>
+  <td>5</td><td>31</td>
+</tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_operateur">
+<tr><td>=</td></tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v1</th><th>v2</th>
+</tr>
+<tr>
+  <td>1</td><td>H</td><td>10</td>
+</tr>
+<tr>
+  <td>2</td><td>H</td><td>15</td>
+</tr>
+<tr>
+  <td>5</td><td>`NA`</td><td>31</td>
+</tr>
+</table>
+</td>
+
+</tr>
+</table>
+
+Enfin, on peut décider de conserver toutes les lignes des deux tableaux en utilisant à la 
+fois `all.x=TRUE` et `all.y=TRUE`, ce qui donne :
+
+<table style="margin: 11px auto;">
+<tr>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v1</th>
+</tr>
+<tr>
+  <td>1</td><td>H</td>
+</tr>
+<tr>
+  <td>2</td><td>H</td>
+</tr>
+<tr>
+  <td>3</td><td>F</td>
+</tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_operateur">
+<tr><td>+</td></tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v2</th>
+</tr>
+<tr>
+  <td>1</td><td>10</td>
+</tr>
+<tr>
+  <td>2</td><td>15</td>
+</tr>
+<tr>
+  <td>5</td><td>31</td>
+</tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_operateur">
+<tr><td>=</td></tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v1</th><th>v2</th>
+</tr>
+<tr>
+  <td>1</td><td>H</td><td>10</td>
+</tr>
+<tr>
+  <td>2</td><td>H</td><td>15</td>
+</tr>
+<tr>
+  <td>3</td><td>F</td><td>`NA`</td>
+</tr>
+<tr>
+  <td>5</td><td>`NA`</td><td>31</td>
+</tr>
+</table>
+</td>
+
+</tr>
+</table>
+
+Parfois, l'un des identifiants est présent à plusieurs reprises dans l'un des tableaux (par exemple
+lorsque l'une des tables est un ensemble de ménages et que l'autre décrit l'ensemble des individus de ces
+ménages). Dans ce cas les lignes de l'autre table sont dupliquées autant de fois que nécessaires :
+
+<table style="margin: 11px auto;">
+<tr>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v1</th>
+</tr>
+<tr>
+  <td>1</td><td>H</td>
+</tr>
+<tr>
+  <td>2</td><td>H</td>
+</tr>
+<tr>
+  <td>3</td><td>F</td>
+</tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_operateur">
+<tr><td>+</td></tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v2</th>
+</tr>
+<tr>
+  <td>1</td><td>10</td>
+</tr>
+<tr>
+  <td>1</td><td>18</td>
+</tr>
+<tr>
+  <td>1</td><td>21</td>
+</tr>
+<tr>
+  <td>2</td><td>15</td>
+</tr>
+<tr>
+  <td>3</td><td>42</td>
+</tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_operateur">
+<tr><td>=</td></tr>
+</table>
+</td>
+
+<td>
+<table class="exemple_df">
+<tr>
+  <th>id</th><th>v1</th><th>v2</th>
+</tr>
+<tr>
+  <td>1</td><td>H</td><td>10</td>
+</tr>
+<tr>
+  <td>1</td><td>H</td><td>18</td>
+</tr>
+<tr>
+  <td>1</td><td>H</td><td>21</td>
+</tr>
+<tr>
+  <td>2</td><td>H</td><td>15</td>
+</tr>
+<tr>
+  <td>3</td><td>F</td><td>42</td>
+</tr>
+</table>
+</td>
+
+</tr>
+</table>

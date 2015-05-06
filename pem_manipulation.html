@@ -130,7 +130,15 @@ img {
 </ul></li>
 <li><a href="#recodages">Recodages</a><ul>
 <li><a href="#convertir-une-variable">Convertir une variable</a></li>
+<li><a href="#decouper-une-variable-numerique-en-classes">Découper une variable numérique en classes</a></li>
+<li><a href="#regrouper-les-modalites-dune-variable">Regrouper les modalités d’une variable</a></li>
+<li><a href="#variables-calculees">Variables calculées</a></li>
+<li><a href="#combiner-plusieurs-variables">Combiner plusieurs variables</a></li>
+<li><a href="#variables-scores">Variables scores</a></li>
+<li><a href="#verification-des-recodages">Vérification des recodages</a></li>
 </ul></li>
+<li><a href="#tri-de-tables">Tri de tables</a></li>
+<li><a href="#fusion-de-tables">Fusion de tables</a></li>
 </ul>
 </div>
 
@@ -739,12 +747,1387 @@ Levels: 1 3.1415 4 5.6</code></pre>
 <pre><code>[1] 1.0000 3.1415 4.0000 5.6000 1.0000 4.0000</code></pre>
 </div>
 </div>
+<div id="decouper-une-variable-numerique-en-classes" class="section level3">
+<h3>Découper une variable numérique en classes</h3>
+<p>Le premier type de recodage consiste à découper une variable de type numérique en un certain nombre de classes. On utilise pour cela la fonction <code data-package="base">cut</code>.</p>
+<p>Celle-ci prend, outre la variable à découper, un certain nombre d’arguments :</p>
+<ul>
+<li><code>breaks</code> indique soit le nombre de classes souhaité, soit, si on lui fournit un vecteur, les limites des classes ;</li>
+<li><code>labels</code> permet de modifier les noms de modalités attribués aux classes ;</li>
+<li><code>include.lowest</code> et <code>right</code> influent sur la manière dont les valeurs situées à la frontière des classes seront inclues ou exclues ;</li>
+<li><code>dig.lab</code> indique le nombre de chiffres après la virgule à conserver dans les noms de modalités.</li>
+</ul>
+<p>Prenons tout de suite un exemple et tentons de découper notre variable <em>age</em> en cinq classes et de placer le résultat dans une nouvelle variable nommée <em>age5cl</em> :</p>
+<pre class="r"><code>d$age5cl &lt;- cut(d$age, 5)
+table(d$age5cl)</code></pre>
+<pre><code>
+(17.9,33.8] (33.8,49.6] (49.6,65.4] (65.4,81.2] (81.2,97.1] 
+        454         628         556         319          43 </code></pre>
+<p>Par défaut <strong>R</strong> nous a bien créé cinq classes d’amplitudes égales. La première classe va de 16,9 à 32,2 ans (en fait de 17 à 32), etc.</p>
+<p>Les frontières de classe seraient plus présentables si elles utilisaient des nombres ronds. On va donc spécifier manuellement le découpage souhaité, par tranches de 20 ans :</p>
+<pre class="r"><code>d$age20 &lt;- cut(d$age, c(0, 20, 40, 60, 80, 100))
+table(d$age20)</code></pre>
+<pre><code>
+  (0,20]  (20,40]  (40,60]  (60,80] (80,100] 
+      72      660      780      436       52 </code></pre>
+<p>On aurait pu tenir compte des âges extrêmes pour la première et la dernière valeur :</p>
+<pre class="r"><code>range(d$age)</code></pre>
+<pre><code>[1] 18 97</code></pre>
+<pre class="r"><code>d$age20 &lt;- cut(d$age, c(17, 20, 40, 60, 80, 93))
+table(d$age20)</code></pre>
+<pre><code>
+(17,20] (20,40] (40,60] (60,80] (80,93] 
+     72     660     780     436      50 </code></pre>
+<p>Les symboles dans les noms attribués aux classes ont leur importance : <code>(</code> signifie que la frontière de la classe est exclue, tandis que <code>[</code> signifie qu’elle est incluse. Ainsi, <code>(20,40]</code> signifie « strictement supérieur à 20 et inférieur ou égal à 40 ».</p>
+<p>On remarque que du coup, dans notre exemple précédent, la valeur minimale, 17, est exclue de notre première classe, et qu’une observation est donc absente de ce découpage. Pour résoudre ce problème on peut soit faire commencer la première classe à 16, soit utiliser l’option <code>include.lowest=TRUE</code> :</p>
+<pre class="r"><code>d$age20 &lt;- cut(d$age, c(16, 20, 40, 60, 80, 93))
+table(d$age20)</code></pre>
+<pre><code>
+(16,20] (20,40] (40,60] (60,80] (80,93] 
+     72     660     780     436      50 </code></pre>
+<pre class="r"><code>d$age20 &lt;- cut(d$age, c(17, 20, 40, 60, 80, 93), include.lowest = TRUE)
+table(d$age20)</code></pre>
+<pre><code>
+[17,20] (20,40] (40,60] (60,80] (80,93] 
+     72     660     780     436      50 </code></pre>
+<p>On peut également modifier le sens des intervalles avec l’option <code>right=FALSE</code>, et indiquer manuellement les noms des modalités avec <code>labels</code> :</p>
+<pre class="r"><code>d$age20 &lt;- cut(d$age, c(16, 20, 40, 60, 80, 93), right = FALSE, include.lowest = TRUE)
+table(d$age20)</code></pre>
+<pre><code>
+[16,20) [20,40) [40,60) [60,80) [80,93] 
+     48     643     793     454      60 </code></pre>
+<pre class="r"><code>d$age20 &lt;- cut(d$age, c(17, 20, 40, 60, 80, 93), include.lowest = TRUE, labels = c(&quot;&lt;20ans&quot;, 
+    &quot;21-40 ans&quot;, &quot;41-60ans&quot;, &quot;61-80ans&quot;, &quot;&gt;80ans&quot;))
+table(d$age20)</code></pre>
+<pre><code>
+   &lt;20ans 21-40 ans  41-60ans  61-80ans    &gt;80ans 
+       72       660       780       436        50 </code></pre>
+<div class="astuce">
+<p>L’extension <strong class="package">questionr</strong> propose une interface interactive à la fonction <code data-package="base">cut</code>, nommée <code data-package="questionr">icut</code>. Elle s’utilise de la manière suivante :</p>
+<pre class="r"><code>icut(d, age)</code></pre>
+<p><strong>RStudio</strong> devrait ouvrir une fenêtre semblable à l’image ci-dessous.</p>
+<p><img src="images/capture_icut.png" alt="Capture d’écran d’icut" /></p>
+<p>Vous pouvez alors indiquer les limites de vos classes ainsi que quelques options complémentaires. Ces limites sont représentées graphiquement sur l’histogramme de la variable d’origine.</p>
+<p>L’onglet <em>Vérification</em> affiche un tri à plat et un graphique en barres de la nouvelle variable. Une fois le résultat satisfaisant, vous pouvez récupérer le code généré pour l’inclure dans votre script.</p>
+<p>L’extension <strong class="package">questionr</strong> propose aussi une fonction <code data-package="questionr">quant.cut</code> permettant de découper une variable numérique en un nombre de classes donné ayant des efffectifs semblables. Il suffit de lui passer le nombre de classes en argument :</p>
+<pre class="r"><code>d$age6cl &lt;- quant.cut(d$age, 6)
+table(d$age6cl)</code></pre>
+<pre><code>
+    [18,30)     [30,39)     [39,48) [48,55.667) [55.667,66)     [66,97] 
+        302         337         350         344         305         362 </code></pre>
+<code data-package="questionr">quant.cut</code> admet les mêmes autres options que <code data-package="base">cut</code> (<code>include.lowest</code>, <code>right</code>, <code>labels</code>. . . ).
+</div>
+</div>
+<div id="regrouper-les-modalites-dune-variable" class="section level3">
+<h3>Regrouper les modalités d’une variable</h3>
+<p>Pour regrouper les modalités d’une variable qualitative (d’un facteur le plus souvent), on peut utiliser directement l’indexation.</p>
+<p>Ainsi, si on veut recoder la variable qualif dans une variable qualif.reg plus « compacte », on peut utiliser :</p>
+<pre class="r"><code>table(d$qualif)</code></pre>
+<pre><code>
+      Ouvrier specialise         Ouvrier qualifie               Technicien 
+                     203                      292                       86 
+Profession intermediaire                    Cadre                  Employe 
+                     160                      260                      594 
+                   Autre 
+                      58 </code></pre>
+<pre class="r"><code>d$qualif.reg[d$qualif == &quot;Ouvrier specialise&quot;] &lt;- &quot;Ouvrier&quot;
+d$qualif.reg[d$qualif == &quot;Ouvrier qualifie&quot;] &lt;- &quot;Ouvrier&quot;
+d$qualif.reg[d$qualif == &quot;Employe&quot;] &lt;- &quot;Employe&quot;
+d$qualif.reg[d$qualif == &quot;Profession intermediaire&quot;] &lt;- &quot;Intermediaire&quot;
+d$qualif.reg[d$qualif == &quot;Technicien&quot;] &lt;- &quot;Intermediaire&quot;
+d$qualif.reg[d$qualif == &quot;Cadre&quot;] &lt;- &quot;Cadre&quot;
+d$qualif.reg[d$qualif == &quot;Autre&quot;] &lt;- &quot;Autre&quot;
+table(d$qualif.reg)</code></pre>
+<pre><code>
+        Autre         Cadre       Employe Intermediaire       Ouvrier 
+           58           260           594           246           495 </code></pre>
+<p>On aurait pu représenter ce recodage de manière plus compacte, notamment en commençant par copier le contenu de <em>qualif</em> dans <em>qualif.reg</em>, ce qui permet de ne pas s’occuper de ce qui ne change pas.</p>
+<p>Il est cependant nécessaire de ne pas copier <em>qualif</em> sous forme de facteur, sinon on ne pourrait ajouter de nouvelles modalités. On copie donc la version caractères de qualif grâce à la fonction <code data-package="base" data-rdocumentation="character">as.character</code> :</p>
+<pre class="r"><code>d$qualif.reg &lt;- as.character(d$qualif)
+d$qualif.reg[d$qualif == &quot;Ouvrier specialise&quot;] &lt;- &quot;Ouvrier&quot;
+d$qualif.reg[d$qualif == &quot;Ouvrier qualifie&quot;] &lt;- &quot;Ouvrier&quot;
+d$qualif.reg[d$qualif == &quot;Profession intermediaire&quot;] &lt;- &quot;Intermediaire&quot;
+d$qualif.reg[d$qualif == &quot;Technicien&quot;] &lt;- &quot;Intermediaire&quot;
+table(d$qualif.reg)</code></pre>
+<pre><code>
+        Autre         Cadre       Employe Intermediaire       Ouvrier 
+           58           260           594           246           495 </code></pre>
+<p>On peut faire une version encore plus compacte en utilisant l’opérateur logique <em>ou</em> (<code>|</code>) :</p>
+<pre class="r"><code>d$qualif.reg &lt;- as.character(d$qualif)
+d$qualif.reg[d$qualif == &quot;Ouvrier specialise&quot; | d$qualif == &quot;Ouvrier qualifie&quot;] &lt;- &quot;Ouvrier&quot;
+d$qualif.reg[d$qualif == &quot;Profession intermediaire&quot; | d$qualif == &quot;Technicien&quot;] &lt;- &quot;Intermediaire&quot;
+table(d$qualif.reg)</code></pre>
+<pre><code>
+        Autre         Cadre       Employe Intermediaire       Ouvrier 
+           58           260           594           246           495 </code></pre>
+<p>Enfin, pour terminer ce petit tour d’horizon, on peut également remplacer l’opérateur <code>|</code> par <code>%in%</code>, qui peut parfois être plus lisible :</p>
+<pre class="r"><code>d$qualif.reg &lt;- as.character(d$qualif)
+d$qualif.reg[d$qualif %in% c(&quot;Ouvrier specialise&quot;, &quot;Ouvrier qualifie&quot;)] &lt;- &quot;Ouvrier&quot;
+d$qualif.reg[d$qualif %in% c(&quot;Profession intermediaire&quot;, &quot;Technicien&quot;)] &lt;- &quot;Intermediaire&quot;
+table(d$qualif.reg)</code></pre>
+<pre><code>
+        Autre         Cadre       Employe Intermediaire       Ouvrier 
+           58           260           594           246           495 </code></pre>
+<p>Dans tous les cas le résultat obtenu est une variable de type caractère. On pourra la convertir en facteur par un simple :</p>
+<pre class="r"><code>d$qualif.reg &lt;- factor(d$qualif.reg)</code></pre>
+<p>Si on souhaite recoder les valeurs manquantes, il suffit de faire appel à la fonction <code data-package="base" data-rdocumentation="NA">is.na</code> :</p>
+<pre class="r"><code>table(d$trav.satisf)</code></pre>
+<pre><code>
+  Satisfaction Insatisfaction      Equilibre 
+           480            117            451 </code></pre>
+<pre class="r"><code>d$trav.satisf.reg &lt;- as.character(d$trav.satisf)
+d$trav.satisf.reg[is.na(d$trav.satisf)] &lt;- &quot;Manquant&quot;
+table(d$trav.satisf.reg)</code></pre>
+<pre><code>
+     Equilibre Insatisfaction       Manquant   Satisfaction 
+           451            117            952            480 </code></pre>
+<div class="astuce">
+<p><strong class="package">questionr</strong> propose une interface interactive pour le recodage d’une variable qualitative (renommage et regroupement de modalités). Cette fonction, nommée <code data-package="questionr">irec</code>, s’utilise de la manière suivante :</p>
+<pre class="r"><code>irec(d, qualif)</code></pre>
+<p><strong>RStudio</strong> va alors ouvrir une fenêtre semblable à l’image ci-dessous :</p>
+<p><img src="images/capture_irec.png" alt="Capture de irec" /></p>
+<p>Vous pouvez alors sélectionner différentes options, et pour chaque ancienne modalité, indiquer la nouvelle valeur correspondante. Pour regrouper des modalités, il suffit de leur assigner des nouvelles valeurs identiques. Dans tous les cas n’hésitez pas à expérimenter, l’interface se contente de générer du code R à copier/coller dans votre script mais ne l’exécute pas, et ne modifie donc jamais vos données !</p>
+L’onglet <em>Vérification</em> affiche un tri croisé de l’ancienne et de la nouvelle variable pour vérifier que le recodage est correct. Une fois le résultat satisfaisant, vous pouvez récupérer le code généré dans l’onglet <em>Code</em> pour l’inclure dans votre script.
+</div>
+</div>
+<div id="variables-calculees" class="section level3">
+<h3>Variables calculées</h3>
+<p>La création d’une variable numérique à partir de calculs sur une ou plusieurs autres variables numériques se fait très simplement.</p>
+<p>Supposons que l’on souhaite calculer une variable indiquant l’écart entre le nombre d’heures passées à regarder la télévision et la moyenne globale de cette variable. On pourrait alors faire :</p>
+<pre class="r"><code>range(d$heures.tv, na.rm = TRUE)</code></pre>
+<pre><code>[1]  0 12</code></pre>
+<pre class="r"><code>mean(d$heures.tv, na.rm = TRUE)</code></pre>
+<pre><code>[1] 2.246566</code></pre>
+<pre class="r"><code>d$ecart.heures.tv &lt;- d$heures.tv - mean(d$heures.tv, na.rm = TRUE)
+range(d$ecart.heures.tv, na.rm = TRUE)</code></pre>
+<pre><code>[1] -2.246566  9.753434</code></pre>
+<pre class="r"><code>mean(d$ecart.heures.tv, na.rm = TRUE)</code></pre>
+<pre><code>[1] 4.714578e-17</code></pre>
+<p>Autre exemple tiré du jeu de données <code>rp99</code> : si on souhaite calculer le pourcentage d’actifs dans chaque commune, on peut diviser la population active <em>pop.act</em> par la population totale <em>pop.tot</em>.</p>
+<pre class="r"><code>rp99$part.actifs &lt;- rp99$pop.act/rp99$pop.tot * 100</code></pre>
+</div>
+<div id="combiner-plusieurs-variables" class="section level3">
+<h3>Combiner plusieurs variables</h3>
+<p>La combinaison de plusieurs variables se fait à l’aide des techniques d’indexation déjà décrites précédemment. Le plus compliqué est d’arriver à formuler des conditions parfois complexes de manière rigoureuse.</p>
+<p>On peut ainsi vouloir combiner plusieurs variables qualitatives en une seule :</p>
+<pre class="r"><code>d$act.manuelles &lt;- NA
+d$act.manuelles[d$cuisine == &quot;Oui&quot; &amp; d$bricol == &quot;Oui&quot;] &lt;- &quot;Cuisine et Bricolage&quot;
+d$act.manuelles[d$cuisine == &quot;Oui&quot; &amp; d$bricol == &quot;Non&quot;] &lt;- &quot;Cuisine seulement&quot;
+d$act.manuelles[d$cuisine == &quot;Non&quot; &amp; d$bricol == &quot;Oui&quot;] &lt;- &quot;Bricolage seulement&quot;
+d$act.manuelles[d$cuisine == &quot;Non&quot; &amp; d$bricol == &quot;Non&quot;] &lt;- &quot;Ni cuisine ni bricolage&quot;
+table(d$act.manuelles)</code></pre>
+<pre><code>
+    Bricolage seulement    Cuisine et Bricolage       Cuisine seulement 
+                    437                     416                     465 
+Ni cuisine ni bricolage 
+                    682 </code></pre>
+<p>On peut également combiner variables qualitatives et variables quantitatives :</p>
+<pre class="r"><code>d$age.sexe &lt;- NA
+d$age.sexe[d$sexe == &quot;Homme&quot; &amp; d$age &lt; 40] &lt;- &quot;Homme moins de 40 ans&quot;
+d$age.sexe[d$sexe == &quot;Homme&quot; &amp; d$age &gt;= 40] &lt;- &quot;Homme plus de 40 ans&quot;
+d$age.sexe[d$sexe == &quot;Femme&quot; &amp; d$age &lt; 40] &lt;- &quot;Femme moins de 40 ans&quot;
+d$age.sexe[d$sexe == &quot;Femme&quot; &amp; d$age &gt;= 40] &lt;- &quot;Femme plus de 40 ans&quot;
+table(d$age.sexe)</code></pre>
+<pre><code>
+Femme moins de 40 ans  Femme plus de 40 ans Homme moins de 40 ans 
+                  376                   725                   315 
+ Homme plus de 40 ans 
+                  584 </code></pre>
+<p>Les combinaisons de variables un peu complexes nécessitent parfois un petit travail de réflexion. En particulier, l’ordre des commandes de recodage a parfois une influence dans le résultat final.</p>
+</div>
+<div id="variables-scores" class="section level3">
+<h3>Variables scores</h3>
+<p>Une variable score est une variable calculée en additionnant des poids accordés aux modalités d’une série de variables qualitatives.</p>
+<p>Pour prendre un exemple tout à fait arbitraire, imaginons que nous souhaitons calculer un score d’activités extérieures. Dans ce score on considère que le fait d’aller au cinéma « pèse » 10, celui de pêcher ou chasser vaut 30 et celui de faire du sport vaut 20. On pourrait alors calculer notre score de la manière suivante :</p>
+<pre class="r"><code>d$score.ext &lt;- 0
+d$score.ext[d$cinema == &quot;Oui&quot;] &lt;- d$score.ext[d$cinema == &quot;Oui&quot;] + 10
+d$score.ext[d$peche.chasse == &quot;Oui&quot;] &lt;- d$score.ext[d$peche.chasse == &quot;Oui&quot;] + 
+    30
+d$score.ext[d$sport == &quot;Oui&quot;] &lt;- d$score.ext[d$sport == &quot;Oui&quot;] + 20
+table(d$score.ext)</code></pre>
+<pre><code>
+  0  10  20  30  40  50  60 
+800 342 229 509  31  41  48 </code></pre>
+<p>Cette notation étant un peu lourde, on peut l’alléger un peu en utilisant la fonction <code data-package="ifelse">ifelse</code>. Celle-ci prend en argument une condition et deux valeurs. Si la condition est vraie elle retourne la première valeur, sinon elle retourne la seconde.</p>
+<pre class="r"><code>d$score.ext &lt;- 0
+d$score.ext &lt;- ifelse(d$cinema == &quot;Oui&quot;, 10, 0) + ifelse(d$peche.chasse == &quot;Oui&quot;, 
+    30, 0) + ifelse(d$sport == &quot;Oui&quot;, 20, 0)
+table(d$score.ext)</code></pre>
+<pre><code>
+  0  10  20  30  40  50  60 
+800 342 229 509  31  41  48 </code></pre>
+</div>
+<div id="verification-des-recodages" class="section level3">
+<h3>Vérification des recodages</h3>
+<p>Il est très important de vérifier, notamment après les recodages les plus complexes, qu’on a bien obtenu le résultat escompté. Les deux points les plus sensibles étant les valeurs manquantes et les erreurs dans les conditions.</p>
+<p>Pour vérifier tout cela le plus simple est sans doute de faire des tableaux croisés entre la variable recodée et celles ayant servi au recodage, à l’aide de la fonction <code data-package="base">table</code>, et de vérifier le nombre de valeurs manquantes dans la variable recodée avec <code data-package="base">summary</code>, <code data-package="questionr">freq</code> ou <code data-package="base">table</code>.</p>
+<p>Par exemple :</p>
+<pre class="r"><code>d$act.manuelles &lt;- NA
+d$act.manuelles[d$cuisine == &quot;Oui&quot; &amp; d$bricol == &quot;Oui&quot;] &lt;- &quot;Cuisine et Bricolage&quot;
+d$act.manuelles[d$cuisine == &quot;Oui&quot; &amp; d$bricol == &quot;Non&quot;] &lt;- &quot;Cuisine seulement&quot;
+d$act.manuelles[d$cuisine == &quot;Non&quot; &amp; d$bricol == &quot;Oui&quot;] &lt;- &quot;Bricolage seulement&quot;
+d$act.manuelles[d$cuisine == &quot;Non&quot; &amp; d$bricol == &quot;Non&quot;] &lt;- &quot;Ni cuisine ni bricolage&quot;
+table(d$act.manuelles, d$cuisine)</code></pre>
+<pre><code>                         
+                          Non Oui
+  Bricolage seulement     437   0
+  Cuisine et Bricolage      0 416
+  Cuisine seulement         0 465
+  Ni cuisine ni bricolage 682   0</code></pre>
+<pre class="r"><code>table(d$act.manuelles, d$bricol)</code></pre>
+<pre><code>                         
+                          Non Oui
+  Bricolage seulement       0 437
+  Cuisine et Bricolage      0 416
+  Cuisine seulement       465   0
+  Ni cuisine ni bricolage 682   0</code></pre>
+</div>
+</div>
+<div id="tri-de-tables" class="section level2">
+<h2>Tri de tables</h2>
+<p>La fonction <code data-package="base">sort</code> permet de trier les éléments d’un vecteur.</p>
+<pre class="r"><code>sort(c(2, 5, 6, 1, 8))</code></pre>
+<pre><code>[1] 1 2 5 6 8</code></pre>
+<p>On peut appliquer cette fonction à une variable, mais celle-ci ne permet que d’ordonner les valeurs de cette variable, et pas l’ensemble du tableau de données dont elle fait partie. Pour cela nous avons besoin d’une autre fonction, nommée <code data-package="base">order</code>. Celle-ci ne renvoie pas les valeurs du vecteur triées, mais les emplacements de ces valeurs.</p>
+<p>Un exemple pour comprendre :</p>
+<pre class="r"><code>order(c(15, 20, 10))</code></pre>
+<pre><code>[1] 3 1 2</code></pre>
+<p>Le résultat renvoyé signifie que la plus petite valeur est la valeur située en 3<sup>e</sup> position, suivie de celle en 1<sup>ère</sup> position et de celle en 2<sup>e</sup> position. Tout cela ne paraît pas passionnant à première vue, mais si on mélange ce résultat avec un peu d’indexation directe, ça devient intéressant. . .</p>
+<pre class="r"><code>head(order(d$age))</code></pre>
+<pre><code>[1] 162 215 346 377 511 646</code></pre>
+<p>Ce que cette fonction renvoie, c’est l’ordre dans lequel on doit placer les éléments de age, et donc par extension les lignes de <code>d</code>, pour que la variable soit triée par ordre croissant. Par conséquent, si on fait :</p>
+<pre class="r"><code>d.tri &lt;- d[order(d$age), ]</code></pre>
+<p>Alors on a trié les lignes de d par ordre d’âge croissant ! Et si on fait un petit :</p>
+<pre class="r"><code>head(d.tri, 3)</code></pre>
+<pre><code>     id age  sexe nivetud    poids           occup qualif freres.soeurs
+162 162  18 Homme    &lt;NA&gt; 4982.964 Etudiant, eleve   &lt;NA&gt;             2
+215 215  18 Homme    &lt;NA&gt; 4631.188 Etudiant, eleve   &lt;NA&gt;             2
+346 346  18 Femme    &lt;NA&gt; 1725.410 Etudiant, eleve   &lt;NA&gt;             9
+    clso                       relig trav.imp trav.satisf hard.rock
+162  Non  Appartenance sans pratique     &lt;NA&gt;        &lt;NA&gt;       Non
+215  Oui Ni croyance ni appartenance     &lt;NA&gt;        &lt;NA&gt;       Non
+346  Non         Pratiquant regulier     &lt;NA&gt;        &lt;NA&gt;       Non
+    lecture.bd peche.chasse cuisine bricol cinema sport heures.tv fs.fac
+162        Non          Non     Non    Non    Non   Oui         3      2
+215        Non          Non     Oui    Non    Oui   Oui         2      2
+346        Non          Non     Non    Non    Oui   Non         2      9
+    fs.char qualif.char      age5cl  age20  age6cl qualif.reg
+162       2        &lt;NA&gt; (17.9,33.8] &lt;20ans [18,30)       &lt;NA&gt;
+215       2        &lt;NA&gt; (17.9,33.8] &lt;20ans [18,30)       &lt;NA&gt;
+346       9        &lt;NA&gt; (17.9,33.8] &lt;20ans [18,30)       &lt;NA&gt;
+    trav.satisf.reg ecart.heures.tv           act.manuelles
+162        Manquant       0.7534336 Ni cuisine ni bricolage
+215        Manquant      -0.2465664       Cuisine seulement
+346        Manquant      -0.2465664 Ni cuisine ni bricolage
+                 age.sexe score.ext
+162 Homme moins de 40 ans        20
+215 Homme moins de 40 ans        30
+346 Femme moins de 40 ans        10</code></pre>
+<p>On a les caractéristiques des trois enquêtés les plus jeunes.</p>
+<p>On peut évidemment trier par ordre décroissant en utilisant l’option <code>decreasing=TRUE</code>. On peut donc afficher les caractéristiques des trois individus les plus âgés avec :</p>
+<pre class="r"><code>head(d[order(d$age, decreasing = TRUE), ], 3)</code></pre>
+<pre><code>       id age  sexe                           nivetud    poids
+1916 1916  97 Femme Derniere annee d&#39;etudes primaires 2162.835
+270   270  96 Femme Derniere annee d&#39;etudes primaires 9993.020
+1542 1542  93 Femme Derniere annee d&#39;etudes primaires 7107.841
+                   occup qualif freres.soeurs clso
+1916       Autre inactif  Autre             5  Non
+270             Retraite   &lt;NA&gt;             1  Oui
+1542 Retire des affaires   &lt;NA&gt;             7  Non
+                           relig trav.imp trav.satisf hard.rock lecture.bd
+1916      Pratiquant occasionnel     &lt;NA&gt;        &lt;NA&gt;       Non        Non
+270  Ni croyance ni appartenance     &lt;NA&gt;        &lt;NA&gt;       Non        Non
+1542      Pratiquant occasionnel     &lt;NA&gt;        &lt;NA&gt;       Non        Non
+     peche.chasse cuisine bricol cinema sport heures.tv fs.fac fs.char
+1916          Non     Non    Non    Non   Non         3      5       5
+270           Non     Non    Non    Non   Non         6      1       1
+1542          Non     Non    Non    Oui   Non         3      7       7
+     qualif.char      age5cl  age20  age6cl qualif.reg trav.satisf.reg
+1916       Autre (81.2,97.1]   &lt;NA&gt; [66,97]      Autre        Manquant
+270         &lt;NA&gt; (81.2,97.1]   &lt;NA&gt; [66,97]       &lt;NA&gt;        Manquant
+1542        &lt;NA&gt; (81.2,97.1] &gt;80ans [66,97]       &lt;NA&gt;        Manquant
+     ecart.heures.tv           act.manuelles             age.sexe
+1916       0.7534336 Ni cuisine ni bricolage Femme plus de 40 ans
+270        3.7534336 Ni cuisine ni bricolage Femme plus de 40 ans
+1542       0.7534336 Ni cuisine ni bricolage Femme plus de 40 ans
+     score.ext
+1916         0
+270          0
+1542        10</code></pre>
+</div>
+<div id="fusion-de-tables" class="section level2">
+<h2>Fusion de tables</h2>
+<p>Lorsqu’on traite de grosses enquêtes, notamment les enquêtes de l’INSEE, on a souvent à gérer des données réparties dans plusieurs tables, soit du fait de la construction du questionnaire, soit du fait de contraintes techniques (fichiers <strong>dbf</strong> ou <strong>Excel</strong> limités à 256 colonnes, par exemple).</p>
+<p>Une opération relativement courante consiste à fusionner plusieurs tables pour regrouper tout ou partie des données dans un unique tableau.</p>
+<p>Nous allons simuler artificiellement une telle situation en créant deux tables à partir de l’extrait de l’enquête <em>Histoire de vie</em> :</p>
+<pre class="r"><code>data(hdv2003)
+d &lt;- hdv2003
+dim(d)</code></pre>
+<pre><code>[1] 2000   20</code></pre>
+<pre class="r"><code>d1 &lt;- subset(d, select = c(&quot;id&quot;, &quot;age&quot;, &quot;sexe&quot;))
+dim(d1)</code></pre>
+<pre><code>[1] 2000    3</code></pre>
+<pre class="r"><code>d2 &lt;- subset(d, select = c(&quot;id&quot;, &quot;clso&quot;))
+dim(d2)</code></pre>
+<pre><code>[1] 2000    2</code></pre>
+<p>On a donc deux tableaux de données, <code>d1</code> et <code>d2</code>, comportant chacun 2000 lignes et respectivement 3 et 2 colonnes. Comment les rassembler pour n’en former qu’un ?</p>
+<p>Intuitivement, cela paraît simple. Il suffit de « coller » <code>d2</code> à la droite de <code>d1</code>, comme dans l’exemple suivant.</p>
+<style media="screen" type="text/css">
+table.exemple_df td, 
+table.exemple_df th {
+  text-align: center;
+  padding: 3px 10px;
+}
+table.exemple_df th {
+  border-bottom: solid 1px #999;
+}
+
+table.exemple_df td + td,
+table.exemple_df th + th {
+  border-left: solid 1px #999;
+}
+
+table.exemple_operateur td {
+  font-size: 3em;
+  padding: 20px;
+}
+</style>
+<table style="margin: 11px auto;">
+<tr>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v1
+</th>
+<th>
+v2
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+H
+</td>
+<td>
+12
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+H
+</td>
+<td>
+17
+</td>
+</tr>
+<tr>
+<td>
+3
+</td>
+<td>
+F
+</td>
+<td>
+41
+</td>
+</tr>
+<tr>
+<td>
+4
+</td>
+<td>
+F
+</td>
+<td>
+9
+</td>
+</tr>
+<tr>
+<td>
+…
+</td>
+<td>
+…
+</td>
+<td>
+…
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_operateur">
+<tr>
+<td>
++
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v3
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+rouge
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+bleu
+</td>
+</tr>
+<tr>
+<td>
+3
+</td>
+<td>
+bleu
+</td>
+</tr>
+<tr>
+<td>
+4
+</td>
+<td>
+rouge
+</td>
+</tr>
+<tr>
+<td>
+…
+</td>
+<td>
+…
+</td>
+<td>
+…
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_operateur">
+<tr>
+<td>
+=
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v1
+</th>
+<th>
+v2
+</th>
+<th>
+v3
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+H
+</td>
+<td>
+12
+</td>
+<td>
+rouge
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+H
+</td>
+<td>
+17
+</td>
+<td>
+bleu
+</td>
+</tr>
+<tr>
+<td>
+3
+</td>
+<td>
+F
+</td>
+<td>
+41
+</td>
+<td>
+bleu
+</td>
+</tr>
+<tr>
+<td>
+4
+</td>
+<td>
+F
+</td>
+<td>
+9
+</td>
+<td>
+rouge
+</td>
+</tr>
+<tr>
+<td>
+…
+</td>
+<td>
+…
+</td>
+<td>
+…
+</td>
+<td>
+…
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<p>Cela semble fonctionner. La fonction qui permet d’effectuer cette opération sous <strong>R</strong> s’appelle <code data-package="base">cbind</code>, elle « colle » des tableaux côte à côte en regroupant leurs colonnes<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>.</p>
+<pre class="r"><code>head(cbind(d1, d2))</code></pre>
+<pre><code>  id age  sexe id clso
+1  1  28 Femme  1  Oui
+2  2  23 Femme  2  Oui
+3  3  59 Homme  3  Non
+4  4  34 Homme  4  Non
+5  5  71 Femme  5  Oui
+6  6  35 Femme  6  Non</code></pre>
+<p>À part le fait qu’on a une colonne <em>id</em> en double, le résultat semble satisfaisant. À première vue seulement. Imaginons maintenant que nous avons travaillé sur <code>d1</code> et <code>d2</code>, et que nous avons ordonné les lignes de d1 selon l’âge des enquêtés :</p>
+<pre class="r"><code>d1 &lt;- d1[order(d1$age), ]</code></pre>
+<p>Répétons l’opération de collage :</p>
+<pre class="r"><code>head(cbind(d1, d2))</code></pre>
+<pre><code>     id age  sexe id clso
+162 162  18 Homme  1  Oui
+215 215  18 Homme  2  Oui
+346 346  18 Femme  3  Non
+377 377  18 Homme  4  Non
+511 511  18 Homme  5  Oui
+646 646  18 Homme  6  Non</code></pre>
+<p>Que constate-t-on ? La présence de la variable <em>id</em> en double nous permet de voir que les identifiants ne coïncident plus ! En regroupant nos colonnes nous avons donc attribué à des individus les réponses d’autres individus.</p>
+<p>La commande <code data-package="base">cbind</code> ne peut en effet fonctionner que si les deux tableaux ont exactement le même nombre de lignes, et dans le même ordre, ce qui n’est pas le cas ici.</p>
+<p>On va donc être obligé de pocéder à une <em>fusion</em> des deux tableaux, qui va permettre de rendre à chaque ligne ce qui lui appartient. Pour cela nous avons besoin d’un identifiant qui permet d’identifier chaque ligne de manière unique et qui doit être présent dans tous les tableaux. Dans notre cas, c’est plutôt rapide, il s’agit de la variable <em>id</em>.</p>
+<p>Une fois l’identifiant identifié<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>, on peut utiliser la commande <code data-package="base">merge</code>. Celle-ci va fusionner les deux tableaux en supprimant les colonnes en double et en regroupant les lignes selon leurs identifiants :</p>
+<pre class="r"><code>d.complet &lt;- merge(d1, d2, by = &quot;id&quot;)
+head(d.complet)</code></pre>
+<pre><code>  id age  sexe clso
+1  1  28 Femme  Oui
+2  2  23 Femme  Oui
+3  3  59 Homme  Non
+4  4  34 Homme  Non
+5  5  71 Femme  Oui
+6  6  35 Femme  Non</code></pre>
+<p>Ici l’utilisation de la fonction est plutôt simple car nous sommes dans le cas de figure idéal : les lignes correspondent parfaitement et l’identifiant est clairement identifié. Parfois les choses peuvent être un peu plus compliquées :</p>
+<ul>
+<li>parfois les identifiants n’ont pas le même nom dans les deux tableaux. On peut alors les spécifier par les options <code>by.x</code> et <code>by.y</code> ;</li>
+<li>parfois les deux tableaux comportent des colonnes (hors identifiants) ayant le même nom. <code data-package="base">merge</code> conserve dans ce cas ces deux colonnes mais les renomme en les suffixant par <em>.x</em> pour celles provenant du premier tableau et <em>.y</em> pour celles du second ;</li>
+<li>parfois on n’a pas d’identifiant unique préétabli, mais on en construit un à partir de plusieurs variables. On peut alors donner un vecteur en paramètres de l’option <code>by</code>, par exemple <code>by=c(&quot;nom&quot;,&quot;prenom&quot;,&quot;date.naissance&quot;)</code>.</li>
+</ul>
+<p>Une subtilité supplémentaire intervient lorsque les deux tableaux fusionnés n’ont pas exactement les mêmes lignes. Par défaut, <code data-package="base">merge</code> ne conserve que les lignes présentes dans les deux tableaux :</p>
+<table style="margin: 11px auto;">
+<tr>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v1
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+H
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+H
+</td>
+</tr>
+<tr>
+<td>
+3
+</td>
+<td>
+F
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_operateur">
+<tr>
+<td>
++
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v2
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+10
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+15
+</td>
+</tr>
+<tr>
+<td>
+5
+</td>
+<td>
+31
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_operateur">
+<tr>
+<td>
+=
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v1
+</th>
+<th>
+v2
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+H
+</td>
+<td>
+10
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+H
+</td>
+<td>
+15
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<p>On peut cependant modifier ce comportement avec les options <code>all.x</code> et <code>all.y</code>.</p>
+<p>Ainsi, <code>all.x=TRUE</code> indique de conserver toutes les lignes du premier tableau. Dans ce cas <code data-package="base">merge</code> donne une valeur <code>NA</code> pour ces lignes aux colonnes provenant du second tableau. Ce qui donnerait :</p>
+<table style="margin: 11px auto;">
+<tr>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v1
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+H
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+H
+</td>
+</tr>
+<tr>
+<td>
+3
+</td>
+<td>
+F
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_operateur">
+<tr>
+<td>
++
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v2
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+10
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+15
+</td>
+</tr>
+<tr>
+<td>
+5
+</td>
+<td>
+31
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_operateur">
+<tr>
+<td>
+=
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v1
+</th>
+<th>
+v2
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+H
+</td>
+<td>
+10
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+H
+</td>
+<td>
+15
+</td>
+</tr>
+<tr>
+<td>
+3
+</td>
+<td>
+F
+</td>
+<td>
+<code>NA</code>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<p>L’option <code>all.y=TRUE</code> fait la même chose en conservant toutes les lignes du second tableau.</p>
+<table style="margin: 11px auto;">
+<tr>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v1
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+H
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+H
+</td>
+</tr>
+<tr>
+<td>
+3
+</td>
+<td>
+F
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_operateur">
+<tr>
+<td>
++
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v2
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+10
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+15
+</td>
+</tr>
+<tr>
+<td>
+5
+</td>
+<td>
+31
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_operateur">
+<tr>
+<td>
+=
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v1
+</th>
+<th>
+v2
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+H
+</td>
+<td>
+10
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+H
+</td>
+<td>
+15
+</td>
+</tr>
+<tr>
+<td>
+5
+</td>
+<td>
+<code>NA</code>
+</td>
+<td>
+31
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<p>Enfin, on peut décider de conserver toutes les lignes des deux tableaux en utilisant à la fois <code>all.x=TRUE</code> et <code>all.y=TRUE</code>, ce qui donne :</p>
+<table style="margin: 11px auto;">
+<tr>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v1
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+H
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+H
+</td>
+</tr>
+<tr>
+<td>
+3
+</td>
+<td>
+F
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_operateur">
+<tr>
+<td>
++
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v2
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+10
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+15
+</td>
+</tr>
+<tr>
+<td>
+5
+</td>
+<td>
+31
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_operateur">
+<tr>
+<td>
+=
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v1
+</th>
+<th>
+v2
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+H
+</td>
+<td>
+10
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+H
+</td>
+<td>
+15
+</td>
+</tr>
+<tr>
+<td>
+3
+</td>
+<td>
+F
+</td>
+<td>
+<code>NA</code>
+</td>
+</tr>
+<tr>
+<td>
+5
+</td>
+<td>
+<code>NA</code>
+</td>
+<td>
+31
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<p>Parfois, l’un des identifiants est présent à plusieurs reprises dans l’un des tableaux (par exemple lorsque l’une des tables est un ensemble de ménages et que l’autre décrit l’ensemble des individus de ces ménages). Dans ce cas les lignes de l’autre table sont dupliquées autant de fois que nécessaires :</p>
+<table style="margin: 11px auto;">
+<tr>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v1
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+H
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+H
+</td>
+</tr>
+<tr>
+<td>
+3
+</td>
+<td>
+F
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_operateur">
+<tr>
+<td>
++
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v2
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+10
+</td>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+18
+</td>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+21
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+15
+</td>
+</tr>
+<tr>
+<td>
+3
+</td>
+<td>
+42
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_operateur">
+<tr>
+<td>
+=
+</td>
+</tr>
+</table>
+</td>
+<td>
+<table class="exemple_df">
+<tr>
+<th>
+id
+</th>
+<th>
+v1
+</th>
+<th>
+v2
+</th>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+H
+</td>
+<td>
+10
+</td>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+H
+</td>
+<td>
+18
+</td>
+</tr>
+<tr>
+<td>
+1
+</td>
+<td>
+H
+</td>
+<td>
+21
+</td>
+</tr>
+<tr>
+<td>
+2
+</td>
+<td>
+H
+</td>
+<td>
+15
+</td>
+</tr>
+<tr>
+<td>
+3
+</td>
+<td>
+F
+</td>
+<td>
+42
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
 </div>
 <div class="footnotes">
 <hr />
 <ol>
 <li id="fn1"><p>Une différence entre les deux est que <code>$</code> admet une correspondance partielle du nom de variable, si celle-ci est unique. Ainsi, <code>d$cls</code> renverra bien la variable <em>clso</em>, tandis que <code>d$c</code> renverra <code>NULL</code>, du fait que plusieurs variables de <em>d</em> commencent par la lettre <em>c</em>.<a href="#fnref1">↩</a></p></li>
 <li id="fn2"><p>Si vous utilisez l’extenstion <strong class="package">data.table</strong>, la gestion des valeurs manquantes est quelque peu différente. Voir chapitre MAJ_LIEN.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>L’équivalent de <code data-package="base">cbind</code> pour les lignes s’appelle <code data-package="base" data-rdocumentation="cbind">rbind</code>.<a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>Si vous me passez l’expression. . .<a href="#fnref4">↩</a></p></li>
 </ol>
 </div>
 
