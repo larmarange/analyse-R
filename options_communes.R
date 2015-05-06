@@ -1,4 +1,6 @@
-options(knitr.table.format = 'pandoc')
+options(
+  knitr.table.format = 'pandoc'
+)
 knitr::opts_chunk$set(
   comment = NA, # No ## before the results
   dev = "png",
