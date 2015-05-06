@@ -1,0 +1,210 @@
+---
+title: "Calculer un âge"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+<div class="note">
+La version originale de cette astuce a été publiée par Joseph Larmarange 
+sur <http://joseph.larmarange.net/?Calculer-proprement-un-age-sous-R>.
+</div>
+
+Le calcul d'un âge sous **R** n'est pas forcément aussi trivial qu'il n'y parait.
+
+## Rappel sur les âges
+
+Il convient en premier lieu de rappeler les principaux âges utilisés les démographes :
+
+> L'âge -- on précise parfois âge chronologique -- est une des caractéristiques fondamentales de la structure des populations.
+> On l'exprime généralement en années, ou en années et mois, voire en mois et jours, pour les enfants en bas âge ;
+> parfois en années et fractions décimales d'année. Les démographes arrondissent d'ordinaire l'âge à l'unité inférieure,
+> l'exprimant ainsi en années révolues, ou années accomplies, le cas échéant en mois révolus, ou mois accomplis. 
+> Cet âge est aussi l'âge au dernier anniversaire. On trouve aussi, dans les statistiques, l'âge atteint dans l'année,
+> qui est égal à la différence de millésimes entre l'année considérée et l'année de naissance. [...] On est parfois 
+> conduit à préciser que l'on considère un âge exact, pour éviter toute confusion avec un âge en années révolues,
+> qui représente en fait une classe d'âges exacts.
+>
+> <footer>Source : [<cite>Demopædia</cite> (322)](http://fr-ii.demopaedia.org/wiki/32#322)</footer>
+
+## Le package lubridate
+
+Le package <strong class="package">lubridate</strong> est spécialement développé pour faciliter la manipulation 
+et le calcul autour des dates. La version de développement intègre depuis peu une fonction 
+`time_length`{data-package="lubridate"} adaptée au calcul des âges exacts.
+
+<div class="info">
+La fonction `time_length`{data-package="lubridate"} étant récente, elle n'est pas 
+encore disponible dans la version stable du package. 
+Pour installer la version de développement de <strong class="package">lubridate</strong>,
+on aura recours au package <strong class="package">devtools</strong> :
+
+```{r, eval=FALSE}
+library(devtools)
+install_github('hadley/lubridate')
+```
+</div>
+
+Nous noterons `naiss` la date de naissance et `evt` la date à laquelle nous calculerons l'âge.
+
+## Calcul d'un âge exact
+
+Une approche simple consiste à calculer une différence en jours puis à diviser par 365. 
+Or, le souci c'est que toutes les années n'ont pas le même nombre de jours. 
+Regardons par exemple ce qui se passe si l'on calcule l'âge au 31 décembre 1999 
+d'une personne née le 1^er^ janvier 1900.
+
+```{r}
+library(lubridate)
+naiss <- ymd("1900-01-01")
+evt <- ymd("1999-12-31")
+time_length(interval(naiss, evt), "days")
+time_length(interval(naiss, evt), "days") / 365
+```
+
+Or, au 31 décembre 1999, cette personne n'a pas encore fêté son centième anniversaire. 
+Le calcul précédent ne prend pas en compte les années bissextiles. 
+Une approche plus correcte serait de considérer que les années durent en moyenne 365,25 jours.
+
+```{r}
+time_length(interval(naiss, evt), "days") / 365.25
+```
+
+Si cette approche semble fonctionner avec cet exemple, 
+ce n'est plus le cas dans d'autres situations.
+
+```{r}
+evt <- ymd("1903-01-01")
+time_length(interval(naiss, evt), "days") / 365.25
+```
+
+Or, à la date du premier janvier 1903, cette personne a bien fêté son troisième anniversaire.
+
+Pour calculer proprement un âge en années (ou en mois), il est dès lors nécessaire de prendre en
+compte la date anniversaire et le fait que la durée de chaque année (ou mois) est variable. 
+C'est justement ce que fait la fonction `time_length`{data-package="lubridate"} appliquée à un objet 
+de type `Interval`{data-package="lubridate" data-rdocumentation="Interval-class"}. 
+On détermine le dernier et le prochain anniversaire et l'on rajoute, 
+à l'âge atteint au dernier anniversaire, le ratio entre le nombre de jours entre l'événement 
+et le dernier anniversaire par le nombre de jours entre le prochain et le dernier anniversaire.
+
+```{r}
+naiss <- ymd("1900-01-01")
+evt <- ymd("1999-12-31")
+time_length(interval(naiss, evt), "years")
+evt <- ymd("1903-01-01")
+time_length(interval(naiss, evt), "years")
+evt <- ymd("1918-11-11")
+time_length(interval(naiss, evt), "years")
+```
+
+Attention, cela n'est valable que si l'on présente à la fonction `time_length`{data-package="lubridate"} 
+un objet de type `Interval`{data-package="lubridate" data-rdocumentation="Interval-class"} 
+(pour lequel on connait dès lors la date de début et la date de fin). 
+Si l'on passe une durée (objet de type `Duration`{data-package="lubridate" data-rdocumentation="Duration-class"})
+à la fonction `time_length`{data-package="lubridate"}, le calcul s'effectuera alors en prenant en compte la durée 
+moyenne d'une année (plus précisément 365 jours).
+
+```{r}
+naiss <- ymd("1900-01-01")
+evt <- ymd("1999-12-31")
+time_length(interval(naiss, evt), "years")
+time_length(evt - naiss, "years")
+time_length(as.duration(interval(naiss, evt)), "years")
+```
+
+### Cas particulier des personnes nées un 29 février
+
+Pour les personnes nées un 29 février, il existe un certain flou concernant leur date d'anniversaire 
+pour les années non bissextiles. Doit-on considérer qu'il s'agit du 28 février ou du 1^er^ mars ?
+
+Au sens strict, on peut considérer que leur anniversaire a lieu entre le 28 février soir à minuit et 
+le 1^er^ mars à 0 heure du matin, autrement dit que le 28 février ils n'ont pas encore fêté leur anniversaire.
+C'est la position adoptée par la fonction `time_length`{data-package="lubridate"}.
+
+```{r}
+naiss <- ymd("1992-02-29")
+evt <- ymd("2014-02-28")
+time_length(interval(naiss, evt), "years")
+evt <- ymd("2014-03-01")
+time_length(interval(naiss, evt), "years")
+```
+
+Cette approche permets également d'être cohérent avec la manière dont les dates sont prises en compte informatiquement. 
+On considère en effet que lorsque seule la date est précisée (sans mention de l'heure), l'heure correspondante est `0:00`.
+Autrement dit, `"2014-03-01"` est équivalent à `"2014-03-01 00:00:00"`. L'approche adoptée permet donc d'être 
+cohérent lorsque l'anniversaire est calculé en tenant compte des heures.
+
+```{r}
+naiss <- ymd("1992-02-29")
+evt <- ymd_hms("2014-02-28 23:00:00")
+time_length(interval(naiss, evt), "years")
+evt <- ymd_hms("2014-03-01 00:00:00")
+time_length(interval(naiss, evt), "years")
+evt <- ymd_hms("2014-03-01 01:00:00")
+time_length(interval(naiss, evt), "years")
+naiss <- ymd_hms("1992-02-29 12:00:00")
+evt <- ymd_hms("2014-03-01 01:00:00")
+time_length(interval(naiss, evt), "years")
+```
+
+## Âge révolu ou âge au dernier anniversaire
+
+Une fois que l'on sait calculer un âge exact, le calcul d'un âge révolu est assez simple. 
+Il suffit de ne garder que la partie entière de l'âge exact (approche conseillée).
+
+```{r}
+naiss <- ymd("1980-01-09")
+evt <- ymd("2015-01-01")
+time_length(interval(naiss, evt), "years")
+trunc(time_length(interval(naiss, evt), "years"))
+```
+
+Une autre approche consiste à convertir l'intervalle en objet de type 
+`Period`{data-package="lubridate" data-rdocumentation="Period-class"} et à ne prendre en compte que les années.
+
+```{r}
+as.period(interval(naiss, evt))
+as.period(interval(naiss, evt))@year
+```
+
+## Âge par différence de millésimes
+
+L'âge par différence de millésimes, encore appelé âge atteint dans l'année, s'obtient tout simplement en 
+soustrayant l'année de naissance à l'année de l'événement.
+
+```{r}
+naiss <- ymd("1980-01-09")
+evt <- ymd("2015-01-01")
+year(evt)-year(naiss)
+```
+
+<div class="note">
+L'ensemble des fonctions présentées peuvent être appliquées à des vecteurs et, par conséquent, aux colonnes d'un tableau de données (*data.frame*).
+
+Le package <strong class="package">eeptools</strong> fournit de son côté une fonction 
+`age_calc`{data-package="eeptools"}^[https://github.com/jknowles/eeptools/blob/master/R/age_calc.R]
+qui permet le calcul des âges exacts et révolus. 
+
+```{r}
+library(eeptools)
+naiss <- as.Date("1980-01-09")
+evt <- as.Date("2015-01-01")
+age_calc(naiss, evt, units = "years", precise = TRUE)
+time_length(interval(naiss, evt), "years")
+```
+
+La méthode utilisée par `age_calc`{data-package="eeptools"} donne des résultats 
+légèrement différent de ceux de `time_length`{data-package="lubridate"}. Il est donc conseillé 
+d'utiliser de préférence le package <strong class="package">lubridate</strong>.
+
+En l'absence du package lubridate, il reste facile de calculer une durée en jours avec les fonctions de base de **R**.
+
+```{r}
+naiss <- as.Date("1900-01-01")
+evt <- as.Date("1999-12-31")
+evt - naiss
+as.integer(evt - naiss)
+```
+</div>
