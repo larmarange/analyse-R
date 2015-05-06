@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Calculer un âge</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/flatly.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<link rel="stylesheet" href="./include/analyse-R.css" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href=".">analyse-R</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="index.html">Accueil</a></li>
+        <li class="dropdown">
+          <a href="pem" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Prise en main <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+             <li><a href="pem_manipulation.html">Manipulation de données</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="analyses" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Analyses <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+             <li><a href="analyses_reglog.html">Régression logistique</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="astuces" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Astuces <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+             <li><a href="astuces_age.html">Calculer un âge</a></li>
+          </ul>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a href="participer" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Participer <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+              <li><a href="https://github.com/larmarange/analyse-R">analyse-R sur GitHub</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+<h1 class="title">Calculer un âge</h1>
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#rappel-sur-les-ages">Rappel sur les âges</a></li>
+<li><a href="#le-package-lubridate">Le package lubridate</a></li>
+<li><a href="#calcul-dun-age-exact">Calcul d’un âge exact</a><ul>
+<li><a href="#cas-particulier-des-personnes-nees-un-29-fevrier">Cas particulier des personnes nées un 29 février</a></li>
+</ul></li>
+<li><a href="#age-revolu-ou-age-au-dernier-anniversaire">Âge révolu ou âge au dernier anniversaire</a></li>
+<li><a href="#age-par-difference-de-millesimes">Âge par différence de millésimes</a></li>
+</ul>
+</div>
+
+<div class="note">
+La version originale de cette astuce a été publiée par Joseph Larmarange sur <a href="http://joseph.larmarange.net/?Calculer-proprement-un-age-sous-R" class="uri">http://joseph.larmarange.net/?Calculer-proprement-un-age-sous-R</a>.
+</div>
+<p>Le calcul d’un âge sous <strong>R</strong> n’est pas forcément aussi trivial qu’il n’y parait.</p>
+<div id="rappel-sur-les-ages" class="section level2">
+<h2>Rappel sur les âges</h2>
+<p>Il convient en premier lieu de rappeler les principaux âges utilisés les démographes :</p>
+<blockquote>
+<p>L’âge – on précise parfois âge chronologique – est une des caractéristiques fondamentales de la structure des populations. On l’exprime généralement en années, ou en années et mois, voire en mois et jours, pour les enfants en bas âge ; parfois en années et fractions décimales d’année. Les démographes arrondissent d’ordinaire l’âge à l’unité inférieure, l’exprimant ainsi en années révolues, ou années accomplies, le cas échéant en mois révolus, ou mois accomplis. Cet âge est aussi l’âge au dernier anniversaire. On trouve aussi, dans les statistiques, l’âge atteint dans l’année, qui est égal à la différence de millésimes entre l’année considérée et l’année de naissance. […] On est parfois conduit à préciser que l’on considère un âge exact, pour éviter toute confusion avec un âge en années révolues, qui représente en fait une classe d’âges exacts.</p>
+<footer>
+Source : <a href="http://fr-ii.demopaedia.org/wiki/32#322"><cite>Demopædia</cite> (322)</a>
+</footer>
+</blockquote>
+</div>
+<div id="le-package-lubridate" class="section level2">
+<h2>Le package lubridate</h2>
+<p>Le package <strong class="package">lubridate</strong> est spécialement développé pour faciliter la manipulation et le calcul autour des dates. La version de développement intègre depuis peu une fonction <code data-package="lubridate">time_length</code> adaptée au calcul des âges exacts.</p>
+<div class="info">
+<p>La fonction <code data-package="lubridate">time_length</code> étant récente, elle n’est pas encore disponible dans la version stable du package. Pour installer la version de développement de <strong class="package">lubridate</strong>, on aura recours au package <strong class="package">devtools</strong> :</p>
+<pre class="r"><code>library(devtools)
+install_github(&quot;hadley/lubridate&quot;)</code></pre>
+</div>
+<p>Nous noterons <code>naiss</code> la date de naissance et <code>evt</code> la date à laquelle nous calculerons l’âge.</p>
+</div>
+<div id="calcul-dun-age-exact" class="section level2">
+<h2>Calcul d’un âge exact</h2>
+<p>Une approche simple consiste à calculer une différence en jours puis à diviser par 365. Or, le souci c’est que toutes les années n’ont pas le même nombre de jours. Regardons par exemple ce qui se passe si l’on calcule l’âge au 31 décembre 1999 d’une personne née le 1<sup>er</sup> janvier 1900.</p>
+<pre class="r"><code>library(lubridate)
+naiss &lt;- ymd(&quot;1900-01-01&quot;)
+evt &lt;- ymd(&quot;1999-12-31&quot;)
+time_length(interval(naiss, evt), &quot;days&quot;)</code></pre>
+<pre><code>[1] 36523</code></pre>
+<pre class="r"><code>time_length(interval(naiss, evt), &quot;days&quot;)/365</code></pre>
+<pre><code>[1] 100.063</code></pre>
+<p>Or, au 31 décembre 1999, cette personne n’a pas encore fêté son centième anniversaire. Le calcul précédent ne prend pas en compte les années bissextiles. Une approche plus correcte serait de considérer que les années durent en moyenne 365,25 jours.</p>
+<pre class="r"><code>time_length(interval(naiss, evt), &quot;days&quot;)/365.25</code></pre>
+<pre><code>[1] 99.99452</code></pre>
+<p>Si cette approche semble fonctionner avec cet exemple, ce n’est plus le cas dans d’autres situations.</p>
+<pre class="r"><code>evt &lt;- ymd(&quot;1903-01-01&quot;)
+time_length(interval(naiss, evt), &quot;days&quot;)/365.25</code></pre>
+<pre><code>[1] 2.997947</code></pre>
+<p>Or, à la date du premier janvier 1903, cette personne a bien fêté son troisième anniversaire.</p>
+<p>Pour calculer proprement un âge en années (ou en mois), il est dès lors nécessaire de prendre en compte la date anniversaire et le fait que la durée de chaque année (ou mois) est variable. C’est justement ce que fait la fonction <code data-package="lubridate">time_length</code> appliquée à un objet de type <code data-package="lubridate" data-rdocumentation="Interval-class">Interval</code>. On détermine le dernier et le prochain anniversaire et l’on rajoute, à l’âge atteint au dernier anniversaire, le ratio entre le nombre de jours entre l’événement et le dernier anniversaire par le nombre de jours entre le prochain et le dernier anniversaire.</p>
+<pre class="r"><code>naiss &lt;- ymd(&quot;1900-01-01&quot;)
+evt &lt;- ymd(&quot;1999-12-31&quot;)
+time_length(interval(naiss, evt), &quot;years&quot;)</code></pre>
+<pre><code>[1] 99.99726</code></pre>
+<pre class="r"><code>evt &lt;- ymd(&quot;1903-01-01&quot;)
+time_length(interval(naiss, evt), &quot;years&quot;)</code></pre>
+<pre><code>[1] 3</code></pre>
+<pre class="r"><code>evt &lt;- ymd(&quot;1918-11-11&quot;)
+time_length(interval(naiss, evt), &quot;years&quot;)</code></pre>
+<pre><code>[1] 18.86027</code></pre>
+<p>Attention, cela n’est valable que si l’on présente à la fonction <code data-package="lubridate">time_length</code> un objet de type <code data-package="lubridate" data-rdocumentation="Interval-class">Interval</code> (pour lequel on connait dès lors la date de début et la date de fin). Si l’on passe une durée (objet de type <code data-package="lubridate" data-rdocumentation="Duration-class">Duration</code>) à la fonction <code data-package="lubridate">time_length</code>, le calcul s’effectuera alors en prenant en compte la durée moyenne d’une année (plus précisément 365 jours).</p>
+<pre class="r"><code>naiss &lt;- ymd(&quot;1900-01-01&quot;)
+evt &lt;- ymd(&quot;1999-12-31&quot;)
+time_length(interval(naiss, evt), &quot;years&quot;)</code></pre>
+<pre><code>[1] 99.99726</code></pre>
+<pre class="r"><code>time_length(evt - naiss, &quot;years&quot;)</code></pre>
+<pre><code>[1] 100.063</code></pre>
+<pre class="r"><code>time_length(as.duration(interval(naiss, evt)), &quot;years&quot;)</code></pre>
+<pre><code>[1] 100.063</code></pre>
+<div id="cas-particulier-des-personnes-nees-un-29-fevrier" class="section level3">
+<h3>Cas particulier des personnes nées un 29 février</h3>
+<p>Pour les personnes nées un 29 février, il existe un certain flou concernant leur date d’anniversaire pour les années non bissextiles. Doit-on considérer qu’il s’agit du 28 février ou du 1<sup>er</sup> mars ?</p>
+<p>Au sens strict, on peut considérer que leur anniversaire a lieu entre le 28 février soir à minuit et le 1<sup>er</sup> mars à 0 heure du matin, autrement dit que le 28 février ils n’ont pas encore fêté leur anniversaire. C’est la position adoptée par la fonction <code data-package="lubridate">time_length</code>.</p>
+<pre class="r"><code>naiss &lt;- ymd(&quot;1992-02-29&quot;)
+evt &lt;- ymd(&quot;2014-02-28&quot;)
+time_length(interval(naiss, evt), &quot;years&quot;)</code></pre>
+<pre><code>[1] 21.99726</code></pre>
+<pre class="r"><code>evt &lt;- ymd(&quot;2014-03-01&quot;)
+time_length(interval(naiss, evt), &quot;years&quot;)</code></pre>
+<pre><code>[1] 22</code></pre>
+<p>Cette approche permets également d’être cohérent avec la manière dont les dates sont prises en compte informatiquement. On considère en effet que lorsque seule la date est précisée (sans mention de l’heure), l’heure correspondante est <code>0:00</code>. Autrement dit, <code>&quot;2014-03-01&quot;</code> est équivalent à <code>&quot;2014-03-01 00:00:00&quot;</code>. L’approche adoptée permet donc d’être cohérent lorsque l’anniversaire est calculé en tenant compte des heures.</p>
+<pre class="r"><code>naiss &lt;- ymd(&quot;1992-02-29&quot;)
+evt &lt;- ymd_hms(&quot;2014-02-28 23:00:00&quot;)
+time_length(interval(naiss, evt), &quot;years&quot;)</code></pre>
+<pre><code>[1] 21.99989</code></pre>
+<pre class="r"><code>evt &lt;- ymd_hms(&quot;2014-03-01 00:00:00&quot;)
+time_length(interval(naiss, evt), &quot;years&quot;)</code></pre>
+<pre><code>[1] 22</code></pre>
+<pre class="r"><code>evt &lt;- ymd_hms(&quot;2014-03-01 01:00:00&quot;)
+time_length(interval(naiss, evt), &quot;years&quot;)</code></pre>
+<pre><code>[1] 22.00011</code></pre>
+<pre class="r"><code>naiss &lt;- ymd_hms(&quot;1992-02-29 12:00:00&quot;)
+evt &lt;- ymd_hms(&quot;2014-03-01 01:00:00&quot;)
+time_length(interval(naiss, evt), &quot;years&quot;)</code></pre>
+<pre><code>[1] 22.00011</code></pre>
+</div>
+</div>
+<div id="age-revolu-ou-age-au-dernier-anniversaire" class="section level2">
+<h2>Âge révolu ou âge au dernier anniversaire</h2>
+<p>Une fois que l’on sait calculer un âge exact, le calcul d’un âge révolu est assez simple. Il suffit de ne garder que la partie entière de l’âge exact (approche conseillée).</p>
+<pre class="r"><code>naiss &lt;- ymd(&quot;1980-01-09&quot;)
+evt &lt;- ymd(&quot;2015-01-01&quot;)
+time_length(interval(naiss, evt), &quot;years&quot;)</code></pre>
+<pre><code>[1] 34.97808</code></pre>
+<pre class="r"><code>trunc(time_length(interval(naiss, evt), &quot;years&quot;))</code></pre>
+<pre><code>[1] 34</code></pre>
+<p>Une autre approche consiste à convertir l’intervalle en objet de type <code data-package="lubridate" data-rdocumentation="Period-class">Period</code> et à ne prendre en compte que les années.</p>
+<pre class="r"><code>as.period(interval(naiss, evt))</code></pre>
+<pre><code>[1] &quot;34y 11m 23d 0H 0M 0S&quot;</code></pre>
+<pre class="r"><code>as.period(interval(naiss, evt))@year</code></pre>
+<pre><code>[1] 34</code></pre>
+</div>
+<div id="age-par-difference-de-millesimes" class="section level2">
+<h2>Âge par différence de millésimes</h2>
+<p>L’âge par différence de millésimes, encore appelé âge atteint dans l’année, s’obtient tout simplement en soustrayant l’année de naissance à l’année de l’événement.</p>
+<pre class="r"><code>naiss &lt;- ymd(&quot;1980-01-09&quot;)
+evt &lt;- ymd(&quot;2015-01-01&quot;)
+year(evt) - year(naiss)</code></pre>
+<pre><code>[1] 35</code></pre>
+<div class="note">
+<p>L’ensemble des fonctions présentées peuvent être appliquées à des vecteurs et, par conséquent, aux colonnes d’un tableau de données (<em>data.frame</em>).</p>
+<p>Le package <strong class="package">eeptools</strong> fournit de son côté une fonction <code data-package="eeptools">age_calc</code><a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> qui permet le calcul des âges exacts et révolus.</p>
+<pre class="r"><code>library(eeptools)</code></pre>
+<pre><code>Loading required package: ggplot2
+Loading required package: MASS</code></pre>
+<pre class="r"><code>naiss &lt;- as.Date(&quot;1980-01-09&quot;)
+evt &lt;- as.Date(&quot;2015-01-01&quot;)
+age_calc(naiss, evt, units = &quot;years&quot;, precise = TRUE)</code></pre>
+<pre><code>[1] 34.97814</code></pre>
+<pre class="r"><code>time_length(interval(naiss, evt), &quot;years&quot;)</code></pre>
+<pre><code>[1] 34.97808</code></pre>
+<p>La méthode utilisée par <code data-package="eeptools">age_calc</code> donne des résultats légèrement différent de ceux de <code data-package="lubridate">time_length</code>. Il est donc conseillé d’utiliser de préférence le package <strong class="package">lubridate</strong>.</p>
+<p>En l’absence du package lubridate, il reste facile de calculer une durée en jours avec les fonctions de base de <strong>R</strong>.</p>
+<pre class="r"><code>naiss &lt;- as.Date(&quot;1900-01-01&quot;)
+evt &lt;- as.Date(&quot;1999-12-31&quot;)
+evt - naiss</code></pre>
+<pre><code>Time difference of 36523 days</code></pre>
+<pre class="r"><code>as.integer(evt - naiss)</code></pre>
+<pre><code>[1] 36523</code></pre>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://github.com/jknowles/eeptools/blob/master/R/age_calc.R" class="uri">https://github.com/jknowles/eeptools/blob/master/R/age_calc.R</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+
+<script>
+
+// manage active state of menu based on current page
+$(document).ready(function () {
+
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+
+    // manage active menu header
+    if (href.startsWith('pem_'))
+      $('a[href="' + 'pem' + '"]').parent().addClass('active');
+    else if (href.startsWith('analyses_'))
+      $('a[href="' + 'analyses' + '"]').parent().addClass('active');
+    else if (href.startsWith('astuces_'))
+      $('a[href="' + 'astuces' + '"]').parent().addClass('active');
+
+    // Identifier les <pre> fermant
+    $('pre').next().not('pre').prev().addClass('last'); // Last <pre> of each group of <pre>
+    $('pre').last().addClass('last'); // If the last one is not followed bay anything
+
+    // Ajout liens rdocumentation
+    $("code[data-package]").each(function( index ) {
+      package = $(this).attr('data-package');
+      if ($(this).attr('data-rdocumentation') !== undefined)
+        rdocumentation = $(this).attr('data-rdocumentation');
+      else
+        rdocumentation = $(this).text();
+      fonction = $(this).text();
+      $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+package+'/functions/'+rdocumentation+'">');
+    });
+
+    $("strong.package").each(function( index ) {
+      $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+$(this).text()+'">');
+    });
+
+    // Figures
+    $("figure").each(function( index ) {
+      if ($(this).children("figcaption").length > 0)
+        $(this).children("figcaption:first").prepend('<span class="figure-number">Figure '+(index+1)+'.</span> ');
+      else
+        $(this).append($("<figcaption>").append('<span class="figure-number">Figure '+(index+1)+'</span>'));
+    });
+
+});
+
+</script>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+
+</body>
+</html>
