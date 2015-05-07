@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Données pondérées</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/flatly.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<link rel="stylesheet" href="./include/analyse-R.css" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href=".">analyse-R</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="index.html">Accueil</a></li>
+        <li class="dropdown">
+          <a href="pem" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Prise en main <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+             <li><a href="pem_manipulation.html">Manipulation de données</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="analyses" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Analyses <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+             <li><a href="analyses_stat_biv.html">Statistique bivariée</a></li>
+             <li><a href="analyses_reglog.html">Régression logistique</a></li>
+             <li><a href="analyses_donnees_pond.html">Données pondérées</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="astuces" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Astuces <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+             <li><a href="astuces_age.html">Calculer un âge</a></li>
+          </ul>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a href="participer" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Participer <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+              <li><a href="https://github.com/larmarange/analyse-R">analyse-R sur GitHub</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+<h1 class="title">Données pondérées</h1>
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#options-de-certaines-fonctions">Options de certaines fonctions</a></li>
+<li><a href="#fonctions-de-lextension-questionr">Fonctions de l’extension questionr</a></li>
+<li><a href="#donnees-ponderees-avec-lextension-survey">Données pondérées avec l’extension survey</a></li>
+<li><a href="#definir-un-plan-dechantillonage-complexe-avec-survey">Définir un plan d’échantillonage complexe avec survey</a><ul>
+<li><a href="#differents-types-dechantillonnage">Différents types d’échantillonnage</a></li>
+<li><a href="#les-options-de-svydesign">Les options de svydesign</a></li>
+<li><a href="#extraire-un-sous-echantillon">Extraire un sous-échantillon</a></li>
+</ul></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
+</div>
+
+<div class="note">
+La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre du support de cours <a href="https://github.com/juba/intro-r">Introduction à R</a>, complétée par Joseph Larmarange dans <a href="https://github.com/larmarange/intro-r/tree/CoursM2">Introduction à l’analyse d’enquêtes avec R</a>.
+</div>
+<p>S’il est tout à fait possible de travailler avec des données pondérées sous R, cette fonctionnalité n’est pas aussi bien intégrée que dans la plupart des autres logiciels de traitement statistique. En particulier, il y a plusieurs manières possibles de gérer la pondération.</p>
+<p>Dans ce qui suit, on utilisera le jeu de données tiré de l’enquête <em>Histoire de vie</em> et notamment sa variable de pondération <em>poids</em><a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</p>
+<pre class="r"><code>library(questionr)</code></pre>
+<pre><code>Warning: package &#39;questionr&#39; was built under R version 3.1.3</code></pre>
+<pre class="r"><code>data(hdv2003)
+d &lt;- hdv2003
+range(d$poids)</code></pre>
+<pre><code>[1]    78.07834 31092.14132</code></pre>
+<div id="options-de-certaines-fonctions" class="section level2">
+<h2>Options de certaines fonctions</h2>
+<p>Tout d’abord, certaines fonctions de <strong>R</strong> acceptent en argument un vecteur permettant de pondérer les observations (l’option est en général nommée <code>weights</code> ou <code>row.w</code>). C’est le cas par exemple des méthodes d’estimation de modèles linéaires (<code data-package="stats">lm</code>) ou de modèles linéaires généralisés (<code data-package="stats">glm</code>), ou dans les analyses de correspondances<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> des extensions <strong class="package">ade4</strong> ou <strong class="package">FactoMineR</strong>.</p>
+<p>Par contre cette option n’est pas présente dans les fonctions de base comme <code data-package="base">mean</code>, <code data-package="base" data-rdocumentation="cor">var</code>, <code data-package="base">table</code> ou <code data-package="stats">chisq.test</code>.</p>
+</div>
+<div id="fonctions-de-lextension-questionr" class="section level2">
+<h2>Fonctions de l’extension questionr</h2>
+<p>L’extension <strong class="package">questionr</strong> propose quelques fonctions permettant de calculer des statistiques simples pondérées<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a> :</p>
+<ul>
+<li><code data-package="questionr">wtd.mean</code> : moyenne pondérée</li>
+<li><code data-package="questionr" data-rdocumentation="wtd.mean">wtd.var</code> : variance pondérée</li>
+<li><code data-package="questionr">wtd.table</code> : tris à plat et tris croisés pondérés</li>
+</ul>
+<p>On les utilise de la manière suivante :</p>
+<p>library(questionr) mean(d<span class="math"><em>a</em><em>g</em><em>e</em>)<em>w</em><em>t</em><em>d</em>.<em>m</em><em>e</em><em>a</em><em>n</em>(<em>d</em></span>age, weights = d<span class="math"><em>p</em><em>o</em><em>i</em><em>d</em><em>s</em>)<em>w</em><em>t</em><em>d</em>.<em>v</em><em>a</em><em>r</em>(<em>d</em></span>age, weights = d$poids)</p>
+<p>Pour les tris à plat, on utilise la fonction wtd.table à laquelle on passe la variable en paramètre :</p>
+<p>wtd.table(d<span class="math"><em>s</em><em>e</em><em>x</em><em>e</em>, <em>w</em><em>e</em><em>i</em><em>g</em><em>h</em><em>t</em><em>s</em> = <em>d</em></span>poids)</p>
+<p>Pour un tri croisé, il suffit de passer deux variables en paramètres :</p>
+<p>wtd.table(d<span class="math"><em>s</em><em>e</em><em>x</em><em>e</em>, <em>d</em></span>hard.rock, weights = d$poids)</p>
+<p>Ces fonctions admettent notamment les deux options suivantes :</p>
+<ul>
+<li><code>na.rm</code> : si <code>TRUE</code>, on ne conserve que les observations sans valeur manquante.</li>
+<li><code>normwt</code> : si <code>TRUE</code>, on normalise les poids pour que les effectifs totaux pondérés soient les mêmes que les effectifs initiaux. Il faut utiliser cette option, notamment si on souhaite appliquer un test sensible aux effectifs comme le χ².</li>
+</ul>
+<p>Ces fonctions rendent possibles l’utilisation des statistiques descriptives les plus simples et le traitement des tableaux croisés (les fonctions <code data-package="questionr" data-rdocumentation="rprop">lprop</code>, <code data-package="questionr">cprop</code> ou <code data-package="stats">chisq.test</code> peuvent être appliquées au résultat d’un <code data-package="questionr">wtd.table</code>) mais restent limitées en termes de tests statistiques ou de graphiques. . .</p>
+</div>
+<div id="donnees-ponderees-avec-lextension-survey" class="section level2">
+<h2>Données pondérées avec l’extension survey</h2>
+<p>L’extension <strong class="package">survey</strong> est spécialement dédiée au traitement d’enquêtes ayant des techniques d’échantillonnage et de pondération potentiellement très complexes.</p>
+<p>L’extension s’installe comme la plupart des autres :</p>
+<pre class="r"><code>install.packages(&quot;survey&quot;)</code></pre>
+<p>Le site officiel (en anglais) comporte beaucoup d’informations, mais pas forcément très accessibles : <a href="http://faculty.washington.edu/tlumley/survey/" class="uri">http://faculty.washington.edu/tlumley/survey/</a>.</p>
+<p>Pour utiliser les fonctionnalités de l’extension, on doit d’abord définir le <em>plan d’échantillonnage</em> ou <em>design</em> de notre enquête. C’est-à-dire indiquer quel type de pondération nous souhaitons lui appliquer.</p>
+<p>Dans notre cas nous utilisons plan d’échantillonnage le plus simple, avec une variable de pondération déjà calculée. Ceci se fait à l’aide de la fonction <code data-package="survey">svydesign</code> :</p>
+<pre class="r"><code>library(survey)
+dw &lt;- svydesign(ids = ~1, data = d, weights = ~d$poids)</code></pre>
+<p>Cette fonction crée un nouvel objet, que nous avons nommé <code>dw</code>. Cet objet n’est pas à proprement parler un tableau de données, mais plutôt un tableau de données plus une méthode de pondération. <code>dw</code> et <code>d</code> sont des objets distincts, les opérations effectuées sur l’un n’ont pas d’influence sur l’autre. On peut cependant retrouver le contenu de <code>d</code> depuis <code>dw</code> en utilisant <code>dw$variables</code> :</p>
+<pre class="r"><code>mean(d$age)</code></pre>
+<pre><code>[1] 48.157</code></pre>
+<pre class="r"><code>mean(dw$variables$age)</code></pre>
+<pre><code>[1] 48.157</code></pre>
+<p>Lorsque notre plan d’échantillonnage est déclaré, on peut lui appliquer une série de fonctions permettant d’effectuer diverses opérations statistiques en tenant compte de la pondération. On citera notamment :</p>
+<ul>
+<li><code data-package="survey" data-rdocumentation="surveysummary">svymean</code>, <code data-package="survey" data-rdocumentation="surveysummary">svyvar</code>, <code data-package="survey" data-rdocumentation="surveysummary">svytotal</code>, <code data-package="survey">svyquantile</code> : statistiques univariées</li>
+<li><code data-package="survey">svytable</code> : tableaux croisés</li>
+<li><code data-pacakge="survey" data-rdocumentation="svytable">svychisq</code> : test du χ²</li>
+<li><code data-package="survey">svyby</code> : statistiques selon un facteur</li>
+<li><code data-pacakge="survey">svyglm</code> : modèles linéaires généralisés (dont régression logistique)</li>
+<li><code data-package="survey">svyplot</code>, <code data-package="survey">svyhist</code>, <code data-package="survey" data-rdocumentation="svyhist">svyboxplot</code> : fonctions graphiques</li>
+</ul>
+<p>D’autres fonctions sont disponibles, comme <code data-package="survey">svyratio</code>, mais elles ne seront pas abordées ici.</p>
+<p>Pour ne rien arranger, ces fonctions prennent leurs arguments sous forme de formules, c’est-à-dire pas de la manière habituelle. En général l’appel de fonction se fait en spécifiant d’abord les variables d’intérêt sous forme de formule, puis l’objet <em>survey.design</em>.</p>
+<p>L’intervalle de confiance d’une moyenne s’obtient avec <code data-package="survey" data-rdocumentation="surveysummary">confint</code> et celui d’une proportion avec <code data-package="survey">svyciprop</code>.</p>
+<p>Voyons tout de suite quelques exemples<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a> :</p>
+<pre class="r"><code>svymean(~age, dw)</code></pre>
+<pre><code>      mean     SE
+age 46.347 0.5284</code></pre>
+<pre class="r"><code>confint(svymean(~age, dw))  # Intervalle de confiance</code></pre>
+<pre><code>      2.5 %   97.5 %
+age 45.3117 47.38282</code></pre>
+<pre class="r"><code>svyquantile(~age, dw, quantile = c(0.25, 0.5, 0.75), ci = TRUE)</code></pre>
+<pre><code>$quantiles
+    0.25 0.5 0.75
+age   31  45   60
+
+$CIs
+, , age
+
+       0.25 0.5 0.75
+(lower   30  43   58
+upper)   32  47   62</code></pre>
+<pre class="r"><code>svyvar(~heures.tv, dw, na.rm = TRUE)</code></pre>
+<pre><code>          variance     SE
+heures.tv   2.9886 0.1836</code></pre>
+<p>Les tris à plat se déclarent en passant comme argument le nom de la variable précédé d’un tilde (<code></code>), tandis que les tableaux croisés utilisent les noms des deux variables séparés par un signe plus (<code>+</code>) et précédés par un tilde (<code></code>).</p>
+<pre class="r"><code>svytable(~sexe, dw)</code></pre>
+<pre><code>sexe
+  Homme   Femme 
+5149382 5921844 </code></pre>
+<pre class="r"><code>svyciprop(~sexe, dw)  # Intervalle de confiance</code></pre>
+<pre><code>            2.5% 97.5%
+sexe 0.535 0.507  0.56</code></pre>
+<pre class="r"><code>svytable(~sexe + clso, dw)</code></pre>
+<pre><code>       clso
+sexe           Oui        Non Ne sait pas
+  Homme 2658744.04 2418187.64    72450.75
+  Femme 2602031.76 3242389.36    77422.79</code></pre>
+<p>On peut récupérer le tableau issu de <code data-package="survey">svytable</code> dans un objet et le réutiliser ensuite comme n’importe quel tableau croisé :</p>
+<pre class="r"><code>tab &lt;- svytable(~sexe + clso, dw)
+tab</code></pre>
+<pre><code>       clso
+sexe           Oui        Non Ne sait pas
+  Homme 2658744.04 2418187.64    72450.75
+  Femme 2602031.76 3242389.36    77422.79</code></pre>
+<p>Les fonctions <code data-package="questionr" data-rdocumentation="rprop">lprop</code> et <code data-package="questionr">cprop</code> de <strong class="package">questionr</strong> sont donc tout à fait compatibles avec l’utilisation de <strong class="package">survey</strong>.</p>
+<pre class="r"><code>lprop(tab)</code></pre>
+<pre><code>          clso
+sexe       Oui   Non   Ne sait pas Total
+  Homme     51.6  47.0   1.4       100.0
+  Femme     43.9  54.8   1.3       100.0
+  Ensemble  47.5  51.1   1.4       100.0</code></pre>
+<p>La fonction <code data-package="questionr">freq</code> peut également être utilisée si on lui passe en argument non pas la variable elle-même, mais son tri à plat obtenu avec <code data-package="survey">svytable</code>svychisq(~sexe + clso, dw):</p>
+<pre class="r"><code>tab &lt;- svytable(~peche.chasse, dw)
+freq(tab, total = TRUE)</code></pre>
+<pre><code>             n     %  val%
+Non    9716683  87.8  87.8
+Oui    1354544  12.2  12.2
+Total 11071226 100.0 100.0</code></pre>
+<p>Par contre, il ne faut pas utiliser <code data-package="stats">chisq.test</code> sur un tableau généré par <code>svytable</code>{data-package=“survey”&gt;. Les effectifs étant extrapolés à partir de la pondération, les résultats du test seraient complètement faussés. Si on veut faire un test du χ² sur un tableau croisé pondéré, il faut utiliser <code data-package="survey" data-rdocumentation="svytable">svychisq</code> :</p>
+<pre class="r"><code>svychisq(~sexe + clso, dw)</code></pre>
+<pre><code>
+    Pearson&#39;s X^2: Rao &amp; Scott adjustment
+
+data:  svychisq(~sexe + clso, dw)
+F = 3.3331, ndf = 1.973, ddf = 3944.902, p-value = 0.03641</code></pre>
+<p>Le principe de la fonction <code data-pacakge="survey">svyby</code> est similaire à celui de <code data-package="base">tapply</code><a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a>. Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur. Par exemple :</p>
+<pre class="r"><code>svyby(~age, ~sexe, dw, svymean)</code></pre>
+<pre><code>       sexe      age        se
+Homme Homme 45.20200 0.7419450
+Femme Femme 47.34313 0.7420836</code></pre>
+<p><strong class="package">survey</strong> est également capable de produire des graphiques à partir des données pondérées. Quelques exemples :</p>
+<figure>
+<pre class="r"><code>par(mfrow = c(2, 2))
+svyplot(~age + heures.tv, dw, col = &quot;red&quot;, main = &quot;Bubble plot&quot;)
+svyhist(~heures.tv, dw, col = &quot;peachpuff&quot;, main = &quot;Histogramme&quot;)
+svyboxplot(age ~ 1, dw, main = &quot;Boxplot simple&quot;, ylab = &quot;Âge&quot;
+svyboxplot(age ~ sexe, dw, main = &quot;Boxplot double&quot;, ylab = &quot;Âge&quot;, xlab = &quot;Sexe&quot;</code></pre>
+<img src="images/analyses_donnees_pond/unnamed-chunk-12-1.png" title="" alt="" width="1050" />
+<figcaption>
+Fonctions graphiques de l’extension survey
+</figcaption>
+</figure>
+<p>Enfin, <strong class="package">survey</strong> fournit une fonction <code data-package="survey">svyglm</code> permettant de calculer un modèle statistique tout en prenant en compte le plan d’échantillonnage spécifié. La syntaxe de <code data-package="survey">svyglm</code> est proche de celle de <code data-package="stats">glm</code>. Cependant, le cadre d’une régression logistique, il est nécessaire d’utiliser <code>family = quasibinomial()</code> afin d’éviter un message d’erreur indiquant un nombre non entier de succès :</p>
+<pre class="r"><code>reg &lt;- svyglm(sport ~ sexe + age + relig + heures.tv, dw, family = binomial())</code></pre>
+<pre><code>Warning: non-integer #successes in a binomial glm!</code></pre>
+<pre class="r"><code>reg &lt;- svyglm(sport ~ sexe + age + relig + heures.tv, dw, family = quasibinomial())
+reg</code></pre>
+<pre><code>Independent Sampling design (with replacement)
+svydesign(ids = ~1, data = d, weights = ~d$poids)
+
+Call:  svyglm(formula = sport ~ sexe + age + relig + heures.tv, dw, 
+    family = quasibinomial())
+
+Coefficients:
+                     (Intercept)                         sexeFemme  
+                         1.90117                          -0.36526  
+                             age       religPratiquant occasionnel  
+                        -0.04127                           0.05577  
+ religAppartenance sans pratique  religNi croyance ni appartenance  
+                         0.16367                           0.03988  
+                      religRejet                  religNSP ou NVPR  
+                        -0.14862                          -0.22682  
+                       heures.tv  
+                        -0.18204  
+
+Degrees of Freedom: 1994 Total (i.e. Null);  1986 Residual
+  (5 observations deleted due to missingness)
+Null Deviance:      2672 
+Residual Deviance: 2378     AIC: NA</code></pre>
+<p>Le résultat obtenu est similaire à celui de <code data-package="stats">glm</code> et l’on peut utiliser sans problème les fonctions <code data-package="survey" data-rdocumentation="svyglm">coef</code>, <code data-package="survey" data-rdocumentation="confint.glm">confint</code>, <code data-package="questionr">odds.ratio</code> ou <code data-package="survey" data-rdocumentation="svyglm">predict</code> abordées dans le chapitre sur la <a href="analyses_reglog.html">régression logistique</a>.</p>
+<pre class="r"><code># odds.ratio(reg) MAJ Non encore fonctionnel avec questionr Voir
+# https://github.com/juba/questionr/pull/46</code></pre>
+<p>Dans ses dernières versions, <strong class="package">survey</strong> fournit une méthode <code data-package="survey" data-rdocumentation="anova.svyglm">AIC.svyglm</code> permettant d’estimer un AIC sur un modèle calculé avec <code data-package="survey">svyglm</code>. Il est dès lors possible d’utiliser la fonction <code data-package="stats">step</code> pour réaliser une <em>sélection descendante pas à pas</em>.</p>
+<p>L’extension <strong class="package">effects</strong> n’est quant à elle pas compatible avec <code data-package="survey">svyglm</code><a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a>.</p>
+</div>
+<div id="definir-un-plan-dechantillonage-complexe-avec-survey" class="section level2">
+<h2>Définir un plan d’échantillonage complexe avec survey</h2>
+<p>L’extension <strong class="package">survey</strong> ne permet pas seulement d’indiquer une variable de pondération mais également de prendre les spécificités du plan d’échantillonnage (strates, grappes, …). Le plan d’échantillonnage ne joue pas seulement sur la pondération des données, mais influence le calcul des variances et par ricochet tous les tests statistiques. Deux échantillons identiques avec la même variable de pondération mais des designs différents produiront les mêmes moyennes et proportions mais des intervalles de confiance différents.</p>
+<div id="differents-types-dechantillonnage" class="section level3">
+<h3>Différents types d’échantillonnage</h3>
+<p>L’<em>échantillonnage aléatoire simple</em> ou <em>échantillonnage équiprobable</em> est une méthode pour laquelle tous les échantillons possibles (de même taille) ont la même probabilité d’être choisis et tous les éléments de la population ont une chance égale de faire partie de l’échantillon. C’est l’échantillonnage le plus simple : chaque individu à la même probabilité d’être sélectionné.</p>
+<p>L’<em>échantillonnage stratifié</em> est une méthode qui consiste d’abord à subdiviser la population en groupes homogènes (strates) pour ensuite extraire un échantillon aléatoire de chaque strate. Cette méthode suppose la connaissance de la structure de la population. Pour estimer les paramètres, les résultats doivent être pondérés par l’importance relative de chaque strate dans la population.</p>
+<p>L’<em>échantillonnage par grappes</em> est une méthode qui consiste à choisir un échantillon aléatoire d’unités qui sont elles-mêmes des sous-ensembles de la population (« grappes »). Cette méthode suppose que les unités de chaque grappe sont représentatives. Elle possède l’avantage d’être souvent plus économique.</p>
+<p>Il est possible de combiner plusieurs de ces approches. Par exemple, les *Enquêtes Démographiques et de Santé<a href="#fn7" class="footnoteRef" id="fnref7"><sup>7</sup></a> (EDS) sont des enquêtes stratifiées en grappes à deux degrés. Dans un premier temps, la population est divisée en strates par région et milieu de résidence. Dans chaque strate, des zones d’enquêtes, correspondant à des unités de recensement, sont tirées au sort avec une probabilité proportionnelle au nombre de ménages de chaque zone au dernier recensement de population. Enfin, au sein de chaque zone d’enquête sélectionnée, un recensement de l’ensemble des ménages est effectué puis un nombre identique de ménages par zone d’enquête est tiré au sort de manière alétoire simple.</p>
+</div>
+<div id="les-options-de-svydesign" class="section level3">
+<h3>Les options de svydesign</h3>
+<p>La fonction <code data-package="survey">svydesign</code> accepte plusieus arguments décrits sur sa page d’aide (obtenue avec la commande <code>?svydesign</code>).</p>
+<p>L’agument <code>data</code> permet de spécifier le tableau de données contenant les observations.</p>
+<p>L’argument <code>ids</code> est obligatoire et spécifie sous la forme d’une formule les identifiants des différents niveaux d’un tirage en grappe. S’il s’agit d’un échantillon aléatoire simple, on entrera <code>ids=1</code>. Autre situation : supposons une étude portant sur la population française. Dans un premier temps, on a tiré au sort un certain nombre de départements français. Dans un second temps, on tire au sort dans chaque département des communes. Dans chaque commune sélectionnée, on tire au sort des quartiers. Enfin, on interroge de manière exhaustive toutes les personnes habitant les quartiers enquêtés. Notre fichier de données devra donc comporter pour chaque observation les variables <em>id_departement</em>, <em>id_commune</em> et <em>id_quartier</em>. On écrira alors pour l’argument <code>ids</code> la valeur suivante : <code>ids=id_departement+id_commune+id_quartier</code>.</p>
+<p>Si l’échantillon est stratifié, on spécifiera les strates à l’aide de l’argument <code>strata</code> en spécifiant la variable contenant l’identifiant des strates. Par exemple : <code>strata=id_strate</code>.</p>
+<p>Il faut encore spécifier les probabilités de tirage de chaque cluster ou bien la pondération des individus. Si l’on dispose de la probabilité de chaque observation d’être sélectionnée, on utilisera l’argument <code>probs</code>. Si, par contre, on connaît la pondération de chaque observation (qui doit être proportionnelle à l’inverse de cette probabilité), on utilisera l’argument <code>weights</code>.</p>
+<p>Si l’échantillon est stratifié, qu’au sein de chaque strate les individus ont été tirés au sort de manière aléatoire et que l’on connaît la taille de chaque strate, il est possible de ne pas avoir à spécifier la probabilité de tirage ou la pondération de chaque observation. Il est préférable de fournir une variable contenant la taille de chaque strate à l’argument <code>fpc</code>. De plus, dans ce cas-là, une petite correction sera appliquée au modèle pour prendre en compte la taille finie de chaque strate.</p>
+<p>Quelques exemples :</p>
+<pre class="r"><code># Échantillonnage aléatoire simple
+plan &lt;- svydesign(ids = ~1, data = donnees)
+
+# Échantillonnage stratifié à un seul niveau (la taille de chaque strate est
+# connue)
+plan &lt;- svydesign(ids = ~1, data = donnees, fpc = ~taille)
+
+# Échantillonnage en grappes avec tirages à quatre degrés (departement,
+# commune, quartier, individus). La probabilité de tirage de chaque niveau
+# de cluster est connue.
+plan &lt;- svydesign(ids = ~id_departement + id_commune + id_quartier, data = donnees, 
+    Probs = ~proba_departement + proba_commune + proba_quartier)
+
+# Échantillonnage stratifié avec tirage à deux degrés (clusters et
+# individus). Le poids statistiques de chaque observation est connu.
+plan &lt;- svydesign(ids = ~id_cluster, data = donnees, strata = ~id_strate, weights = ~poids)</code></pre>
+<p>Prenons l’exemple d’une enquête démographique et de santé. Le nom des différentes variables est standardisé et commun quelle que soit l’enquête. Nous supposerons que vous avez importé le fichier <em>individus</em> dans un tableau de données nommés <code>eds</code>. Le poids statistique de chaque individu est fourni par la variable <em>V005</em> qui doit au préalable être divisée par un million. Les grappes d’échantillonnage au premier degré sont fournies par la variable <em>V021 (primary sample unit)</em>. Si elle n’est pas renseignée, on pourra utilisier le numéro de grappe <em>V001</em>. Enfin, le milieu de résidence (urbain / rural) est fourni par <em>V025</em> et la région par <em>V024</em>. Pour rappel, l’échantillon a été stratifié à la fois par région et par mileu de résidence. Certaines enquêtes fournissent directement un numéro de strate via <em>V022</em>. Si tel est le cas, on pourra préciser le plan d’échantillonnage ainsi :</p>
+<pre class="r"><code>eds$poids &lt;- eds$V005/1e+06
+design.eds &lt;- svydesign(ids = ~V021, data = eds, strata = ~V022, weights = ~poids)</code></pre>
+<p>Si V022 n’est pas fourni mais que l’enquête a bien été stratifié par région et milieu de résidence (vérifiez toujours le premier chapitre du rapport d’enquête), on pourra créer une variable strate ainsi <a href="#fn8" class="footnoteRef" id="fnref8"><sup>8</sup></a> :</p>
+<pre class="r"><code>eds$strate &lt;- as.factor(as.integer(eds$V024) * 10 + as.integer(eds$V025))
+levels(eds$strate) &lt;- c(paste(levels(eds$V024), &quot;Urbain&quot;), paste(levels(eds$V024), 
+    &quot;Rural&quot;))
+design.eds &lt;- svydesign(ids = ~V021, data = eds, strata = ~strate, weights = ~poids)</code></pre>
+</div>
+<div id="extraire-un-sous-echantillon" class="section level3">
+<h3>Extraire un sous-échantillon</h3>
+<p>Si l’on souhaite travailler sur un sous-échantillon tout en gardant les informations d’échantillonnage, on utilisera la fonction <code data-package="survey" data-rdocumentation="subset.survey.design">subset</code> présentée en détail dans le chapitre <a href="pem_manipulation.html#subset">Manipulation de données</a>.</p>
+<pre class="r"><code>sous &lt;- subset(dw, sexe == &quot;Femme&quot; &amp; age &gt;= 40)</code></pre>
+</div>
+</div>
+<div id="conclusion" class="section level2">
+<h2>Conclusion</h2>
+<p>En attendant mieux, la gestion de la pondération sous <strong>R</strong> n’est sans doute pas ce qui se fait de plus pratique et de plus simple. On pourra quand même donner les conseils suivants :</p>
+<ul>
+<li>utiliser les options de pondération des fonctions usuelles ou les fonctions d’extensions comme <strong class="package">questionr</strong> pour les cas les plus simples ;</li>
+<li>si on utilise <strong class="package">survey</strong>, effectuer autant que possible tous les recodages et manipulations sur les données non pondérées ;</li>
+<li>une fois les recodages effectués, on déclare le design et on fait les analyses en tenant compte de la pondération ;</li>
+<li>surtout ne jamais modifier les variables du design. Toujours effectuer recodages et manipulations sur les données non pondérées, puis redéclarer le design pour que les mises à jour effectuées soient disponibles pour l’analyse.</li>
+</ul>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>On notera que cette variable est utilisée à titre purement illustratif. Le jeu de données étant un extrait d’enquête et la variable de pondération n’ayant pas été recalculée, elle n’a ici à proprement parler aucun sens.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>Voir le chapitre dédié à l’analyse des correspondances, MAJ LIEN.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>Les fonctions <code data-package="questionr">wtd.mean</code> et <code data-package="questionr" data-rdocumentation="wtd.mean">wtd.var</code> sont des copies conformes des fonctions du même nom de l’extension <strong class="package">Hmisc</strong> de Frank Harrel. <strong class="package">Hmisc</strong> étant une extension « de taille », on a préféré recopié les fonctions pour limiter le poids des dépendances.<a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>Pour d’autres exemples, voir <a href="http://www.ats.ucla.edu/stat/r/faq/svy_r_oscluster.htm" class="uri">http://www.ats.ucla.edu/stat/r/faq/svy_r_oscluster.htm</a> (en anglais).<a href="#fnref4">↩</a></p></li>
+<li id="fn5"><p>La fonction <code data-package="base">tapply</code> est présentée plus en détails dans le chapitre <a href="pem_manipulation.html#tapply">Manipulation de données</a>.<a href="#fnref5">↩</a></p></li>
+<li id="fn6"><p>Compatibilité qui pourra éventuellement être introduite dans une future version de l’extension.<a href="#fnref6">↩</a></p></li>
+<li id="fn7"><p>Vaste programme d’enquêtes réalisées à intervalles réguliers dans les pays en dévelop’ent, disponibles sur <a href="http://www.dhsprogram.com/" class="uri">http://www.dhsprogram.com/</a>.<a href="#fnref7">↩</a></p></li>
+<li id="fn8"><p>L’astuce consiste à utiliser as.integer pour obetnir le code des facteurs et non leur valeur textuelle. L’addition des deux valeurs après multiplication du code de la région par 10 permet d’obtenir une valeur unique pour chaque combinaison des deux variables. On retransforme le résultat en facteurs puis on modifie les étiquettes des modalités.<a href="#fnref8">↩</a></p></li>
+</ol>
+</div>
+
+<script>
+
+// manage active state of menu based on current page
+$(document).ready(function () {
+
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+
+    // manage active menu header
+    if (href.startsWith('pem_'))
+      $('a[href="' + 'pem' + '"]').parent().addClass('active');
+    else if (href.startsWith('analyses_'))
+      $('a[href="' + 'analyses' + '"]').parent().addClass('active');
+    else if (href.startsWith('astuces_'))
+      $('a[href="' + 'astuces' + '"]').parent().addClass('active');
+
+    // Identifier les <pre> fermant
+    $('pre').next().not('pre').prev().addClass('last'); // Last <pre> of each group of <pre>
+    $('pre').last().addClass('last'); // If the last one is not followed bay anything
+
+    // Ajout liens rdocumentation
+    $("code[data-package]").each(function( index ) {
+      package = $(this).attr('data-package');
+      if ($(this).attr('data-rdocumentation') !== undefined)
+        rdocumentation = $(this).attr('data-rdocumentation');
+      else
+        rdocumentation = $(this).text();
+      fonction = $(this).text();
+      $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+package+'/functions/'+rdocumentation+'">');
+    });
+
+    $("strong.package").each(function( index ) {
+      $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+$(this).text()+'">');
+    });
+
+    // Figures
+    $("figure").each(function( index ) {
+      if ($(this).children("figcaption").length > 0)
+        $(this).children("figcaption:first").prepend('<span class="figure-number">Figure '+(index+1)+'.</span> ');
+      else
+        $(this).append($("<figcaption>").append('<span class="figure-number">Figure '+(index+1)+'</span>'));
+    });
+
+});
+
+</script>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+
+</body>
+</html>
