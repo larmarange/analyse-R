@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Statistique bivariée</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/flatly.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<link rel="stylesheet" href="./include/analyse-R.css" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href=".">analyse-R</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="index.html">Accueil</a></li>
+        <li class="dropdown">
+          <a href="pem" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Prise en main <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+             <li><a href="pem_manipulation.html">Manipulation de données</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="analyses" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Analyses <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+             <li><a href="analyses_stat_biv.html">Statistique bivariée</a></li>
+             <li><a href="analyses_reglog.html">Régression logistique</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="astuces" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Astuces <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+             <li><a href="astuces_age.html">Calculer un âge</a></li>
+          </ul>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a href="participer" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Participer <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+              <li><a href="https://github.com/larmarange/analyse-R">analyse-R sur GitHub</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+<h1 class="title">Statistique bivariée</h1>
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#deux-variables-quantitatives">Deux variables quantitatives</a></li>
+<li><a href="#une-variable-quantitative-et-une-variable-qualitative">Une variable quantitative et une variable qualitative</a></li>
+<li><a href="#deux-variables-qualitatives">Deux variables qualitatives</a><ul>
+<li><a href="#tableau-croise">Tableau croisé</a></li>
+<li><a href="#-et-derives">χ² et dérivés</a></li>
+<li><a href="#representation-graphique">Représentation graphique</a></li>
+</ul></li>
+</ul>
+</div>
+
+<div class="note">
+La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre du support de cours <a href="https://github.com/juba/intro-r">Introduction à R</a>.
+</div>
+<p>On entend par statistique bivariée l’étude des relations entre deux variables, celles-ci pouvant être quantitatives ou qualitatives.</p>
+<p>Comme dans la partie précédente, on travaillera sur les jeux de données fournis avec l’extension <strong class="package">questionr</strong> et tiré de l’enquête <em>Histoire de vie</em> et du recensement 1999 :</p>
+<pre class="r"><code>library(questionr)</code></pre>
+<pre><code>Warning: package &#39;questionr&#39; was built under R version 3.1.3</code></pre>
+<pre class="r"><code>data(hdv2003)
+d &lt;- hdv2003
+data(rp99)</code></pre>
+<div id="deux-variables-quantitatives" class="section level2">
+<h2>Deux variables quantitatives</h2>
+<p>La comparaison de deux variables quantitatives se fait en premier lieu graphiquement, en représentant l’ensemble des couples de valeurs. On peut ainsi représenter les valeurs du nombre d’heures passées devant la télévision selon l’âge.</p>
+<figure>
+<pre class="r"><code>plot(d$age, d$heures.tv)</code></pre>
+<img src="images/analyses_stat_biv/unnamed-chunk-2-1.png" title="" alt="" width="1050" />
+<figcaption>
+Nombre d’heures de télévision selon l’âge
+</figcaption>
+</figure>
+<p>Le fait que des points sont superposés ne facilite pas la lecture du graphique. On peut utiliser une représentation avec des points semi-transparents.</p>
+<figure>
+<pre class="r"><code>plot(d$age, d$heures.tv, pch = 19, col = rgb(1, 0, 0, 0.1))</code></pre>
+<img src="images/analyses_stat_biv/unnamed-chunk-3-1.png" title="" alt="" width="1050" />
+<figcaption>
+Nombre d’heures de télévision selon l’âge avec semi-transparence
+</figcaption>
+</figure>
+<p>Plus sophistiqué, on peut faire une estimation locale de densité et représenter le résultat sous forme de « carte ». Pour cela on commence par isoler les deux variables, supprimer les observations ayant au moins une valeur manquante à l’aide de la fonction <code data-package="stats">complete.cases</code>, estimer la densité locale à l’aide de la fonction <code data-package="MASS">kde2d</code> de l’extension <strong class="package">MASS</strong><a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> et représenter le tout à l’aide d’une des fonctions <code data-package="graphics">image</code>, <code data-package="graphics">contour</code> ou <code data-package="graphics">filled.contour</code>. . .</p>
+<figure>
+<pre class="r"><code>library(MASS)
+tmp &lt;- d[, c(&quot;age&quot;, &quot;heures.tv&quot;)]
+tmp &lt;- tmp[complete.cases(tmp), ]
+filled.contour(kde2d(tmp$age, tmp$heures.tv), color = terrain.colors)</code></pre>
+<img src="images/analyses_stat_biv/unnamed-chunk-4-1.png" title="" alt="" width="1050" />
+<figcaption>
+Représentation de l’estimation de densité locale
+</figcaption>
+</figure>
+<p>Dans tous les cas, il n’y a pas de structure très nette qui semble se dégager. On peut tester ceci mathématiquement en calculant le coefficient de corrélation entre les deux variables à l’aide de la fonction <code data-package="stats">cor</code> :</p>
+<pre class="r"><code>cor(d$age, d$heures.tv, use = &quot;complete.obs&quot;)</code></pre>
+<pre><code>[1] 0.1776249</code></pre>
+<p>L’option <code>use</code> permet d’éliminer les observations pour lesquelles l’une des deux valeurs est manquante. Le coefficient de corrélation est très faible.</p>
+<p>On va donc s’intéresser plutôt à deux variables présentes dans le jeu de données <code>rp99</code>, la part de diplômés du supérieur et la proportion de cadres dans les communes du Rhône en 1999.</p>
+<p>À nouveau, commençons par représenter les deux variables.</p>
+<figure>
+<pre class="r"><code>plot(rp99$dipl.sup, rp99$cadres, ylab = &quot;Part des cadres&quot;, xlab = &quot;Part des diplomês du supérieur</code></pre>
+<img src="images/analyses_stat_biv/unnamed-chunk-6-1.png" title="" alt="" width="1050" />
+<figcaption>
+Proportion de cadres et proportion de diplômés du supérieur
+</figcaption>
+</figure>
+<p>Ça ressemble déjà beaucoup plus à une relation de type linéaire.</p>
+<p>Calculons le coefficient de corrélation :</p>
+<pre class="r"><code>cor(rp99$dipl.sup, rp99$cadres)</code></pre>
+<pre><code>[1] 0.8975282</code></pre>
+<p>C’est beaucoup plus proche de 1. On peut alors effectuer une régression linéaire complète en utilisant la fonction <code data-package="stats">lm</code> :</p>
+<pre class="r"><code>reg &lt;- lm(cadres ~ dipl.sup, data = rp99)
+summary(reg)</code></pre>
+<pre><code>
+Call:
+lm(formula = cadres ~ dipl.sup, data = rp99)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-9.6905 -1.9010 -0.1823  1.4913 17.0866 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  1.24088    0.32988   3.762 0.000203 ***
+dipl.sup     1.38352    0.03931  35.196  &lt; 2e-16 ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Residual standard error: 3.281 on 299 degrees of freedom
+Multiple R-squared:  0.8056,    Adjusted R-squared:  0.8049 
+F-statistic:  1239 on 1 and 299 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>Le résultat montre que les coefficients sont significativement différents de 0. La part de cadres augmente donc avec celle de diplômés du supérieur (ô surprise). On peut très facilement représenter la droite de régression à l’aide de la fonction <code data-package="graphics">abline</code>.</p>
+<figure>
+<pre class="r"><code>plot(rp99$dipl.sup, rp99$cadres, ylab = &quot;Part des cadres&quot;, xlab = &quot;Part des diplômés du supérieu
+abline(reg, col = &quot;red&quot;)</code></pre>
+<img src="images/analyses_stat_biv/unnamed-chunk-9-1.png" title="" alt="" width="1050" />
+<figcaption>
+Régression de la proportion de cadres par celle de diplômés du supérieur
+</figcaption>
+</figure>
+<div class="info">
+<p>On remarquera que le premier argument passé à la fonction <code data-package="stats">lm</code> a une syntaxe un peu particulière. Il s’agit d’une <em>formule</em>, utilisée de manière générale dans les modèles statistiques. On indique la variable d’intérêt à gauche et la variable explicative à droite, les deux étant séparées par un tilde <code></code> (obtenu sous <strong>Windows</strong> en appuyant simultanément sur les touches <kbd>Alt Gr</kbd> et <kbd>2</kbd>). On remarquera que les noms des colonnes de notre tableau de données ont été écrites sans guillemets.</p>
+<p>Dans le cas présent, nous avons calculé une régression linéaire simple entre deux variables, d’où l’écriture <code>cadres  dipl.sup</code>. Si nous avions voulu expliquer une variable <em>z</em> par deux variables <em>x</em> et <em>y</em>, nous aurions écrit <code>z  x + y</code>. Il est possible de spécifier des modèles encore plus complexes.</p>
+Pour un aperçu de la syntaxe des formules sous <strong>R</strong>, voir <a href="http://ww2.coastal.edu/kingw/statistics/R-tutorials/formulae.html" class="uri">http://ww2.coastal.edu/kingw/statistics/R-tutorials/formulae.html</a>.
+</div>
+</div>
+<div id="une-variable-quantitative-et-une-variable-qualitative" class="section level2">
+<h2>Une variable quantitative et une variable qualitative</h2>
+<p>Quand on parle de comparaison entre une variable quantitative et une variable qualitative, on veut en général savoir si la distribution des valeurs de la variable quantitative est la même selon les modalités de la variable qualitative. En clair : est ce que l’âge de ceux qui écoutent du hard rock est différent de l’âge de ceux qui n’en écoutent pas ?</p>
+<p>Là encore, l’idéal est de commencer par une représentation graphique. Les boîtes à moustaches sont parfaitement adaptées pour cela.</p>
+<p>Si on a construit des sous-populations d’individus écoutant ou non du hard rock, on peut utiliser la fonction <code data-package="graphics">boxplot</code>.</p>
+<figure>
+<pre class="r"><code>d.hard &lt;- subset(d, hard.rock == &quot;Oui&quot;)
+d.non.hard &lt;- subset(d, hard.rock == &quot;Non&quot;)
+boxplot(d.hard$age, d.non.hard$age)</code></pre>
+<img src="images/analyses_stat_biv/unnamed-chunk-10-1.png" title="" alt="" width="1050" />
+<figcaption>
+Boxplot de la répartition des âges (sous-populations)
+</figcaption>
+</figure>
+<p>Mais construire les sous-populations n’est pas nécessaire. On peut utiliser directement la version de <code data-package="graphics">boxplot</code> prenant une formule en argument.</p>
+<figure>
+<pre class="r"><code>boxplot(age ~ hard.rock, data = d)</code></pre>
+<img src="images/analyses_stat_biv/unnamed-chunk-11-1.png" title="" alt="" width="1050" />
+<figcaption>
+Boxplot de la répartition des âges (formule)
+</figcaption>
+</figure>
+<p>À première vue, ô surprise, la population écoutant du hard rock a l’air sensiblement plus jeune. Peu-ton le tester mathématiquement ? On peut calculer la moyenne d’âge des deux groupes en utilisant la fonction <code data-package="base">tapply</code><a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> :</p>
+<pre class="r"><code>tapply(d$age, d$hard.rock, mean)</code></pre>
+<pre><code>     Non      Oui 
+48.30211 27.57143 </code></pre>
+<p>L’écart est important. Est-il statistiquement significatif ? Pour cela on peut faire un test <em>t</em> de comparaison de moyennes à l’aide de la fonction <code data-package="stats">t.test</code> :</p>
+<pre class="r"><code>t.test(d$age ~ d$hard.rock)</code></pre>
+<pre><code>
+    Welch Two Sample t-test
+
+data:  d$age by d$hard.rock
+t = 9.6404, df = 13.848, p-value = 1.611e-07
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ 16.11379 25.34758
+sample estimates:
+mean in group Non mean in group Oui 
+         48.30211          27.57143 </code></pre>
+<p>Le test est extrêmement significatif. L’intervalle de confiance à 95 % de la différence entre les deux moyennes va de 14,5 ans à 21,8 ans.</p>
+<div class="info">
+<p>La valeur affichée pour <em>p</em> est de <code>1.611e-07</code>. Cette valeur peut paraître étrange pour les non avertis. Cela signifie tout simplement 1,611 multiplié par 10 à la puissance -7, autrement dit 0,0000001611. Cette manière de représenter un nombre est couramment appelée <em>notation scientifique</em>.</p>
+Pour plus de détails, voir <a href="http://fr.wikipedia.org/wiki/Notation_scientifique" class="uri">http://fr.wikipedia.org/wiki/Notation_scientifique</a>.
+</div>
+<p>Nous sommes cependant allés un peu vite en besogne, car nous avons négligé une hypothèse fondamentale du test <em>t</em> : les ensembles de valeur comparés doivent suivre approximativement une loi normale et être de même variance<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. Comment le vérifier ?</p>
+<p>D’abord avec un petit graphique :</p>
+<figure>
+<pre class="r"><code>par(mfrow = c(1, 2))
+hist(d$age[d$hard.rock == &quot;Oui&quot;], main = &quot;Hard rock&quot;, col = &quot;red&quot;)
+hist(d$age[d$hard.rock == &quot;Non&quot;], main = &quot;Sans hard rock&quot;, col = &quot;red&quot;)</code></pre>
+<img src="images/analyses_stat_biv/unnamed-chunk-14-1.png" title="" alt="" width="1050" />
+<figcaption>
+Distribution des âges pour appréciation de la normalité
+</figcaption>
+</figure>
+<div class="note">
+La fonction <code data-package="graphics">par</code> permet de modifier de nombreux paramètres graphiques. <code>par(mfrow = c(1, 2))</code> sert à indiquer que l’on souhaite afficher deux graphiques sur une même fenêtre, plus précisément que la fenêtre doit comporter une ligne et deux colonnes.
+</div>
+<p>Ça a l’air à peu près bon pour les « Sans hard rock », mais un peu plus limite pour les fans de <em>Metallica</em>, dont les effectifs sont d’ailleurs assez faibles. Si on veut en avoir le coeur net on peut utiliser le test de normalité de <em>Shapiro-Wilk</em> avec la fonction <code data-package="stats">shapiro.test</code> :</p>
+<pre class="r"><code>shapiro.test(d$age[d$hard.rock == &quot;Oui&quot;])</code></pre>
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  d$age[d$hard.rock == &quot;Oui&quot;]
+W = 0.8693, p-value = 0.04104</code></pre>
+<pre class="r"><code>shapiro.test(d$age[d$hard.rock == &quot;Non&quot;])</code></pre>
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  d$age[d$hard.rock == &quot;Non&quot;]
+W = 0.9814, p-value = 2.079e-15</code></pre>
+<p>Visiblement, le test estime que les distributions ne sont pas suffisamment proches de la normalité dans les deux cas.</p>
+<p>Et concernant l’égalité des variances ?</p>
+<pre class="r"><code>tapply(d$age, d$hard.rock, var)</code></pre>
+<pre><code>      Non       Oui 
+285.62858  62.72527 </code></pre>
+<p>L’écart n’a pas l’air négligeable. On peut le vérifier avec le test fourni par la fonction <code data-package="stats">var.test</code> :</p>
+<pre class="r"><code>var.test(d$age ~ d$hard.rock)</code></pre>
+<pre><code>
+    F test to compare two variances
+
+data:  d$age by d$hard.rock
+F = 4.5536, num df = 1985, denom df = 13, p-value = 0.003217
+alternative hypothesis: true ratio of variances is not equal to 1
+95 percent confidence interval:
+ 1.751826 8.694405
+sample estimates:
+ratio of variances 
+          4.553644 </code></pre>
+<p>La différence est très significative. En toute rigueur le test <em>t</em> n’aurait donc pas pu être utilisé.</p>
+<p><em lang="en">Damned</em> ! Ces maudits tests statistiques vont-ils nous empêcher de faire connaître au monde entier notre fabuleuse découverte sur l’âge des fans de <em>Sepultura</em> ? Non ! Car voici qu’approche à l’horizon un nouveau test, connu sous le nom de <em>Wilcoxon/Mann-Whitney</em>. Celui-ci a l’avantage d’être non-paramétrique, c’est à dire de ne faire aucune hypothèse sur la distribution des échantillons comparés. Par contre il ne compare pas des différences de moyennes mais des différences de médianes :</p>
+<pre class="r"><code>wilcox.test(d$age ~ d$hard.rock)</code></pre>
+<pre><code>
+    Wilcoxon rank sum test with continuity correction
+
+data:  d$age by d$hard.rock
+W = 23980, p-value = 2.856e-06
+alternative hypothesis: true location shift is not equal to 0</code></pre>
+<p>Ouf ! La différence est hautement significative<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>. Nous allons donc pouvoir entamer la rédaction de notre article pour la <em>Revue française de sociologie</em>.</p>
+</div>
+<div id="deux-variables-qualitatives" class="section level2">
+<h2>Deux variables qualitatives</h2>
+<p>La comparaison de deux variables qualitatives s’appelle en général un <em>tableau croisé</em>. C’est sans doute l’une des analyses les plus fréquentes lors du traitement d’enquêtes en sciences sociales.</p>
+<div id="tableau-croise" class="section level3">
+<h3>Tableau croisé</h3>
+<p>La manière la plus simple d’obtenir un tableau croisé est d’utiliser la fonction <code data-package="base">table</code> en lui donnant en paramètres les deux variables à croiser. En l’occurrence nous allons croiser un recodage du niveau de qualification regroupé avec le fait de pratiquer un sport.</p>
+<p>On commence par calculer la variable recodée et par afficher le tri à plat des deux variables :</p>
+<pre class="r"><code>d$qualreg &lt;- as.character(d$qualif)
+d$qualreg[d$qualif %in% c(&quot;Ouvrier specialise&quot;, &quot;Ouvrier qualifie&quot;)] &lt;- &quot;Ouvrier&quot;
+d$qualreg[d$qualif %in% c(&quot;Profession intermediaire&quot;, &quot;Technicien&quot;)] &lt;- &quot;Intermediaire&quot;
+table(d$qualreg)</code></pre>
+<pre><code>
+        Autre         Cadre       Employe Intermediaire       Ouvrier 
+           58           260           594           246           495 </code></pre>
+<p>Le tableau croisé des deux variables s’obtient de la manière suivante :</p>
+<pre class="r"><code>table(d$sport, d$qualreg)</code></pre>
+<pre><code>     
+      Autre Cadre Employe Intermediaire Ouvrier
+  Non    38   117     401           127     381
+  Oui    20   143     193           119     114</code></pre>
+<div class="info">
+<p>Il est tout à fait possible de croiser trois variables ou plus. Par exemple :</p>
+<pre class="r"><code>table(d$sport, d$cuisine, d$sexe)</code></pre>
+<pre><code>, ,  = Homme
+
+     
+      Non Oui
+  Non 401 129
+  Oui 228 141
+
+, ,  = Femme
+
+     
+      Non Oui
+  Non 358 389
+  Oui 132 222</code></pre>
+</div>
+<p>On n’a cependant que les effectifs, ce qui rend difficile les comparaisons. L’extension <strong class="package">questionr</strong> fournit des fonctions permettant de calculer facilement les pourcentages lignes, colonnes et totaux d’un tableau croisé.</p>
+<p>Les pourcentages lignes s’obtiennent avec la fonction <code data-package="questionr" data-rdocumentation="rprop">lprop</code><a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a>. Celle-ci s’applique au tableau croisé généré par <code data-package="base" data-rdocumentation="rprop">table</code> :</p>
+<pre class="r"><code>tab &lt;- table(d$sport, d$qualreg)
+lprop(tab)</code></pre>
+<pre><code>          
+           Autre Cadre Employe Intermediaire Ouvrier Total
+  Non        3.6  11.0  37.7    11.9          35.8   100.0
+  Oui        3.4  24.3  32.8    20.2          19.4   100.0
+  Ensemble   3.5  15.7  35.9    14.9          29.9   100.0</code></pre>
+<p>Les pourcentages ligne ne nous intéressent guère ici. On ne cherche pas à voir quelle est la proportion de cadres parmi ceux qui pratiquent un sport, mais plutôt quelle est la proportion de sportifs chez les cadres. Il nous faut donc des pourcentages colonnes, que l’on obtient avec la fonction <code data-package="questionr">cprop</code> :</p>
+<pre class="r"><code>cprop(tab)</code></pre>
+<pre><code>       
+        Autre Cadre Employe Intermediaire Ouvrier Ensemble
+  Non    65.5  45.0  67.5    51.6          77.0    64.4   
+  Oui    34.5  55.0  32.5    48.4          23.0    35.6   
+  Total 100.0 100.0 100.0   100.0         100.0   100.0   </code></pre>
+<p>Dans l’ensemble, le pourcentage de personnes ayant pratiqué un sport est de 35,6 %. Mais cette proportion varie fortement d’une catégorie professionnelle à l’autre : 55,0 % chez les cadres contre 23,0 % chez les ouvriers.</p>
+<p>Enfin, les pourcentage totaux s’obtiennent avec la fonction <code data-package="questionr">prop</code> :</p>
+<pre class="r"><code>prop(tab)</code></pre>
+<pre><code>       
+        Autre Cadre Employe Intermediaire Ouvrier Total
+  Non     2.3   7.1  24.3     7.7          23.0    64.4
+  Oui     1.2   8.7  11.7     7.2           6.9    35.6
+  Total   3.5  15.7  35.9    14.9          29.9   100.0</code></pre>
+<p>À noter qu’on peut personnaliser l’affichage de ces tableaux de pourcentages à l’aide de différentes options, dont <code>digits</code> qui règle le nombre de décimales à afficher et <code>percent</code> qui indique si on souhaite ou non rajouter un symbole <code>%</code> dans chaque case du tableau. Cette personnalisation peut se faire directement au moment de la génération du tableau et dans ce cas elle sera utilisée par défaut :</p>
+<pre class="r"><code>ctab &lt;- cprop(tab, digits = 2, percent = TRUE)
+ctab</code></pre>
+<pre><code>       
+        Autre   Cadre   Employe Intermediaire Ouvrier Ensemble
+  Non    65.52%  45.00%  67.51%  51.63%        76.97%  64.37% 
+  Oui    34.48%  55.00%  32.49%  48.37%        23.03%  35.63% 
+  Total 100.00% 100.00% 100.00% 100.00%       100.00% 100.00% </code></pre>
+<p>Ou bien ponctuellement en passant les mêmes arguments à la fonction <code data-package="questionr" data-rdocumentation="print.proptab">print</code> :</p>
+<pre class="r"><code>ctab &lt;- cprop(tab)
+print(ctab, percent = TRUE)</code></pre>
+<pre><code>       
+        Autre  Cadre  Employe Intermediaire Ouvrier Ensemble
+  Non    65.5%  45.0%  67.5%   51.6%         77.0%   64.4%  
+  Oui    34.5%  55.0%  32.5%   48.4%         23.0%   35.6%  
+  Total 100.0% 100.0% 100.0%  100.0%        100.0%  100.0%  </code></pre>
+</div>
+<div id="-et-derives" class="section level3">
+<h3>χ² et dérivés</h3>
+<p>Pour tester l’existence d’un lien entre les modalités des deux variables, on va utiliser le très classique test du χ²<a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a>. Celui-ci s’obtient grâce à la fonction <code data-package="stats">chisq.test</code>, appliquée au tableau croisé obtenu avec <code data-package="base">table</code><a href="#fn7" class="footnoteRef" id="fnref7"><sup>7</sup></a> :</p>
+<pre class="r"><code>chisq.test(tab)</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test
+
+data:  tab
+X-squared = 96.7983, df = 4, p-value &lt; 2.2e-16</code></pre>
+<p>Le test est hautement significatif, on ne peut pas considérer qu’il y a indépendance entre les lignes et les colonnes du tableau.</p>
+<p>On peut affiner l’interprétation du test en déterminant dans quelle case l’écart à l’indépendance est le plus significatif en utilisant les <em>résidus</em> du test. Ceux-ci sont notamment affichables avec la fonction <code data-package="questionr">chisq.residuals</code> de <strong class="package">questionr</strong> :</p>
+<pre class="r"><code>chisq.residuals(tab)</code></pre>
+<pre><code>     
+      Autre Cadre Employe Intermediaire Ouvrier
+  Non  0.11 -3.89    0.95         -2.49    3.49
+  Oui -0.15  5.23   -1.28          3.35   -4.70</code></pre>
+<p>Les cases pour lesquelles l’écart à l’indépendance est significatif ont un résidu dont la valeur est supérieure à 2 ou inférieure à -2. Ici on constate que la pratique d’un sport est sur-représentée parmi les cadres et, à un niveau un peu moindre, parmi les professions intermédiaires, tandis qu’elle est sousreprésentée chez les ouvriers.</p>
+<p>Enfin, on peut calculer le coefficient de contingence de Cramer du tableau, qui peut nous permettre de le comparer par la suite à d’autres tableaux croisés. On peut pour cela utiliser la fonction <code data-package="questionr">cramer.v</code> de <strong class="package">questionr</strong> :</p>
+<pre class="r"><code>cramer.v(tab)</code></pre>
+<pre><code>[1] 0.24199</code></pre>
+<div class="info">
+<p>Pour un tableau à 2×2 entrées, il est possible de calculer le test exact de Fisher avec la fonction <code data-package="stats">fisher.test</code>. On peut soit lui passer le résultat de <code data-package="base">table</code>, soit directement les deux variables à croiser.</p>
+<pre class="r"><code>lprop(table(d$sexe, d$cuisine))</code></pre>
+<pre><code>          
+           Non   Oui   Total
+  Homme     70.0  30.0 100.0
+  Femme     44.5  55.5 100.0
+  Ensemble  56.0  44.0 100.0</code></pre>
+<pre class="r"><code>fisher.test(table(d$sexe, d$cuisine))</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  table(d$sexe, d$cuisine)
+p-value &lt; 2.2e-16
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 2.402598 3.513723
+sample estimates:
+odds ratio 
+  2.903253 </code></pre>
+</div>
+</div>
+<div id="representation-graphique" class="section level3">
+<h3>Représentation graphique</h3>
+<p>Enfin, on peut obtenir une représentation graphique synthétisant l’ensemble des résultats obtenus sous la forme d’un graphique en mosaïque, grâce à la fonction <code data-package="graphics">mosaicplot</code>.</p>
+<figure>
+<pre class="r"><code>mosaicplot(qualreg ~ sport, data = d, shade = TRUE, main = &quot;Graphe en mosaïque&quot;</code></pre>
+<img src="images/analyses_stat_biv/unnamed-chunk-31-1.png" title="" alt="" width="1050" />
+<figcaption>
+Exemple de graphe en mosaïque
+</figcaption>
+</figure>
+<p>Comment interpréter ce graphique haut en couleurs<a href="#fn8" class="footnoteRef" id="fnref8"><sup>8</sup></a> ? Chaque rectangle représente une case de tableau. Sa largeur correspond aux pourcentages en colonnes (il y’a beaucoup d’employés et d’ouvriers et très peu d’« Autre »). Sa hauteur correspond aux pourcentages en lignes : la proportion de sportifs chez les cadres est plus élevée que chez les employés. Enfin, la couleur de la case correspond au résidu du test du χ² correspondant : les cases en rouge sont sous-représentées, les cases en bleu sur-représentées, et les cases blanches sont statistiquement proches de l’hypothèse d’indépendance.</p>
+<p>Lorsque l’on s’intéresse principalement aux variations d’une variable selon une autre, par exemple ici à la pratique du sport selon le niveau de qualification, il peut être intéressant de présenter les pourcentages en colonne sous la forme de barres cumulées.</p>
+<figure>
+<pre class="r"><code>barplot(cprop(tab, total = FALSE), main = &quot;Pratique du sport selon le niveau de qualification&quot;)</code></pre>
+<img src="images/analyses_stat_biv/unnamed-chunk-32-1.png" title="" alt="" width="1050" />
+<figcaption>
+Exemple de barres cumulées
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><strong class="package">MASS</strong> est installée par défaut avec la version de base de <strong>R</strong>.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>La fonction <code data-package="base">tapply</code> est présentée plus en détails dans le chapitre <a href="pem_manipulation.html#tapply">Manipulation de données</a>.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>Concernant cette seconde condition, <code data-package="stats">t.test</code> propose une option nommée <code>var.equal</code> qui permet d’utiliser une approximation dans le cas où les variances ne sont pas égales<a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>Ce test peut également fournir un intervalle de confiance avec l’option <code>conf.int=TRUE</code>.<a href="#fnref4">↩</a></p></li>
+<li id="fn5"><p>Il s’agit en fait d’un alias pour les francophones de la fonction <code data-package="questionr">rprop</code><a href="#fnref5">↩</a></p></li>
+<li id="fn6"><p>On ne donnera pas plus d’indications sur le test du χ² ici. Les personnes désirant une présentation plus détaillée pourront se reporter (attention, séance d’autopromotion !) à la page suivante : <a href="http://alea.fr.eu.org/pages/khi2" class="uri">http://alea.fr.eu.org/pages/khi2</a>.<a href="#fnref6">↩</a></p></li>
+<li id="fn7"><p>On peut aussi appliquer directement le test en spécifiant les deux variables à croiser via <code>chisq.test(d$qualreg, d$sport)</code>.<a href="#fnref7">↩</a></p></li>
+<li id="fn8"><p>Sauf s’il est imprimé en noir et blanc. . .<a href="#fnref8">↩</a></p></li>
+</ol>
+</div>
+
+<script>
+
+// manage active state of menu based on current page
+$(document).ready(function () {
+
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+
+    // manage active menu header
+    if (href.startsWith('pem_'))
+      $('a[href="' + 'pem' + '"]').parent().addClass('active');
+    else if (href.startsWith('analyses_'))
+      $('a[href="' + 'analyses' + '"]').parent().addClass('active');
+    else if (href.startsWith('astuces_'))
+      $('a[href="' + 'astuces' + '"]').parent().addClass('active');
+
+    // Identifier les <pre> fermant
+    $('pre').next().not('pre').prev().addClass('last'); // Last <pre> of each group of <pre>
+    $('pre').last().addClass('last'); // If the last one is not followed bay anything
+
+    // Ajout liens rdocumentation
+    $("code[data-package]").each(function( index ) {
+      package = $(this).attr('data-package');
+      if ($(this).attr('data-rdocumentation') !== undefined)
+        rdocumentation = $(this).attr('data-rdocumentation');
+      else
+        rdocumentation = $(this).text();
+      fonction = $(this).text();
+      $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+package+'/functions/'+rdocumentation+'">');
+    });
+
+    $("strong.package").each(function( index ) {
+      $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+$(this).text()+'">');
+    });
+
+    // Figures
+    $("figure").each(function( index ) {
+      if ($(this).children("figcaption").length > 0)
+        $(this).children("figcaption:first").prepend('<span class="figure-number">Figure '+(index+1)+'.</span> ');
+      else
+        $(this).append($("<figcaption>").append('<span class="figure-number">Figure '+(index+1)+'</span>'));
+    });
+
+});
+
+</script>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+
+</body>
+</html>
