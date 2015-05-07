@@ -1,0 +1,398 @@
+---
+title: "Données pondérées"
+---
+
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+knitr::opts_chunk$set(fig.path = 'images/analyses_donnees_pond/')
+```
+
+<div class="note">
+La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre du support de cours
+[Introduction à R](https://github.com/juba/intro-r), complétée par Joseph Larmarange dans
+[Introduction à l'analyse d'enquêtes avec R](https://github.com/larmarange/intro-r/tree/CoursM2).
+</div>
+
+S'il est tout à fait possible de travailler avec des données pondérées sous R, cette fonctionnalité n'est
+pas aussi bien intégrée que dans la plupart des autres logiciels de traitement statistique. En particulier,
+il y a plusieurs manières possibles de gérer la pondération.
+
+Dans ce qui suit, on utilisera le jeu de données tiré de l'enquête *Histoire de vie* et notamment sa
+variable de pondération *poids*^[On notera que cette variable est utilisée à titre purement illustratif. 
+Le jeu de données étant un extrait d'enquête et la variable de pondération n'ayant pas été recalculée, 
+elle n'a ici à proprement parler aucun sens.].
+
+```{r}
+library(questionr)
+data(hdv2003)
+d <- hdv2003
+range(d$poids)
+```
+
+## Options de certaines fonctions
+
+Tout d'abord, certaines fonctions de **R** acceptent en argument un vecteur permettant de pondérer les
+observations (l'option est en général nommée `weights` ou `row.w`). C'est le cas par exemple des méthodes
+d'estimation de modèles linéaires (`lm`{data-package="stats"}) ou de modèles linéaires généralisés 
+(`glm`{data-package="stats"}), ou dans les analyses de correspondances^[Voir le chapitre dédié à 
+l'analyse des correspondances, MAJ LIEN.] des extensions <strong class="package">ade4</strong>
+ou <strong class="package">FactoMineR</strong>.
+
+Par contre cette option n'est pas présente dans les fonctions de base comme `mean`{data-package="base"},
+`var`{data-package="base" data-rdocumentation="cor"}, `table`{data-package="base"} ou
+`chisq.test`{data-package="stats"}.
+
+## Fonctions de l'extension questionr
+
+L'extension <strong class="package">questionr</strong> propose quelques fonctions permettant de calculer 
+des statistiques simples pondérées^[Les fonctions `wtd.mean`{data-package="questionr"} et 
+`wtd.var`{data-package="questionr" data-rdocumentation="wtd.mean"} sont des copies conformes des fonctions 
+du même nom de l'extension <strong class="package">Hmisc</strong> de Frank Harrel. 
+<strong class="package">Hmisc</strong> étant une extension « de taille », on a préféré recopié les fonctions 
+pour limiter le poids des dépendances.] :
+
+* `wtd.mean`{data-package="questionr"} : moyenne pondérée
+* `wtd.var`{data-package="questionr" data-rdocumentation="wtd.mean"} : variance pondérée
+* `wtd.table`{data-package="questionr"} : tris à plat et tris croisés pondérés
+
+On les utilise de la manière suivante :
+
+library(questionr)
+mean(d$age)
+wtd.mean(d$age, weights = d$poids)
+wtd.var(d$age, weights = d$poids)
+
+Pour les tris à plat, on utilise la fonction wtd.table à laquelle on passe la variable en paramètre :
+
+wtd.table(d$sexe, weights = d$poids)
+
+Pour un tri croisé, il suffit de passer deux variables en paramètres :
+
+wtd.table(d$sexe, d$hard.rock, weights = d$poids)
+
+Ces fonctions admettent notamment les deux options suivantes :
+
+* `na.rm` : si `TRUE`, on ne conserve que les observations sans valeur manquante.
+* `normwt` : si `TRUE`, on normalise les poids pour que les effectifs totaux pondérés soient les mêmes que les
+  effectifs initiaux. Il faut utiliser cette option, notamment si on souhaite appliquer un test sensible
+  aux effectifs comme le &chi;².
+
+Ces fonctions rendent possibles l'utilisation des statistiques descriptives les plus simples et le traitement
+des tableaux croisés (les fonctions `lprop`{data-package="questionr" data-rdocumentation="rprop"}, 
+`cprop`{data-package="questionr"} ou `chisq.test`{data-package="stats"} peuvent être appliquées au résultat 
+d'un `wtd.table`{data-package="questionr"}) mais restent limitées en termes de tests statistiques 
+ou de graphiques. . .
+
+## Données pondérées avec l'extension survey
+
+L'extension <strong class="package">survey</strong> est spécialement dédiée au traitement d'enquêtes 
+ayant des techniques d'échantillonnage et de pondération potentiellement très complexes.
+
+L'extension s'installe comme la plupart des autres :
+
+```{r, eval=FALSE}
+install.packages("survey")
+```
+
+Le site officiel (en anglais) comporte beaucoup d'informations, mais pas forcément très accessibles :
+<http://faculty.washington.edu/tlumley/survey/>.
+
+Pour utiliser les fonctionnalités de l'extension, on doit d'abord définir le *plan d'échantillonnage*
+ou *design* de notre enquête. C'est-à-dire indiquer quel type de pondération nous souhaitons lui appliquer. 
+
+Dans notre cas nous utilisons plan d'échantillonnage le plus simple, avec une variable de pondération 
+déjà calculée. Ceci se fait à l'aide de la fonction `svydesign`{data-package="survey"} :
+
+```{r, message=FALSE}
+library(survey)
+dw <- svydesign(ids = ~1, data = d, weights = ~d$poids)
+```
+
+Cette fonction crée un nouvel objet, que nous avons nommé `dw`. Cet objet n'est pas à proprement
+parler un tableau de données, mais plutôt un tableau de données plus une méthode de pondération. `dw`
+et `d` sont des objets distincts, les opérations effectuées sur l'un n'ont pas d'influence sur l'autre. 
+On peut cependant retrouver le contenu de `d` depuis `dw` en utilisant `dw$variables` :
+
+```{r}
+mean(d$age)
+mean(dw$variables$age)
+```
+
+Lorsque notre plan d'échantillonnage est déclaré, 
+on peut lui appliquer une série de fonctions permettant d'effectuer
+diverses opérations statistiques en tenant compte de la pondération. On citera notamment :
+
+* `svymean`{data-package="survey" data-rdocumentation="surveysummary"}, 
+  `svyvar`{data-package="survey" data-rdocumentation="surveysummary"},
+  `svytotal`{data-package="survey" data-rdocumentation="surveysummary"}, 
+  `svyquantile`{data-package="survey"} : statistiques univariées
+* `svytable`{data-package="survey"} : tableaux croisés
+* `svychisq`{data-pacakge="survey" data-rdocumentation="svytable"} : test du &chi;²
+* `svyby`{data-package="survey"} : statistiques selon un facteur
+* `svyglm`{data-pacakge="survey"} : modèles linéaires généralisés (dont régression logistique)
+* `svyplot`{data-package="survey"}, 
+  `svyhist`{data-package="survey"}, 
+  `svyboxplot`{data-package="survey" data-rdocumentation="svyhist"} : fonctions graphiques
+
+D'autres fonctions sont disponibles, comme `svyratio`{data-package="survey"}, 
+mais elles ne seront pas abordées ici.
+
+Pour ne rien arranger, ces fonctions prennent leurs arguments sous forme de formules, c'est-à-dire pas
+de la manière habituelle. En général l'appel de fonction se fait en spécifiant d'abord les variables d'intérêt
+sous forme de formule, puis l'objet *survey.design*.
+
+L'intervalle de confiance d'une moyenne s'obtient avec 
+`confint`{data-package="survey" data-rdocumentation="surveysummary"}
+et celui d'une proportion avec `svyciprop`{data-package="survey"}.
+
+Voyons tout de suite quelques exemples^[Pour d'autres exemples, 
+voir <http://www.ats.ucla.edu/stat/r/faq/svy_r_oscluster.htm> (en anglais).] :
+
+```{r}
+svymean(~age, dw)
+confint(svymean(~age, dw)) # Intervalle de confiance
+svyquantile(~age, dw, quantile = c(0.25, 0.5, 0.75), ci = TRUE)
+svyvar(~heures.tv, dw, na.rm = TRUE)
+```
+
+Les tris à plat se déclarent en passant comme argument le nom de la variable précédé
+d'un tilde (`˜`), tandis que les tableaux croisés utilisent les noms des deux variables 
+séparés par un signe plus (`+`) et précédés par un tilde (`˜`).
+
+```{r}
+svytable(~sexe, dw)
+svyciprop(~sexe, dw) # Intervalle de confiance
+svytable(~sexe + clso, dw)
+```
+
+
+On peut récupérer le tableau issu de `svytable`{data-package="survey"} dans un objet et 
+le réutiliser ensuite comme n'importe quel tableau croisé :
+
+```{r}
+tab <- svytable(~sexe + clso, dw)
+tab
+```
+
+Les fonctions `lprop`{data-package="questionr" data-rdocumentation="rprop"} et 
+`cprop`{data-package="questionr"} de <strong class="package">questionr</strong> sont donc 
+tout à fait compatibles avec l'utilisation de <strong class="package">survey</strong>. 
+
+```{r}
+lprop(tab)
+```
+
+La fonction `freq`{data-package="questionr"} peut également être utilisée si on lui passe 
+en argument non pas la variable elle-même, mais son tri à plat obtenu avec 
+`svytable`{data-package="survey"}svychisq(~sexe + clso, dw):
+ 
+```{r}
+tab <- svytable(~peche.chasse, dw)
+freq(tab, total = TRUE)
+```
+
+Par contre, il ne faut pas utiliser `chisq.test`{data-package="stats"} sur un tableau généré 
+par `svytable`{data-package="survey">. Les effectifs étant extrapolés à partir de la pondération, 
+les résultats du test seraient complètement faussés. Si on veut faire
+un test du &chi;² sur un tableau croisé pondéré, il faut utiliser 
+`svychisq`{data-package="survey" data-rdocumentation="svytable"} :
+
+```{r}
+svychisq(~sexe + clso, dw)
+```
+
+Le principe de la fonction `svyby`{data-pacakge="survey"} est similaire à celui de 
+`tapply`{data-package="base"}^[La fonction `tapply`{data-package="base"} est présentée plus en 
+détails dans le chapitre [Manipulation de données](pem_manipulation.html#tapply).]. Elle
+permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur. 
+Par exemple :
+
+```{r}
+svyby(~age, ~sexe, dw, svymean)
+```
+
+<strong class="package">survey</strong> est également capable de produire des graphiques à partir 
+des données pondérées. Quelques exemples :
+
+<figure>
+```{r}
+par(mfrow = c(2, 2))
+svyplot(~age + heures.tv, dw, col = "red", main = "Bubble plot")
+svyhist(~heures.tv, dw, col = "peachpuff", main = "Histogramme")
+svyboxplot(age ~ 1, dw, main = "Boxplot simple", ylab = "Âge")
+svyboxplot(age ~ sexe, dw, main = "Boxplot double", ylab = "Âge", xlab = "Sexe")
+```
+<figcaption>Fonctions graphiques de l'extension survey</figcaption>
+</figure>
+
+Enfin, <strong class="package">survey</strong> fournit une fonction `svyglm`{data-package="survey"}
+permettant de calculer un modèle statistique tout en prenant
+en compte le plan d'échantillonnage spécifié. La syntaxe de `svyglm`{data-package="survey"} est proche
+de celle de `glm`{data-package="stats"}. Cependant, le cadre d'une régression logistique,
+il est nécessaire d'utiliser `family = quasibinomial()` afin d'éviter un message d'erreur
+indiquant un nombre non entier de succès :
+
+```{r}
+reg <- svyglm(sport ~ sexe + age + relig + heures.tv, dw, family = binomial())
+reg <- svyglm(sport ~ sexe + age + relig + heures.tv, dw, family = quasibinomial())
+reg
+```
+Le résultat obtenu est similaire à celui de `glm`{data-package="stats"} et l'on peut utiliser 
+sans problème les fonctions `coef`{data-package="survey" data-rdocumentation="svyglm"},
+`confint`{data-package="survey" data-rdocumentation="confint.glm"}, 
+`odds.ratio`{data-package="questionr"} ou `predict`{data-package="survey" data-rdocumentation="svyglm"}
+abordées dans le chapitre sur la [régression logistique](analyses_reglog.html).
+
+```{r}
+#odds.ratio(reg)
+## MAJ
+## Non encore fonctionnel avec questionr
+## Voir https://github.com/juba/questionr/pull/46
+```
+
+Dans ses dernières versions, <strong class="package">survey</strong> fournit une méthode 
+`AIC.svyglm`{data-package="survey" data-rdocumentation="anova.svyglm"} permettant d'estimer un AIC 
+sur un modèle calculé avec `svyglm`{data-package="survey"}. Il est dès lors possible d'utiliser 
+la fonction `step`{data-package="stats"} pour réaliser une *sélection descendante pas à pas*.
+
+L'extension <strong class="package">effects</strong> n'est quant à elle pas compatible avec
+`svyglm`{data-package="survey"}^[Compatibilité qui pourra éventuellement être introduite dans une future version de l'extension.].
+
+## Définir un plan d'échantillonage complexe avec survey
+
+L'extension <strong class="package">survey</strong> ne permet pas seulement d'indiquer une 
+variable de pondération mais également de prendre les spécificités du plan d'échantillonnage 
+(strates, grappes, ...). Le plan d'échantillonnage ne joue
+pas seulement sur la pondération des données, mais influence le calcul des variances et par ricochet tous
+les tests statistiques. Deux échantillons identiques avec la même variable de pondération mais des designs
+différents produiront les mêmes moyennes et proportions mais des intervalles de confiance différents.
+
+### Différents types d'échantillonnage
+
+L'*échantillonnage aléatoire simple* ou *échantillonnage équiprobable* est une méthode pour laquelle tous
+les échantillons possibles (de même taille) ont la même probabilité d'être choisis et tous les éléments de
+la population ont une chance égale de faire partie de l'échantillon. C'est l'échantillonnage le plus simple :
+chaque individu à la même probabilité d'être sélectionné.
+
+L'*échantillonnage stratifié* est une méthode qui consiste d'abord à subdiviser la population en groupes
+homogènes (strates) pour ensuite extraire un échantillon aléatoire de chaque strate. Cette méthode suppose
+la connaissance de la structure de la population. Pour estimer les paramètres, les résultats doivent
+être pondérés par l'importance relative de chaque strate dans la population.
+
+L'*échantillonnage par grappes* est une méthode qui consiste à choisir un échantillon aléatoire d'unités
+qui sont elles-mêmes des sous-ensembles de la population (« grappes »). Cette méthode suppose que les
+unités de chaque grappe sont représentatives. Elle possède l'avantage d'être souvent plus économique.
+
+Il est possible de combiner plusieurs de ces approches. Par exemple, les *Enquêtes Démographiques et
+de Santé^[Vaste programme d'enquêtes réalisées à intervalles réguliers dans les pays en dévelop'ent,
+disponibles sur <http://www.dhsprogram.com/>.] (EDS) sont des enquêtes stratifiées en grappes à deux degrés. 
+Dans un premier temps, la population est divisée en strates par région et milieu de résidence. 
+Dans chaque strate, des zones d'enquêtes, correspondant à des unités de recensement, 
+sont tirées au sort avec une probabilité proportionnelle au nombre de ménages de chaque zone 
+au dernier recensement de population. Enfin, au sein de chaque zone
+d'enquête sélectionnée, un recensement de l'ensemble des ménages est effectué puis un nombre identique
+de ménages par zone d'enquête est tiré au sort de manière alétoire simple.
+
+### Les options de svydesign
+
+La fonction `svydesign`{data-package="survey"} accepte plusieus arguments décrits sur sa page 
+d'aide (obtenue avec la commande `?svydesign`).
+
+L'agument `data` permet de spécifier le tableau de données contenant les observations.
+
+L'argument `ids` est obligatoire et spécifie sous la forme d'une formule les identifiants des différents
+niveaux d'un tirage en grappe. S'il s'agit d'un échantillon aléatoire simple, on entrera `ids=˜1`.
+Autre situation : supposons une étude portant sur la population française. 
+Dans un premier temps, on a tiré au sort
+un certain nombre de départements français. Dans un second temps, on tire au sort dans chaque département
+des communes. Dans chaque commune sélectionnée, on tire au sort des quartiers. Enfin, on interroge
+de manière exhaustive toutes les personnes habitant les quartiers enquêtés. Notre fichier de données devra
+donc comporter pour chaque observation les variables *id_departement*, *id_commune* et *id_quartier*. On
+écrira alors pour l'argument `ids` la valeur suivante : `ids=˜id_departement+id_commune+id_quartier`.
+
+Si l'échantillon est stratifié, on spécifiera les strates à l'aide de l'argument `strata` en spécifiant la
+variable contenant l'identifiant des strates. Par exemple : `strata=˜id_strate`.
+
+Il faut encore spécifier les probabilités de tirage de chaque cluster ou bien la pondération des individus.
+Si l'on dispose de la probabilité de chaque observation d'être sélectionnée, on utilisera l'argument `probs`.
+Si, par contre, on connaît la pondération de chaque observation (qui doit être proportionnelle à l'inverse
+de cette probabilité), on utilisera l'argument `weights`.
+
+Si l'échantillon est stratifié, qu'au sein de chaque strate les individus ont été tirés au sort de manière
+aléatoire et que l'on connaît la taille de chaque strate, il est possible de ne pas avoir à 
+spécifier la probabilité de tirage ou la pondération de chaque observation. 
+Il est préférable de fournir une variable contenant la taille de chaque strate à l'argument `fpc`. 
+De plus, dans ce cas-là, une petite correction sera appliquée au
+modèle pour prendre en compte la taille finie de chaque strate.
+
+Quelques exemples :
+
+```{r, eval=FALSE}
+# Échantillonnage aléatoire simple
+plan <- svydesign(ids = ~1, data = donnees)
+
+# Échantillonnage stratifié à un seul niveau (la taille de chaque strate est connue)
+plan <- svydesign(ids = ~1, data = donnees, fpc = ~taille)
+
+# Échantillonnage en grappes avec tirages à quatre degrés (departement, commune, quartier, individus). La probabilité de tirage de chaque niveau de cluster est connue.
+plan <- svydesign(ids = ~id_departement + id_commune + id_quartier, data = donnees, Probs = ~proba_departement + proba_commune + proba_quartier)
+
+# Échantillonnage stratifié avec tirage à deux degrés (clusters et individus). Le poids statistiques de chaque observation est connu.
+plan <- svydesign(ids = ~id_cluster, data = donnees, strata = ~id_strate, weights = ~poids)
+```
+
+Prenons l'exemple d'une enquête démographique et de santé. Le nom des différentes variables est
+standardisé et commun quelle que soit l'enquête. Nous supposerons que vous avez importé le fichier
+*individus* dans un tableau de données nommés `eds`. Le poids statistique de chaque individu est fourni
+par la variable *V005* qui doit au préalable être divisée par un million. Les grappes d'échantillonnage au
+premier degré sont fournies par la variable *V021 (primary sample unit)*. 
+Si elle n'est pas renseignée, on pourra utilisier le numéro de grappe *V001*.
+Enfin, le milieu de résidence (urbain / rural) est fourni par *V025* et la région par *V024*. 
+Pour rappel, l'échantillon a été stratifié à la fois par région et par mileu de résidence. Certaines
+enquêtes fournissent directement un numéro de strate via *V022*. Si tel est le cas, on pourra préciser le
+plan d'échantillonnage ainsi :
+
+```{r, eval=FALSE}
+eds$poids <- eds$V005/1000000
+design.eds <- svydesign(ids = ~V021, data = eds, strata = ~V022, weights = ~poids)
+```
+
+Si V022 n'est pas fourni mais que l'enquête a bien été stratifié par région et milieu de résidence (vérifiez
+toujours le premier chapitre du rapport d'enquête), on pourra créer une variable strate ainsi
+^[L'astuce consiste à utiliser as.integer pour obetnir le code des facteurs et non leur valeur textuelle. 
+L'addition des deux valeurs après multiplication du code de la région par 10 permet d'obtenir une valeur
+unique pour chaque combinaison des deux variables. On retransforme le résultat en facteurs puis on modifie les étiquettes des modalités.] :
+
+```{r, eval=FALSE}
+eds$strate <- as.factor(as.integer(eds$V024) * 10 + as.integer(eds$V025))
+levels(eds$strate) <- c(paste(levels(eds$V024), "Urbain"), paste(levels(eds$V024), "Rural"))
+design.eds <- svydesign(ids = ~V021, data = eds, strata = ~strate, weights = ~poids)
+```
+
+### Extraire un sous-échantillon
+
+Si l'on souhaite travailler sur un sous-échantillon tout en gardant les informations d'échantillonnage,
+on utilisera la fonction `subset`{data-package="survey" data-rdocumentation="subset.survey.design"}
+présentée en détail dans le chapitre [Manipulation de données](pem_manipulation.html#subset).
+
+```{r}
+sous <- subset(dw, sexe == "Femme" & age >= 40)
+```
+
+## Conclusion
+
+En attendant mieux, la gestion de la pondération sous **R** n'est sans doute pas ce qui se fait de plus
+pratique et de plus simple. On pourra quand même donner les conseils suivants :
+
+* utiliser les options de pondération des fonctions usuelles ou les fonctions d'extensions 
+  comme <strong class="package">questionr</strong> pour les cas les plus simples ;
+* si on utilise <strong class="package">survey</strong>, effectuer autant que possible tous les 
+  recodages et manipulations sur les données non pondérées ;
+* une fois les recodages effectués, on déclare le design et on fait les analyses en tenant compte 
+  de la pondération ;
+* surtout ne jamais modifier les variables du design. Toujours effectuer recodages et manipulations
+  sur les données non pondérées, puis redéclarer le design pour que les mises à jour effectuées soient
+  disponibles pour l'analyse.
+
+
