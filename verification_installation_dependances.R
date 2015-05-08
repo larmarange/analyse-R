@@ -1,6 +1,6 @@
 if (!require(devtools)) install.packages("devtools")
 library(devtools)
-if (!require(questionr)) install.packages("questionr")
+if (!require(questionr)) install_github("juba/questionr")
 if (!require(effects)) install.packages("effects")
 if (!require(lubridate)) install_github("hadley/lubridate")
 if (!exists("time_length")) install_github("hadley/lubridate")
