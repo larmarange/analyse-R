@@ -9,3 +9,6 @@ if (!require(ade4)) install.packages("ade4")
 if (!require(FactoMineR)) install.packages("FactoMineR")
 if (!require(JLutils)) install_github("larmarange/JLutils")
 if (!require(RColorBrewer)) install.packages("RColorBrewer")
+if (!require(flashClust)) install.packages("flashClust")
+if (!require(cluster)) install.packages("cluster")
+
