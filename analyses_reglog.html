@@ -20,23 +20,32 @@
 <script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
 <link rel="stylesheet" href="./include/analyse-R.css" />
 
+
 <style type="text/css">code{white-space: pre;}</style>
-<link rel="stylesheet"
-      href="libs/highlight/default.css"
-      type="text/css" />
-<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+</style>
 <style type="text/css">
   pre:not([class]) {
     background-color: white;
   }
 </style>
-<script type="text/javascript">
-if (window.hljs && document.readyState && document.readyState === "complete") {
-   window.setTimeout(function() {
-      hljs.initHighlighting();
-   }, 0);
-}
-</script>
 
 
 
@@ -78,21 +87,23 @@ img {
         <li class="dropdown">
           <a href="pem" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Prise en main <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
-             <li><a href="pem_manipulation.html">Manipulation de données</a></li>
+            <li><a href="pem_manipulation.html">Manipulation de données</a></li>
           </ul>
         </li>
         <li class="dropdown">
           <a href="analyses" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Analyses <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
-             <li><a href="analyses_stat_biv.html">Statistique bivariée</a></li>
-             <li><a href="analyses_reglog.html">Régression logistique</a></li>
-             <li><a href="analyses_donnees_pond.html">Données pondérées</a></li>
+            <li><a href="analyses_stat_biv.html">Statistique bivariée</a></li>
+            <li><a href="analyses_reglog.html">Régression logistique</a></li>
+            <li><a href="analyses_donnees_pond.html">Données pondérées</a></li>
+            <li><a href="analyses_acm.html">Analyse des correspondances multiples (ACM)</a></li>
+            <li><a href="analyses_cah.html">Classification ascendante hiérarchique (CAH)</a></li>
           </ul>
         </li>
         <li class="dropdown">
           <a href="astuces" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Astuces <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
-             <li><a href="astuces_age.html">Calculer un âge</a></li>
+            <li><a href="astuces_age.html">Calculer un âge</a></li>
           </ul>
         </li>
       </ul>
@@ -129,19 +140,19 @@ La version originale de ce chapitre a été écrite par Joseph Larmarange dans l
 <div id="preparation-des-donnees" class="section level2">
 <h2>Préparation des données</h2>
 <p>Dans ce chapite, nous allons encore une fois utiliser les données de l’enquête <em>Histoire de vie</em>, fournies avec l’extension <strong class="package">questionr</strong>.</p>
-<pre class="r"><code>library(questionr)
-data(hdv2003)
-d &lt;- hdv2003</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
+<span class="kw">data</span>(hdv2003)
+d &lt;-<span class="st"> </span>hdv2003</code></pre>
 <p>À titre d’exemple, nous allons étudier l’effet de l’âge, du sexe, du niveau d’étude, de la pratique religieuse et du nombre moyen d’heures passées à regarder la télévision par jour.</p>
 <p>En premier lieu, il importe de vérifier que notre variable d’intérêt (ici <em>sport</em>) est correctement codée. Une possibilité consiste à créer une variable booléenne (vrai / faux) selon que l’individu a pratiqué du sport ou non :</p>
-<pre class="r"><code>d$sport2 &lt;- FALSE
-d$sport2[d$sport == &quot;Oui&quot;] &lt;- TRUE</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">d$sport2 &lt;-<span class="st"> </span><span class="ot">FALSE</span>
+d$sport2[d$sport ==<span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> </span><span class="ot">TRUE</span></code></pre>
 <p>Dans le cas présent, cette variable n’a pas de valeur manquante. Mais le cas échéant il faut bien renseigner <code>NA</code> pour les valeurs manquantes, les individus en question étant alors exclu de l’analyse.</p>
 <p>Il n’est pas forcément nécessaire de transformer notre variable d’intérêt en variable booléenne. En effet, <strong>R</strong> accepte sans problème une variable de type facteur. Cependant, l’ordre des valeurs d’un facteur a de l’importance. En effet, <strong>R</strong> considère toujours la première modalité comme étant la modalité de référence. Dans le cas de la variable d’intérêt, la modalité de référence correspond au fait de ne pas remplir le critère étudié, dans notre exemple au fait de ne pas avoir eu d’activité sportive au cours des douze derniers mois.</p>
 <p>Pour connaître l’ordre des modalités d’une variable de type facteur, on peut utiliser la fonction <code data-package="base">levels</code> ou bien encore tout simplement la fonction <code data-package="questionr">freq</code> :</p>
-<pre class="r"><code>levels(d$sport)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d$sport)</code></pre>
 <pre><code>[1] &quot;Non&quot; &quot;Oui&quot;</code></pre>
-<pre class="r"><code>freq(d$sport)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$sport)</code></pre>
 <pre><code>       n    % val%
 Non 1277 63.8 63.8
 Oui  723 36.1 36.1
@@ -152,27 +163,27 @@ Il est possible d’indiquer un facteur à plus de deux modalités. Dans une tel
 </div>
 <p>La notion de modalité de référence s’applique également aux variables explicatives qualitatives. En effet, dans un modèle, tous les coefficients sont calculés par rapport à la modalité de référence. Il importe de choisir une modalité de référence qui fasse sens afin de faciliter l’interprétation. Par ailleurs, ce choix peut également dépendre de la manière dont on souhaite présenter les résultats. De manière générale on évitera de choisir comme référence une modalité peu représentée dans l’échantillon ou bien une modalité correspondant à une situation atypique.</p>
 <p>Prenons l’exemple de la variable <em>sexe</em>. Souhaite-t-on connaitre l’effet d’être une femme par rapport au fait d’être un homme ou bien l’effet d’être un homme par rapport au fait d’être une femme ? Si l’on opte pour le second, alors notre modalité de référence sera le sexe féminin. Comme est codée cette variable ?</p>
-<pre class="r"><code>freq(d$sexe)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$sexe)</code></pre>
 <pre><code>         n  % val%
 Homme  899 45   45
 Femme 1101 55   55
 NA       0  0   NA</code></pre>
 <p>La modalité « Femme » s’avère ne pas être la première modalité. Nous devons appliquer la fonction <code data-package="stats">relevel</code> :</p>
-<pre class="r"><code>d$sexe &lt;- relevel(d$sexe, &quot;Femme&quot;)
-freq(d$sexe)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">d$sexe &lt;-<span class="st"> </span><span class="kw">relevel</span>(d$sexe, <span class="st">&quot;Femme&quot;</span>)
+<span class="kw">freq</span>(d$sexe)</code></pre>
 <pre><code>         n  % val%
 Femme 1101 55   55
 Homme  899 45   45
 NA       0  0   NA</code></pre>
 <p>Les variables <em>age</em> et <em>heures.tv</em> sont des variables quantitatives. Il importe de vérifier qu’elles sont bien enregistrées en tant que variables numériques. En effet, il arrive parfois que dans le fichier source les variables quantitatives soient renseignées sous forme de valeur textuelle et non sous forme numérique.</p>
-<pre class="r"><code>str(d$age)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(d$age)</code></pre>
 <pre><code> int [1:2000] 28 23 59 34 71 35 60 47 20 28 ...</code></pre>
-<pre class="r"><code>str(d$heures.tv)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(d$heures.tv)</code></pre>
 <pre><code> num [1:2000] 0 1 0 2 3 2 2.9 1 2 2 ...</code></pre>
 <p>Nos deux variables sont bien renseignées sous forme numérique.</p>
 <p>Cependant, l’effet de l’âge est rarement linéaire. Un exemple trivial est par exemple le fait d’occuper un emploi qui sera moins fréquent aux jeunes âges et aux âges élevés. Dès lors, on pourra transformer la variable <em>age</em> en groupe d’âges (voir MAJ_LIEN) :</p>
-<pre class="r"><code>d$grpage &lt;- cut(d$age, c(16, 25, 45, 65, 93), right = FALSE, include.lowest = TRUE)
-freq(d$grpage)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">d$grpage &lt;-<span class="st"> </span><span class="kw">cut</span>(d$age, <span class="kw">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">93</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)
+<span class="kw">freq</span>(d$grpage)</code></pre>
 <pre><code>          n    % val%
 [16,25) 169  8.5  8.5
 [25,45) 706 35.3 35.3
@@ -180,7 +191,7 @@ freq(d$grpage)</code></pre>
 [65,93] 378 18.9 18.9
 NA        2  0.1   NA</code></pre>
 <p>Jetons maintenant un oeil à la variable <em>nivetud</em> :</p>
-<pre class="r"><code>freq(d$nivetud)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$nivetud)</code></pre>
 <pre><code>                                                                  n    %
 N&#39;a jamais fait d&#39;etudes                                         39  2.0
 A arrete ses etudes, avant la derniere annee d&#39;etudes primaires  86  4.3
@@ -202,10 +213,10 @@ Enseignement technique ou professionnel long                     6.9
 Enseignement superieur y compris technique superieur            23.4
 NA                                                                NA</code></pre>
 <p>En premier lieu, cette variable est détaillée en pas moins de huit modalités dont certaines sont peu représentées (seulement 39 individus soit 2 % n’ont jamais fait d’études par exemple). Afin d’améliorier notre modèle logistique, il peut être pertinent de regrouper certaines modalités (voir MAJ_LIEN) :</p>
-<pre class="r"><code>d$etud &lt;- d$nivetud
-levels(d$etud) &lt;- c(&quot;Primaire&quot;, &quot;Primaire&quot;, &quot;Primaire&quot;, &quot;Secondaire&quot;, &quot;Secondaire&quot;, 
-    &quot;Technique/Professionnel&quot;, &quot;Technique/Professionnel&quot;, &quot;Supérieur&quot;
-freq(d$etud)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">d$etud &lt;-<span class="st"> </span>d$nivetud
+<span class="kw">levels</span>(d$etud) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, 
+    <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Supérieur&quot;</span>
+<span class="kw">freq</span>(d$etud)</code></pre>
 <pre><code>                          n    % val%
 Primaire                466 23.3 24.7
 Secondaire              387 19.4 20.5
@@ -213,11 +224,11 @@ Technique/Professionnel 594 29.7 31.5
 Supérieur               441 22.1 23.4
 NA                      112  5.6   NA</code></pre>
 <p>Notre variable comporte également 112 individus avec une valeur manquante. Si nous conservons cette valeur manquante, ces 112 individus seront, par défaut, exclus de l’analyse. Ces valeurs manquantes n’étant pas négligeable (5,6 %), nous pouvons également faire le choix de considérer ces valeurs manquantes comme une modalité supplémentaire. Auquel cas, nous utiliserons la fonction <code data-package="base">add.NA</code> :</p>
-<pre class="r"><code>levels(d$etud)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d$etud)</code></pre>
 <pre><code>[1] &quot;Primaire&quot;                &quot;Secondaire&quot;             
 [3] &quot;Technique/Professionnel&quot; &quot;Supérieur&quot;              </code></pre>
-<pre class="r"><code>d$etud &lt;- addNA(d$etud)
-levels(d$etud)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">d$etud &lt;-<span class="st"> </span><span class="kw">addNA</span>(d$etud)
+<span class="kw">levels</span>(d$etud)</code></pre>
 <pre><code>[1] &quot;Primaire&quot;                &quot;Secondaire&quot;             
 [3] &quot;Technique/Professionnel&quot; &quot;Supérieur&quot;              
 [5] NA                       </code></pre>
@@ -226,7 +237,7 @@ levels(d$etud)</code></pre>
 <h2>Régression logistique binaire</h2>
 <p>La fonction <code data-package="stats">glm</code> (pour <em lang="en">generalized linear models</em>) permet de calculer une grande variété de modèles statistiques. La régression logistique ordinaire correspond au modèle <em>logit</em> de la famille des modèles binomiaux, ce que l’on indique à <code data-package="stats">glm</code> avec l’argument <code>family=binomial(logit)</code>.</p>
 <p>Le modèle proprement dit sera renseigné sous la forme d’une formule (MAJ_LIEN). On indiquera d’abord la variable d’intérêt, suivie du signe <kbd>~</kbd> puis de la liste des variables explicatives séparées par un signe <kbd>+</kbd>. Enfin, l’argument <code>data</code> permettra d’indiquer notre tableau de données.</p>
-<pre class="r"><code>reg &lt;- glm(sport ~ sexe + grpage + etud + relig + heures.tv, data = d, family = binomial(logit))
+<pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">glm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>grpage +<span class="st"> </span>etud +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>(logit))
 reg</code></pre>
 <pre><code>
 Call:  glm(formula = sport ~ sexe + grpage + etud + relig + heures.tv, 
@@ -258,7 +269,7 @@ Residual Deviance: 2206     AIC: 2236</code></pre>
 Il est possible de spécifier des modèles plus complexes. Par exemple, <code>x:y</code> permet d’indiquer l’interaction entre les variables <em>x</em> et <em>y</em>. <code>x * y</code> sera équivalent à <code>x + y + x:y</code>. Pour aller plus loin, voir <a href="http://ww2.coastal.edu/kingw/statistics/R-tutorials/formulae.html" class="uri">http://ww2.coastal.edu/kingw/statistics/R-tutorials/formulae.html</a>.
 </div>
 <p>Une présentation plus complète des résultats est obtenue avec la méthode <code data-package="stats" data-rdocumentation="summary.glm">summary</code> :</p>
-<pre class="r"><code>summary(reg)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(reg)</code></pre>
 <pre><code>
 Call:
 glm(formula = sport ~ sexe + grpage + etud + relig + heures.tv, 
@@ -298,7 +309,7 @@ AIC: 2235.9
 Number of Fisher Scoring iterations: 4</code></pre>
 <p>Dans le cadre d’un modèle logistique, généralement on ne présente pas les coefficients du modèle mais leur valeur exponentielle, cette dernière correspondant en effet à des <em>odds ratio</em>, également appelés <em>rapports des cotes</em>. L’odds ratio diffère du <em>risque relatif</em>. Cependent son interprétation est similaire. Un odds ratio de 1 signifie l’absence d’effet. Un odds ratio largement supérieur à 1 correspond à une augmentation du phénomène étudié et un odds ratio largement inféieur à 1 correspond à une diminution du phénomène étudié<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</p>
 <p>La fonction <code data-package="stats">coef</code> permet d’obtenir les coefficients d’un modèle, <code data-package="stats">confint</code> leurs intervalles de confiance et <code data-package="base" data-rdocumentation="log">exp</code> de calculer l’exponentiel. Les odds ratio et leurs intervalles de confiance s’obtiennent ainsi :</p>
-<pre class="r"><code>exp(coef(reg))</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">exp</span>(<span class="kw">coef</span>(reg))</code></pre>
 <pre><code>                     (Intercept)                        sexeHomme 
                        0.4505151                        1.5511577 
                    grpage[25,45)                    grpage[45,65) 
@@ -315,7 +326,7 @@ Number of Fisher Scoring iterations: 4</code></pre>
                        0.6819874                        0.9200190 
                        heures.tv 
                        0.8862785 </code></pre>
-<pre class="r"><code>exp(confint(reg))</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">exp</span>(<span class="kw">confint</span>(reg))</code></pre>
 <pre><code>Waiting for profiling to be done...</code></pre>
 <pre><code>                                     2.5 %     97.5 %
 (Intercept)                      0.2379725  0.8480538
@@ -334,7 +345,7 @@ religRejet                       0.3872078  1.1898605
 religNSP ou NVPR                 0.3998878  2.0221544
 heures.tv                        0.8291800  0.9459484</code></pre>
 <p>On pourra faciliter la lecture en combinant les deux :</p>
-<pre class="r"><code>exp(cbind(coef(reg), confint(reg)))</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">exp</span>(<span class="kw">cbind</span>(<span class="kw">coef</span>(reg), <span class="kw">confint</span>(reg)))</code></pre>
 <pre><code>Waiting for profiling to be done...</code></pre>
 <pre><code>                                               2.5 %     97.5 %
 (Intercept)                      0.4505151 0.2379725  0.8480538
@@ -354,8 +365,8 @@ religNSP ou NVPR                 0.9200190 0.3998878  2.0221544
 heures.tv                        0.8862785 0.8291800  0.9459484</code></pre>
 <p>Pour savoir si un odds ratio diffère significativement de 1 (ce qui est identique au fait que le coefficient soit différent de 0), on pourra se référer à la colonne <em>Pr(&gt;|z|)</em> obtenue avec <code data-package="stats" data-rdocumentation="summary.glm">summary</code>.</p>
 <p>Si vous disposez de l’extension <strong class="package">questionr</strong>, la fonction <code data-pacakge="questionr">odds.ratio</code> permet de calculer directement les odds ratio, leur intervalles de confiance et les p-value :</p>
-<pre class="r"><code>library(questionr)
-odds.ratio(reg)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
+<span class="kw">odds.ratio</span>(reg)</code></pre>
 <pre><code>Waiting for profiling to be done...</code></pre>
 <pre><code>                                    OR 2.5 % 97.5 %         p    
 (Intercept)                      0.451 0.238  0.848 0.0138062 *  
@@ -377,8 +388,8 @@ heures.tv                        0.886 0.829  0.946 0.0003255 ***
 Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>L’extension <strong class="package">effects</strong> propose une représentation graphique résumant les effets de chaque variable du modèle. Pour cela, il suffit d’appliquer la méthode <code data-package="effects" data-rdocumentation="summary.effect">plot</code> au résultat de la fonction <code data-package="effects" data-rdocumentation="effect">allEffects</code>. Nous obtenons alors la <a href="#reglog_alleffects">figure ci-dessous</a>.</p>
 <figure id="reglog_alleffects">
-<pre class="r"><code>library(effects)
-plot(allEffects(reg))</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(effects)
+<span class="kw">plot</span>(<span class="kw">allEffects</span>(reg))</code></pre>
 <img src="images/analyses_reglog/plot_allEffects-1.png" title="" alt="" width="1050" />
 <figcaption>
 Représentation graphique de l’effet de chaque variable du modèle logistique
@@ -386,12 +397,12 @@ Représentation graphique de l’effet de chaque variable du modèle logistique
 </figure>
 <p>Une manière de tester la qualité d’un modèle est le calcul d’une <em>matrice de confusion</em>, c’est-à-dire le tableau croisé des valeurs observées et celles des valeurs prédites en appliquant le modèle aux données d’origine.</p>
 <p>La méthode <code data-package="stats" data-rdocumentation="predict.glm">predict</code> avec l’argument <code>type=&quot;response&quot;</code> permet d’appliquer notre modèle logistique à un tableau de données et renvoie pour chaque individu la probabilité qu’il ait vécu le phénomène étudié.</p>
-<pre class="r"><code>sport.pred &lt;- predict(reg, type = &quot;response&quot;, newdata = d)
-head(sport.pred)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">sport.pred &lt;-<span class="st"> </span><span class="kw">predict</span>(reg, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>, <span class="dt">newdata =</span> d)
+<span class="kw">head</span>(sport.pred)</code></pre>
 <pre><code>         1          2          3          4          5          6 
 0.61251214 0.73426878 0.16004519 0.70335574 0.07318189 0.34841147 </code></pre>
 <p>Or notre variable étudiée est de type binaire. Nous devons donc transformer nos probabilités prédites en une variable du type « oui / non ». Usuellement, les probabilités prédites seront réunies en deux groupes selon qu’elles soient supérieures ou inférieures à la moitié. La matrice de confusion est alors égale à :</p>
-<pre class="r"><code>table(sport.pred &gt; 0.5, d$sport)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(sport.pred &gt;<span class="st"> </span><span class="fl">0.5</span>, d$sport)</code></pre>
 <pre><code>       
          Non  Oui
   FALSE 1074  384
@@ -404,7 +415,7 @@ head(sport.pred)</code></pre>
 <p>La technique de <em>sélection descendante pas à pas</em> est une approche visant à améliorer son modèle explicatif<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>. On réalise un premier modèle avec toutes les variables spécifiées, puis on regarde s’il est possible d’améliorer le modèle en supprimant une des variables du modèle. Si plusieurs variables permettent d’améliorer le modèle, on supprimera la variable dont la suppression améliorera le plus le modèle. Puis on recommence le même procédé pour voir si la suppression d’une seconde variable peut encore améliorer le modèle et ainsi de suite. Lorsque le modèle ne peut plus être améliorer par la suppresion d’une variable, on s’arrête.</p>
 <p>Il faut également définir un critère pour déterminer la qualité d’un modèle. L’un des plus utilisés est le <em>Akaike Information Criterion</em> ou AIC. Plus l’AIC sera faible, meilleure sera le modèle.</p>
 <p>La fonction <code data-package="stats">step</code> permet justement de sélectionner le meilleur modèle par une procédure pas à pas descendante basée sur la minimisation de l’AIC. La fonction affiche à l’écran les différentes étapes de la sélection et renvoie le modèle final.</p>
-<pre class="r"><code>reg2 &lt;- step(reg)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">reg2 &lt;-<span class="st"> </span><span class="kw">step</span>(reg)</code></pre>
 <pre><code>Start:  AIC=2235.94
 sport ~ sexe + grpage + etud + relig + heures.tv
 
@@ -431,19 +442,19 @@ sport ~ sexe + grpage + etud + heures.tv
 <h2>Régression logistique multinomiale</h2>
 <p>La régression logistique multinomiale est une extension de la régression logistique aux variables qualitatives à trois modalités ou plus. Dans ce cas de figure, chaque modalité de la variable d’intérêt sera comparée à la modalité de réference. Les odds ratio seront donc exprimés par rapport à cette dernière.</p>
 <p>Nous allons prendre pour exemple la variable <em>trav.satisf</em>, à savoir la satisfaction ou l’insatisfaction au travail.</p>
-<pre class="r"><code>freq(d$trav.satisf)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$trav.satisf)</code></pre>
 <pre><code>                 n    % val%
 Satisfaction   480 24.0 45.8
 Insatisfaction 117  5.9 11.2
 Equilibre      451 22.6 43.0
 NA             952 47.6   NA</code></pre>
 <p>Nous allons choisir comme modalité de référence la position intermédiaire, à savoir l’« équilibre ».</p>
-<pre class="r"><code>d$trav.satisf &lt;- relevel(d$trav.satisf, &quot;Equilibre&quot;)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">d$trav.satisf &lt;-<span class="st"> </span><span class="kw">relevel</span>(d$trav.satisf, <span class="st">&quot;Equilibre&quot;</span>)</code></pre>
 <p>Enfin, nous allons aussi en profiter pour raccourcir les étiquettes de la variable <em>trav.imp</em> :</p>
-<pre class="r"><code>levels(d$trav.imp) &lt;- c(&quot;Le plus&quot;, &quot;Aussi&quot;, &quot;Moins&quot;, &quot;Peu&quot;)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d$trav.imp) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Le plus&quot;</span>, <span class="st">&quot;Aussi&quot;</span>, <span class="st">&quot;Moins&quot;</span>, <span class="st">&quot;Peu&quot;</span>)</code></pre>
 <p>Pour calculer un modèle logistique multinomial, nous allons utiliser la fonction <code data-package="nnet">multinom</code> de l’extension <strong class="package">nnet</strong><a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. La syntaxe de <code data-package="nnet">multinom</code> est similaire à celle de <code data-package="stats">glm</code>, le paramètre <code>family</code> en moins.</p>
-<pre class="r"><code>library(nnet)
-regm &lt;- multinom(trav.satisf ~ sexe + etud + grpage + trav.imp, data = d)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(nnet)
+regm &lt;-<span class="st"> </span><span class="kw">multinom</span>(trav.satisf ~<span class="st"> </span>sexe +<span class="st"> </span>etud +<span class="st"> </span>grpage +<span class="st"> </span>trav.imp, <span class="dt">data =</span> d)</code></pre>
 <pre><code># weights:  39 (24 variable)
 initial  value 1151.345679 
 iter  10 value 977.348901
@@ -452,7 +463,7 @@ iter  30 value 969.522965
 final  value 969.521855 
 converged</code></pre>
 <p>Comme pour la régression logistique, il est possible de réaliser une sélection pas à pas descendante :</p>
-<pre class="r"><code>regm2 &lt;- step(regm)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">regm2 &lt;-<span class="st"> </span><span class="kw">step</span>(regm)</code></pre>
 <pre><code>Start:  AIC=1987.04
 trav.satisf ~ sexe + etud + grpage + trav.imp
 
@@ -558,7 +569,7 @@ converged
 - etud      8 1988.068
 - trav.imp 10 2016.791</code></pre>
 <p>La plupart des fonctions vues précédemment fonctionnent :</p>
-<pre class="r"><code>summary(regm2)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(regm2)</code></pre>
 <pre><code>Call:
 multinom(formula = trav.satisf ~ etud + trav.imp, data = d)
 
@@ -586,7 +597,7 @@ Insatisfaction   0.6587383
 
 Residual Deviance: 1947.857 
 AIC: 1979.857 </code></pre>
-<pre class="r"><code>odds.ratio(regm2)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">odds.ratio</span>(regm2)</code></pre>
 <pre><code>                                              OR 2.5 % 97.5 %        p   
 Satisfaction/(Intercept)                   0.895 0.369  2.171 0.805878   
 Satisfaction/etudSecondaire                1.050 0.627  1.761 0.852027   
@@ -607,7 +618,7 @@ Insatisfaction/trav.impPeu                 3.820 1.050 13.891 0.041909 *
 ---
 Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>De même, il est possible de calculer la matrice de confusion :</p>
-<pre class="r"><code>table(predict(regm2, newdata = d), d$trav.satisf)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(<span class="kw">predict</span>(regm2, <span class="dt">newdata =</span> d), d$trav.satisf)</code></pre>
 <pre><code>                
                  Equilibre Satisfaction Insatisfaction
   Equilibre            262          211             49
