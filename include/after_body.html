@@ -9,7 +9,6 @@
 </div>
 
 <script>
-
 // manage active state of menu based on current page
 $(document).ready(function () {
 
@@ -35,8 +34,10 @@ $(document).ready(function () {
     });
 
     // Identifier les <pre> fermant
-    $('pre').next().not('pre').prev().addClass('last'); // Last <pre> of each group of <pre>
-    $('pre').last().addClass('last'); // If the last one is not followed bay anything
+    $('pre').next("*:not(pre)").prev().addClass('last'); // Dernier <pre> de chaque groupe contigu de <pre>
+    $('pre').parent().each(function (){
+      $(this).children('pre').last().addClass('last');
+    }); // Si <pre> est le dernier enfant de son parent
 
     // Ajout liens rdocumentation
     $("code[data-package]").each(function( index ) {
@@ -60,6 +61,30 @@ $(document).ready(function () {
       else
         $(this).append($("<figcaption>").append('<span class="figure-number">Figure '+(index+1)+'</span>'));
     });
+
+    // ZeroClipboard
+    $('*:not(pre) + pre.r').before('<div class="zero-clipboard hidden-print hidden-xs"><button class="btn-clipboard">Copier</button></div>');
+    $('pre.last').after(function() {
+      if ($(this).hasClass("r")) res = $(this).text(); else res = "";
+      $(this).prevUntil('*:not(pre)','pre.r').each(function() {
+        res = $(this).text() + '\n' + res;
+      });
+      return '<div class="clipboard">' + res + '</div>';
+    });
+    $('.zero-clipboard').each(function(index){
+      $(this).children('.btn-clipboard').attr('data-clipboard-target','clipboard_'+index);
+      $(this).nextAll("div.clipboard").first().attr('id','clipboard_'+index);
+    });
+    var client = new ZeroClipboard( $(".btn-clipboard") );
+    client.on( "ready", function( readyEvent ) {
+      // alert( "ZeroClipboard SWF is ready!" );
+      client.on( "aftercopy", function( event ) {
+        // `this` === `client`
+        // `event.target` === the element that was clicked
+        //event.target.style.display = "none";
+        $(event.target).parent().before('<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>Le code <strong>R</strong> de l’exemple a été copié dans le presse-papier.</div>');
+      } );
+    } );
 
 });
 </script>
