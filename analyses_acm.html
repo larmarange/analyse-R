@@ -205,13 +205,15 @@ On trouvera également de nombreux supports de cours en français sur l’analys
 <span class="kw">data</span>(hdv2003)
 d &lt;-<span class="st"> </span>hdv2003</code></pre>
 <p>En premier lieu, comme dans le <a href="analyses_reglog.html">chapitre sur la régression logistique</a>, nous allons créer une variable groupe d’âges et regrouper les modalités de la variable « niveau d’étude ».</p>
-<pre class="sourceCode r"><code class="sourceCode r">d$grpage &lt;-<span class="st"> </span><span class="kw">cut</span>(d$age, <span class="kw">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">93</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)
+<pre class="sourceCode r"><code class="sourceCode r">d$grpage &lt;-<span class="st"> </span><span class="kw">cut</span>(d$age, <span class="kw">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">93</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, 
+  <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)
 d$etud &lt;-<span class="st"> </span>d$nivetud
-<span class="kw">levels</span>(d$etud) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, 
-    <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Supérieur&quot;</span></code></pre>
+<span class="kw">levels</span>(d$etud) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, 
+  <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, 
+  <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Supérieur&quot;</span></code></pre>
 <p>Ensuite, nous allons créer un tableau de données ne contenant que les variables que nous souhaitons prendre en compte pour notre analyse factorielle.</p>
-<pre class="sourceCode r"><code class="sourceCode r">d2 &lt;-<span class="st"> </span>d[, <span class="kw">c</span>(<span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;peche.chasse&quot;</span>, <span class="st">&quot;cinema&quot;</span>, <span class="st">&quot;cuisine&quot;</span>, <span class="st">&quot;bricol&quot;</span>, 
-    <span class="st">&quot;sport&quot;</span>, <span class="st">&quot;lecture.bd&quot;</span>)]</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">d2 &lt;-<span class="st"> </span>d[, <span class="kw">c</span>(<span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;peche.chasse&quot;</span>, 
+  <span class="st">&quot;cinema&quot;</span>, <span class="st">&quot;cuisine&quot;</span>, <span class="st">&quot;bricol&quot;</span>, <span class="st">&quot;sport&quot;</span>, <span class="st">&quot;lecture.bd&quot;</span>)]</code></pre>
 <p>Le calcul de l’ACM se fait tout simplement avec la fonction <code>dudi.acm</code>{data-package=“ade4”&gt;.</p>
 <pre class="sourceCode r"><code class="sourceCode r">acm &lt;-<span class="st"> </span><span class="kw">dudi.acm</span>(d2)</code></pre>
 <p>Par défaut, la fonction affichera le graphique des valeurs propres de chaque axe (nous y reviendrons) et vous demandera le nombre d’axes que vous souhaitez conserver dans les résultats. Le plus souvent, cinq axes seront largement plus que suffisants. Vous pouvez également éviter cette étape en indiquant directement à dudi.acm de vous renvoyer les cinq premiers axes ainsi :</p>
@@ -271,8 +273,8 @@ Répartition des modalités selon le second axe
 <p>Le tableau <code>acm$cr</code> contient les rapports de corrélation (variant de 0 à 1) entre les variables et les axes choisis au départ de l’ACM. Pour représenter graphiquement ces rapports, utiliser la fonction <code data-package="graphics">barplot</code> ainsi : <code>barplot(acm$cr[,num],names.arg=row.names( acm$cr),las=2)</code> où <code>num</code> est le numéro de l’axe à représenter. Pour l’interprétation des axes, se concentrer sur les variables les plus structurantes, c’est-à-dire dont le rapport de corrélation est le plus proche de 1.</p>
 <figure>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))
-for (i in <span class="dv">1</span>:<span class="dv">4</span>) <span class="kw">barplot</span>(acm$cr[, i], <span class="dt">names.arg =</span> <span class="kw">row.names</span>(acm$cr), <span class="dt">las =</span> <span class="dv">2</span>, 
-    <span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;Axe&quot;</span>, i))</code></pre>
+for (i in <span class="dv">1</span>:<span class="dv">4</span>) <span class="kw">barplot</span>(acm$cr[, i], <span class="dt">names.arg =</span> <span class="kw">row.names</span>(acm$cr), 
+  <span class="dt">las =</span> <span class="dv">2</span>, <span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;Axe&quot;</span>, i))</code></pre>
 <p><img src="images/analyses_acm/unnamed-chunk-13-1.png" title="" alt="" width="1050" /></p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</code></pre>
 <figcaption>
@@ -400,56 +402,100 @@ acm2</code></pre>
 The analysis was performed on 2000 individuals, described by 9 variables
 *The results are available in the following objects:
 
-   name              description                       
-1  &quot;$eig&quot;            &quot;eigenvalues&quot;                     
-2  &quot;$var&quot;            &quot;results for the variables&quot;       
-3  &quot;$var$coord&quot;      &quot;coord. of the categories&quot;        
-4  &quot;$var$cos2&quot;       &quot;cos2 for the categories&quot;         
-5  &quot;$var$contrib&quot;    &quot;contributions of the categories&quot; 
-6  &quot;$var$v.test&quot;     &quot;v-test for the categories&quot;       
-7  &quot;$ind&quot;            &quot;results for the individuals&quot;     
-8  &quot;$ind$coord&quot;      &quot;coord. for the individuals&quot;      
-9  &quot;$ind$cos2&quot;       &quot;cos2 for the individuals&quot;        
-10 &quot;$ind$contrib&quot;    &quot;contributions of the individuals&quot;
-11 &quot;$call&quot;           &quot;intermediate results&quot;            
-12 &quot;$call$marge.col&quot; &quot;weights of columns&quot;              
-13 &quot;$call$marge.li&quot;  &quot;weights of rows&quot;                 </code></pre>
+   name             
+1  &quot;$eig&quot;           
+2  &quot;$var&quot;           
+3  &quot;$var$coord&quot;     
+4  &quot;$var$cos2&quot;      
+5  &quot;$var$contrib&quot;   
+6  &quot;$var$v.test&quot;    
+7  &quot;$ind&quot;           
+8  &quot;$ind$coord&quot;     
+9  &quot;$ind$cos2&quot;      
+10 &quot;$ind$contrib&quot;   
+11 &quot;$call&quot;          
+12 &quot;$call$marge.col&quot;
+13 &quot;$call$marge.li&quot; 
+   description                       
+1  &quot;eigenvalues&quot;                     
+2  &quot;results for the variables&quot;       
+3  &quot;coord. of the categories&quot;        
+4  &quot;cos2 for the categories&quot;         
+5  &quot;contributions of the categories&quot; 
+6  &quot;v-test for the categories&quot;       
+7  &quot;results for the individuals&quot;     
+8  &quot;coord. for the individuals&quot;      
+9  &quot;cos2 for the individuals&quot;        
+10 &quot;contributions of the individuals&quot;
+11 &quot;intermediate results&quot;            
+12 &quot;weights of columns&quot;              
+13 &quot;weights of rows&quot;                 </code></pre>
 <pre class="sourceCode r"><code class="sourceCode r">acm2$eig</code></pre>
-<pre><code>       eigenvalue percentage of variance cumulative percentage of variance
-dim 1  0.25757489              15.454493                          15.45449
-dim 2  0.18363502              11.018101                          26.47259
-dim 3  0.16164626               9.698776                          36.17137
-dim 4  0.12871623               7.722974                          43.89434
-dim 5  0.12135737               7.281442                          51.17579
-dim 6  0.11213331               6.727999                          57.90378
-dim 7  0.10959377               6.575626                          64.47941
-dim 8  0.10340564               6.204338                          70.68375
-dim 9  0.09867478               5.920487                          76.60424
-dim 10 0.09192693               5.515616                          82.11985
-dim 11 0.07501208               4.500725                          86.62058
-dim 12 0.06679676               4.007805                          90.62838
-dim 13 0.06002063               3.601238                          94.22962
-dim 14 0.05832024               3.499215                          97.72883
-dim 15 0.03785276               2.271166                         100.00000</code></pre>
+<pre><code>       eigenvalue percentage of variance
+dim 1  0.25757489              15.454493
+dim 2  0.18363502              11.018101
+dim 3  0.16164626               9.698776
+dim 4  0.12871623               7.722974
+dim 5  0.12135737               7.281442
+dim 6  0.11213331               6.727999
+dim 7  0.10959377               6.575626
+dim 8  0.10340564               6.204338
+dim 9  0.09867478               5.920487
+dim 10 0.09192693               5.515616
+dim 11 0.07501208               4.500725
+dim 12 0.06679676               4.007805
+dim 13 0.06002063               3.601238
+dim 14 0.05832024               3.499215
+dim 15 0.03785276               2.271166
+       cumulative percentage of variance
+dim 1                           15.45449
+dim 2                           26.47259
+dim 3                           36.17137
+dim 4                           43.89434
+dim 5                           51.17579
+dim 6                           57.90378
+dim 7                           64.47941
+dim 8                           70.68375
+dim 9                           76.60424
+dim 10                          82.11985
+dim 11                          86.62058
+dim 12                          90.62838
+dim 13                          94.22962
+dim 14                          97.72883
+dim 15                         100.00000</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sum</span>(acm2$eig$eigenvalue)</code></pre>
 <pre><code>[1] 1.666667</code></pre>
 <p>En premier lieu, il apparait que l’inertie totale obtenue avec <code data-package="FactoMineR">MCA</code> est différente de celle observée avec <code>dudi.acm</code>{data-package=“ade4”&gt;. Cela est dû à un traitement différents des valeurs manquantes. Alors que <code data-package="ade4">dudi.acm</code> exclu les valeurs manquantes, <code data-package="FactoMineR">MCA</code> les considèrent, par défaut, comme une modalité additionnelle. Pour calculer l’ACM uniquement sur les individus n’ayant pas de valeur manquante, on aura recours à <code data-package="stats">complete.cases</code> :</p>
 <pre class="sourceCode r"><code class="sourceCode r">acm2 &lt;-<span class="st"> </span><span class="kw">MCA</span>(d2[<span class="kw">complete.cases</span>(d2), ], <span class="dt">ncp =</span> <span class="dv">5</span>, <span class="dt">graph =</span> <span class="ot">FALSE</span>)
 acm2$eig</code></pre>
-<pre><code>       eigenvalue percentage of variance cumulative percentage of variance
-dim 1  0.24790700              17.162792                          17.16279
-dim 2  0.16758465              11.602014                          28.76481
-dim 3  0.13042357               9.029324                          37.79413
-dim 4  0.12595105               8.719688                          46.51382
-dim 5  0.11338629               7.849820                          54.36364
-dim 6  0.10976674               7.599236                          61.96287
-dim 7  0.10060204               6.964757                          68.92763
-dim 8  0.09802387               6.786268                          75.71390
-dim 9  0.09283131               6.426783                          82.14068
-dim 10 0.07673502               5.312425                          87.45311
-dim 11 0.06609694               4.575942                          92.02905
-dim 12 0.05950655               4.119684                          96.14873
-dim 13 0.05562942               3.851267                         100.00000</code></pre>
+<pre><code>       eigenvalue percentage of variance
+dim 1  0.24790700              17.162792
+dim 2  0.16758465              11.602014
+dim 3  0.13042357               9.029324
+dim 4  0.12595105               8.719688
+dim 5  0.11338629               7.849820
+dim 6  0.10976674               7.599236
+dim 7  0.10060204               6.964757
+dim 8  0.09802387               6.786268
+dim 9  0.09283131               6.426783
+dim 10 0.07673502               5.312425
+dim 11 0.06609694               4.575942
+dim 12 0.05950655               4.119684
+dim 13 0.05562942               3.851267
+       cumulative percentage of variance
+dim 1                           17.16279
+dim 2                           28.76481
+dim 3                           37.79413
+dim 4                           46.51382
+dim 5                           54.36364
+dim 6                           61.96287
+dim 7                           68.92763
+dim 8                           75.71390
+dim 9                           82.14068
+dim 10                          87.45311
+dim 11                          92.02905
+dim 12                          96.14873
+dim 13                         100.00000</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sum</span>(acm2$eig$eigenvalue)</code></pre>
 <pre><code>[1] 1.444444</code></pre>
 <p>Les possibilités graphiques de <strong class="package">FactoMineR</strong> sont différentes de celles de <strong class="package">ade4</strong>. Un recours à la fonction <code data-package="FactorMineR" data-rdocumentation="plot.MCA">plot</code> affichera par défaut les individus, les modalités et les variables. La commande <code>?plot.MCA</code> permet d’accéder au fichier d’aide de cette fonction (i.e. de la méthode générique <code>plot</code> appliquée aux objets de type <code>MCA</code>) et de voir toutes les options graphiques. L’argument <code>choix</code> permet de spécifier ce que l’on souhaite afficher (« ind » pour les individus et les catégories, « var » pour les variables). L’argument <code>invisible</code> quant à lui permet de spécifier ce que l’on souhaite masquer. Les axes à afficher se précisent avec <code>axes</code>. Voir les exemples ci-dessous.</p>

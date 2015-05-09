@@ -214,7 +214,8 @@ age 46.347 0.5284</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">confint</span>(<span class="kw">svymean</span>(~age, dw))  <span class="co"># Intervalle de confiance</span></code></pre>
 <pre><code>      2.5 %   97.5 %
 age 45.3117 47.38282</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyquantile</span>(~age, dw, <span class="dt">quantile =</span> <span class="kw">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="dt">ci =</span> <span class="ot">TRUE</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyquantile</span>(~age, dw, <span class="dt">quantile =</span> <span class="kw">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), 
+  <span class="dt">ci =</span> <span class="ot">TRUE</span>)</code></pre>
 <pre><code>$quantiles
     0.25 0.5 0.75
 age   31  45   60
@@ -268,7 +269,8 @@ Total 11071226 100.0 100.0</code></pre>
     Pearson&#39;s X^2: Rao &amp; Scott adjustment
 
 data:  svychisq(~sexe + clso, dw)
-F = 3.3331, ndf = 1.973, ddf = 3944.902, p-value = 0.03641</code></pre>
+F = 3.3331, ndf = 1.973, ddf = 3944.902,
+p-value = 0.03641</code></pre>
 <p>Le principe de la fonction <code data-pacakge="survey">svyby</code> est similaire à celui de <code data-package="base">tapply</code><a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a>. Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur. Par exemple :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyby</span>(~age, ~sexe, dw, svymean)</code></pre>
 <pre><code>       sexe      age        se
@@ -280,16 +282,19 @@ Femme Femme 47.34313 0.7420836</code></pre>
 <span class="kw">svyplot</span>(~age +<span class="st"> </span>heures.tv, dw, <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">main =</span> <span class="st">&quot;Bubble plot&quot;</span>)
 <span class="kw">svyhist</span>(~heures.tv, dw, <span class="dt">col =</span> <span class="st">&quot;peachpuff&quot;</span>, <span class="dt">main =</span> <span class="st">&quot;Histogramme&quot;</span>)
 <span class="kw">svyboxplot</span>(age ~<span class="st"> </span><span class="dv">1</span>, dw, <span class="dt">main =</span> <span class="st">&quot;Boxplot simple&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Âge&quot;</span>
-<span class="kw">svyboxplot</span>(age ~<span class="st"> </span>sexe, dw, <span class="dt">main =</span> <span class="st">&quot;Boxplot double&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Âge&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Sexe&quot;</span></code></pre>
+<span class="kw">svyboxplot</span>(age ~<span class="st"> </span>sexe, dw, <span class="dt">main =</span> <span class="st">&quot;Boxplot double&quot;</span>, 
+  <span class="dt">ylab =</span> <span class="st">&quot;Âge&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Sexe&quot;</span></code></pre>
 <img src="images/analyses_donnees_pond/unnamed-chunk-12-1.png" title="" alt="" width="1050" />
 <figcaption>
 Fonctions graphiques de l’extension survey
 </figcaption>
 </figure>
 <p>Enfin, <strong class="package">survey</strong> fournit une fonction <code data-package="survey">svyglm</code> permettant de calculer un modèle statistique tout en prenant en compte le plan d’échantillonnage spécifié. La syntaxe de <code data-package="survey">svyglm</code> est proche de celle de <code data-package="stats">glm</code>. Cependant, le cadre d’une régression logistique, il est nécessaire d’utiliser <code>family = quasibinomial()</code> afin d’éviter un message d’erreur indiquant un nombre non entier de succès :</p>
-<pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>age +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, dw, <span class="dt">family =</span> <span class="kw">binomial</span>())</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>age +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, 
+  dw, <span class="dt">family =</span> <span class="kw">binomial</span>())</code></pre>
 <pre><code>Warning: non-integer #successes in a binomial glm!</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>age +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, dw, <span class="dt">family =</span> <span class="kw">quasibinomial</span>())
+<pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>age +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, 
+  dw, <span class="dt">family =</span> <span class="kw">quasibinomial</span>())
 reg</code></pre>
 <pre><code>Independent Sampling design (with replacement)
 svydesign(ids = ~1, data = d, weights = ~d$poids)
@@ -298,14 +303,22 @@ Call:  svyglm(formula = sport ~ sexe + age + relig + heures.tv, dw,
     family = quasibinomial())
 
 Coefficients:
-                     (Intercept)                         sexeFemme  
-                         1.90117                          -0.36526  
-                             age       religPratiquant occasionnel  
-                        -0.04127                           0.05577  
- religAppartenance sans pratique  religNi croyance ni appartenance  
-                         0.16367                           0.03988  
-                      religRejet                  religNSP ou NVPR  
-                        -0.14862                          -0.22682  
+                     (Intercept)  
+                         1.90117  
+                       sexeFemme  
+                        -0.36526  
+                             age  
+                        -0.04127  
+     religPratiquant occasionnel  
+                         0.05577  
+ religAppartenance sans pratique  
+                         0.16367  
+religNi croyance ni appartenance  
+                         0.03988  
+                      religRejet  
+                        -0.14862  
+                religNSP ou NVPR  
+                        -0.22682  
                        heures.tv  
                         -0.18204  
 
@@ -315,18 +328,39 @@ Null Deviance:      2672
 Residual Deviance: 2378     AIC: NA</code></pre>
 <p>Le résultat obtenu est similaire à celui de <code data-package="stats">glm</code> et l’on peut utiliser sans problème les fonctions <code data-package="survey" data-rdocumentation="svyglm">coef</code>, <code data-package="survey" data-rdocumentation="confint.glm">confint</code>, <code data-package="questionr">odds.ratio</code> ou <code data-package="survey" data-rdocumentation="svyglm">predict</code> abordées dans le chapitre sur la <a href="analyses_reglog.html">régression logistique</a>.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">odds.ratio</span>(reg)</code></pre>
-<pre><code>                                    OR 2.5 % 97.5 %         p    
-(Intercept)                      6.694 3.670 12.209 6.848e-10 ***
-sexeFemme                        0.694 0.540  0.892  0.004325 ** 
-age                              0.960 0.952  0.967 &lt; 2.2e-16 ***
-religPratiquant occasionnel      1.057 0.659  1.696  0.817180    
-religAppartenance sans pratique  1.178 0.759  1.827  0.465321    
-religNi croyance ni appartenance 1.041 0.646  1.676  0.869658    
-religRejet                       0.862 0.428  1.738  0.677858    
-religNSP ou NVPR                 0.797 0.325  1.956  0.620504    
-heures.tv                        0.834 0.770  0.902 6.786e-06 ***
+<pre><code>                                    OR 2.5 %
+(Intercept)                      6.694 3.670
+sexeFemme                        0.694 0.540
+age                              0.960 0.952
+religPratiquant occasionnel      1.057 0.659
+religAppartenance sans pratique  1.178 0.759
+religNi croyance ni appartenance 1.041 0.646
+religRejet                       0.862 0.428
+religNSP ou NVPR                 0.797 0.325
+heures.tv                        0.834 0.770
+                                 97.5 %         p
+(Intercept)                      12.209 6.848e-10
+sexeFemme                         0.892  0.004325
+age                               0.967 &lt; 2.2e-16
+religPratiquant occasionnel       1.696  0.817180
+religAppartenance sans pratique   1.827  0.465321
+religNi croyance ni appartenance  1.676  0.869658
+religRejet                        1.738  0.677858
+religNSP ou NVPR                  1.956  0.620504
+heures.tv                         0.902 6.786e-06
+                                    
+(Intercept)                      ***
+sexeFemme                        ** 
+age                              ***
+religPratiquant occasionnel         
+religAppartenance sans pratique     
+religNi croyance ni appartenance    
+religRejet                          
+religNSP ou NVPR                    
+heures.tv                        ***
 ---
-Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+Signif. codes:  
+0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>Dans ses dernières versions, <strong class="package">survey</strong> fournit une méthode <code data-package="survey" data-rdocumentation="anova.svyglm">AIC.svyglm</code> permettant d’estimer un AIC sur un modèle calculé avec <code data-package="survey">svyglm</code>. Il est dès lors possible d’utiliser la fonction <code data-package="stats">step</code> pour réaliser une <em>sélection descendante pas à pas</em>.</p>
 <p>L’extension <strong class="package">effects</strong> n’est quant à elle pas compatible avec <code data-package="survey">svyglm</code><a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a>.</p>
 </div>
@@ -352,27 +386,34 @@ Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Échantillonnage aléatoire simple</span>
 plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~<span class="dv">1</span>, <span class="dt">data =</span> donnees)
 
-<span class="co"># Échantillonnage stratifié à un seul niveau (la taille de chaque strate est</span>
-<span class="co"># connue)</span>
+<span class="co"># Échantillonnage stratifié à un seul niveau (la</span>
+<span class="co"># taille de chaque strate est connue)</span>
 plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~<span class="dv">1</span>, <span class="dt">data =</span> donnees, <span class="dt">fpc =</span> ~taille)
 
-<span class="co"># Échantillonnage en grappes avec tirages à quatre degrés (departement,</span>
-<span class="co"># commune, quartier, individus). La probabilité de tirage de chaque niveau</span>
-<span class="co"># de cluster est connue.</span>
-plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~id_departement +<span class="st"> </span>id_commune +<span class="st"> </span>id_quartier, <span class="dt">data =</span> donnees, 
-    <span class="dt">Probs =</span> ~proba_departement +<span class="st"> </span>proba_commune +<span class="st"> </span>proba_quartier)
+<span class="co"># Échantillonnage en grappes avec tirages à quatre</span>
+<span class="co"># degrés (departement, commune, quartier,</span>
+<span class="co"># individus). La probabilité de tirage de chaque</span>
+<span class="co"># niveau de cluster est connue.</span>
+plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~id_departement +<span class="st"> </span>id_commune +<span class="st"> </span>
+<span class="st">  </span>id_quartier, <span class="dt">data =</span> donnees, <span class="dt">Probs =</span> ~proba_departement +<span class="st"> </span>
+<span class="st">  </span>proba_commune +<span class="st"> </span>proba_quartier)
 
-<span class="co"># Échantillonnage stratifié avec tirage à deux degrés (clusters et</span>
-<span class="co"># individus). Le poids statistiques de chaque observation est connu.</span>
-plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~id_cluster, <span class="dt">data =</span> donnees, <span class="dt">strata =</span> ~id_strate, <span class="dt">weights =</span> ~poids)</code></pre>
+<span class="co"># Échantillonnage stratifié avec tirage à deux</span>
+<span class="co"># degrés (clusters et individus). Le poids</span>
+<span class="co"># statistiques de chaque observation est connu.</span>
+plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~id_cluster, <span class="dt">data =</span> donnees, 
+  <span class="dt">strata =</span> ~id_strate, <span class="dt">weights =</span> ~poids)</code></pre>
 <p>Prenons l’exemple d’une enquête démographique et de santé. Le nom des différentes variables est standardisé et commun quelle que soit l’enquête. Nous supposerons que vous avez importé le fichier <em>individus</em> dans un tableau de données nommés <code>eds</code>. Le poids statistique de chaque individu est fourni par la variable <em>V005</em> qui doit au préalable être divisée par un million. Les grappes d’échantillonnage au premier degré sont fournies par la variable <em>V021 (primary sample unit)</em>. Si elle n’est pas renseignée, on pourra utilisier le numéro de grappe <em>V001</em>. Enfin, le milieu de résidence (urbain / rural) est fourni par <em>V025</em> et la région par <em>V024</em>. Pour rappel, l’échantillon a été stratifié à la fois par région et par mileu de résidence. Certaines enquêtes fournissent directement un numéro de strate via <em>V022</em>. Si tel est le cas, on pourra préciser le plan d’échantillonnage ainsi :</p>
 <pre class="sourceCode r"><code class="sourceCode r">eds$poids &lt;-<span class="st"> </span>eds$V005/<span class="fl">1e+06</span>
-design.eds &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~V021, <span class="dt">data =</span> eds, <span class="dt">strata =</span> ~V022, <span class="dt">weights =</span> ~poids)</code></pre>
+design.eds &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~V021, <span class="dt">data =</span> eds, <span class="dt">strata =</span> ~V022, 
+  <span class="dt">weights =</span> ~poids)</code></pre>
 <p>Si V022 n’est pas fourni mais que l’enquête a bien été stratifié par région et milieu de résidence (vérifiez toujours le premier chapitre du rapport d’enquête), on pourra créer une variable strate ainsi <a href="#fn8" class="footnoteRef" id="fnref8"><sup>8</sup></a> :</p>
-<pre class="sourceCode r"><code class="sourceCode r">eds$strate &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">as.integer</span>(eds$V024) *<span class="st"> </span><span class="dv">10</span> +<span class="st"> </span><span class="kw">as.integer</span>(eds$V025))
-<span class="kw">levels</span>(eds$strate) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">paste</span>(<span class="kw">levels</span>(eds$V024), <span class="st">&quot;Urbain&quot;</span>), <span class="kw">paste</span>(<span class="kw">levels</span>(eds$V024), 
-    <span class="st">&quot;Rural&quot;</span>))
-design.eds &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~V021, <span class="dt">data =</span> eds, <span class="dt">strata =</span> ~strate, <span class="dt">weights =</span> ~poids)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">eds$strate &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">as.integer</span>(eds$V024) *<span class="st"> </span><span class="dv">10</span> +<span class="st"> </span>
+<span class="st">  </span><span class="kw">as.integer</span>(eds$V025))
+<span class="kw">levels</span>(eds$strate) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">paste</span>(<span class="kw">levels</span>(eds$V024), <span class="st">&quot;Urbain&quot;</span>), 
+  <span class="kw">paste</span>(<span class="kw">levels</span>(eds$V024), <span class="st">&quot;Rural&quot;</span>))
+design.eds &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~V021, <span class="dt">data =</span> eds, <span class="dt">strata =</span> ~strate, 
+  <span class="dt">weights =</span> ~poids)</code></pre>
 </div>
 <div id="extraire-un-sous-echantillon" class="section level3">
 <h3>Extraire un sous-échantillon</h3>

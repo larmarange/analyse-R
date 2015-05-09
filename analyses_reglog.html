@@ -189,7 +189,8 @@ NA       0  0   NA</code></pre>
 <pre><code> num [1:2000] 0 1 0 2 3 2 2.9 1 2 2 ...</code></pre>
 <p>Nos deux variables sont bien renseignées sous forme numérique.</p>
 <p>Cependant, l’effet de l’âge est rarement linéaire. Un exemple trivial est par exemple le fait d’occuper un emploi qui sera moins fréquent aux jeunes âges et aux âges élevés. Dès lors, on pourra transformer la variable <em>age</em> en groupe d’âges (voir MAJ_LIEN) :</p>
-<pre class="sourceCode r"><code class="sourceCode r">d$grpage &lt;-<span class="st"> </span><span class="kw">cut</span>(d$age, <span class="kw">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">93</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)
+<pre class="sourceCode r"><code class="sourceCode r">d$grpage &lt;-<span class="st"> </span><span class="kw">cut</span>(d$age, <span class="kw">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">93</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, 
+  <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)
 <span class="kw">freq</span>(d$grpage)</code></pre>
 <pre><code>          n    % val%
 [16,25) 169  8.5  8.5
@@ -199,16 +200,26 @@ NA       0  0   NA</code></pre>
 NA        2  0.1   NA</code></pre>
 <p>Jetons maintenant un oeil à la variable <em>nivetud</em> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$nivetud)</code></pre>
-<pre><code>                                                                  n    %
-N&#39;a jamais fait d&#39;etudes                                         39  2.0
-A arrete ses etudes, avant la derniere annee d&#39;etudes primaires  86  4.3
-Derniere annee d&#39;etudes primaires                               341 17.1
-1er cycle                                                       204 10.2
-2eme cycle                                                      183  9.2
-Enseignement technique ou professionnel court                   463 23.2
-Enseignement technique ou professionnel long                    131  6.6
-Enseignement superieur y compris technique superieur            441 22.1
-NA                                                              112  5.6
+<pre><code>                                                                  n
+N&#39;a jamais fait d&#39;etudes                                         39
+A arrete ses etudes, avant la derniere annee d&#39;etudes primaires  86
+Derniere annee d&#39;etudes primaires                               341
+1er cycle                                                       204
+2eme cycle                                                      183
+Enseignement technique ou professionnel court                   463
+Enseignement technique ou professionnel long                    131
+Enseignement superieur y compris technique superieur            441
+NA                                                              112
+                                                                   %
+N&#39;a jamais fait d&#39;etudes                                         2.0
+A arrete ses etudes, avant la derniere annee d&#39;etudes primaires  4.3
+Derniere annee d&#39;etudes primaires                               17.1
+1er cycle                                                       10.2
+2eme cycle                                                       9.2
+Enseignement technique ou professionnel court                   23.2
+Enseignement technique ou professionnel long                     6.6
+Enseignement superieur y compris technique superieur            22.1
+NA                                                               5.6
                                                                 val%
 N&#39;a jamais fait d&#39;etudes                                         2.1
 A arrete ses etudes, avant la derniere annee d&#39;etudes primaires  4.6
@@ -221,8 +232,9 @@ Enseignement superieur y compris technique superieur            23.4
 NA                                                                NA</code></pre>
 <p>En premier lieu, cette variable est détaillée en pas moins de huit modalités dont certaines sont peu représentées (seulement 39 individus soit 2 % n’ont jamais fait d’études par exemple). Afin d’améliorier notre modèle logistique, il peut être pertinent de regrouper certaines modalités (voir MAJ_LIEN) :</p>
 <pre class="sourceCode r"><code class="sourceCode r">d$etud &lt;-<span class="st"> </span>d$nivetud
-<span class="kw">levels</span>(d$etud) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, 
-    <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Supérieur&quot;</span>
+<span class="kw">levels</span>(d$etud) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, 
+  <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, 
+  <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Supérieur&quot;</span>
 <span class="kw">freq</span>(d$etud)</code></pre>
 <pre><code>                          n    % val%
 Primaire                466 23.3 24.7
@@ -232,39 +244,58 @@ Supérieur               441 22.1 23.4
 NA                      112  5.6   NA</code></pre>
 <p>Notre variable comporte également 112 individus avec une valeur manquante. Si nous conservons cette valeur manquante, ces 112 individus seront, par défaut, exclus de l’analyse. Ces valeurs manquantes n’étant pas négligeable (5,6 %), nous pouvons également faire le choix de considérer ces valeurs manquantes comme une modalité supplémentaire. Auquel cas, nous utiliserons la fonction <code data-package="base">add.NA</code> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d$etud)</code></pre>
-<pre><code>[1] &quot;Primaire&quot;                &quot;Secondaire&quot;             
-[3] &quot;Technique/Professionnel&quot; &quot;Supérieur&quot;              </code></pre>
+<pre><code>[1] &quot;Primaire&quot;               
+[2] &quot;Secondaire&quot;             
+[3] &quot;Technique/Professionnel&quot;
+[4] &quot;Supérieur&quot;              </code></pre>
 <pre class="sourceCode r"><code class="sourceCode r">d$etud &lt;-<span class="st"> </span><span class="kw">addNA</span>(d$etud)
 <span class="kw">levels</span>(d$etud)</code></pre>
-<pre><code>[1] &quot;Primaire&quot;                &quot;Secondaire&quot;             
-[3] &quot;Technique/Professionnel&quot; &quot;Supérieur&quot;              
+<pre><code>[1] &quot;Primaire&quot;               
+[2] &quot;Secondaire&quot;             
+[3] &quot;Technique/Professionnel&quot;
+[4] &quot;Supérieur&quot;              
 [5] NA                       </code></pre>
 </div>
 <div id="regression-logistique-binaire" class="section level2">
 <h2>Régression logistique binaire</h2>
 <p>La fonction <code data-package="stats">glm</code> (pour <em lang="en">generalized linear models</em>) permet de calculer une grande variété de modèles statistiques. La régression logistique ordinaire correspond au modèle <em>logit</em> de la famille des modèles binomiaux, ce que l’on indique à <code data-package="stats">glm</code> avec l’argument <code>family=binomial(logit)</code>.</p>
 <p>Le modèle proprement dit sera renseigné sous la forme d’une formule (MAJ_LIEN). On indiquera d’abord la variable d’intérêt, suivie du signe <kbd>~</kbd> puis de la liste des variables explicatives séparées par un signe <kbd>+</kbd>. Enfin, l’argument <code>data</code> permettra d’indiquer notre tableau de données.</p>
-<pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">glm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>grpage +<span class="st"> </span>etud +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>(logit))
+<pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">glm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>grpage +<span class="st"> </span>etud +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, 
+  <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>(logit))
 reg</code></pre>
 <pre><code>
 Call:  glm(formula = sport ~ sexe + grpage + etud + relig + heures.tv, 
     family = binomial(logit), data = d)
 
 Coefficients:
-                     (Intercept)                         sexeHomme  
-                       -0.797364                          0.439002  
-                   grpage[25,45)                     grpage[45,65)  
-                       -0.420306                         -1.085463  
-                   grpage[65,93]                    etudSecondaire  
-                       -1.379274                          0.948312  
-     etudTechnique/Professionnel                     etudSupérieur  
-                        1.047156                          1.889621  
-                          etudNA       religPratiquant occasionnel  
-                        2.148545                         -0.020597  
- religAppartenance sans pratique  religNi croyance ni appartenance  
-                       -0.006176                         -0.214067  
-                      religRejet                  religNSP ou NVPR  
-                       -0.382744                         -0.083361  
+                     (Intercept)  
+                       -0.797364  
+                       sexeHomme  
+                        0.439002  
+                   grpage[25,45)  
+                       -0.420306  
+                   grpage[45,65)  
+                       -1.085463  
+                   grpage[65,93]  
+                       -1.379274  
+                  etudSecondaire  
+                        0.948312  
+     etudTechnique/Professionnel  
+                        1.047156  
+                   etudSupérieur  
+                        1.889621  
+                          etudNA  
+                        2.148545  
+     religPratiquant occasionnel  
+                       -0.020597  
+ religAppartenance sans pratique  
+                       -0.006176  
+religNi croyance ni appartenance  
+                       -0.214067  
+                      religRejet  
+                       -0.382744  
+                religNSP ou NVPR  
+                       -0.083361  
                        heures.tv  
                        -0.120724  
 
@@ -287,24 +318,73 @@ Deviance Residuals:
 -1.8783  -0.8864  -0.4814   1.0033   2.4202  
 
 Coefficients:
-                                  Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)                      -0.797364   0.323833  -2.462 0.013806 *  
-sexeHomme                         0.439002   0.106063   4.139 3.49e-05 ***
-grpage[25,45)                    -0.420306   0.228042  -1.843 0.065313 .  
-grpage[45,65)                    -1.085463   0.237704  -4.566 4.96e-06 ***
-grpage[65,93]                    -1.379274   0.273794  -5.038 4.71e-07 ***
-etudSecondaire                    0.948312   0.197427   4.803 1.56e-06 ***
-etudTechnique/Professionnel       1.047156   0.189777   5.518 3.43e-08 ***
-etudSupérieur                     1.889621   0.195190   9.681  &lt; 2e-16 ***
-etudNA                            2.148545   0.330198   6.507 7.67e-11 ***
-religPratiquant occasionnel      -0.020597   0.189203  -0.109 0.913311    
-religAppartenance sans pratique  -0.006176   0.174709  -0.035 0.971801    
-religNi croyance ni appartenance -0.214067   0.193096  -1.109 0.267600    
-religRejet                       -0.382744   0.285878  -1.339 0.180624    
-religNSP ou NVPR                 -0.083361   0.410968  -0.203 0.839260    
-heures.tv                        -0.120724   0.033589  -3.594 0.000325 ***
+                                  Estimate
+(Intercept)                      -0.797364
+sexeHomme                         0.439002
+grpage[25,45)                    -0.420306
+grpage[45,65)                    -1.085463
+grpage[65,93]                    -1.379274
+etudSecondaire                    0.948312
+etudTechnique/Professionnel       1.047156
+etudSupérieur                     1.889621
+etudNA                            2.148545
+religPratiquant occasionnel      -0.020597
+religAppartenance sans pratique  -0.006176
+religNi croyance ni appartenance -0.214067
+religRejet                       -0.382744
+religNSP ou NVPR                 -0.083361
+heures.tv                        -0.120724
+                                 Std. Error
+(Intercept)                        0.323833
+sexeHomme                          0.106063
+grpage[25,45)                      0.228042
+grpage[45,65)                      0.237704
+grpage[65,93]                      0.273794
+etudSecondaire                     0.197427
+etudTechnique/Professionnel        0.189777
+etudSupérieur                      0.195190
+etudNA                             0.330198
+religPratiquant occasionnel        0.189203
+religAppartenance sans pratique    0.174709
+religNi croyance ni appartenance   0.193096
+religRejet                         0.285878
+religNSP ou NVPR                   0.410968
+heures.tv                          0.033589
+                                 z value Pr(&gt;|z|)
+(Intercept)                       -2.462 0.013806
+sexeHomme                          4.139 3.49e-05
+grpage[25,45)                     -1.843 0.065313
+grpage[45,65)                     -4.566 4.96e-06
+grpage[65,93]                     -5.038 4.71e-07
+etudSecondaire                     4.803 1.56e-06
+etudTechnique/Professionnel        5.518 3.43e-08
+etudSupérieur                      9.681  &lt; 2e-16
+etudNA                             6.507 7.67e-11
+religPratiquant occasionnel       -0.109 0.913311
+religAppartenance sans pratique   -0.035 0.971801
+religNi croyance ni appartenance  -1.109 0.267600
+religRejet                        -1.339 0.180624
+religNSP ou NVPR                  -0.203 0.839260
+heures.tv                         -3.594 0.000325
+                                    
+(Intercept)                      *  
+sexeHomme                        ***
+grpage[25,45)                    .  
+grpage[45,65)                    ***
+grpage[65,93]                    ***
+etudSecondaire                   ***
+etudTechnique/Professionnel      ***
+etudSupérieur                    ***
+etudNA                           ***
+religPratiquant occasionnel         
+religAppartenance sans pratique     
+religNi croyance ni appartenance    
+religRejet                          
+religNSP ou NVPR                    
+heures.tv                        ***
 ---
-Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+Signif. codes:  
+0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 
 (Dispersion parameter for binomial family taken to be 1)
 
@@ -317,82 +397,177 @@ Number of Fisher Scoring iterations: 4</code></pre>
 <p>Dans le cadre d’un modèle logistique, généralement on ne présente pas les coefficients du modèle mais leur valeur exponentielle, cette dernière correspondant en effet à des <em>odds ratio</em>, également appelés <em>rapports des cotes</em>. L’odds ratio diffère du <em>risque relatif</em>. Cependent son interprétation est similaire. Un odds ratio de 1 signifie l’absence d’effet. Un odds ratio largement supérieur à 1 correspond à une augmentation du phénomène étudié et un odds ratio largement inféieur à 1 correspond à une diminution du phénomène étudié<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</p>
 <p>La fonction <code data-package="stats">coef</code> permet d’obtenir les coefficients d’un modèle, <code data-package="stats">confint</code> leurs intervalles de confiance et <code data-package="base" data-rdocumentation="log">exp</code> de calculer l’exponentiel. Les odds ratio et leurs intervalles de confiance s’obtiennent ainsi :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">exp</span>(<span class="kw">coef</span>(reg))</code></pre>
-<pre><code>                     (Intercept)                        sexeHomme 
-                       0.4505151                        1.5511577 
-                   grpage[25,45)                    grpage[45,65) 
-                       0.6568456                        0.3377455 
-                   grpage[65,93]                   etudSecondaire 
-                       0.2517614                        2.5813476 
-     etudTechnique/Professionnel                    etudSupérieur 
-                       2.8495358                        6.6168632 
-                          etudNA      religPratiquant occasionnel 
-                       8.5723745                        0.9796133 
- religAppartenance sans pratique religNi croyance ni appartenance 
-                       0.9938431                        0.8072940 
-                      religRejet                 religNSP ou NVPR 
-                       0.6819874                        0.9200190 
+<pre><code>                     (Intercept) 
+                       0.4505151 
+                       sexeHomme 
+                       1.5511577 
+                   grpage[25,45) 
+                       0.6568456 
+                   grpage[45,65) 
+                       0.3377455 
+                   grpage[65,93] 
+                       0.2517614 
+                  etudSecondaire 
+                       2.5813476 
+     etudTechnique/Professionnel 
+                       2.8495358 
+                   etudSupérieur 
+                       6.6168632 
+                          etudNA 
+                       8.5723745 
+     religPratiquant occasionnel 
+                       0.9796133 
+ religAppartenance sans pratique 
+                       0.9938431 
+religNi croyance ni appartenance 
+                       0.8072940 
+                      religRejet 
+                       0.6819874 
+                religNSP ou NVPR 
+                       0.9200190 
                        heures.tv 
                        0.8862785 </code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">exp</span>(<span class="kw">confint</span>(reg))</code></pre>
 <pre><code>Waiting for profiling to be done...</code></pre>
-<pre><code>                                     2.5 %     97.5 %
-(Intercept)                      0.2379725  0.8480538
-sexeHomme                        1.2605519  1.9106855
-grpage[25,45)                    0.4195082  1.0275786
-grpage[45,65)                    0.2115297  0.5380619
-grpage[65,93]                    0.1466915  0.4296919
-etudSecondaire                   1.7613423  3.8240276
-etudTechnique/Professionnel      1.9764492  4.1639745
-etudSupérieur                    4.5427464  9.7745023
-etudNA                           4.5265421 16.5563346
-religPratiquant occasionnel      0.6767575  1.4217179
-religAppartenance sans pratique  0.7067055  1.4026763
-religNi croyance ni appartenance 0.5531366  1.1798422
-religRejet                       0.3872078  1.1898605
-religNSP ou NVPR                 0.3998878  2.0221544
-heures.tv                        0.8291800  0.9459484</code></pre>
+<pre><code>                                     2.5 %
+(Intercept)                      0.2379725
+sexeHomme                        1.2605519
+grpage[25,45)                    0.4195082
+grpage[45,65)                    0.2115297
+grpage[65,93]                    0.1466915
+etudSecondaire                   1.7613423
+etudTechnique/Professionnel      1.9764492
+etudSupérieur                    4.5427464
+etudNA                           4.5265421
+religPratiquant occasionnel      0.6767575
+religAppartenance sans pratique  0.7067055
+religNi croyance ni appartenance 0.5531366
+religRejet                       0.3872078
+religNSP ou NVPR                 0.3998878
+heures.tv                        0.8291800
+                                     97.5 %
+(Intercept)                       0.8480538
+sexeHomme                         1.9106855
+grpage[25,45)                     1.0275786
+grpage[45,65)                     0.5380619
+grpage[65,93]                     0.4296919
+etudSecondaire                    3.8240276
+etudTechnique/Professionnel       4.1639745
+etudSupérieur                     9.7745023
+etudNA                           16.5563346
+religPratiquant occasionnel       1.4217179
+religAppartenance sans pratique   1.4026763
+religNi croyance ni appartenance  1.1798422
+religRejet                        1.1898605
+religNSP ou NVPR                  2.0221544
+heures.tv                         0.9459484</code></pre>
 <p>On pourra faciliter la lecture en combinant les deux :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">exp</span>(<span class="kw">cbind</span>(<span class="kw">coef</span>(reg), <span class="kw">confint</span>(reg)))</code></pre>
 <pre><code>Waiting for profiling to be done...</code></pre>
-<pre><code>                                               2.5 %     97.5 %
-(Intercept)                      0.4505151 0.2379725  0.8480538
-sexeHomme                        1.5511577 1.2605519  1.9106855
-grpage[25,45)                    0.6568456 0.4195082  1.0275786
-grpage[45,65)                    0.3377455 0.2115297  0.5380619
-grpage[65,93]                    0.2517614 0.1466915  0.4296919
-etudSecondaire                   2.5813476 1.7613423  3.8240276
-etudTechnique/Professionnel      2.8495358 1.9764492  4.1639745
-etudSupérieur                    6.6168632 4.5427464  9.7745023
-etudNA                           8.5723745 4.5265421 16.5563346
-religPratiquant occasionnel      0.9796133 0.6767575  1.4217179
-religAppartenance sans pratique  0.9938431 0.7067055  1.4026763
-religNi croyance ni appartenance 0.8072940 0.5531366  1.1798422
-religRejet                       0.6819874 0.3872078  1.1898605
-religNSP ou NVPR                 0.9200190 0.3998878  2.0221544
-heures.tv                        0.8862785 0.8291800  0.9459484</code></pre>
+<pre><code>                                          
+(Intercept)                      0.4505151
+sexeHomme                        1.5511577
+grpage[25,45)                    0.6568456
+grpage[45,65)                    0.3377455
+grpage[65,93]                    0.2517614
+etudSecondaire                   2.5813476
+etudTechnique/Professionnel      2.8495358
+etudSupérieur                    6.6168632
+etudNA                           8.5723745
+religPratiquant occasionnel      0.9796133
+religAppartenance sans pratique  0.9938431
+religNi croyance ni appartenance 0.8072940
+religRejet                       0.6819874
+religNSP ou NVPR                 0.9200190
+heures.tv                        0.8862785
+                                     2.5 %
+(Intercept)                      0.2379725
+sexeHomme                        1.2605519
+grpage[25,45)                    0.4195082
+grpage[45,65)                    0.2115297
+grpage[65,93]                    0.1466915
+etudSecondaire                   1.7613423
+etudTechnique/Professionnel      1.9764492
+etudSupérieur                    4.5427464
+etudNA                           4.5265421
+religPratiquant occasionnel      0.6767575
+religAppartenance sans pratique  0.7067055
+religNi croyance ni appartenance 0.5531366
+religRejet                       0.3872078
+religNSP ou NVPR                 0.3998878
+heures.tv                        0.8291800
+                                     97.5 %
+(Intercept)                       0.8480538
+sexeHomme                         1.9106855
+grpage[25,45)                     1.0275786
+grpage[45,65)                     0.5380619
+grpage[65,93]                     0.4296919
+etudSecondaire                    3.8240276
+etudTechnique/Professionnel       4.1639745
+etudSupérieur                     9.7745023
+etudNA                           16.5563346
+religPratiquant occasionnel       1.4217179
+religAppartenance sans pratique   1.4026763
+religNi croyance ni appartenance  1.1798422
+religRejet                        1.1898605
+religNSP ou NVPR                  2.0221544
+heures.tv                         0.9459484</code></pre>
 <p>Pour savoir si un odds ratio diffère significativement de 1 (ce qui est identique au fait que le coefficient soit différent de 0), on pourra se référer à la colonne <em>Pr(&gt;|z|)</em> obtenue avec <code data-package="stats" data-rdocumentation="summary.glm">summary</code>.</p>
 <p>Si vous disposez de l’extension <strong class="package">questionr</strong>, la fonction <code data-pacakge="questionr">odds.ratio</code> permet de calculer directement les odds ratio, leur intervalles de confiance et les p-value :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
 <span class="kw">odds.ratio</span>(reg)</code></pre>
 <pre><code>Waiting for profiling to be done...</code></pre>
-<pre><code>                                    OR 2.5 % 97.5 %         p    
-(Intercept)                      0.451 0.238  0.848 0.0138062 *  
-sexeHomme                        1.551 1.261  1.911 3.488e-05 ***
-grpage[25,45)                    0.657 0.420  1.028 0.0653132 .  
-grpage[45,65)                    0.338 0.212  0.538 4.961e-06 ***
-grpage[65,93]                    0.252 0.147  0.430 4.713e-07 ***
-etudSecondaire                   2.581 1.761  3.824 1.560e-06 ***
-etudTechnique/Professionnel      2.850 1.976  4.164 3.432e-08 ***
-etudSupérieur                    6.617 4.543  9.775 &lt; 2.2e-16 ***
-etudNA                           8.572 4.527 16.556 7.674e-11 ***
-religPratiquant occasionnel      0.980 0.677  1.422 0.9133105    
-religAppartenance sans pratique  0.994 0.707  1.403 0.9718010    
-religNi croyance ni appartenance 0.807 0.553  1.180 0.2675998    
-religRejet                       0.682 0.387  1.190 0.1806239    
-religNSP ou NVPR                 0.920 0.400  2.022 0.8392596    
-heures.tv                        0.886 0.829  0.946 0.0003255 ***
+<pre><code>                                    OR 2.5 %
+(Intercept)                      0.451 0.238
+sexeHomme                        1.551 1.261
+grpage[25,45)                    0.657 0.420
+grpage[45,65)                    0.338 0.212
+grpage[65,93]                    0.252 0.147
+etudSecondaire                   2.581 1.761
+etudTechnique/Professionnel      2.850 1.976
+etudSupérieur                    6.617 4.543
+etudNA                           8.572 4.527
+religPratiquant occasionnel      0.980 0.677
+religAppartenance sans pratique  0.994 0.707
+religNi croyance ni appartenance 0.807 0.553
+religRejet                       0.682 0.387
+religNSP ou NVPR                 0.920 0.400
+heures.tv                        0.886 0.829
+                                 97.5 %         p
+(Intercept)                       0.848 0.0138062
+sexeHomme                         1.911 3.488e-05
+grpage[25,45)                     1.028 0.0653132
+grpage[45,65)                     0.538 4.961e-06
+grpage[65,93]                     0.430 4.713e-07
+etudSecondaire                    3.824 1.560e-06
+etudTechnique/Professionnel       4.164 3.432e-08
+etudSupérieur                     9.775 &lt; 2.2e-16
+etudNA                           16.556 7.674e-11
+religPratiquant occasionnel       1.422 0.9133105
+religAppartenance sans pratique   1.403 0.9718010
+religNi croyance ni appartenance  1.180 0.2675998
+religRejet                        1.190 0.1806239
+religNSP ou NVPR                  2.022 0.8392596
+heures.tv                         0.946 0.0003255
+                                    
+(Intercept)                      *  
+sexeHomme                        ***
+grpage[25,45)                    .  
+grpage[45,65)                    ***
+grpage[65,93]                    ***
+etudSecondaire                   ***
+etudTechnique/Professionnel      ***
+etudSupérieur                    ***
+etudNA                           ***
+religPratiquant occasionnel         
+religAppartenance sans pratique     
+religNi croyance ni appartenance    
+religRejet                          
+religNSP ou NVPR                    
+heures.tv                        ***
 ---
-Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+Signif. codes:  
+0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>L’extension <strong class="package">effects</strong> propose une représentation graphique résumant les effets de chaque variable du modèle. Pour cela, il suffit d’appliquer la méthode <code data-package="effects" data-rdocumentation="summary.effect">plot</code> au résultat de la fonction <code data-package="effects" data-rdocumentation="effect">allEffects</code>. Nous obtenons alors la <a href="#reglog_alleffects">figure ci-dessous</a>.</p>
 <figure id="reglog_alleffects">
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(effects)
@@ -406,8 +581,10 @@ Représentation graphique de l’effet de chaque variable du modèle logistique
 <p>La méthode <code data-package="stats" data-rdocumentation="predict.glm">predict</code> avec l’argument <code>type=&quot;response&quot;</code> permet d’appliquer notre modèle logistique à un tableau de données et renvoie pour chaque individu la probabilité qu’il ait vécu le phénomène étudié.</p>
 <pre class="sourceCode r"><code class="sourceCode r">sport.pred &lt;-<span class="st"> </span><span class="kw">predict</span>(reg, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>, <span class="dt">newdata =</span> d)
 <span class="kw">head</span>(sport.pred)</code></pre>
-<pre><code>         1          2          3          4          5          6 
-0.61251214 0.73426878 0.16004519 0.70335574 0.07318189 0.34841147 </code></pre>
+<pre><code>         1          2          3          4 
+0.61251214 0.73426878 0.16004519 0.70335574 
+         5          6 
+0.07318189 0.34841147 </code></pre>
 <p>Or notre variable étudiée est de type binaire. Nous devons donc transformer nos probabilités prédites en une variable du type « oui / non ». Usuellement, les probabilités prédites seront réunies en deux groupes selon qu’elles soient supérieures ou inférieures à la moitié. La matrice de confusion est alors égale à :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(sport.pred &gt;<span class="st"> </span><span class="fl">0.5</span>, d$sport)</code></pre>
 <pre><code>       
@@ -458,10 +635,12 @@ NA             952 47.6   NA</code></pre>
 <p>Nous allons choisir comme modalité de référence la position intermédiaire, à savoir l’« équilibre ».</p>
 <pre class="sourceCode r"><code class="sourceCode r">d$trav.satisf &lt;-<span class="st"> </span><span class="kw">relevel</span>(d$trav.satisf, <span class="st">&quot;Equilibre&quot;</span>)</code></pre>
 <p>Enfin, nous allons aussi en profiter pour raccourcir les étiquettes de la variable <em>trav.imp</em> :</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d$trav.imp) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Le plus&quot;</span>, <span class="st">&quot;Aussi&quot;</span>, <span class="st">&quot;Moins&quot;</span>, <span class="st">&quot;Peu&quot;</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d$trav.imp) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Le plus&quot;</span>, <span class="st">&quot;Aussi&quot;</span>, <span class="st">&quot;Moins&quot;</span>, 
+  <span class="st">&quot;Peu&quot;</span>)</code></pre>
 <p>Pour calculer un modèle logistique multinomial, nous allons utiliser la fonction <code data-package="nnet">multinom</code> de l’extension <strong class="package">nnet</strong><a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. La syntaxe de <code data-package="nnet">multinom</code> est similaire à celle de <code data-package="stats">glm</code>, le paramètre <code>family</code> en moins.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(nnet)
-regm &lt;-<span class="st"> </span><span class="kw">multinom</span>(trav.satisf ~<span class="st"> </span>sexe +<span class="st"> </span>etud +<span class="st"> </span>grpage +<span class="st"> </span>trav.imp, <span class="dt">data =</span> d)</code></pre>
+regm &lt;-<span class="st"> </span><span class="kw">multinom</span>(trav.satisf ~<span class="st"> </span>sexe +<span class="st"> </span>etud +<span class="st"> </span>grpage +<span class="st"> </span>
+<span class="st">  </span>trav.imp, <span class="dt">data =</span> d)</code></pre>
 <pre><code># weights:  39 (24 variable)
 initial  value 1151.345679 
 iter  10 value 977.348901
@@ -581,23 +760,35 @@ converged
 multinom(formula = trav.satisf ~ etud + trav.imp, data = d)
 
 Coefficients:
-               (Intercept) etudSecondaire etudTechnique/Professionnel
-Satisfaction    -0.1110996     0.04916210                  0.07793241
-Insatisfaction  -1.1213760    -0.09737523                  0.08392603
-               etudSupérieur      etudNA trav.impAussi trav.impMoins
-Satisfaction      0.69950061 -0.53841577     0.2578973    -0.1756206
-Insatisfaction    0.07755307 -0.04364055    -0.2279774    -0.5330349
+               (Intercept) etudSecondaire
+Satisfaction    -0.1110996     0.04916210
+Insatisfaction  -1.1213760    -0.09737523
+               etudTechnique/Professionnel
+Satisfaction                    0.07793241
+Insatisfaction                  0.08392603
+               etudSupérieur      etudNA
+Satisfaction      0.69950061 -0.53841577
+Insatisfaction    0.07755307 -0.04364055
+               trav.impAussi trav.impMoins
+Satisfaction       0.2578973    -0.1756206
+Insatisfaction    -0.2279774    -0.5330349
                trav.impPeu
 Satisfaction    -0.5995051
 Insatisfaction   1.3401509
 
 Std. Errors:
-               (Intercept) etudSecondaire etudTechnique/Professionnel
-Satisfaction     0.4520902      0.2635573                   0.2408483
-Insatisfaction   0.6516992      0.3999875                   0.3579684
-               etudSupérieur    etudNA trav.impAussi trav.impMoins
-Satisfaction       0.2472571 0.5910993     0.4260623     0.4115818
-Insatisfaction     0.3831110 0.8407592     0.6213781     0.5941721
+               (Intercept) etudSecondaire
+Satisfaction     0.4520902      0.2635573
+Insatisfaction   0.6516992      0.3999875
+               etudTechnique/Professionnel
+Satisfaction                     0.2408483
+Insatisfaction                   0.3579684
+               etudSupérieur    etudNA
+Satisfaction       0.2472571 0.5910993
+Insatisfaction     0.3831110 0.8407592
+               trav.impAussi trav.impMoins
+Satisfaction       0.4260623     0.4115818
+Insatisfaction     0.6213781     0.5941721
                trav.impPeu
 Satisfaction     0.5580115
 Insatisfaction   0.6587383
@@ -605,32 +796,106 @@ Insatisfaction   0.6587383
 Residual Deviance: 1947.857 
 AIC: 1979.857 </code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">odds.ratio</span>(regm2)</code></pre>
-<pre><code>                                              OR 2.5 % 97.5 %        p   
-Satisfaction/(Intercept)                   0.895 0.369  2.171 0.805878   
-Satisfaction/etudSecondaire                1.050 0.627  1.761 0.852027   
-Satisfaction/etudTechnique/Professionnel   1.081 0.674  1.733 0.746260   
-Satisfaction/etudSupérieur                 2.013 1.240  3.268 0.004669 **
-Satisfaction/etudNA                        0.584 0.183  1.859 0.362363   
-Satisfaction/trav.impAussi                 1.294 0.561  2.983 0.544977   
-Satisfaction/trav.impMoins                 0.839 0.374  1.880 0.669600   
-Satisfaction/trav.impPeu                   0.549 0.184  1.639 0.282661   
-Insatisfaction/(Intercept)                 0.326 0.091  1.169 0.085306 . 
-Insatisfaction/etudSecondaire              0.907 0.414  1.987 0.807660   
-Insatisfaction/etudTechnique/Professionnel 1.088 0.539  2.194 0.814635   
-Insatisfaction/etudSupérieur               1.081 0.510  2.290 0.839581   
-Insatisfaction/etudNA                      0.957 0.184  4.974 0.958603   
-Insatisfaction/trav.impAussi               0.796 0.236  2.691 0.713701   
-Insatisfaction/trav.impMoins               0.587 0.183  1.880 0.369663   
-Insatisfaction/trav.impPeu                 3.820 1.050 13.891 0.041909 * 
+<pre><code>                                              OR
+Satisfaction/(Intercept)                   0.895
+Satisfaction/etudSecondaire                1.050
+Satisfaction/etudTechnique/Professionnel   1.081
+Satisfaction/etudSupérieur                 2.013
+Satisfaction/etudNA                        0.584
+Satisfaction/trav.impAussi                 1.294
+Satisfaction/trav.impMoins                 0.839
+Satisfaction/trav.impPeu                   0.549
+Insatisfaction/(Intercept)                 0.326
+Insatisfaction/etudSecondaire              0.907
+Insatisfaction/etudTechnique/Professionnel 1.088
+Insatisfaction/etudSupérieur               1.081
+Insatisfaction/etudNA                      0.957
+Insatisfaction/trav.impAussi               0.796
+Insatisfaction/trav.impMoins               0.587
+Insatisfaction/trav.impPeu                 3.820
+                                           2.5 %
+Satisfaction/(Intercept)                   0.369
+Satisfaction/etudSecondaire                0.627
+Satisfaction/etudTechnique/Professionnel   0.674
+Satisfaction/etudSupérieur                 1.240
+Satisfaction/etudNA                        0.183
+Satisfaction/trav.impAussi                 0.561
+Satisfaction/trav.impMoins                 0.374
+Satisfaction/trav.impPeu                   0.184
+Insatisfaction/(Intercept)                 0.091
+Insatisfaction/etudSecondaire              0.414
+Insatisfaction/etudTechnique/Professionnel 0.539
+Insatisfaction/etudSupérieur               0.510
+Insatisfaction/etudNA                      0.184
+Insatisfaction/trav.impAussi               0.236
+Insatisfaction/trav.impMoins               0.183
+Insatisfaction/trav.impPeu                 1.050
+                                           97.5 %
+Satisfaction/(Intercept)                    2.171
+Satisfaction/etudSecondaire                 1.761
+Satisfaction/etudTechnique/Professionnel    1.733
+Satisfaction/etudSupérieur                  3.268
+Satisfaction/etudNA                         1.859
+Satisfaction/trav.impAussi                  2.983
+Satisfaction/trav.impMoins                  1.880
+Satisfaction/trav.impPeu                    1.639
+Insatisfaction/(Intercept)                  1.169
+Insatisfaction/etudSecondaire               1.987
+Insatisfaction/etudTechnique/Professionnel  2.194
+Insatisfaction/etudSupérieur                2.290
+Insatisfaction/etudNA                       4.974
+Insatisfaction/trav.impAussi                2.691
+Insatisfaction/trav.impMoins                1.880
+Insatisfaction/trav.impPeu                 13.891
+                                                  p
+Satisfaction/(Intercept)                   0.805878
+Satisfaction/etudSecondaire                0.852027
+Satisfaction/etudTechnique/Professionnel   0.746260
+Satisfaction/etudSupérieur                 0.004669
+Satisfaction/etudNA                        0.362363
+Satisfaction/trav.impAussi                 0.544977
+Satisfaction/trav.impMoins                 0.669600
+Satisfaction/trav.impPeu                   0.282661
+Insatisfaction/(Intercept)                 0.085306
+Insatisfaction/etudSecondaire              0.807660
+Insatisfaction/etudTechnique/Professionnel 0.814635
+Insatisfaction/etudSupérieur               0.839581
+Insatisfaction/etudNA                      0.958603
+Insatisfaction/trav.impAussi               0.713701
+Insatisfaction/trav.impMoins               0.369663
+Insatisfaction/trav.impPeu                 0.041909
+                                             
+Satisfaction/(Intercept)                     
+Satisfaction/etudSecondaire                  
+Satisfaction/etudTechnique/Professionnel     
+Satisfaction/etudSupérieur                 **
+Satisfaction/etudNA                          
+Satisfaction/trav.impAussi                   
+Satisfaction/trav.impMoins                   
+Satisfaction/trav.impPeu                     
+Insatisfaction/(Intercept)                 . 
+Insatisfaction/etudSecondaire                
+Insatisfaction/etudTechnique/Professionnel   
+Insatisfaction/etudSupérieur                 
+Insatisfaction/etudNA                        
+Insatisfaction/trav.impAussi                 
+Insatisfaction/trav.impMoins                 
+Insatisfaction/trav.impPeu                 * 
 ---
-Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+Signif. codes:  
+0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>De même, il est possible de calculer la matrice de confusion :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(<span class="kw">predict</span>(regm2, <span class="dt">newdata =</span> d), d$trav.satisf)</code></pre>
 <pre><code>                
-                 Equilibre Satisfaction Insatisfaction
-  Equilibre            262          211             49
-  Satisfaction         171          258             45
-  Insatisfaction        18           11             23</code></pre>
+                 Equilibre Satisfaction
+  Equilibre            262          211
+  Satisfaction         171          258
+  Insatisfaction        18           11
+                
+                 Insatisfaction
+  Equilibre                  49
+  Satisfaction               45
+  Insatisfaction             23</code></pre>
 </div>
 <div class="footnotes">
 <hr />
