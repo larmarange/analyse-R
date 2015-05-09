@@ -19,6 +19,7 @@
 <script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
 <script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
 <link rel="stylesheet" href="./include/analyse-R.css" />
+<script type="text/javascript" src="./libs/zeroclipboard-2.2.0/ZeroClipboard.js"></script>
 
 
 <style type="text/css">code{white-space: pre;}</style>
@@ -70,7 +71,7 @@ img {
 </style>
 <div class="container-fluid main-container">
 
-
+<nav>
 <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -118,6 +119,12 @@ img {
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
+</nav>
+
+<div class="row">
+
+<div class="col-sm-9" role="main">
+<article>
 
 <div id="header">
 <h1 class="title">Manipulation de données</h1>
@@ -159,7 +166,7 @@ img {
 La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre du support de cours <a href="https://github.com/juba/intro-r">Introduction à R</a>.
 </div>
 <div class="info">
-Cette partie est un peu aride et pas forcément très intuitive. Elle aborde cependant la base de tous les traitements et manipulation de données sous <strong>R</strong>, et mérite donc qu’on s’y arrête un moment, ou qu’on y revienne un peu plus tard en cas de saturation. . .
+Cette partie est un peu aride et pas forcément très intuitive. Elle aborde cependant la base de tous les traitements et manipulation de données sous <strong>R</strong>, et mérite donc qu’on s’y arrête un moment, ou qu’on y revienne un peu plus tard en cas de saturation…
 </div>
 <div id="variables" class="section level2">
 <h2>Variables</h2>
@@ -2144,8 +2151,17 @@ F
 </ol>
 </div>
 
-<script>
+</article>
+</div>
 
+<div class="col-sm-3" role="complementary">
+<nav class="hidden-print hidden-xs" id="nav_sidebar">
+</nav>
+</div>
+
+</div>
+
+<script>
 // manage active state of menu based on current page
 $(document).ready(function () {
 
@@ -2162,9 +2178,19 @@ $(document).ready(function () {
     else if (href.startsWith('astuces_'))
       $('a[href="' + 'astuces' + '"]').parent().addClass('active');
 
+    // sidebar
+    $("#nav_sidebar").append($("#TOC"));
+    $("#TOC ul").addClass("nav nav-stacked");
+    $('body').scrollspy({
+      target: '#nav_sidebar',
+      offset: 40
+    });
+
     // Identifier les <pre> fermant
-    $('pre').next().not('pre').prev().addClass('last'); // Last <pre> of each group of <pre>
-    $('pre').last().addClass('last'); // If the last one is not followed bay anything
+    $('pre').next("*:not(pre)").prev().addClass('last'); // Dernier <pre> de chaque groupe contigu de <pre>
+    $('pre').parent().each(function (){
+      $(this).children('pre').last().addClass('last');
+    }); // Si <pre> est le dernier enfant de son parent
 
     // Ajout liens rdocumentation
     $("code[data-package]").each(function( index ) {
@@ -2188,6 +2214,30 @@ $(document).ready(function () {
       else
         $(this).append($("<figcaption>").append('<span class="figure-number">Figure '+(index+1)+'</span>'));
     });
+
+    // ZeroClipboard
+    $('*:not(pre) + pre.r').before('<div class="zero-clipboard hidden-print hidden-xs"><button class="btn-clipboard">Copier</button></div>');
+    $('pre.last').after(function() {
+      if ($(this).hasClass("r")) res = $(this).text(); else res = "";
+      $(this).prevUntil('*:not(pre)','pre.r').each(function() {
+        res = $(this).text() + '\n' + res;
+      });
+      return '<div class="clipboard">' + res + '</div>';
+    });
+    $('.zero-clipboard').each(function(index){
+      $(this).children('.btn-clipboard').attr('data-clipboard-target','clipboard_'+index);
+      $(this).nextAll("div.clipboard").first().attr('id','clipboard_'+index);
+    });
+    var client = new ZeroClipboard( $(".btn-clipboard") );
+    client.on( "ready", function( readyEvent ) {
+      // alert( "ZeroClipboard SWF is ready!" );
+      client.on( "aftercopy", function( event ) {
+        // `this` === `client`
+        // `event.target` === the element that was clicked
+        //event.target.style.display = "none";
+        $(event.target).parent().before('<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>Le code <strong>R</strong> de l’exemple a été copié dans le presse-papier.</div>');
+      } );
+    } );
 
 });
 </script>
