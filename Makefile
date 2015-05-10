@@ -1,7 +1,7 @@
 
 HTML_FILES := $(patsubst %.Rmd, %.html ,$(wildcard *.Rmd))
 
-all: clean html
+all: clean html pdf
 
 
 html: $(HTML_FILES)
@@ -13,3 +13,6 @@ html: $(HTML_FILES)
 .PHONY: clean
 clean:
 	$(RM) $(HTML_FILES)
+
+pdf: html
+	R --slave < make_pdf.R

@@ -12,4 +12,5 @@ if (!require(RColorBrewer)) install.packages("RColorBrewer")
 if (!require(flashClust)) install.packages("flashClust")
 if (!require(cluster)) install.packages("cluster")
 if (!require(stringr)) install.packages("stringr")
+if (!require(xml2)) install.packages("xml2")
 
