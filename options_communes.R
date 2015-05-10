@@ -1,7 +1,7 @@
 options(
   knitr.table.format = 'pandoc',
   formatR.indent = 2,
-  width = 40
+  width = 50
 )
 knitr::opts_chunk$set(
   comment = NA, # No ## before the results
