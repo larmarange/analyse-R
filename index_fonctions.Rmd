@@ -1,0 +1,76 @@
+---
+title: "Index des fonctions"
+---
+
+```{r options, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
+
+fichiers = list.files(pattern = ".Rmd")
+fichiers[fichiers != 'index_fonctions.Rmd']
+
+lf <- data.frame()
+
+require(stringr)
+
+for (f in fichiers) {
+  content <- readLines(f, encoding = "UTF-8")
+  content <- paste(content, collapse = " ")
+  chapitre <- str_match(content, 'title: "([^"]+)"')
+  chapitre <- chapitre[,2]
+  m <- str_match_all(content, '`([a-zA-Z0-9._%]+)`[{]data-package="([a-zA-Z0-9._]+)"')
+  m <- m[[1]]
+  if (nrow(m)>0)
+    lf <- rbind (lf, data.frame(
+      fonction = m[,2], 
+      package = m[,3], 
+      chapitre = chapitre,
+      page = str_replace(f, ".Rmd", ".html")
+      ))
+}
+
+lf$fonction <- as.character(lf$fonction)
+lf$package <- as.character(lf$package)
+lf$chapitre <- as.character(lf$chapitre)
+lf$page <- as.character(lf$page)
+lf$initiale <- toupper(str_sub(lf$fonction, 1, 1))
+
+lf <- lf[order(lf$initiale, lf$fonction, lf$package, lf$chapitre), ]
+lf <- lf[!duplicated(lf), ]
+
+res <- ""
+i <- ""
+p <- ""
+f <- ""
+
+for (j in 1:nrow(lf)) {
+  if (lf[j, "initiale"] != i) 
+    res <- paste0(res, '\n<h2 id="', lf[j, "initiale"], '">', lf[j, "initiale"], "</h2>\n\n")
+  i <- lf[j, "initiale"]
+  
+  if (lf[j, "fonction"] != f | lf[j, "package"] != p)
+    res <- paste0(res, "\n`", lf[j, "fonction"], "` (", lf[j, "package"], ")\n\n")
+  f <- lf[j, "fonction"]
+  p <- lf[j, "package"]
+  
+  res <- paste0(res, "* [", lf[j, "chapitre"], "](", lf[j, "page"], ")\n")
+  
+}
+
+```
+
+<nav>
+  <ul class="pagination pagination-sm">
+```{r, results='asis', echo=FALSE}
+toc <- ""
+for (i in unique(lf$initiale)) {
+  toc <- paste0(toc, '\n<li><a href="#', i, '">', i, '</a></li>') 
+}
+cat(toc)
+```
+  </ul>
+</nav>
+
+<div id="index_fonctions">
+```{r, results='asis', echo=FALSE}
+cat(res)
+```
+</div>
