@@ -102,11 +102,13 @@ img {
           </ul>
         </li>
         <li class="dropdown">
-          <a href="astuces" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Astuces <span class="caret"></span></a>
+          <a href="avance" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Avancé <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
-            <li><a href="astuces_age.html">Calculer un âge</a></li>
+            <li class="dropdown-header">Astuces</li>
+            <li><a href="avance_age.html">Calculer un âge</a></li>
           </ul>
         </li>
+        <li><a href="index_fonctions.html">Index des fonctions</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
@@ -281,9 +283,9 @@ Femme Femme 47.34313 0.7420836</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))
 <span class="kw">svyplot</span>(~age +<span class="st"> </span>heures.tv, dw, <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">main =</span> <span class="st">&quot;Bubble plot&quot;</span>)
 <span class="kw">svyhist</span>(~heures.tv, dw, <span class="dt">col =</span> <span class="st">&quot;peachpuff&quot;</span>, <span class="dt">main =</span> <span class="st">&quot;Histogramme&quot;</span>)
-<span class="kw">svyboxplot</span>(age ~<span class="st"> </span><span class="dv">1</span>, dw, <span class="dt">main =</span> <span class="st">&quot;Boxplot simple&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Âge&quot;</span>
+<span class="kw">svyboxplot</span>(age ~<span class="st"> </span><span class="dv">1</span>, dw, <span class="dt">main =</span> <span class="st">&quot;Boxplot simple&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Âge&quot;</span>)
 <span class="kw">svyboxplot</span>(age ~<span class="st"> </span>sexe, dw, <span class="dt">main =</span> <span class="st">&quot;Boxplot double&quot;</span>, 
-  <span class="dt">ylab =</span> <span class="st">&quot;Âge&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Sexe&quot;</span></code></pre>
+  <span class="dt">ylab =</span> <span class="st">&quot;Âge&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Sexe&quot;</span>)</code></pre>
 <img src="images/analyses_donnees_pond/unnamed-chunk-12-1.png" title="" alt="" width="1050" />
 <figcaption>
 Fonctions graphiques de l’extension survey
@@ -470,15 +472,16 @@ $(document).ready(function () {
       $('a[href="' + 'pem' + '"]').parent().addClass('active');
     else if (href.startsWith('analyses_'))
       $('a[href="' + 'analyses' + '"]').parent().addClass('active');
-    else if (href.startsWith('astuces_'))
-      $('a[href="' + 'astuces' + '"]').parent().addClass('active');
+    else if (href.startsWith('avance_'))
+      $('a[href="' + 'avance' + '"]').parent().addClass('active');
 
     // élargir la page d'accueil
     if (href=='index.html') $('.col-sm-9').attr('class','col-sm-12');
 
     // sidebar
-    $("#nav_sidebar").append($("#TOC"));
-    $("#TOC ul").addClass("nav nav-stacked");
+    $("#nav_sidebar").append($("#TOC").html());
+    $("#nav_sidebar ul").addClass("nav nav-stacked");
+    $("#TOC").addClass("visible-xs-block");
     $('body').scrollspy({
       target: '#nav_sidebar',
       offset: 40
@@ -490,15 +493,22 @@ $(document).ready(function () {
       $(this).children('pre').last().addClass('last');
     }); // Si <pre> est le dernier enfant de son parent
 
-    // Ajout liens rdocumentation
+    // Ajout liens rdocumentation et tooltip
     $("code[data-package]").each(function( index ) {
       package = $(this).attr('data-package');
-      if ($(this).attr('data-rdocumentation') !== undefined)
+      if ($(this).attr('data-rdocumentation') !== undefined) {
         rdocumentation = $(this).attr('data-rdocumentation');
-      else
+        page = ' (' + $(this).attr('data-rdocumentation') + ')';
+      } else {
         rdocumentation = $(this).text();
+        page = '';
+      }
       fonction = $(this).text();
       $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+package+'/functions/'+rdocumentation+'">');
+      $(this).attr('data-toggle','tooltip');
+      $(this).attr('data-placement','top');
+      $(this).attr('title','package : ' + package + page);
+      $('[data-toggle="tooltip"]').tooltip();
     });
 
     $("strong.package").each(function( index ) {
@@ -544,7 +554,9 @@ $(document).ready(function () {
 </script>
 
 <!-- disqus -->
-  <div id="disqus_thread"></div>
+<div class="row">
+  <div id="disqus_thread" class="col-sm-9" role="complementary"></div>
+</div>
     <script type="text/javascript">
         /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
         var disqus_shortname = 'analyse-r'; // required: replace example with your forum shortname
