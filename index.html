@@ -76,9 +76,10 @@ img {
           </ul>
         </li>
         <li class="dropdown">
-          <a href="astuces" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Astuces <span class="caret"></span></a>
+          <a href="avance" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Avancé <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
-            <li><a href="astuces_age.html">Calculer un âge</a></li>
+            <li class="dropdown-header">Astuces</li>
+            <li><a href="avance_age.html">Calculer un âge</a></li>
           </ul>
         </li>
       </ul>
@@ -140,10 +141,10 @@ Site en construction<br />Dernière mise à jour : 10 mai 2015
 </div>
 <div class="col-md-4">
 <p>
-<strong>Astuces</strong>
+<strong>Avancé</strong>
 </p>
 <div class="list-group">
-<a href="astuces_age.html" class="list-group-item">Calculer un âge</a>
+<span class="list-group-item list-group-item-header">Astuces</span> <a href="avance_age.html" class="list-group-item">Calculer un âge</a>
 </div>
 </div>
 </div>
@@ -179,15 +180,16 @@ $(document).ready(function () {
       $('a[href="' + 'pem' + '"]').parent().addClass('active');
     else if (href.startsWith('analyses_'))
       $('a[href="' + 'analyses' + '"]').parent().addClass('active');
-    else if (href.startsWith('astuces_'))
-      $('a[href="' + 'astuces' + '"]').parent().addClass('active');
+    else if (href.startsWith('avance_'))
+      $('a[href="' + 'avance' + '"]').parent().addClass('active');
 
     // élargir la page d'accueil
     if (href=='index.html') $('.col-sm-9').attr('class','col-sm-12');
 
     // sidebar
-    $("#nav_sidebar").append($("#TOC"));
-    $("#TOC ul").addClass("nav nav-stacked");
+    $("#nav_sidebar").append($("#TOC").html());
+    $("#nav_sidebar ul").addClass("nav nav-stacked");
+    $("#TOC").addClass("visible-xs-block");
     $('body').scrollspy({
       target: '#nav_sidebar',
       offset: 40
@@ -199,15 +201,22 @@ $(document).ready(function () {
       $(this).children('pre').last().addClass('last');
     }); // Si <pre> est le dernier enfant de son parent
 
-    // Ajout liens rdocumentation
+    // Ajout liens rdocumentation et tooltip
     $("code[data-package]").each(function( index ) {
       package = $(this).attr('data-package');
-      if ($(this).attr('data-rdocumentation') !== undefined)
+      if ($(this).attr('data-rdocumentation') !== undefined) {
         rdocumentation = $(this).attr('data-rdocumentation');
-      else
+        page = ' (' + $(this).attr('data-rdocumentation') + ')';
+      } else {
         rdocumentation = $(this).text();
+        page = '';
+      }
       fonction = $(this).text();
       $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+package+'/functions/'+rdocumentation+'">');
+      $(this).attr('data-toggle','tooltip');
+      $(this).attr('data-placement','top');
+      $(this).attr('title','package : ' + package + page);
+      $('[data-toggle="tooltip"]').tooltip();
     });
 
     $("strong.package").each(function( index ) {
@@ -253,7 +262,9 @@ $(document).ready(function () {
 </script>
 
 <!-- disqus -->
-  <div id="disqus_thread"></div>
+<div class="row">
+  <div id="disqus_thread" class="col-sm-9" role="complementary"></div>
+</div>
     <script type="text/javascript">
         /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
         var disqus_shortname = 'analyse-r'; // required: replace example with your forum shortname
