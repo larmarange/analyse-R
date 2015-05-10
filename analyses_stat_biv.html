@@ -165,8 +165,8 @@ Nombre d’heures de télévision selon l’âge
 </figure>
 <p>Le fait que des points sont superposés ne facilite pas la lecture du graphique. On peut utiliser une représentation avec des points semi-transparents.</p>
 <figure>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(d$age, d$heures.tv, <span class="dt">pch =</span> <span class="dv">19</span>, <span class="dt">col =</span> <span class="kw">rgb</span>(<span class="dv">1</span>, <span class="dv">0</span>, 
-  <span class="dv">0</span>, <span class="fl">0.1</span>))</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(d$age, d$heures.tv, <span class="dt">pch =</span> <span class="dv">19</span>, <span class="dt">col =</span> <span class="kw">rgb</span>(<span class="dv">1</span>, 
+  <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.1</span>))</code></pre>
 <img src="images/analyses_stat_biv/unnamed-chunk-3-1.png" title="" alt="" width="1050" />
 <figcaption>
 Nombre d’heures de télévision selon l’âge avec semi-transparence
@@ -177,7 +177,8 @@ Nombre d’heures de télévision selon l’âge avec semi-transparence
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(MASS)
 tmp &lt;-<span class="st"> </span>d[, <span class="kw">c</span>(<span class="st">&quot;age&quot;</span>, <span class="st">&quot;heures.tv&quot;</span>)]
 tmp &lt;-<span class="st"> </span>tmp[<span class="kw">complete.cases</span>(tmp), ]
-<span class="kw">filled.contour</span>(<span class="kw">kde2d</span>(tmp$age, tmp$heures.tv), <span class="dt">color =</span> terrain.colors)</code></pre>
+<span class="kw">filled.contour</span>(<span class="kw">kde2d</span>(tmp$age, tmp$heures.tv), 
+  <span class="dt">color =</span> terrain.colors)</code></pre>
 <img src="images/analyses_stat_biv/unnamed-chunk-4-1.png" title="" alt="" width="1050" />
 <figcaption>
 Représentation de l’estimation de densité locale
@@ -213,15 +214,16 @@ Residuals:
 -9.6905 -1.9010 -0.1823  1.4913 17.0866 
 
 Coefficients:
-            Estimate Std. Error t value Pr(&gt;|t|)
-(Intercept)  1.24088    0.32988   3.762 0.000203
-dipl.sup     1.38352    0.03931  35.196  &lt; 2e-16
-               
-(Intercept) ***
-dipl.sup    ***
+            Estimate Std. Error t value
+(Intercept)  1.24088    0.32988   3.762
+dipl.sup     1.38352    0.03931  35.196
+            Pr(&gt;|t|)    
+(Intercept) 0.000203 ***
+dipl.sup     &lt; 2e-16 ***
 ---
 Signif. codes:  
-0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05
+  &#39;.&#39; 0.1 &#39; &#39; 1
 
 Residual standard error: 3.281 on 299 degrees of freedom
 Multiple R-squared:  0.8056,    Adjusted R-squared:  0.8049 
@@ -274,7 +276,8 @@ Boxplot de la répartition des âges (formule)
     Welch Two Sample t-test
 
 data:  d$age by d$hard.rock
-t = 9.6404, df = 13.848, p-value = 1.611e-07
+t = 9.6404, df = 13.848, p-value =
+1.611e-07
 alternative hypothesis: true difference in means is not equal to 0
 95 percent confidence interval:
  16.11379 25.34758
@@ -326,8 +329,8 @@ W = 0.9814, p-value = 2.079e-15</code></pre>
     F test to compare two variances
 
 data:  d$age by d$hard.rock
-F = 4.5536, num df = 1985, denom df = 13,
-p-value = 0.003217
+F = 4.5536, num df = 1985, denom df
+= 13, p-value = 0.003217
 alternative hypothesis: true ratio of variances is not equal to 1
 95 percent confidence interval:
  1.751826 8.694405
@@ -338,8 +341,8 @@ ratio of variances
 <p><em lang="en">Damned</em> ! Ces maudits tests statistiques vont-ils nous empêcher de faire connaître au monde entier notre fabuleuse découverte sur l’âge des fans de <em>Sepultura</em> ? Non ! Car voici qu’approche à l’horizon un nouveau test, connu sous le nom de <em>Wilcoxon/Mann-Whitney</em>. Celui-ci a l’avantage d’être non-paramétrique, c’est à dire de ne faire aucune hypothèse sur la distribution des échantillons comparés. Par contre il ne compare pas des différences de moyennes mais des différences de médianes :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">wilcox.test</span>(d$age ~<span class="st"> </span>d$hard.rock)</code></pre>
 <pre><code>
-    Wilcoxon rank sum test with continuity
-    correction
+    Wilcoxon rank sum test with
+    continuity correction
 
 data:  d$age by d$hard.rock
 W = 23980, p-value = 2.856e-06
@@ -354,21 +357,28 @@ alternative hypothesis: true location shift is not equal to 0</code></pre>
 <p>La manière la plus simple d’obtenir un tableau croisé est d’utiliser la fonction <code data-package="base">table</code> en lui donnant en paramètres les deux variables à croiser. En l’occurrence nous allons croiser un recodage du niveau de qualification regroupé avec le fait de pratiquer un sport.</p>
 <p>On commence par calculer la variable recodée et par afficher le tri à plat des deux variables :</p>
 <pre class="sourceCode r"><code class="sourceCode r">d$qualreg &lt;-<span class="st"> </span><span class="kw">as.character</span>(d$qualif)
-d$qualreg[d$qualif %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>)] &lt;-<span class="st"> &quot;Ouvrier&quot;</span>
+d$qualreg[d$qualif %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Ouvrier specialise&quot;</span>, 
+  <span class="st">&quot;Ouvrier qualifie&quot;</span>)] &lt;-<span class="st"> &quot;Ouvrier&quot;</span>
 d$qualreg[d$qualif %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Profession intermediaire&quot;</span>, 
   <span class="st">&quot;Technicien&quot;</span>)] &lt;-<span class="st"> &quot;Intermediaire&quot;</span>
 <span class="kw">table</span>(d$qualreg)</code></pre>
 <pre><code>
-        Autre         Cadre       Employe 
-           58           260           594 
-Intermediaire       Ouvrier 
-          246           495 </code></pre>
+        Autre         Cadre 
+           58           260 
+      Employe Intermediaire 
+          594           246 
+      Ouvrier 
+          495 </code></pre>
 <p>Le tableau croisé des deux variables s’obtient de la manière suivante :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(d$sport, d$qualreg)</code></pre>
 <pre><code>     
-      Autre Cadre Employe Intermediaire Ouvrier
-  Non    38   117     401           127     381
-  Oui    20   143     193           119     114</code></pre>
+      Autre Cadre Employe Intermediaire
+  Non    38   117     401           127
+  Oui    20   143     193           119
+     
+      Ouvrier
+  Non     381
+  Oui     114</code></pre>
 <div class="info">
 <p>Il est tout à fait possible de croiser trois variables ou plus. Par exemple :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(d$sport, d$cuisine, d$sexe)</code></pre>
@@ -391,66 +401,66 @@ Intermediaire       Ouvrier
 <pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">table</span>(d$sport, d$qualreg)
 <span class="kw">lprop</span>(tab)</code></pre>
 <pre><code>          
-           Autre Cadre Employe Intermediaire
-  Non        3.6  11.0  37.7    11.9        
-  Oui        3.4  24.3  32.8    20.2        
-  Ensemble   3.5  15.7  35.9    14.9        
+           Autre Cadre Employe
+  Non        3.6  11.0  37.7  
+  Oui        3.4  24.3  32.8  
+  Ensemble   3.5  15.7  35.9  
           
-           Ouvrier Total
-  Non       35.8   100.0
-  Oui       19.4   100.0
-  Ensemble  29.9   100.0</code></pre>
+           Intermediaire Ouvrier Total
+  Non       11.9          35.8   100.0
+  Oui       20.2          19.4   100.0
+  Ensemble  14.9          29.9   100.0</code></pre>
 <p>Les pourcentages ligne ne nous intéressent guère ici. On ne cherche pas à voir quelle est la proportion de cadres parmi ceux qui pratiquent un sport, mais plutôt quelle est la proportion de sportifs chez les cadres. Il nous faut donc des pourcentages colonnes, que l’on obtient avec la fonction <code data-package="questionr">cprop</code> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cprop</span>(tab)</code></pre>
 <pre><code>       
-        Autre Cadre Employe Intermediaire Ouvrier
-  Non    65.5  45.0  67.5    51.6          77.0  
-  Oui    34.5  55.0  32.5    48.4          23.0  
-  Total 100.0 100.0 100.0   100.0         100.0  
+        Autre Cadre Employe
+  Non    65.5  45.0  67.5  
+  Oui    34.5  55.0  32.5  
+  Total 100.0 100.0 100.0  
        
-        Ensemble
-  Non    64.4   
-  Oui    35.6   
-  Total 100.0   </code></pre>
+        Intermediaire Ouvrier Ensemble
+  Non    51.6          77.0    64.4   
+  Oui    48.4          23.0    35.6   
+  Total 100.0         100.0   100.0   </code></pre>
 <p>Dans l’ensemble, le pourcentage de personnes ayant pratiqué un sport est de 35,6 %. Mais cette proportion varie fortement d’une catégorie professionnelle à l’autre : 55,0 % chez les cadres contre 23,0 % chez les ouvriers.</p>
 <p>Enfin, les pourcentage totaux s’obtiennent avec la fonction <code data-package="questionr">prop</code> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop</span>(tab)</code></pre>
 <pre><code>       
-        Autre Cadre Employe Intermediaire Ouvrier
-  Non     2.3   7.1  24.3     7.7          23.0  
-  Oui     1.2   8.7  11.7     7.2           6.9  
-  Total   3.5  15.7  35.9    14.9          29.9  
+        Autre Cadre Employe
+  Non     2.3   7.1  24.3  
+  Oui     1.2   8.7  11.7  
+  Total   3.5  15.7  35.9  
        
-        Total
-  Non    64.4
-  Oui    35.6
-  Total 100.0</code></pre>
+        Intermediaire Ouvrier Total
+  Non     7.7          23.0    64.4
+  Oui     7.2           6.9    35.6
+  Total  14.9          29.9   100.0</code></pre>
 <p>À noter qu’on peut personnaliser l’affichage de ces tableaux de pourcentages à l’aide de différentes options, dont <code>digits</code> qui règle le nombre de décimales à afficher et <code>percent</code> qui indique si on souhaite ou non rajouter un symbole <code>%</code> dans chaque case du tableau. Cette personnalisation peut se faire directement au moment de la génération du tableau et dans ce cas elle sera utilisée par défaut :</p>
 <pre class="sourceCode r"><code class="sourceCode r">ctab &lt;-<span class="st"> </span><span class="kw">cprop</span>(tab, <span class="dt">digits =</span> <span class="dv">2</span>, <span class="dt">percent =</span> <span class="ot">TRUE</span>)
 ctab</code></pre>
 <pre><code>       
-        Autre   Cadre   Employe Intermediaire
-  Non    65.52%  45.00%  67.51%  51.63%      
-  Oui    34.48%  55.00%  32.49%  48.37%      
-  Total 100.00% 100.00% 100.00% 100.00%      
+        Autre   Cadre   Employe
+  Non    65.52%  45.00%  67.51%
+  Oui    34.48%  55.00%  32.49%
+  Total 100.00% 100.00% 100.00%
        
-        Ouvrier Ensemble
-  Non    76.97%  64.37% 
-  Oui    23.03%  35.63% 
-  Total 100.00% 100.00% </code></pre>
+        Intermediaire Ouvrier Ensemble
+  Non    51.63%        76.97%  64.37% 
+  Oui    48.37%        23.03%  35.63% 
+  Total 100.00%       100.00% 100.00% </code></pre>
 <p>Ou bien ponctuellement en passant les mêmes arguments à la fonction <code data-package="questionr" data-rdocumentation="print.proptab">print</code> :</p>
 <pre class="sourceCode r"><code class="sourceCode r">ctab &lt;-<span class="st"> </span><span class="kw">cprop</span>(tab)
 <span class="kw">print</span>(ctab, <span class="dt">percent =</span> <span class="ot">TRUE</span>)</code></pre>
 <pre><code>       
-        Autre  Cadre  Employe Intermediaire
-  Non    65.5%  45.0%  67.5%   51.6%       
-  Oui    34.5%  55.0%  32.5%   48.4%       
-  Total 100.0% 100.0% 100.0%  100.0%       
+        Autre  Cadre  Employe
+  Non    65.5%  45.0%  67.5% 
+  Oui    34.5%  55.0%  32.5% 
+  Total 100.0% 100.0% 100.0% 
        
-        Ouvrier Ensemble
-  Non    77.0%   64.4%  
-  Oui    23.0%   35.6%  
-  Total 100.0%  100.0%  </code></pre>
+        Intermediaire Ouvrier Ensemble
+  Non    51.6%         77.0%   64.4%  
+  Oui    48.4%         23.0%   35.6%  
+  Total 100.0%        100.0%  100.0%  </code></pre>
 </div>
 <div id="-et-derives" class="section level3">
 <h3>χ² et dérivés</h3>
@@ -460,15 +470,19 @@ ctab</code></pre>
     Pearson&#39;s Chi-squared test
 
 data:  tab
-X-squared = 96.7983, df = 4, p-value &lt;
-2.2e-16</code></pre>
+X-squared = 96.7983, df = 4,
+p-value &lt; 2.2e-16</code></pre>
 <p>Le test est hautement significatif, on ne peut pas considérer qu’il y a indépendance entre les lignes et les colonnes du tableau.</p>
 <p>On peut affiner l’interprétation du test en déterminant dans quelle case l’écart à l’indépendance est le plus significatif en utilisant les <em>résidus</em> du test. Ceux-ci sont notamment affichables avec la fonction <code data-package="questionr">chisq.residuals</code> de <strong class="package">questionr</strong> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">chisq.residuals</span>(tab)</code></pre>
 <pre><code>     
-      Autre Cadre Employe Intermediaire Ouvrier
-  Non  0.11 -3.89    0.95         -2.49    3.49
-  Oui -0.15  5.23   -1.28          3.35   -4.70</code></pre>
+      Autre Cadre Employe Intermediaire
+  Non  0.11 -3.89    0.95         -2.49
+  Oui -0.15  5.23   -1.28          3.35
+     
+      Ouvrier
+  Non    3.49
+  Oui   -4.70</code></pre>
 <p>Les cases pour lesquelles l’écart à l’indépendance est significatif ont un résidu dont la valeur est supérieure à 2 ou inférieure à -2. Ici on constate que la pratique d’un sport est sur-représentée parmi les cadres et, à un niveau un peu moindre, parmi les professions intermédiaires, tandis qu’elle est sousreprésentée chez les ouvriers.</p>
 <p>Enfin, on peut calculer le coefficient de contingence de Cramer du tableau, qui peut nous permettre de le comparer par la suite à d’autres tableaux croisés. On peut pour cela utiliser la fonction <code data-package="questionr">cramer.v</code> de <strong class="package">questionr</strong> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cramer.v</span>(tab)</code></pre>
