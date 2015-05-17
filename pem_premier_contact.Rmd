@@ -1,0 +1,537 @@
+---
+title: "Premier contact"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+<div class="note">
+Ce chapitre est inspiré de la section *Prise en main* du support de cours
+[Introduction à R](https://github.com/juba/intro-r) réalisé par Julien Barnier.
+</div>
+
+Une fois **RStudio** lancé, vous devriez obtenir une fenêtre similaire à la figure
+ci-après.
+
+<figure>
+![Interface de RStudio au démarrage](images/capture_RStudio.png)
+<figcaption>Interface de RStudio au démarrage</figcaption>
+</figure>
+
+L'interface de **RStudio** est divisée en quatre quadrants :
+
+* le quadrant supérieur gauche est dédié aux différents fichiers de travail (nous y reviendrons
+  dans le chapitre [Premier travail avec les données](pem_premier_travail.html)) ;
+* le quadrant inférieur gauche correspond à ce que l'on appelle la *console*, c'est-à-dire à
+  **R** proprement dit ;
+* le quadrant supérieur droit permet de connaître 
+    + la liste des objets en mémoire (onglet *Environment*)
+    + ainsi que l'historique des commandes saisies dans la console (onglet *History*) ;
+* le quadrant inférieur droit affiche 
+    + la liste des fichiers du répertoire de travail (onglet *Files*),
+    + les graphiques réalisés (onglet *Plots*), 
+    + la liste des extensions disponibles (onglet *Packages*),
+    + l'aide en ligne (onglet *Help*)
+    + et un *Viewer* utilisé pour visualiser certains types de graphiques au format web.
+
+Inutile de tout retenir pour le moment. Nous aborderons chaque outil en temps utile.
+Pour l'heure, concentrons-nous sur la *console*, c'est-à-dire le quadrant inférieur gauche.
+
+## L'invite de commandes
+
+Au démarrage, la console contient un petit texte de bienvenue
+ressemblant à peu près à ce qui suit :
+
+```
+R version 3.2.0 (2015-04-16) -- "Full of Ingredients"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+```
+
+suivi d'une ligne commençant par le caractère `>` et sur laquelle devrait se trouver votre curseur. Cette
+ligne est appelée l'*invite de commande* (ou *prompt* en anglais). Elle signifie que **R** est disponible et en
+attente de votre prochaine commande.
+
+Nous allons tout de suite lui fournir une première commande. Tapez `2 + 3` dans la console et validez
+avec la touche <kbd>Entrée</kbd>.
+
+```{r}
+2 + 3
+```
+
+En premier lieu, vous pouvez noter la convention typographique utilisée dans ce documents.
+Les commandes saisies dans la console sont indiquées sur un fond gris et précédé de `R>`.
+Le résultat renvoyé par **R** est quant à lui affiché juste en-dessous sur fond blanc.
+
+Bien, nous savons désormais que **R** sait faire les additions à un chiffre^[La présence du 
+`[1]` en début de ligne sera expliquée par la suite dans la section sur les [vecteurs](#vecteurs).]. 
+Nous pouvons désormais continuer avec d'autres opérations arithmétiques de base :
+
+```{r}
+8 - 12
+14 * 25
+-3/10
+-0.3
+```
+
+On remarquera que **R** est anglo-saxon. Les nombres sont donc saisies « à l'anglaise »,
+c'est-à-dire en utilisant le point (`.`) comme séparateur pour les décimales.
+
+<div class="astuce">
+Une petite astuce très utile lorsque vous tapez des commandes directement dans la console : en utilisant
+les flèches Haut et Bas du clavier, vous pouvez naviguer dans l'historique des commandes tapées
+précédemment, que vous pouvez alors facilement réexécuter ou modifier une commande particulière.
+
+Sous **RStudio**, l'onglet History du quadrant haut-droite vous permet de consulter l'historique des commandes
+que vous avez transmises à **R**. 
+
+![Onglet History sous RStudio](images/capture_RStudio_onglet_history.png)
+
+Un double-clic sur une commande la recopiera automatiquement dans la console. 
+Vous pouvez également sélectionner une ou plusieurs commandes puis cliquer sur 
+*To Console*. 
+
+Voir également (en anglais) : <http://www.rstudio.com/ide/docs/using/history>
+</div>
+
+Lorsqu'on fournit à **R** une commande incomplète, celui-ci nous propose de la compléter en nous
+présentant une invite de commande spéciale utilisant les signe `+`. Imaginons par exemple que nous avons
+malencontreusement tapé sur <kbd>Entrée</kbd> alors que nous souhaitions calculer `4 * 3` :
+
+```{r, eval=FALSE, tidy=FALSE}
+4 *
+```
+
+On peut alors compléter la commande en saisissant simplement `3` :
+
+<pre class="r">4 *
++ 3
+</pre>
+<pre>
+[1] 12
+</pre>
+
+<div class="info">
+Pour des commandes plus complexes, il arrive parfois qu'on se retrouve coincé avec une invite `+` sans plus
+savoir comment compléter la saisie correctement. On peut alors annuler la commande en utilisant la touche
+<kbd>Echap</kbd> ou <kbd>Esc</kbd> sous **Windows**. 
+
+Sous **Linux** on utilise le traditionnel <kbd>Control + C</kbd>.
+</div>
+
+À noter que les espaces autour des opérateurs n'ont pas d'importance lorsque l'on saisit les commandes
+dans **R**. Les trois commandes suivantes sont donc équivalentes, mais on privilégie en général la deuxième
+pour des raisons de lisibilité du code.
+
+```{r, eval=FALSE, tidy=FALSE}
+10+2
+10 + 2
+10    +    2
+```
+
+## Des objets
+
+### Objets simples
+
+Faire des opérations arithmétiques, c'est bien, mais sans doute pas totalement suffisant. Notamment,
+on aimerait pouvoir réutiliser le résultat d'une opération sans avoir à le resaisir ou à le copier/coller.
+
+Comme tout langage de programmation, **R** permet de faire cela en utilisant des objets. Prenons tout
+de suite un exemple :
+
+```{r}
+x <- 2
+```
+
+Que signifie cette commande ? L'opérateur `<-` est appelé *opérateur d'assignation*. Il prend une valeur
+quelconque à droite et la place dans l'objet indiqué à gauche. La commande pourrait donc se lire 
+*mettre la valeur 2 dans l'objet nommé `x`*.
+
+On va ensuite pouvoir réutiliser cet objet dans d'autres calculs ou simplement afficher son contenu :
+
+```{r}
+x + 3
+x
+```
+
+<div class="info">
+Par défaut, si on donne à **R** seulement le nom d'un objet, il va se débrouiller pour nous présenter son
+contenu d'une manière plus ou moins lisible.
+</div>
+
+On peut utiliser autant d'objets qu'on veut. Ceux-ci peuvent contenir des nombres, des chaînes de
+caractères (indiquées par des guillemets droits doubles `"` ou simples `'`) et bien d'autres choses encore :
+
+```{r}
+x <- 27
+y <- 10
+foo <- x + y
+foo
+x <- "Hello"
+foo <- x
+foo
+```
+
+<div class="important">
+Les noms d'objets peuvent contenir des lettres, des chiffres (mais ils ne peuvent pas commencer par un
+chiffre), les symboles `.` et `_`. Ils doivent impérativement commencer par une lettre. 
+**R** fait la différence entre les majuscules et les minuscules, 
+ce qui signifie que `x` et `X` sont deux objets différents.
+On évitera également d'utiliser des caractères accentués dans les noms d'objets. 
+Comme les espaces ne sont pas autorisés on pourra les remplacer
+par un point ou un tiret bas.
+
+Enfin, signalons que certains noms courts sont réservés par **R** pour son usage interne et doivent être
+évités. On citera notamment `c`, `q`, `t`, `C`, `D`, `F`, `I`, `T`, `max`, `min`...
+</div>
+
+Dans **RStudio**, l'onglet *Environment* dans le quadrant supérieur droit indique la liste des objets 
+que vous avez précédemment créés, leur type et la taille qu'ils occupent en mémoire.
+
+<figure>
+![Onglet Environment de RStudio](images/capture_RStudio_onglet_environment.png)
+<figcaption>Onglet Environment de RStudio</figcaption>
+</figure>
+
+### Vecteurs{#vecteurs}
+
+Imaginons maintenant que nous avons interrogé dix personnes au hasard dans la rue et que nous avons
+relevé pour chacune d'elle sa taille en centimètres. Nous avons donc une série de dix nombres que nous
+souhaiterions pouvoir réunir de manière à pouvoir travailler sur l'ensemble de nos mesures.
+
+Un ensemble de données de même nature constituent pour **R** un vecteur (en anglais *vector*) et se
+construit à l'aide d'une fonction nommée `c`{data-package="base"}^[`c`{data-package="base"} est 
+l'abbréviation de *combine*. Le nom de cette fonction est très court car on l'utilise très souvent.]. 
+On l'utilise en lui donnant la liste de nos données, entre parenthèses, séparées par des virgules :
+
+```{r}
+tailles <- c(167, 192, 173, 174, 172, 167, 171, 185, 163, 170)
+```
+
+Ce faisant, nous avons créé un objet nommé `tailles` et comprenant l'ensemble de nos données, que
+nous pouvons afficher :
+
+```{r}
+tailles
+```
+
+```{r}
+c(144,168,179,175,182,188,167,152,163,145,176,155,156,164,167,155,157,185,155,169,124,178,182,195,151,185,159,156,184,172)
+```
+
+On a bien notre suite de trente tailles, mais on peut remarquer la présence de nombres entre
+crochets au début de chaque ligne (`[1]`, `[12]` et `[23]`). En fait ces nombres entre crochets indiquent la
+position du premier élément de la ligne dans notre vecteur. Ainsi, le 155 en début de deuxième ligne est
+le 12^e^ élément du vecteur, tandis que le 182 de la troisième ligne est à la 23^e^ position.
+
+On en déduira d'ailleurs que lorsque l'on fait :
+
+```{r}
+2
+```
+
+**R** considère en fait le nombre 2 comme un vecteur à un seul élément.
+
+On peut appliquer des opérations arithmétiques simples directement sur des vecteurs :
+
+```{r}
+tailles <- c(167, 192, 173, 174, 172, 167, 171, 185, 163, 170)
+tailles + 20
+tailles/100
+tailles^2
+```
+
+On peut aussi combiner des vecteurs entre eux. L'exemple suivant calcule l'indice de masse corporelle
+à partir de la taille et du poids :
+
+```{r}
+tailles <- c(167, 192, 173, 174, 172, 167, 171, 185, 163, 170)
+poids <- c(86, 74, 83, 50, 78, 66, 66, 51, 50, 55)
+tailles.m <- tailles/100
+imc <- poids/(tailles.m^2)
+imc
+```
+
+<div class="important">
+Quand on fait des opérations sur les vecteurs, il faut veiller à soit utiliser un vecteur et un 
+chiffre (dans des opérations du type `v * 2` ou `v + 10`), soit à utiliser des vecteurs de même longueur 
+(dans des opérations du type `u + v`).
+
+Si on utilise des vecteurs de longueur différentes, on peut avoir quelques surprises. Quand **R**
+effectue une opération avec deux vecteurs de longueurs différentes, il recopie le vecteur le plus court de
+manière à lui donner la même taille que le plus long, ce qui s'appelle la règle de recyclage 
+(*recycling rule*). Ainsi, `c(1,2) + c(4,5,6,7,8)` vaudra l'équivalent de `c(1,2,1,2,1) + c(4,5,6,7,8)`.
+</div>
+
+On a vu jusque-là des vecteurs composés de nombres, mais on peut tout à fait créer des vecteurs
+composés de chaînes de caractères, représentant par exemple les réponses à une question ouverte ou
+fermée :
+
+reponse <- c("Bac+2", "Bac", "CAP", "Bac", "Bac", "CAP", "BEP")
+
+Enfin, notons que l'on peut accéder à un élément particulier du vecteur en faisant suivre le nom du
+vecteur de crochets contenant le numéro de l'élément désiré. Par exemple :
+
+```{r}
+reponse <- c("Bac+2", "Bac", "CAP", "Bac", "Bac", "CAP", "BEP")
+reponse[2]
+```
+
+Cette opération s'appelle l'*indexation* d'un vecteur. Il s'agit ici de sa forme la plus simple, mais il en
+existe d'autres beaucoup plus complexes. L'indexation des vecteurs et des tableaux dans **R** est l'un des
+éléments particulièrement souples et puissants du langage (mais aussi l'un des plus délicats à comprendre
+et à maîtriser). Nous en reparlerons dans le chapitre 
+sur la [manipulation de données](pem_manipulation.html#indexation).
+
+Sous **RStudio**, vous avez du remarquer que ce dernier effectue une coloration syntaxique. 
+Lorsque vous tapez une commande, les valeurs numériques sont affichées dans une certaine couleur, 
+les valeurs textuelles dans une autre et les noms des fonctions dans une troisième. 
+De plus, si vous tapez une parenthèse ouvrante, **RStudio** va créer automatiquement après le curseur 
+la parenthèse fermante correspondante (de même avec les guillements ou les crochets). 
+De plus, si vous placez le curseur juste après une parenthèse fermante, la parenthèse ouvrante
+correspondante sera surlignée, ce qui sera bien pratique lors de la rédaction de commandes complexes.
+
+## Des fonctions
+
+Nous savons désormais faire des opérations simples sur des nombres et des vecteurs, stocker ces données
+et résultats dans des objets pour les réutiliser par la suite.
+
+Pour aller un peu plus loin nous allons aborder, après les objets, l'autre concept de base de **R**, à savoir
+les *fonctions*. Une fonction se caractérise de la manière suivante :
+
+* elle a un nom ;
+* elle accepte des arguments (qui peuvent avoir un nom ou pas) ;
+* elle retourne un résultat et peut effectuer une action comme dessiner un graphique ou lire un fichier.
+
+En fait rien de bien nouveau puisque nous avons déjà utilisé plusieurs fonctions jusqu'ici, dont la plus
+visible est la fonction `c`{data-package="base}. Dans la ligne suivante :
+
+reponse <- c("Bac+2", "Bac", "CAP", "Bac", "Bac", "CAP", "BEP")
+
+on fait appel à la fonction nommée `c`{data-package="base"}, on lui passe en arguments 
+(entre parenthèses et séparées par des virgules) une série de chaînes de caractères
+et elle retourne comme résultat un vecteur de chaînes de
+caractères, que nous stockons dans l'objet `reponse`.
+
+Prenons tout de suite d'autres exemples de fonctions courantes :
+
+tailles <- c(167, 192, 173, 174, 172, 167, 171, 185, 163, 170)
+length(tailles)
+mean(tailles)
+var(tailles)
+
+Ici, la fonction `length`{data-package="base"} nous renvoie le nombre d'éléments du vecteur, 
+la fonction `mean`{data-package="base"} nous donne la moyenne des éléments du vecteur et 
+fonction `var`{data-package="stats" data-rdocumentation="cor"} sa variance.
+
+### Arguments
+
+Les arguments de la fonction lui sont indiqués entre parenthèses, juste après son nom. En général les
+premiers arguments passés à la fonction sont des données servant au calcul et les suivants des paramètres
+influant sur ce calcul. Ceux-ci sont en général transmis sous la forme d'argument nommés.
+
+Reprenons l'exemple des tailles précédent :
+
+tailles <- c(167, 192, 173, 174, 172, 167, 171, 185, 163, 170)
+
+Imaginons que le deuxième enquêté n'ait pas voulu nous répondre. Nous avons alors dans notre vecteur
+une valeur manquante. Celle-ci est symbolisée dans **R** par le code `NA` :
+
+tailles <- c(167, NA, 173, 174, 172, 167, 171, 185, 163, 170)
+
+Recalculons notre taille moyenne :
+
+mean(tailles)
+
+Et oui, par défaut, **R** renvoie `NA` pour un grand nombre de calculs (dont la moyenne) lorsque les
+données comportent une valeur manquante. On peut cependant modifier ce comportement en fournissant
+un paramètre supplémentaire à la fonction `mean`{data-package="base"}, nommé `na.rm` :
+
+mean(tailles, na.rm = TRUE)
+
+Positionner le paramètre `na.rm` à `TRUE` (vrai) indique à la fonction `mean`{data-package="base"}
+de ne pas tenir compte des valeurs manquantes dans le calcul.
+
+Lorsqu'on passe un argument à une fonction de cette manière, c'est-à-dire sous la forme `nom=valeur`,
+on parle d'*argument nommé*.
+
+<div class="important">
+`NA` signifie *not available*. Cette valeur particulière peut être utilisée pour indiquer une valeur manquante
+pour tout type de liste (nombres, textes, valeurs logique, etc.).
+</div>
+
+### Quelques fonctions utiles
+
+Récapitulons la liste des fonctions que nous avons déjà rencontrées :
+
+| Fonction | Description |
+|:---------|:------------|
+| `c`{data-package="base"} | construit un vecteur à partir d'une série de valeurs |
+| `length`{data-package="base"} | nombre d'éléments d'un vecteur |
+| `mean`{data-package="base"} | moyenne d'un vecteur de type numérique |
+| `var`{data-package="stats" data-rdocumentation="cor"} | variance d'un vecteur de type numérique |
+| `+`{data-package="base" data-rdocumentation="Arithmetic"}, `-`{data-package="base" data-rdocumentation="Arithmetic"}, `*`{data-package="base" data-rdocumentation="Arithmetic"}, `/`{data-package="base" data-rdocumentation="Arithmetic"} | opérateurs mathématiques de base |
+| `ˆ`{data-package="base" data-rdocumentation="Arithmetic"} | passage à la puissance |
+
+On peut rajouter les fonctions de base suivantes :
+
+| Fonction | Description |
+|:---------|:------------|
+| `min`{data-package="base" data-rdocumentation="Extremes"} | valeur minimale d'un vecteur numérique |
+| `max`{data-package="base" data-rdocumentation="Extremes"} | valeur maximale d'un vecteur numérique |
+| `sd`{data-package="stats"} | écart-type d'un vecteur numérique |
+| `:`{data-package="base" data-rdocumentation="Colon"} | génère une séquence de nombres. `1:4` équivaut à `c(1,2,3,4)` |
+
+### Aide sur une fonction
+
+Il est très fréquent de ne plus se rappeler quels sont les paramètres d'une fonction ou le type de résultat
+qu'elle retourne. Dans ce cas on peut très facilement accéder à l'aide décrivant une fonction particulière
+avec `?`{data-package=="utils" data-rdocumentation=="Question"} ou `help`{data-package="utils"}. Ainsi,
+pour obtenir de l'aide sur la fonction `mean`{data-package="base"}, 
+on saisira l'une des deux entrées équivalentes suivantes :
+
+```{r, eval=FALSE}
+?mean
+help("mean")
+```
+
+<div class="note">
+L'utilisation du raccourci `?`{data-package=="utils" data-rdocumentation=="Question"} ne fonctionne 
+pas pour certains opérateurs comme `*`{data-package="base" data-rdocumentation="Arithmetic"}. 
+Dans ce cas on pourra utiliser `?'*'` ou bien simplement `help("*")`.
+</div>
+
+Sous **RStudio**, le fichier d'aide associé apparaitra dans le quadrant inférieur droit sous l'onglet *Help*.
+
+<figure>
+![Onglet Help de RStudio](images/capture_RStudio_onglet_help.png)
+<figcaption>Onglet Help de RStudio</figcaption>
+</figure>
+
+
+Cette page décrit (en anglais) la fonction, ses arguments, son résultat,
+le tout accompagné de diverses notes, références et exemples. Ces pages d'aide contiennent à peu près
+tout ce que vous pourrez chercher à savoir, mais elles ne sont pas toujours d'une lecture aisée.
+
+Un autre cas très courant dans **R** est de ne pas se souvenir ou de ne pas connaître le nom de la fonction
+effectuant une tâche donnée. Dans ce cas on se reportera aux différentes manières de trouver de l'aide
+décrites dans le chapitre [Où trouver de l'aide ?] MAJ_LIEN.
+
+### Interprétation des arguments
+
+Prenons l'exemple de la fonction `format`{data-package="base"} dont la version de base
+permet de mettre en forme un nombre. Affichons le fichier d'aide associé.
+
+```{r, eval=FALSE}
+?format
+```
+
+La section *Usage* présente les arguments de cette fonction et leur valeur par défaut :
+
+<pre>
+format(x, trim = FALSE, digits = NULL, nsmall = 0L,
+       justify = c("left", "right", "centre", "none"),
+       width = NULL, na.encode = TRUE, scientific = NA,
+       big.mark = "",   big.interval = 3L,
+       small.mark = "", small.interval = 5L,
+       decimal.mark = ".", zero.print = NULL,
+       drop0trailing = FALSE, ...)
+</pre>
+
+Regardons ce que cette fonction peut faire. Passons-lui un vecteur avec deux nombres :
+
+```{r}
+format(c(12.3, 5678))
+```
+
+Elle renvoie un vecteur de chaînes de caractères. Le nombre de décimales a été harmonisé
+et des espaces ont été ajoutés au début du premier nombre afin que l'ensemble des valeurs
+soient alignées vers la droite.
+
+L'argument `trim` permet de supprimer les espaces ajoutés en début de chaîne.
+
+```{r}
+format(c(12.3, 5678), TRUE)
+```
+
+Dans le cas présent, nous avons saisi les arguments de la fonction sans les nommer. Dès lors,
+**R** considère l'ordre dans lesquels nous avons saisi les arguments, ordre qui correspond
+à celui du fichier d'aide. Il a dès lors considéré que `c(12.3, 5678)` correspond à la valeur
+attribuée à `x` et que `TRUE` est la valeur attribuée à `trim`.
+
+L'argument `nsmall` permet d'indiquer le nombre minimum de décimales que l'on souhaite 
+afficher. Il est en quatrième position. Dès lors, pour pouvoir le renseigner avec des
+arguments non nommés, il faut fournir également une valeur pour le troisième argument `digits`.
+
+```{r}
+format(c(12.3, 5678), TRUE, NULL, 2)
+```
+
+Ce n'est pas forcément ce qu'il y a de plus pratique. D'où l'intérêt des *arguments nommés*.
+En précisant `nsmall =` dans l'appel de la fonction, on pourra indiquer que l'on souhaite 
+modifier spécifiquement cet argument. Lorsque l'on utilise des arguments non nommés, l'ordre
+n'importe plus puisque **R** sera en capacité de reconnaître ses petits.
+
+```{r}
+format(nsmall = 2, x = c(12.3, 5678))
+```
+
+À l'usage, on aura le plus souvent recours à une combinaison d'arguments non nommés et
+d'arguments nommés. On indiquera les premiers arguments (qui correspondent en général aux
+données de départ) sans les nommer et on précisera les options souhaitées avec des arguments
+nommés. Par exemple, pour un affichage à la française :
+
+```{r}
+format(c(12.3, 5678), decimal.mark = ",", big.mark=" ")
+```
+
+Lorsque l'on regarde la section *Usage* du fichier d'aide, il apparait que certains arguments,
+suivi par le symbole `=`, ont une valeur par défaut. Il n'est donc pas nécessaire de les inclure
+dans l'appel de la fonction, auquel cas la valeur pas défaut sera prise en compte. Par contre, 
+d'autres arguments, ici `x`, n'ont pas de valeur par défaut et il est donc nécessaire de fournir
+systématique une valeur.
+
+```{r, error=TRUE}
+format(decimal.mark = ",")
+```
+
+Enfin, pour certaines fonctions, on verra parfois apparaître le symbole `...` Ce dernier
+correspond à un nombre indéterminé d'arguments. Il peut s'agir, comme dans le cas de 
+`format`{data-package="base"} d'arguments additionnels qui seront utilisés dans certains cas
+de figure, ou bien d'arguments qui seront transmis à une fonction secondaire appelée par la
+fonction principale, ou encore, comme pour le cas de la fonction `c`{data-package="base"},
+de la possibilité de saisir un nombre indéfini de données sources.
+
+### Auto-complétion
+
+**RStudio** fournit un outil bien pratique appelé *auto-complétion*. Saisissez les premières 
+lettres d'une fonction, par exemple `me` puis appuyez sur la touche <kbd>Tabulation</kbd>. 
+**RStudio** affichera la liste des fonctions dont le nom commence par `me` ainsi qu'un court descriptif 
+de chacune. Un appui sur la touche <kbd>Entrée</kbd> provoquera la saisie du nom complet de la 
+fonction choisie. 
+
+<figure>
+![Auto-complétion sous RStudio](images/capture_RStudio_autocompletion.png)
+<figcaption>Auto-complétion sous RStudio</figcaption>
+</figure>
+
+À l'intérieur des parenthèses d'une fonctionn, vous pouvez utiliser l'auto-complétion
+pour retrouver un argument de cette fonction. 
+
+Vous pouvez également utiliser l'auto-complétion pour retrouver le nom d'un objet
+que vous avez précédemment créé.
+
+Pour plus de détails, voir la documentation officielle de **RStudio** (MAJ_LIEN).

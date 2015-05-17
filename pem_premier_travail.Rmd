@@ -1,0 +1,651 @@
+---
+title: "Premier travail avec des données et statistique univariée"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+<div class="note">
+Ce chapitre est inspiré de la section *Premier travail avec les données* du support de cours
+[Introduction à R](https://github.com/juba/intro-r) réalisé par Julien Barnier.
+</div>
+
+## Regrouper les commandes dans des scripts
+
+Jusqu'à maintenant nous avons utilisé uniquement la console pour communiquer avec **R** via l'invite de
+commandes. Le principal problème de ce mode d'interaction est qu'une fois qu'une commande est tapée,
+elle est pour ainsi dire « perdue », c'est-à-dire qu'on doit la saisir à nouveau si on veut l'exécuter une
+seconde fois. L'utilisation de la console est donc restreinte aux petites commandes « jetables », le plus
+souvent utilisées comme test.
+
+La plupart du temps, les commandes seront stockées dans un fichier à part, que l'on pourra facilement
+ouvrir, éditer et exécuter en tout ou partie si besoin. On appelle en général ce type de fichier un *script*.
+
+Pour comprendre comment cela fonctionne, dans **RStudio** cliquez sur l'icône en haut à gauche représentant
+un fichier avec un signe + vert, puis choisissez *R script*.
+
+<figure>
+![Créer un nouveau script R dans RStudio](images/capture_RStudio_new_R_script.png)
+<figcaption>Créer un nouveau script R dans RStudio</figcaption>
+</figure>
+
+Un nouvel onglet apparaît dans le quadrant supérieur gauche.
+
+<figure>
+![Onglet d'un script R dans RStudio](images/capture_RStudio_onglet_R_script.png)
+<figcaption>Onglet d'un script R dans RStudio</figcaption>
+</figure>
+
+Nous pouvons désormais y saisir des commandes. Par
+exemple, tapez sur la première ligne la commande suivante : `2 + 2`.
+Ensuite, cliquez sur l'icône *Run* (en haut à droite de l'onglet du script) ou
+bien pressez simulatément les touches <kbd>CTRL</kbd> et <kbd>Entrée</kbd>^[Sous 
+**Mac OS X**, on utilise les touches <kbd>Pomme</kbd> et <kbd>Entrée</kbd>.].
+
+Les lignes suivantes ont dû faire leur apparition dans la console :
+
+```{r}
+2 + 2
+```
+
+Voici donc comment soumettre rapidement à **R** les commandes saisies dans votre fichier. Vous pouvez
+désormais l'enregistrer, l'ouvrir plus tard, et en exécuter tout ou partie. À noter que vous avez plusieurs
+possibilités pour soumettre des commandes à **R** :
+
+* vous pouvez exécuter la ligne sur laquelle se trouve votre curseur en cliquant sur *Run*
+  ou en pressant simulatément les touches <kbd>CTRL</kbd> et <kbd>Entrée</kbd> ;
+* vous pouvez sélectionner plusieurs lignes contenant des commandes et les exécuter toutes en 
+  une seule fois exactement de la même manière ;
+* vous pouvez exécuter d'un coup l'intégralité de votre fichier en cliquant sur l'icône
+  *Source*.
+
+La plupart du travail sous **R** consistera donc à éditer un ou plusieurs fichiers de commandes
+et à envoyer régulièrement les commandes saisies à **R** en utilisant les raccourcis clavier *ad hoc*.
+
+Pour plus d'information sur l'utilisation des scripts **R** dans **RStudio**, voir (en anglais) : 
+<http://www.rstudio.com/ide/docs/using/source>.
+
+<div class="note">
+Quand vous enregistrez un script sous **RStudio**, il est possible qu'il vous demande 
+de choisir un type d'encodage des caractères (*Choose Encoding*). Si tel est le cas, 
+utilisez de préférence **UTF-8**.
+</div>
+
+## Ajouter des commentaires
+
+Un commentaire est une ligne ou une portion de ligne qui sera ignorée par **R**. Ceci signifie qu'on peut
+y écrire ce qu'on veut et qu'on va les utiliser pour ajouter tout un tas de commentaires à notre code
+permettant de décrire les différentes étapes du travail, les choses à se rappeler, les questions en suspens,
+etc.
+
+Un commentaire sous **R** commence par un ou plusieurs symboles `#` (qui s'obtient avec les touches
+<kbd>Alt Gr</kbd> et <kbd>3</kbd> sur les claviers de type PC). Tout ce qui suit ce symbole jusqu'à 
+la fin de la ligne est considéré comme un commentaire. 
+On peut créer une ligne entière de commentaire en la faisant débuter par `##`. 
+Par exemple :
+
+```{r}
+## Tableau croisé de la CSP par le nombre de livres lus
+## Attention au nombre de non réponses !
+```
+
+On peut aussi créer des commentaires pour une ligne en cours :
+
+```{r}
+x <- 2 # On met 2 dans x, parce qu'il le vaut bien
+```
+
+<div class="important">
+Dans tous les cas, il est très important de documenter ses fichiers **R** au fur et à mesure, 
+faute de quoi on risque de ne plus y comprendre grand chose si on les reprend ne serait-ce que 
+quelques semaines plus tard.
+</div>
+
+Avec **RStudio**, vous pouvez également utiliser les commentaires pour créer des sections au sein 
+de votre script et naviguer plus rapidement. Il suffit de faire suivre une ligne de commentaires
+d'au moins 4 signes moins (`----`). Par exemple, si vous saisissez ceci dans votre script :
+
+```{r, eval=FALSE}
+## Créer les objets ----
+
+x <- 2
+y <- 5
+
+## Calculs ----
+
+x + y
+```
+
+Vous verrez apparaître en bas à gauche de la fenêtre du script un symbole dièse orange. Si vous
+cliquez dessus, un menu de navigation s'affichera vous permettant de vous déplacez rapidement au sein
+de votre script. Pour plus d'information, voir la documentation de **RStudio** (en anglais) :
+<http://www.rstudio.com/ide/docs/using/code_folding>.
+
+<figure>
+![Navigation rapide dans les scripts sous RStudio](images/capture_RStudio_navigation_script.png)
+<figcaption>Navigation rapide dans les scripts sous RStudio</figcaption>
+</figure>
+
+Note : on remarquera au passage que le titre de l'onglet est affiché en rouge et suivi d'une
+astérisque (`*`), nous indiquant ainsi qu'il y a des modifications non enregistrées dans notre
+fichier.
+
+## Tableaux de données
+
+Dans cette partie nous allons utiliser un jeu de données inclus dans l'extension 
+<strong class="package">questionr</strong>. L'installation d'extension est décrite dans
+le chapitre [Présentation et Installation](pem_presentation_installation.html#installer_extensions).
+
+Le jeu de données en question est un extrait de l'enquête *Histoire de vie* réalisée par l'INSEE en 2003.
+Il contient 2000 individus et 20 variables. Pour pouvoir utiliser ces données, il faut d'abord charger
+l'extension <strong class="package">questionr</strong> (après l'avoir installée, bien entendu).
+Le chargement d'une extension en mémoire se fait à l'aide de la fonction `library`{data-package="base"}.
+Sous **RStudio**, vous pouvez également charger une extension en allant dans l'onglet *Packages* du
+quadrant inférieur droit qui liste l'ensemble des packages disponibles et en cliquant la case à 
+cocher située à gauche du nom du package désiré.
+
+```{r}
+library(questionr)
+```
+
+Puis nous allons indiquer à **R** que nous souhaitons accéder au jeu de données 
+`hdv2003`{data-package="questionr"} à l'aide de la fonction `data`{data-package="utils"} :
+
+```{r}
+data(hdv2003)
+```
+
+Bien. Et maintenant, elles sont où mes données ? Et bien elles se trouvent dans un objet nommé
+`hdv2003` désormais chargé en mémoire et accessible directement. D'ailleurs, cet objet est maintenant
+visible dans l'onglet *Environment* du quadrant supérieur droit.
+
+Essayons de taper son nom à l'invite de commande :
+
+```{r, eval=FALSE}
+hdv2003
+```
+
+Le résultat (non reproduit ici) ne ressemble pas forcément à grand-chose... Il faut se rappeler que par
+défaut, lorsqu'on lui fournit seulement un nom d'objet, **R** essaye de l'afficher de la manière la meilleure
+(ou la moins pire) possible. La réponse à la commande `hdv2003` n'est donc rien moins que l'affichage des
+données brutes contenues dans cet objet.
+
+Ce qui signifie donc que l'intégralité de notre jeu de données est inclus dans l'objet nommé `hdv2003` !
+En effet, dans **R**, un objet peut très bien contenir un simple nombre, un vecteur ou bien le résultat d'une
+enquête tout entier. Dans ce cas, les objets sont appelés des *data frames*, ou tableaux de données. Ils
+peuvent être manipulés comme tout autre objet. Par exemple :
+
+```{r}
+d <- hdv2003
+```
+
+va entraîner la copie de l'ensemble de nos données dans un nouvel objet nommé `d`, ce qui peut paraître
+parfaitement inutile mais a en fait l'avantage de fournir un objet avec un nom beaucoup plus court, ce
+qui diminuera la quantité de texte à saisir par la suite.
+
+**Résumons**
+
+Comme nous avons désormais décidé de saisir nos commandes dans un script et non plus
+directement dans la console, les premières lignes de notre fichier de travail sur les données de l'enquête
+*Histoire de vie* pourraient donc ressembler à ceci :
+
+```{r, eval=FALSE}
+## Chargement des extensions nécessaires ----
+library(questionr)
+## Jeu de données hdv2003 ----
+data(hdv2003)
+d <- hdv2003
+```
+
+## Inspecter les données
+
+### Structure du tableau
+
+Avant de travailler sur les données, nous allons essayer de voir à quoi elles ressemblent. Dans notre cas
+il s'agit de se familiariser avec la stucture du fichier. Lors de l'import de données depuis un autre logiciel,
+il s'agira souvent de vérifier que l'importation s'est bien déroulée.
+
+Un tableau de données est organisé en lignes et en colonnes, les lignes correspondant aux observations 
+et les colonnes aux variables. Les fonctions `nrow`{data-package="base"}, 
+`ncol`{data-package="base" data-rdocumentation="nrow"} et `dim`{data-package="base"} donnent respectivement 
+le nombre de lignes, le nombre de colonnes et les dimensions de notre tableau. Nous pouvons donc d'ores et 
+déjà vérifier que nous avons bien 2000 lignes et 20 colonnes :
+
+```{r}
+nrow(d)
+ncol(d)
+dim(d)
+```
+
+La fonction `names`{data-package="base"} donne les noms des colonnes de notre tableau, c'est-à-dire 
+les noms des variables :
+
+```{r}
+names(d)
+```
+
+La fonction `str`{data-package="utils"} est plus complète. Elle liste les différentes variables, 
+indique leur type et donne le cas échéant des informations supplémentaires ainsi qu'un échantillon 
+des premières valeurs prises par cette variable :
+
+```{r}
+str(d)
+```
+
+La première ligne nous informe qu'il s'agit bien d'un tableau de données avec 2000 observations et
+20 variables. Vient ensuite la liste des variables. La première se nomme *id* et est de type nombre entier
+(*int*). La seconde se nomme *age* et est de type numérique. La troisième se nomme *sexe*, il s'agit d'un
+facteur (*factor*).
+
+Un facteur et une variable pouvant prendre un nombre limité de modalités (*levels*). Ici notre variable
+a deux modalités possibles : « Homme » et « Femme ». Ce type de variable est décrit plus en détail 
+dans le chapitre sur la [manipulation de données](pem_manipulation.html#variables).
+
+<div class="important">
+La fonction `str`{data-package="utils"} est essentielle à connaître et peut s'appliquer à n'importe quel 
+type d'objet. C'est un excellent moyen de connaître la structure d'un objet.
+</div>
+
+### Inspection visuelle
+
+La particularité de **R** par rapport à d'autres logiciels comme **Modalisa** ou **SPSS** est de 
+ne pas proposer, par défaut, de vue des données sous forme de tableau. Ceci peut parfois être un peu
+déstabilisant dans les premiers temps d'utilisation, même si on perd vite l'habitude et qu'on finit 
+par se rendre compte que « voir » les données n'est pas forcément un gage de productivité ou de rigueur 
+dans le traitement.
+
+Néanmoins, **R** propose une interface permettant de visualiser le contenu d'un tableau de données
+à l'aide de la fonction `View`{data-package="utils"} :
+
+```{r, eval=FALSE}
+View(d)
+```
+
+Sous **RStudio**, on peut aussi afficher la visionneusee (*viewer*) en cliquant sur la petite icône en forme 
+de tableau située à droite de la ligne d'un tableau de données dans l'onglet *Environment* du
+quadrant supérieur droit (cf. figure ci-après).
+
+<figure>
+![Icône pour afficher une vue du contenu d'un tableau](images/capture_RStudio_icone_viewer.png)
+<figcaption>Icône pour afficher une vue du contenu d'un tableau</figcaption>
+</figure>
+
+Dans tous les cas, **RStudio** lancera le *viewer* dans un onglet dédié dans le quadrant supérieur
+gauche. Le visualiseur de **RStudio** est plus avancé que celui-de base fournit par **R**. Il est
+possible de trier les données selon une variable en cliquant sur le nom de cette dernière. Il y a
+également un champs de recherche et un bouton *Filter* donnant accès à des options de filtrage
+avancées.
+
+<figure>
+![La visionneuse de données de RStudio](images/capture_RStudio_data_viewer.png)
+<figcaption>La visionneuse de données de RStudio</figcaption>
+</figure>
+
+### Accéder aux variables
+
+`d` représente donc l'ensemble de notre tableau de données. Nous avons vu que si l'on saisit simplement
+`d` à l'invite de commandes, on obtient un affichage du tableau en question. Mais comment accéder aux
+variables, c'est à dire aux colonnes de notre tableau ?
+
+La réponse est simple : on utilise le nom de l'objet, suivi de l'opérateur 
+`$`{data-package="base" data-rdocumentation="Extract"}, suivi du nom de la variable,
+comme ceci :
+
+```{r, eval=FALSE}
+d$sexe
+```
+
+Au regard du résultat (non reproduit ici), on constate alors que **R** a bien accédé au contenu 
+de notre variable *sexe* du tableau `d` et a affiché son
+contenu, c'est-à-dire l'ensemble des valeurs prises par la variable.
+
+Les fonctions `head`{data-package="utils"} et `tail`{data-package="utils" data-rdocumentation="head"}
+permettent d'afficher seulement les premières (respectivement les dernières)
+valeurs prises par la variable. On peut leur passer en argument le nombre d'éléments à afficher :
+
+```{r}
+head(d$sport)
+tail(d$age, 10)
+```
+
+À noter que ces fonctions marchent aussi pour afficher les lignes du tableau `d` :
+
+```{r}
+head(d, 2)
+```
+
+## Analyser une variable (statistique univariée){#stat_univ}
+
+### Variable quantitative
+
+#### Principaux indicateurs
+
+Comme la fonction `str`{data-package="utils"} nous l'a indiqué, notre tableau `d` contient 
+plusieurs valeurs numériques, dont la variable *heures.tv* qui représente le nombre moyen passé par 
+les enquêtés à regarder la télévision quotidiennement. On peut essayer de déterminer quelques 
+caractéristiques de cette variable, en utilisant les fonctions `mean`{data-package="base"},
+`sd`{data-package="stats"}, `min`{data-package="base" data-rdocumentation="Extremes"},
+`max`{data-package="base" data-rdocumentation="Extremes"} et `range`{data-package="base"} :
+
+```{r}
+mean(d$heures.tv)
+mean(d$heures.tv, na.rm = TRUE)
+sd(d$heures.tv, na.rm = TRUE)
+min(d$heures.tv, na.rm = TRUE)
+max(d$heures.tv, na.rm = TRUE)
+range(d$heures.tv, na.rm = TRUE)
+```
+
+On peut lui ajouter la fonction `median`{data-package="stats"} qui donne la valeur médiane,
+`quantile`{data-package="stats"} qui calcule plus généralement tout type de quantiles, et le très 
+utile `summary`{data-package="base"} qui donne toutes ces informations ou presque en une seule fois, 
+avec en prime le nombre de valeurs manquantes (`NA`) :
+
+```{r}
+median(d$heures.tv, na.rm = TRUE)
+quantile(d$heures.tv, na.rm = TRUE)
+summary(d$heures.tv)
+```
+
+La fonction `summary`{data-package="base"} est une fonction générique qui peut être utilisée sur tout
+type d'objet, y compris un tableau de données. Essayez donc `summary(d)`.
+
+#### Histogramme
+
+Tout cela est bien pratique, mais pour pouvoir observer la distribution des valeurs d'une variable
+quantitative, il n'y a quand même rien de mieux qu'un bon graphique.
+
+On peut commencer par un histogramme de la répartition des valeurs. Celui-ci peut être généré très
+facilement avec la fonction `hist`{data-package="graphics"} :
+
+<figure>
+```{r}
+hist(d$heures.tv, main = "Nombre d'heures passées devant la télé par jour", xlab = "Heures", ylab = "Effectif")
+```
+<figcaption>Exemple d'histogramme</figcaption>
+</figure>
+
+Sous **RStudio**, les graphiques s'affichent dans l'onglet *Plots* du quadrant inférieur droit. Il est
+possible d'afficher une version plus grande de votre graphique en cliquant sur *Zoom*.
+
+Ici, les options `main`, `xlab` et `ylab` permettent de personnaliser le titre du graphique, ainsi que les
+étiquettes des axes. De nombreuses autres options existent pour personnaliser l'histogramme, parmi celles-ci
+on notera :
+
+* `probability` si elle vaut `TRUE`, l'histogramme indique la proportion des classes de valeurs au lieu des
+  effectifs.
+* `breaks` permet de contrôler les classes de valeurs. On peut lui passer un chiffre, qui indiquera alors le
+  nombre de classes, un vecteur, qui indique alors les limites des différentes classes, ou encore une
+  chaîne de caractère ou une fonction indiquant comment les classes doivent être calculées.
+* `col` la couleur de l'histogramme^[Il existe un grand nombre de couleurs prédéfinies dans **R**. 
+  On peut récupérer leur liste en utilisant la fonction `colors`{data-package="grDevices"}
+  en tapant simplement `colors()` dans la console, ou en consultant le document suivant :
+  <http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf>.].
+
+Voir la page d'aide de la fonction `hist`{data-package="graphics"} pour plus de détails sur les 
+différentes options. Les deux figures ci-après sont deux autres exemples d'histogramme.
+
+<figure>
+```{r}
+hist(d$heures.tv, main = "Heures de télé en 7 classes", breaks = 7, xlab = "Heures", ylab = "Proportion", probability = TRUE, col = "orange")
+```
+<figcaption>Un autre exemple d'histogramme</figcaption>
+</figure>
+
+<figure>
+```{r}
+hist(d$heures.tv, main = "Heures de télé avec classes spécifiées", breaks = c(0, 1, 4, 9, 12), xlab = "Heures", ylab = "Proportion", col = "red")
+```
+<figcaption>Encore un autre exemple d'histogramme</figcaption>
+</figure>
+
+#### Boîtes à moustaches
+
+Les boîtes à moustaches, ou *boxplot* en anglais, sont une autre représentation graphique de la répartition
+des valeurs d'une variable quantitative. Elles sont particulièrement utiles pour comparer les
+distributions de plusieurs variables ou d'une même variable entre différents groupes, mais peuvent aussi
+être utilisées pour représenter la dispersion d'une unique variable. La fonction qui produit ces graphiques
+est la fonction `boxplot`{data-package="graphics"}.
+
+<figure>
+```{r}
+boxplot(d$heures.tv, main = "Nombre d'heures passées devant la télé par jour", ylab = "Heures")
+```
+<figcaption>Exemple de boîte à moustaches</figcaption>
+</figure>
+
+Comment interpréter ce graphique ? On le comprendra mieux à partir de la figure ci-après^[Le code ayant 
+servi à générer cette figure est une copie quasi conforme de celui présenté dans l'excellent document
+de Jean Lobry sur les graphiques de base avec **R**, téléchargeable sur le site du Pôle bioinformatique
+lyonnais : <http://pbil.univ-lyon1.fr/R/pdf/lang04.pdf>.].
+
+<figure>
+```{r}
+boxplot(d$heures.tv, col = grey(0.8), main = "Nombre d'heures passées devant la télé par jour", ylab = "Heures")
+abline(h = median(d$heures.tv, na.rm = TRUE), col = "navy", lty = 2)
+text(1.35, median(d$heures.tv, na.rm = TRUE) + 0.15, "Médiane", col = "navy")
+Q1 <- quantile(d$heures.tv, probs = 0.25, na.rm = TRUE)
+abline(h = Q1, col = "darkred")
+text(1.35, Q1 + 0.15, "Q1 : premier quartile", col = "darkred", lty = 2)
+Q3 <- quantile(d$heures.tv, probs = 0.75, na.rm = TRUE)
+abline(h = Q3, col = "darkred")
+text(1.35, Q3 + 0.15, "Q3 : troisième quartile", col = "darkred", lty = 2)
+arrows(x0 = 0.7, y0 = quantile(d$heures.tv, probs = 0.75, na.rm = TRUE), x1 = 0.7, y1 = quantile(d$heures.tv, probs = 0.25, na.rm = TRUE), length = 0.1, code = 3)
+text(0.7, Q1 + (Q3 - Q1)/2 + 0.15, "h", pos = 2)
+mtext("L'écart inter-quartile h contient 50 % des individus", side = 1)
+abline(h = Q1 - 1.5 * (Q3 - Q1), col = "darkgreen")
+text(1.35, Q1 - 1.5 * (Q3 - Q1) + 0.15, "Q1 -1.5 h", col = "darkgreen", lty = 2)
+abline(h = Q3 + 1.5 * (Q3 - Q1), col = "darkgreen")
+text(1.35, Q3 + 1.5 * (Q3 - Q1) + 0.15, "Q3 +1.5 h", col = "darkgreen", lty = 2)
+```
+<figcaption>Interprétation d'une boîte à moustaches</figcaption>
+</figure>
+
+
+Le carré au centre du graphique est délimité par les premiers et troisième quartiles, avec la médiane
+représentée par une ligne plus sombre au milieu. Les « fourchettes » s'étendant de part et d'autres vont
+soit jusqu'à la valeur minimale ou maximale, soit jusqu'à une valeur approximativement égale au quartile
+le plus proche plus 1,5 fois l'écart inter-quartile. Les points se situant en-dehors de cette fourchette sont
+représentés par des petits ronds et sont généralement considérés comme des valeurs extrêmes, potentiellement
+aberrantes.
+
+On peut ajouter la représentation des valeurs sur le graphique pour en faciliter la lecture avec des
+petits traits dessinés sur l'axe vertical (fonction `rug`{data-package="graphics"}) :
+
+<figure>
+```{r}
+boxplot(d$heures.tv, main = "Nombre d'heures passées devant la télé par\njour", ylab = "Heures")
+rug(d$heures.tv, side = 2)
+```
+<figcaption>Boîte à moustaches avec représentation des valeurs</figcaption>
+</figure>
+
+#### Intervalle de confiance
+
+L'intervalle de confiance d'une moyenne peut être calculé avec la fonction `t.test`{data-package="stats"}
+(fonction qui permet également de réaliser un test *t* de Student comme nous le verrons dans le chapitre
+dédié à la [statistique bivariée](analyses_stat_biv.html#comp_moyennes)) :
+
+```{r}
+t.test(d$heures.tv)
+```
+
+Le niveau de confiance peut être précisé via l'argument `conf.level` :
+
+```{r}
+t.test(d$heures.tv, conf.level = 0.9)
+```
+
+Le nombre d'heures moyennes à regarder la télévision parmi les enquêtés s'avère être de 2,2 heures,
+avec un intervalle de confiance à 95 % de [2,17 - 2,33] et un intervalle de confiance à 90 % de 
+[2,18 - 2,31].
+
+### Variable qualitative
+
+#### Tris à plat
+
+La fonction la plus utilisée pour le traitement et l'analyse des variables qualitatives (variable prenant
+ses valeurs dans un ensemble de modalités) est sans aucun doute la fonction `table`{data-package="base"}, 
+qui donne les effectifs de chaque modalité de la variable.
+
+```{r}
+table(d$sexe)
+```
+
+La tableau précédent nous indique que parmi nos enquêtés on trouve 899 hommes et 1101 femmes.
+
+Quand le nombre de modalités est élevé, on peut ordonner le tri à plat selon les effectifs à l'aide de la
+fonction `sort`{data-package="base"}.
+
+```{r}
+table(d$occup)
+sort(table(d$occup))
+sort(table(d$occup), decreasing = TRUE)
+```
+
+À noter que la fonction `table`{data-package="base"} exclut par défaut les non-réponses du tableau 
+résultat. L'argument `useNA` de cette fonction permet de modifier ce comportement :
+
+* avec `useNA="no"` (valeur par défaut), les valeurs manquantes ne sont jamais incluses dans le tri à
+  plat ;
+* avec `useNA="ifany"`, une colonne `NA` est ajoutée si des valeurs manquantes sont présentes dans les
+  données ;
+* avec `useNA="always"`, une colonne `NA` est toujours ajoutée, même s'il n'y a pas de valeurs manquantes
+  dans les données.
+
+On peut donc utiliser :
+
+```{r}
+table(d$trav.satisf, useNA = "ifany")
+```
+
+L'utilisation de `summary`{data-package="base"} permet également l'affichage du tri à plat et du nombre 
+de non-réponses :
+
+```{r}
+summary(d$trav.satisf)
+```
+
+Pour obtenir un tableau avec la répartition en pourcentages, on peut utiliser la fonction 
+`freq`{data-package="questionr"} de l'extension <strong class="package">questionr</strong>^[En 
+l'absence de l'extension <strong class="package">questionr</strong>, on pourra se rabattre sur la 
+fonction `prop.table`{data-package="base"} avec la commande suivante :
+`prop.table(table(d$qualif))`.].
+
+```{r}
+freq(d$qualif)
+```
+
+La colonne `n` donne les effectifs bruts, la colonne `%` la répartition en pourcentages et
+`val%` la répartition en pourcentages, données manquantes exclues. La fonction
+accepte plusieurs paramètres permettant d'afficher les totaux, les pourcentages cumulés, de trier selon les
+effectifs ou de contrôler l'affichage. Par exemple :
+
+```{r}
+freq(d$qualif, cum = TRUE, total = TRUE, sort = "inc", digits = 2, exclude = NA)
+```
+
+La colonne `%cum` indique ici le pourcentage cumulé, ce qui est ici une très mauvaise idée puisque pour
+ce type de variable cela n'a aucun sens. Les lignes du tableau résultat ont été triés par effectifs croissants,
+les totaux ont été ajoutés, les non-réponses exclues et les pourcentages arrondis à deux décimales.
+
+Pour plus d'informations sur la fonction `freq`{data-package="questionr"}, consultez sa page d'aide en 
+ligne avec `?freq` ou `help("freq")`.
+
+#### Représentation graphique
+
+Pour représenter la répartition des effectifs parmi les modalités d'une variable qualitative, on a souvent
+tendance à utiliser des diagrammes en secteurs (camemberts). Ceci est possible sous **R** avec la fonction
+`pie`{data-package="graphics"}, mais la page d'aide de la dite fonction nous le déconseille assez vivement :
+les diagrammes en secteur sont en effet une mauvaise manière de présenter ce type d'information, 
+car l'oeil humain préfère comparer des longueurs plutôt que des surfaces^[On trouvera des exemples 
+illustrant cette idée dans le document de Jean Lobry cité précédemment.].
+
+On privilégiera donc d'autres formes de représentations, à savoir les diagrammes en bâtons et les
+*diagrammes de Cleveland*.
+
+Les diagrammes en bâtons sont utilisés automatiquement par **R** lorsqu'on applique la fonction générique
+`plot`{data-package="graphics" data-rdocumentation="plot.table"} à un tri à plat obtenu avec 
+`table`{data-package="base"}. On privilégiera cependant ce type de représentations
+pour les variables de type numérique comportant un nombre fini de valeurs. Le nombre de frères, soeurs,
+demi-frères et demi-soeurs est un bon exemple :
+
+<figure>
+```{r}
+plot(table(d$freres.soeurs), main = "Nombre de frères, soeurs, demi-frères et demi-soeurs", ylab = "Effectif")
+```
+<figcaption>Exemple de diagramme en bâtons</figcaption>
+</figure>
+
+Pour les autres types de variables qualitatives, on privilégiera les *diagrammes de Cleveland*, obtenus
+avec la fonction `dotchart`{data-package="graphics"}. On doit appliquer cette fonction au tri à plat de 
+la variable, obtenu avec `table`{data-package="base"}^[Pour des raisons liées au fonctionnement interne 
+de la fonction `dotchart`{data-package="graphics"}, on doit l'appliquer à la transposition du tri
+à plat obtenu, d'où l'appel à la fonction `t`{data-package="base"}.] :
+
+<figure>
+```{r}
+dotchart(t(table(d$clso)), main = "Sentiment d'appartenance à une classe sociale", pch = 19)
+```
+<figcaption>Exemple de diagramme de Cleveland</figcaption>
+</figure>
+
+Quand la variable comprend un grand nombre de modalités, il est préférable d'ordonner le tri à plat
+obtenu à l'aide de la fonction `sort`{data-package="base"} :
+
+<figure>
+```{r, warning=FALSE}
+dotchart(sort(table(d$qualif)), main = "Niveau de qualification")
+```
+<figcaption>Exemple de diagramme de Cleveland ordonné</figcaption>
+</figure>
+
+<div class="astuce">
+L'agument `pch`, qui est utilisé par la plupart des graphiques de type points, permet de spécifier le symbole
+à utiliser. Il peut prendre soit un nombre entier compris entre 0 et 25, soit un charactère textuel (voir
+ci-dessous).
+
+```{r, echo=FALSE}
+source("data/pchShow.R")
+pchShow(
+  c("*","+","a","x"), main = "Différentes valeurs possibles pour l'argument pch", 
+  symbolsize = 2.5, linewidth = 2, fillcolor = "palegreen3", symbolcolor = "palevioletred3"
+)
+```
+</div>
+
+#### Intervalle de confiance
+
+La fonction `prop.test`{data-package="stats"} permet de calculer l'intervalle de confiance d'une proportion.
+Une première possibilité consiste à lui transmettre une table à une dimension et deux entrées. 
+Par exemple, si l'on s'intéresse à la proportion de personnes ayant pratiqué une activité physique au cours 
+des douze derniers mois :
+
+freq(d$sport)
+prop.test(table(d$sport))
+
+On remarquera que la fonction a calculé l'intervalle de confiance correspondant à la première entrée
+du tableau, autrement dit celui de la proportion d'enquêtés n'ayant pas pratiqué une activité sportive.
+Or, nous sommes intéressé par la proportion complémentaire, à savoir celle d'enquêtés ayant pratiqué
+une activité sportive. On peut dès lors modifier l'ordre de la table en indiquant notre modalité d'intérêt
+avec la fonction `relevel`{data-package="stats"} ou bien indiquer à `prop.test`{data-package="stats"} 
+d'abord le nombre de succès puis l'effectif total :
+
+```{r}
+prop.test(table(relevel(d$sport, "Oui")))
+prop.test(sum(d$sport == "Oui"), length(d$sport))
+```
+
+Enfin, le niveau de confiance peut être modifié via l'argument `conf.level` :
+
+```{r}
+prop.test(table(relevel(d$sport, "Oui")), conf.level = 0.9)
+```
+
+<div class="info">
+Il existe de nombreuses manières de calculer un intervalle de confiance pour une proportion.
+En l'occurence, l'intervalle calculé par `prop.test`{data-package="base"} correspond dans le
+cas présent à un intervalle bilatéral selon la méthode des scores de Wilson avec correction de continuité.
+Pour plus d'information, on pourra lire <http://joseph.larmarange.net/?Intervalle-de-confiance-bilateral>.
+</div>
