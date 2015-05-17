@@ -1,0 +1,357 @@
+---
+title: "Statistique univariée"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+knitr::opts_chunk$set(fig.path = 'images/pem_stat_univ/')
+```
+
+<div class="note">
+Ce chapitre est inspiré de la section *Premier travail avec les données* du support de cours
+[Introduction à R](https://github.com/juba/intro-r) réalisé par Julien Barnier.
+</div>
+
+Faisant suite au chapitre [Premier travail avec les données](pem_premier_travail.html), 
+nous reprendrons dans ce chapitre les données de l'enquête *Histoire de vie 2003*
+fournies avec l'extension <strong class="package">questionr</strong>.
+
+```{r}
+library(questionr)
+data("hdv2003")
+d <- hdv2003
+str(d)
+```
+
+
+## Variable quantitative
+
+### Principaux indicateurs
+
+Comme la fonction `str`{data-package="utils"} nous l'a indiqué, notre tableau `d` contient 
+plusieurs valeurs numériques, dont la variable *heures.tv* qui représente le nombre moyen passé par 
+les enquêtés à regarder la télévision quotidiennement. On peut essayer de déterminer quelques 
+caractéristiques de cette variable, en utilisant les fonctions `mean`{data-package="base"},
+`sd`{data-package="stats"}, `min`{data-package="base" data-rdocumentation="Extremes"},
+`max`{data-package="base" data-rdocumentation="Extremes"} et `range`{data-package="base"} :
+
+```{r}
+mean(d$heures.tv)
+mean(d$heures.tv, na.rm = TRUE)
+sd(d$heures.tv, na.rm = TRUE)
+min(d$heures.tv, na.rm = TRUE)
+max(d$heures.tv, na.rm = TRUE)
+range(d$heures.tv, na.rm = TRUE)
+```
+
+On peut lui ajouter la fonction `median`{data-package="stats"} qui donne la valeur médiane,
+`quantile`{data-package="stats"} qui calcule plus généralement tout type de quantiles, et le très 
+utile `summary`{data-package="base"} qui donne toutes ces informations ou presque en une seule fois, 
+avec en prime le nombre de valeurs manquantes (`NA`) :
+
+```{r}
+median(d$heures.tv, na.rm = TRUE)
+quantile(d$heures.tv, na.rm = TRUE)
+summary(d$heures.tv)
+```
+
+La fonction `summary`{data-package="base"} est une fonction générique qui peut être utilisée sur tout
+type d'objet, y compris un tableau de données. Essayez donc `summary(d)`.
+
+### Histogramme
+
+Tout cela est bien pratique, mais pour pouvoir observer la distribution des valeurs d'une variable
+quantitative, il n'y a quand même rien de mieux qu'un bon graphique.
+
+On peut commencer par un histogramme de la répartition des valeurs. Celui-ci peut être généré très
+facilement avec la fonction `hist`{data-package="graphics"} :
+
+<figure>
+```{r}
+hist(d$heures.tv, main = "Nombre d'heures passées devant la télé par jour", xlab = "Heures", ylab = "Effectif")
+```
+<figcaption>Exemple d'histogramme</figcaption>
+</figure>
+
+Sous **RStudio**, les graphiques s'affichent dans l'onglet *Plots* du quadrant inférieur droit. Il est
+possible d'afficher une version plus grande de votre graphique en cliquant sur *Zoom*.
+
+Ici, les options `main`, `xlab` et `ylab` permettent de personnaliser le titre du graphique, ainsi que les
+étiquettes des axes. De nombreuses autres options existent pour personnaliser l'histogramme, parmi celles-ci
+on notera :
+
+* `probability` si elle vaut `TRUE`, l'histogramme indique la proportion des classes de valeurs au lieu des
+  effectifs.
+* `breaks` permet de contrôler les classes de valeurs. On peut lui passer un chiffre, qui indiquera alors le
+  nombre de classes, un vecteur, qui indique alors les limites des différentes classes, ou encore une
+  chaîne de caractère ou une fonction indiquant comment les classes doivent être calculées.
+* `col` la couleur de l'histogramme^[Il existe un grand nombre de couleurs prédéfinies dans **R**. 
+  On peut récupérer leur liste en utilisant la fonction `colors`{data-package="grDevices"}
+  en tapant simplement `colors()` dans la console, ou en consultant le document suivant :
+  <http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf>.].
+
+Voir la page d'aide de la fonction `hist`{data-package="graphics"} pour plus de détails sur les 
+différentes options. Les deux figures ci-après sont deux autres exemples d'histogramme.
+
+<figure>
+```{r}
+hist(d$heures.tv, main = "Heures de télé en 7 classes", breaks = 7, xlab = "Heures", ylab = "Proportion", probability = TRUE, col = "orange")
+```
+<figcaption>Un autre exemple d'histogramme</figcaption>
+</figure>
+
+<figure>
+```{r}
+hist(d$heures.tv, main = "Heures de télé avec classes spécifiées", breaks = c(0, 1, 4, 9, 12), xlab = "Heures", ylab = "Proportion", col = "red")
+```
+<figcaption>Encore un autre exemple d'histogramme</figcaption>
+</figure>
+
+### Boîtes à moustaches
+
+Les boîtes à moustaches, ou *boxplot* en anglais, sont une autre représentation graphique de la répartition
+des valeurs d'une variable quantitative. Elles sont particulièrement utiles pour comparer les
+distributions de plusieurs variables ou d'une même variable entre différents groupes, mais peuvent aussi
+être utilisées pour représenter la dispersion d'une unique variable. La fonction qui produit ces graphiques
+est la fonction `boxplot`{data-package="graphics"}.
+
+<figure>
+```{r}
+boxplot(d$heures.tv, main = "Nombre d'heures passées devant la télé par jour", ylab = "Heures")
+```
+<figcaption>Exemple de boîte à moustaches</figcaption>
+</figure>
+
+Comment interpréter ce graphique ? On le comprendra mieux à partir de la figure ci-après^[Le code ayant 
+servi à générer cette figure est une copie quasi conforme de celui présenté dans l'excellent document
+de Jean Lobry sur les graphiques de base avec **R**, téléchargeable sur le site du Pôle bioinformatique
+lyonnais : <http://pbil.univ-lyon1.fr/R/pdf/lang04.pdf>.].
+
+<figure>
+```{r}
+boxplot(d$heures.tv, col = grey(0.8), main = "Nombre d'heures passées devant la télé par jour", ylab = "Heures")
+abline(h = median(d$heures.tv, na.rm = TRUE), col = "navy", lty = 2)
+text(1.35, median(d$heures.tv, na.rm = TRUE) + 0.15, "Médiane", col = "navy")
+Q1 <- quantile(d$heures.tv, probs = 0.25, na.rm = TRUE)
+abline(h = Q1, col = "darkred")
+text(1.35, Q1 + 0.15, "Q1 : premier quartile", col = "darkred", lty = 2)
+Q3 <- quantile(d$heures.tv, probs = 0.75, na.rm = TRUE)
+abline(h = Q3, col = "darkred")
+text(1.35, Q3 + 0.15, "Q3 : troisième quartile", col = "darkred", lty = 2)
+arrows(x0 = 0.7, y0 = quantile(d$heures.tv, probs = 0.75, na.rm = TRUE), x1 = 0.7, y1 = quantile(d$heures.tv, probs = 0.25, na.rm = TRUE), length = 0.1, code = 3)
+text(0.7, Q1 + (Q3 - Q1)/2 + 0.15, "h", pos = 2)
+mtext("L'écart inter-quartile h contient 50 % des individus", side = 1)
+abline(h = Q1 - 1.5 * (Q3 - Q1), col = "darkgreen")
+text(1.35, Q1 - 1.5 * (Q3 - Q1) + 0.15, "Q1 -1.5 h", col = "darkgreen", lty = 2)
+abline(h = Q3 + 1.5 * (Q3 - Q1), col = "darkgreen")
+text(1.35, Q3 + 1.5 * (Q3 - Q1) + 0.15, "Q3 +1.5 h", col = "darkgreen", lty = 2)
+```
+<figcaption>Interprétation d'une boîte à moustaches</figcaption>
+</figure>
+
+Le carré au centre du graphique est délimité par les premiers et troisième quartiles, avec la médiane
+représentée par une ligne plus sombre au milieu. Les « fourchettes » s'étendant de part et d'autres vont
+soit jusqu'à la valeur minimale ou maximale, soit jusqu'à une valeur approximativement égale au quartile
+le plus proche plus 1,5 fois l'écart inter-quartile. Les points se situant en-dehors de cette fourchette sont
+représentés par des petits ronds et sont généralement considérés comme des valeurs extrêmes, potentiellement
+aberrantes.
+
+On peut ajouter la représentation des valeurs sur le graphique pour en faciliter la lecture avec des
+petits traits dessinés sur l'axe vertical (fonction `rug`{data-package="graphics"}) :
+
+<figure>
+```{r}
+boxplot(d$heures.tv, main = "Nombre d'heures passées devant la télé par\njour", ylab = "Heures")
+rug(d$heures.tv, side = 2)
+```
+<figcaption>Boîte à moustaches avec représentation des valeurs</figcaption>
+</figure>
+
+### Intervalle de confiance
+
+L'intervalle de confiance d'une moyenne peut être calculé avec la fonction `t.test`{data-package="stats"}
+(fonction qui permet également de réaliser un test *t* de Student comme nous le verrons dans le chapitre
+dédié à la [statistique bivariée](analyses_stat_biv.html#comp_moyennes)) :
+
+```{r}
+t.test(d$heures.tv)
+```
+
+Le niveau de confiance peut être précisé via l'argument `conf.level` :
+
+```{r}
+t.test(d$heures.tv, conf.level = 0.9)
+```
+
+Le nombre d'heures moyennes à regarder la télévision parmi les enquêtés s'avère être de 2,2 heures,
+avec un intervalle de confiance à 95 % de [2,17 - 2,33] et un intervalle de confiance à 90 % de 
+[2,18 - 2,31].
+
+## Variable qualitative
+
+### Tris à plat
+
+La fonction la plus utilisée pour le traitement et l'analyse des variables qualitatives (variable prenant
+ses valeurs dans un ensemble de modalités) est sans aucun doute la fonction `table`{data-package="base"}, 
+qui donne les effectifs de chaque modalité de la variable.
+
+```{r}
+table(d$sexe)
+```
+
+La tableau précédent nous indique que parmi nos enquêtés on trouve 899 hommes et 1101 femmes.
+
+Quand le nombre de modalités est élevé, on peut ordonner le tri à plat selon les effectifs à l'aide de la
+fonction `sort`{data-package="base"}.
+
+```{r}
+table(d$occup)
+sort(table(d$occup))
+sort(table(d$occup), decreasing = TRUE)
+```
+
+À noter que la fonction `table`{data-package="base"} exclut par défaut les non-réponses du tableau 
+résultat. L'argument `useNA` de cette fonction permet de modifier ce comportement :
+
+* avec `useNA="no"` (valeur par défaut), les valeurs manquantes ne sont jamais incluses dans le tri à
+  plat ;
+* avec `useNA="ifany"`, une colonne `NA` est ajoutée si des valeurs manquantes sont présentes dans les
+  données ;
+* avec `useNA="always"`, une colonne `NA` est toujours ajoutée, même s'il n'y a pas de valeurs manquantes
+  dans les données.
+
+On peut donc utiliser :
+
+```{r}
+table(d$trav.satisf, useNA = "ifany")
+```
+
+L'utilisation de `summary`{data-package="base"} permet également l'affichage du tri à plat et du nombre 
+de non-réponses :
+
+```{r}
+summary(d$trav.satisf)
+```
+
+Pour obtenir un tableau avec la répartition en pourcentages, on peut utiliser la fonction 
+`freq`{data-package="questionr"} de l'extension <strong class="package">questionr</strong>^[En 
+l'absence de l'extension <strong class="package">questionr</strong>, on pourra se rabattre sur la 
+fonction `prop.table`{data-package="base"} avec la commande suivante :
+`prop.table(table(d$qualif))`.].
+
+```{r}
+freq(d$qualif)
+```
+
+La colonne `n` donne les effectifs bruts, la colonne `%` la répartition en pourcentages et
+`val%` la répartition en pourcentages, données manquantes exclues. La fonction
+accepte plusieurs paramètres permettant d'afficher les totaux, les pourcentages cumulés, de trier selon les
+effectifs ou de contrôler l'affichage. Par exemple :
+
+```{r}
+freq(d$qualif, cum = TRUE, total = TRUE, sort = "inc", digits = 2, exclude = NA)
+```
+
+La colonne `%cum` indique ici le pourcentage cumulé, ce qui est ici une très mauvaise idée puisque pour
+ce type de variable cela n'a aucun sens. Les lignes du tableau résultat ont été triés par effectifs croissants,
+les totaux ont été ajoutés, les non-réponses exclues et les pourcentages arrondis à deux décimales.
+
+Pour plus d'informations sur la fonction `freq`{data-package="questionr"}, consultez sa page d'aide en 
+ligne avec `?freq` ou `help("freq")`.
+
+### Représentation graphique
+
+Pour représenter la répartition des effectifs parmi les modalités d'une variable qualitative, on a souvent
+tendance à utiliser des diagrammes en secteurs (camemberts). Ceci est possible sous **R** avec la fonction
+`pie`{data-package="graphics"}, mais la page d'aide de la dite fonction nous le déconseille assez vivement :
+les diagrammes en secteur sont en effet une mauvaise manière de présenter ce type d'information, 
+car l'oeil humain préfère comparer des longueurs plutôt que des surfaces^[On trouvera des exemples 
+illustrant cette idée dans le document de Jean Lobry cité précédemment.].
+
+On privilégiera donc d'autres formes de représentations, à savoir les diagrammes en bâtons et les
+*diagrammes de Cleveland*.
+
+Les diagrammes en bâtons sont utilisés automatiquement par **R** lorsqu'on applique la fonction générique
+`plot`{data-package="graphics" data-rdocumentation="plot.table"} à un tri à plat obtenu avec 
+`table`{data-package="base"}. On privilégiera cependant ce type de représentations
+pour les variables de type numérique comportant un nombre fini de valeurs. Le nombre de frères, soeurs,
+demi-frères et demi-soeurs est un bon exemple :
+
+<figure>
+```{r}
+plot(table(d$freres.soeurs), main = "Nombre de frères, soeurs, demi-frères et demi-soeurs", ylab = "Effectif")
+```
+<figcaption>Exemple de diagramme en bâtons</figcaption>
+</figure>
+
+Pour les autres types de variables qualitatives, on privilégiera les *diagrammes de Cleveland*, obtenus
+avec la fonction `dotchart`{data-package="graphics"}. On doit appliquer cette fonction au tri à plat de 
+la variable, obtenu avec `table`{data-package="base"}^[Pour des raisons liées au fonctionnement interne 
+de la fonction `dotchart`{data-package="graphics"}, on doit l'appliquer à la transposition du tri
+à plat obtenu, d'où l'appel à la fonction `t`{data-package="base"}.] :
+
+<figure>
+```{r}
+dotchart(t(table(d$clso)), main = "Sentiment d'appartenance à une classe sociale", pch = 19)
+```
+<figcaption>Exemple de diagramme de Cleveland</figcaption>
+</figure>
+
+Quand la variable comprend un grand nombre de modalités, il est préférable d'ordonner le tri à plat
+obtenu à l'aide de la fonction `sort`{data-package="base"} :
+
+<figure>
+```{r, warning=FALSE}
+dotchart(sort(table(d$qualif)), main = "Niveau de qualification")
+```
+<figcaption>Exemple de diagramme de Cleveland ordonné</figcaption>
+</figure>
+
+<div class="astuce">
+L'agument `pch`, qui est utilisé par la plupart des graphiques de type points, permet de spécifier le symbole
+à utiliser. Il peut prendre soit un nombre entier compris entre 0 et 25, soit un charactère textuel (voir
+ci-dessous).
+
+```{r, echo=FALSE}
+source("data/pchShow.R")
+pchShow(
+  c("*","+","a","x"), main = "Différentes valeurs possibles pour l'argument pch", 
+  symbolsize = 2.5, linewidth = 2, fillcolor = "palegreen3", symbolcolor = "palevioletred3"
+)
+```
+</div>
+
+### Intervalle de confiance
+
+La fonction `prop.test`{data-package="stats"} permet de calculer l'intervalle de confiance d'une proportion.
+Une première possibilité consiste à lui transmettre une table à une dimension et deux entrées. 
+Par exemple, si l'on s'intéresse à la proportion de personnes ayant pratiqué une activité physique au cours 
+des douze derniers mois :
+
+freq(d$sport)
+prop.test(table(d$sport))
+
+On remarquera que la fonction a calculé l'intervalle de confiance correspondant à la première entrée
+du tableau, autrement dit celui de la proportion d'enquêtés n'ayant pas pratiqué une activité sportive.
+Or, nous sommes intéressé par la proportion complémentaire, à savoir celle d'enquêtés ayant pratiqué
+une activité sportive. On peut dès lors modifier l'ordre de la table en indiquant notre modalité d'intérêt
+avec la fonction `relevel`{data-package="stats"} ou bien indiquer à `prop.test`{data-package="stats"} 
+d'abord le nombre de succès puis l'effectif total :
+
+```{r}
+prop.test(table(relevel(d$sport, "Oui")))
+prop.test(sum(d$sport == "Oui"), length(d$sport))
+```
+
+Enfin, le niveau de confiance peut être modifié via l'argument `conf.level` :
+
+```{r}
+prop.test(table(relevel(d$sport, "Oui")), conf.level = 0.9)
+```
+
+<div class="info">
+Il existe de nombreuses manières de calculer un intervalle de confiance pour une proportion.
+En l'occurence, l'intervalle calculé par `prop.test`{data-package="stats"} correspond dans le
+cas présent à un intervalle bilatéral selon la méthode des scores de Wilson avec correction de continuité.
+Pour plus d'information, on pourra lire <http://joseph.larmarange.net/?Intervalle-de-confiance-bilateral>.
+</div>
