@@ -88,6 +88,10 @@ img {
         <li class="dropdown">
           <a href="pem" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Prise en main <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
+            <li><a href="pem_presentation_installation.html">Présentation et Installation</a></li>
+            <li><a href="pem_premier_contact.html">Premier contact</a></li>
+            <li><a href="pem_premier_travail.html">Premier travail avec des données et statistique univariée</a></li>
+            <li><a href="pem_import_export.html">Import / Export de données</a></li>
             <li><a href="pem_manipulation.html">Manipulation de données</a></li>
           </ul>
         </li>
@@ -137,11 +141,15 @@ img {
 <div id="TOC">
 <ul>
 <li><a href="#deux-variables-quantitatives">Deux variables quantitatives</a></li>
-<li><a href="#une-variable-quantitative-et-une-variable-qualitative">Une variable quantitative et une variable qualitative</a></li>
+<li><a href="#une-variable-quantitative-et-une-variable-qualitative">Une variable quantitative et une variable qualitative</a><ul>
+<li><a href="#representations-graphiques">Représentations graphiques</a></li>
+<li><a href="#comp_moyennes">Comparaison de moyennes</a></li>
+</ul></li>
 <li><a href="#deux-variables-qualitatives">Deux variables qualitatives</a><ul>
 <li><a href="#tableau-croise">Tableau croisé</a></li>
 <li><a href="#-et-derives">χ² et dérivés</a></li>
 <li><a href="#representation-graphique">Représentation graphique</a></li>
+<li><a href="#comparaison-de-proportions">Comparaison de proportions</a></li>
 </ul></li>
 </ul>
 </div>
@@ -149,7 +157,8 @@ img {
 <div class="note">
 La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre du support de cours <a href="https://github.com/juba/intro-r">Introduction à R</a>.
 </div>
-<p>On entend par statistique bivariée l’étude des relations entre deux variables, celles-ci pouvant être quantitatives ou qualitatives.</p>
+<p>On entend par <em>statistique bivariée</em> l’étude des relations entre deux variables, celles-ci pouvant être quantitatives ou qualitatives.</p>
+<p>La <em>statistique univariée</em> a quant à elle déjà été abordée dans le chapitre <a href="pem_premier_travail.html#stat_univ">Premier travail avec les données</a>.</p>
 <p>Comme dans la partie précédente, on travaillera sur les jeux de données fournis avec l’extension <strong class="package">questionr</strong> et tiré de l’enquête <em>Histoire de vie</em> et du recensement 1999 :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
 <span class="kw">data</span>(hdv2003)
@@ -246,6 +255,8 @@ Pour un aperçu de la syntaxe des formules sous <strong>R</strong>, voir <a href
 </div>
 <div id="une-variable-quantitative-et-une-variable-qualitative" class="section level2">
 <h2>Une variable quantitative et une variable qualitative</h2>
+<div id="representations-graphiques" class="section level3">
+<h3>Représentations graphiques</h3>
 <p>Quand on parle de comparaison entre une variable quantitative et une variable qualitative, on veut en général savoir si la distribution des valeurs de la variable quantitative est la même selon les modalités de la variable qualitative. En clair : est ce que l’âge de ceux qui écoutent du hard rock est différent de l’âge de ceux qui n’en écoutent pas ?</p>
 <p>Là encore, l’idéal est de commencer par une représentation graphique. Les boîtes à moustaches sont parfaitement adaptées pour cela.</p>
 <p>Si on a construit des sous-populations d’individus écoutant ou non du hard rock, on peut utiliser la fonction <code data-package="graphics">boxplot</code>.</p>
@@ -266,7 +277,11 @@ Boxplot de la répartition des âges (sous-populations)
 Boxplot de la répartition des âges (formule)
 </figcaption>
 </figure>
-<p>À première vue, ô surprise, la population écoutant du hard rock a l’air sensiblement plus jeune. Peu-ton le tester mathématiquement ? On peut calculer la moyenne d’âge des deux groupes en utilisant la fonction <code data-package="base">tapply</code><a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> :</p>
+<p>À première vue, ô surprise, la population écoutant du hard rock a l’air sensiblement plus jeune. Peut-on le tester mathématiquement ?</p>
+</div>
+<div id="comp_moyennes" class="section level3">
+<h3>Comparaison de moyennes</h3>
+<p>On peut calculer la moyenne d’âge des deux groupes en utilisant la fonction <code data-package="base">tapply</code><a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">tapply</span>(d$age, d$hard.rock, mean)</code></pre>
 <pre><code>     Non      Oui 
 48.30211 27.57143 </code></pre>
@@ -310,13 +325,13 @@ La fonction <code data-package="graphics">par</code> permet de modifier de nombr
     Shapiro-Wilk normality test
 
 data:  d$age[d$hard.rock == &quot;Oui&quot;]
-W = 0.8693, p-value = 0.04104</code></pre>
+W = 0.86931, p-value = 0.04104</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">shapiro.test</span>(d$age[d$hard.rock ==<span class="st"> &quot;Non&quot;</span>])</code></pre>
 <pre><code>
     Shapiro-Wilk normality test
 
 data:  d$age[d$hard.rock == &quot;Non&quot;]
-W = 0.9814, p-value = 2.079e-15</code></pre>
+W = 0.98141, p-value = 2.079e-15</code></pre>
 <p>Visiblement, le test estime que les distributions ne sont pas suffisamment proches de la normalité dans les deux cas.</p>
 <p>Et concernant l’égalité des variances ?</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">tapply</span>(d$age, d$hard.rock, var)</code></pre>
@@ -347,6 +362,7 @@ data:  d$age by d$hard.rock
 W = 23980, p-value = 2.856e-06
 alternative hypothesis: true location shift is not equal to 0</code></pre>
 <p>Ouf ! La différence est hautement significative<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>. Nous allons donc pouvoir entamer la rédaction de notre article pour la <em>Revue française de sociologie</em>.</p>
+</div>
 </div>
 <div id="deux-variables-qualitatives" class="section level2">
 <h2>Deux variables qualitatives</h2>
@@ -462,7 +478,7 @@ ctab</code></pre>
     Pearson&#39;s Chi-squared test
 
 data:  tab
-X-squared = 96.7983, df = 4, p-value &lt;
+X-squared = 96.798, df = 4, p-value &lt;
 2.2e-16</code></pre>
 <p>Le test est hautement significatif, on ne peut pas considérer qu’il y a indépendance entre les lignes et les colonnes du tableau.</p>
 <p>On peut affiner l’interprétation du test en déterminant dans quelle case l’écart à l’indépendance est le plus significatif en utilisant les <em>résidus</em> du test. Ceux-ci sont notamment affichables avec la fonction <code data-package="questionr">chisq.residuals</code> de <strong class="package">questionr</strong> :</p>
@@ -517,6 +533,31 @@ Exemple de graphe en mosaïque
 Exemple de barres cumulées
 </figcaption>
 </figure>
+</div>
+<div id="comparaison-de-proportions" class="section level3">
+<h3>Comparaison de proportions</h3>
+<p>La fonction <code data-package="stats">prop.test</code>, que nous avons déjà rencontrer pour calculer l’interface de confiance d’une proportion (MAJ_LIEN) permets également de comparer deux proportions.</p>
+<p>Supposons que l’on souhaite comparer la proportion de personnes faisant du sport entre ceux qui lisent des bandes dessinées et les autres :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">lprop</span>(<span class="kw">table</span>(d$lecture.bd, d$sport))</code></pre>
+<pre><code>          
+           Non   Oui   Total
+  Non       64.2  35.8 100.0
+  Oui       48.9  51.1 100.0
+  Ensemble  63.8  36.1 100.0</code></pre>
+<p>Il suffit de transmettre notre tableau croisé (à 2×2 dimensions) à <code data-package="stats">prop.test</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.test</span>(<span class="kw">table</span>(d$lecture.bd, d$sport))</code></pre>
+<pre><code>
+    2-sample test for equality of proportions
+    with continuity correction
+
+data:  table(d$lecture.bd, d$sport)
+X-squared = 4, df = 1, p-value = 0.0455
+alternative hypothesis: two.sided
+95 percent confidence interval:
+ -0.002652453  0.308107236
+sample estimates:
+   prop 1    prop 2 
+0.6420891 0.4893617 </code></pre>
 </div>
 </div>
 <div class="footnotes">

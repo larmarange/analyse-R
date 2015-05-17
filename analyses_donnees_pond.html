@@ -88,6 +88,10 @@ img {
         <li class="dropdown">
           <a href="pem" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Prise en main <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
+            <li><a href="pem_presentation_installation.html">Présentation et Installation</a></li>
+            <li><a href="pem_premier_contact.html">Premier contact</a></li>
+            <li><a href="pem_premier_travail.html">Premier travail avec des données et statistique univariée</a></li>
+            <li><a href="pem_import_export.html">Import / Export de données</a></li>
             <li><a href="pem_manipulation.html">Manipulation de données</a></li>
           </ul>
         </li>
@@ -205,6 +209,7 @@ dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="
 <li><code data-package="survey">svytable</code> : tableaux croisés</li>
 <li><code data-pacakge="survey" data-rdocumentation="svytable">svychisq</code> : test du χ²</li>
 <li><code data-package="survey">svyby</code> : statistiques selon un facteur</li>
+<li><code data-package="survey">svyttest</code> : test <em>t</em> de comparaison de moyennes</li>
 <li><code data-pacakge="survey">svyglm</code> : modèles linéaires généralisés (dont régression logistique)</li>
 <li><code data-package="survey">svyplot</code>, <code data-package="survey">svyhist</code>, <code data-package="survey" data-rdocumentation="svyhist">svyboxplot</code> : fonctions graphiques</li>
 </ul>
@@ -233,6 +238,17 @@ upper)   32  47   62</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyvar</span>(~heures.tv, dw, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre>
 <pre><code>          variance     SE
 heures.tv   2.9886 0.1836</code></pre>
+<p>Pour comparer deux moyennes à l’aide d’un test <em>t</em> on aura recours à <code data-package="survey">svyttest</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyttest</span>(age ~<span class="st"> </span>sexe, dw)</code></pre>
+<pre><code>
+    Design-based t-test
+
+data:  age ~ sexe
+t = 2.0404, df = 1998, p-value = 0.04144
+alternative hypothesis: true difference in mean is not equal to 0
+sample estimates:
+difference in mean 
+          2.141129 </code></pre>
 <p>Les tris à plat se déclarent en passant comme argument le nom de la variable précédé d’un tilde (<code></code>), tandis que les tableaux croisés utilisent les noms des deux variables séparés par un signe plus (<code>+</code>) et précédés par un tilde (<code></code>).</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svytable</span>(~sexe, dw)</code></pre>
 <pre><code>sexe
@@ -273,13 +289,17 @@ Total 11071226 100.0 100.0</code></pre>
     Pearson&#39;s X^2: Rao &amp; Scott adjustment
 
 data:  svychisq(~sexe + clso, dw)
-F = 3.3331, ndf = 1.973, ddf = 3944.902,
+F = 3.3331, ndf = 1.9734, ddf = 3944.9000,
 p-value = 0.03641</code></pre>
 <p>Le principe de la fonction <code data-pacakge="survey">svyby</code> est similaire à celui de <code data-package="base">tapply</code><a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a>. Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur. Par exemple :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyby</span>(~age, ~sexe, dw, svymean)</code></pre>
 <pre><code>       sexe      age        se
 Homme Homme 45.20200 0.7419450
 Femme Femme 47.34313 0.7420836</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">confint</span>(<span class="kw">svyby</span>(~age, ~sexe, dw, svymean))  <span class="co"># Intervalles de confiance</span></code></pre>
+<pre><code>         2.5 %   97.5 %
+Homme 43.74781 46.65618
+Femme 45.88867 48.79758</code></pre>
 <p><strong class="package">survey</strong> est également capable de produire des graphiques à partir des données pondérées. Quelques exemples :</p>
 <figure>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))
@@ -288,7 +308,7 @@ Femme Femme 47.34313 0.7420836</code></pre>
 <span class="kw">svyboxplot</span>(age ~<span class="st"> </span><span class="dv">1</span>, dw, <span class="dt">main =</span> <span class="st">&quot;Boxplot simple&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Âge&quot;</span>)
 <span class="kw">svyboxplot</span>(age ~<span class="st"> </span>sexe, dw, <span class="dt">main =</span> <span class="st">&quot;Boxplot double&quot;</span>, 
   <span class="dt">ylab =</span> <span class="st">&quot;Âge&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Sexe&quot;</span>)</code></pre>
-<img src="images/analyses_donnees_pond/unnamed-chunk-12-1.png" title="" alt="" width="1050" />
+<img src="images/analyses_donnees_pond/unnamed-chunk-13-1.png" title="" alt="" width="1050" />
 <figcaption>
 Fonctions graphiques de l’extension survey
 </figcaption>

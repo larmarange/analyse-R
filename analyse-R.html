@@ -66,6 +66,26 @@ pre:not([class]) {
 /* Print CSS */
 @media print {
   math {margin: 11px auto;}
+
+  @page {
+		size: A4;
+ 		@bottom {content: "\2013\0000a0\0000a0\0000a0\0000a0" counter(page) "\0000a0\0000a0\0000a0\0000a0\2013"; font-size: 9pt;}
+   	@top {content: string(titre_chap); font-style: italic; font-size: 9pt;}
+		@footnotes {
+			border-top: solid black thin;
+			padding-top: 8pt;
+    }
+	}
+	@page:first {
+  	@top{content: "";}
+  }
+	article{page-break-before: right;}
+	h1 {string-set: titre_chap content();}
+	h1, h2, h3, h4, heading, caption {page-break-after: avoid;}
+	figcaption {page-break-before: avoid;}
+	figure, table, pre {page-break-inside: avoid;}
+	div.note, div.info, div.astuce, div.important, div.attention {page-break-inside: avoid;}
+
 }
 
 </style>
@@ -83,14 +103,16 @@ pre:not([class]) {
 Introduction<br/>à l’analyse d’enquêtes<br/> avec R et RStudio
 </h1>
 <p>
-Dernière mise à jour : 12 mai 2015
+Dernière mise à jour : 17 mai 2015
 </p>
 </div>
 <p>Ce projet de site web est basé sur le support de cours <a href="https://github.com/larmarange/intro-r/tree/CoursM2">Introduction à l’analyse d’enquêtes avec R</a> de Joseph Larmarange, qui est lui-même une adaptation de l’<a href="https://github.com/juba/intro-r">Introduction à R</a> de Julien Barnier.</p>
 <div id="contributeurs" class="section level2">
 <h2>Contributeurs</h2>
-<p>Par ordre alphabétique :</p>
+<p><strong>Par ordre alphabétique :</strong></p>
 <p>Julien Barnier, Julien Biaudet, Milan Bouchet-Valat, Frédérique Giraud, Joël Gombin, Mayeul Kauffmann, Joseph Larmarange, Nicolas Robette.</p>
+<p><strong>Maintenance :</strong></p>
+<p>Joseph Larmarange — <a href="http://joseph.larmarange.net" class="uri">http://joseph.larmarange.net</a></p>
 </div>
 <div id="tdm" class="section level2">
 <h2>Table des matières</h2>
@@ -100,7 +122,7 @@ Dernière mise à jour : 12 mai 2015
 <strong>Prise en main</strong>
 </p>
 <div class="list-group">
-<a href="#pem_manipulation" class="list-group-item">Manipulation de données</a>
+<a href="#pem_presentation_installation" class="list-group-item">Présentation et Installation</a> <a href="#pem_premier_contact" class="list-group-item">Premier contact</a> <a href="#pem_premier_travail" class="list-group-item">Premier travail avec des données et statistique univariée</a> <a href="#pem_import_export" class="list-group-item">Import / Export de données</a> <a href="#pem_manipulation" class="list-group-item">Manipulation de données</a>
 </div>
 </div>
 <div class="col-md-4">
@@ -126,6 +148,1105 @@ Dernière mise à jour : 12 mai 2015
 <p>Le contenu de ce site est diffusé sous licence <em>Creative Commons Attribution - Pas dutilisation commerciale - Partage dans les mêmes conditions</em> (<a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/" class="uri">https://creativecommons.org/licenses/by-nc-sa/3.0/fr/</a>).</p>
 <p><img src="images\by-nc-sa.png" alt="CC by-nc-sa"/></p>
 </div>
+
+</article>
+<article id="pem_presentation_installation">
+
+<div id="pem_presentation_installation_header">
+<h1 class="title">Présentation et Installation</h1>
+</div>
+
+<div class="TOC">
+<ul>
+<li><a href="#pem_presentation_installation_presentation-de-r">Présentation de R</a></li>
+<li><a href="#pem_presentation_installation_philosophie-de-r">Philosophie de R</a></li>
+<li><a href="#pem_presentation_installation_presentation-de-rstudio">Présentation de RStudio</a></li>
+<li><a href="#pem_presentation_installation_installation">Installation</a><ul>
+<li><a href="#pem_presentation_installation_installation-de-r">Installation de R</a></li>
+<li><a href="#pem_presentation_installation_installation-de-rstudio">Installation de RStudio</a></li>
+</ul></li>
+<li><a href="#pem_presentation_installation_installer_extensions">Installer des extensions</a><ul>
+<li><a href="#pem_presentation_installation_presentation">Présentation</a></li>
+<li><a href="#pem_presentation_installation_installation-depuis-cran">Installation depuis CRAN</a></li>
+<li><a href="#pem_presentation_installation_installation-depuis-github">Installation depuis GitHub</a></li>
+</ul></li>
+<li><a href="#pem_presentation_installation_mise-a-jour-de-r-sous-windows">Mise à jour de R sous Windows</a></li>
+</ul>
+</div>
+
+<div id="pem_presentation_installation_presentation-de-r" class="section level2">
+<h2>Présentation de R</h2>
+<p><strong>R</strong> est un langage orienté vers le traitement de données et l’analyse statistique dérivé du langage <strong>S</strong>. Il est développé depuis une vingtaine d’années par un groupe de volontaires de différents pays. C’est un logiciel libre<a href="#pem_presentation_installation_fn1" class="footnoteRef" id="pem_presentation_installation_fnref1"><sup>1</sup></a>, publié sous licence GNU GPL.</p>
+<p>L’utilisation de <strong>R</strong> présente plusieurs avantages :</p>
+<ul>
+<li>c’est un logiciel multiplateforme, qui fonctionne aussi bien sur des sytèmes <strong>Linux</strong>, <strong>Mac OS X</strong> ou <strong>Windows</strong> ;</li>
+<li>c’est un logiciel libre, développé par ses utilisateurs et modifiable par tout un chacun ;</li>
+<li>c’est un logiciel gratuit ;</li>
+<li>c’est un logiciel très puissant, dont les fonctionnalités de base peuvent être étendues à l’aide de plusieurs milliers d’extensions<a href="#pem_presentation_installation_fn2" class="footnoteRef" id="pem_presentation_installation_fnref2"><sup>2</sup></a> ;</li>
+<li>c’est un logiciel dont le développement est très actif et dont la communauté d’utilisateurs ne cesse de s’élargir ;</li>
+<li>les possibilités de manipulation de données sous <strong>R</strong> sont en général largement supérieures à celles des autres logiciels usuels d’analyse statistique ;</li>
+<li>c’est un logiciel avec d’excellentes capacités graphiques et de nombreuses possibilités d’export ;</li>
+<li>avec <em>Rmarkdown</em><a href="#pem_presentation_installation_fn3" class="footnoteRef" id="pem_presentation_installation_fnref3"><sup>3</sup></a>, il est devenu très aisé de produire des rapports automatisés dans divers format (<strong>Word</strong>, <strong>PDF</strong>, <strong>HTML</strong>, …) ;</li>
+<li><strong>R</strong> est de plus utilisé dans tous les secteurs scientifiques, y compris dans le domaine des analyses d’enquêtes et, plus généralement, des sciences sociales.</li>
+</ul>
+<p>Comme rien n’est parfait, on peut également trouver quelques inconvénients :</p>
+<ul>
+<li>le logiciel, la documentation de référence et les principales ressources sont en anglais. Il est toutefois parfaitement possible d’utiliser <strong>R</strong> sans spécialement maîtriser cette langue ;</li>
+<li>il n’existe pas encore d’interface graphique pour <strong>R</strong> équivalente à celle d’autres logiciels comme <strong>SPSS</strong> ou <strong>Modalisa</strong>. <strong>R</strong> fonctionne à l’aide de <em>scripts</em> (des petits programmes) édités et exécutés au fur et à mesure de l’analyse et se rapprocherait davantage de <strong>SAS</strong> dans son utilisation (mais avec une syntaxe et une philosophie très différentes). Ce point, qui peut apparaître comme un gros handicap, s’avère après un temps d’apprentissage être un mode d’utilisation d’une grande souplesse ;</li>
+<li>comme <strong>R</strong> s’apparente davantage à un langage de programmation qu’à un logiciel proprement dit, la courbe d’apprentissage peut être un peu « raide », notamment pour ceux n’ayant jamais programmé auparavant.</li>
+</ul>
+<p>Il est à noter que le développement autour de <strong>R</strong> a été particulièrement actif ces dernières années. On trouvera dès lors aujourd’hui de nombreuses extensions permettant de se « faciliter la vie » au quotidien, ce qui n’était pas vraiment encore le cas il y a 5 ans.</p>
+</div>
+<div id="pem_presentation_installation_philosophie-de-r" class="section level2">
+<h2>Philosophie de R</h2>
+<p>Quelques points particuliers dans le fonctionnement de <strong>R</strong> peuvent parfois dérouter les utilisateurs habitués à d’autres logiciels :</p>
+<ul>
+<li>Sous <strong>R</strong>, en général, on ne voit pas directement les données sur lesquelles on travaille ; on ne dispose pas en permanence d’une vue des données sous forme de tableau<a href="#pem_presentation_installation_fn4" class="footnoteRef" id="pem_presentation_installation_fnref4"><sup>4</sup></a>, comme sous <strong>Modalisa ou SPSS</strong>. Ceci peut être déroutant au début, mais on se rend vite compte qu’on n’a pas besoin de voir en permanence les données pour les analyser.</li>
+<li>Alors qu’avec la plupart des logiciels on réfléchira avec un fichier de données ouvert à la fois, chaque fichier de données correspondra à un objet différent, permettant de manipuler très facilement plusieurs objets à la fois (par exemple dans le cadre de fusion de tables^[Voir par exemple la section dédiée à ce sujet dans le <a href="#pem_manipulation_fusion_tables">chapitre sur la manipulation de données</a>.).</li>
+<li>Avec les autres logiciels, en général la production d’une analyse génère un grand nombre de résultats de toutes sortes dans lesquels l’utilisateur est censé retrouver et isoler ceux qui l’intéressent. Avec <strong>R</strong>, c’est l’inverse : par défaut l’affichage est réduit au minimum, et c’est l’utilisateur qui demande à voir des résultats supplémentaires ou plus détaillés.</li>
+<li>Sous <strong>R</strong>, les résultats des analyses sont eux aussi stockés dans des objets et sont dès lors manipulables</li>
+</ul>
+<p>Inhabituel au début, ce fonctionnement permet en fait assez rapidement de gagner du temps dans la conduite des analyses.</p>
+</div>
+<div id="pem_presentation_installation_presentation-de-rstudio" class="section level2">
+<h2>Présentation de RStudio</h2>
+<p>L’interface de base de <strong>R</strong> est assez rudimentaire (voir figure ci-après).</p>
+<figure>
+<img src="images/capture_RGui.png" alt="Interface de R sous Windows"/>
+<figcaption>
+Interface de R sous Windows
+</figcaption>
+</figure>
+<p><strong>RStudio</strong> est un environnement de développement intégré libre, gratuit, et qui fonctionne sous <strong>Windows</strong>, <strong>Mac OS X</strong> et <strong>Linux</strong>. Il complète <strong>R</strong> et fournit un éditeur de script avec coloration syntaxique, des fonctionnalités pratiques d’édition et d’exécution du code (comme l’autocomplétion), un affichage simultané du code, de la console R, des fichiers, graphiques et pages d’aide, une gestion des extensions, une intégration avec des systèmes de contrôle de versions comme <strong>git</strong>, etc. Il intègre de base divers outils comme par exemple la production de rapports au format <strong>Rmarkdown</strong>. Il est en développement actif et de nouvelles fonctionnalités sont ajoutées régulièrement. Son principal défaut est d’avoir une interface uniquement anglophone.</p>
+<figure>
+<img src="images/capture_RStudio.png" alt="Interface de RStudio sous Windows"/>
+<figcaption>
+Interface de RStudio sous Windows
+</figcaption>
+</figure>
+<p>Pour une présentation plus générale de <strong>RStudio</strong> on pourra se référer au site du projet : <a href="http://www.rstudio.com/" class="uri">http://www.rstudio.com/</a>.</p>
+<p><strong>RStudio</strong> peut tout à fait être utilisé pour découvrir et démarrer avec <strong>R</strong>. Les différents chapitres d’<strong>analyse-R</strong> partent du principe que vous utilisez <strong>R</strong> avec <strong>RStudio</strong>. Cependant, à part les éléments portant sur l’interface de <strong>RStudio</strong>, l’ensemble du code et des fonctions <strong>R</strong> peuvent être utilisés directement dans <strong>R</strong>, même en l’absence de <strong>RStudio</strong>.</p>
+<p>La documentation de <strong>RStudio</strong> (en anglais) est disponible en ligne à <a href="https://support.rstudio.com" class="uri">https://support.rstudio.com</a>. Pour être tenu informé des dernières évolutions de <strong>RStudio</strong>, mais également de plusieurs extensions développées dans le cadre de ce projet, vous pouvez suivre le blog dédié <a href="http://blog.rstudio.org/" class="uri">http://blog.rstudio.org/</a>.</p>
+</div>
+<div id="pem_presentation_installation_installation" class="section level2">
+<h2>Installation</h2>
+<p>Il est préférable de commencer par installer <strong>R</strong> avant d’installer <strong>RStudio</strong>.</p>
+<div id="pem_presentation_installation_installation-de-r" class="section level3">
+<h3>Installation de R</h3>
+<p>Pour une installation sous <strong>Windows</strong>, on se rendra sur cette page : <a href="http://cran.r-project.org/bin/windows/base/" class="uri">http://cran.r-project.org/bin/windows/base/</a> et l’on suivra le premier lien pour télécharger le programme d’installation. Une fois le programme d’installation lancé, il suffira d’installer <strong>R</strong> avec les options par défaut<a href="#pem_presentation_installation_fn5" class="footnoteRef" id="pem_presentation_installation_fnref5"><sup>5</sup></a>.</p>
+<p>Pour <strong>Mac OS X</strong>, les fichiers d’installation sont disponibles à <a href="http://cran.r-project.org/bin/macosx/" class="uri">http://cran.r-project.org/bin/macosx/</a>.</p>
+<p>Si vous travaillez sous <strong>Linux</strong>, vous devriez pouvoir trouver <strong>R</strong> via votre gestionnaire de paquets, cela pouvant dépendre d’une distribution de <strong>Linux</strong> à une autre.</p>
+</div>
+<div id="pem_presentation_installation_installation-de-rstudio" class="section level3">
+<h3>Installation de RStudio</h3>
+<p>Une fois <strong>R</strong> correctement installé, rendez-vous sur <a href="http://www.rstudio.com/products/rstudio/download/" class="uri">http://www.rstudio.com/products/rstudio/download/</a> pour télécharger la dernière version stable de <strong>RStudio</strong>. Plus précisément, il s’agit de l’édition <em>Open Source</em> de <strong>RStudio Desktop</strong> (en effet, il existe aussi une version serveur).</p>
+<p>Choisissez l’installateur correspondant à votre système d’exploitation et suivez les instructions du programme d’installation.</p>
+<p>Si vous voulez tester les dernières fonctionnalités de <strong>RStudio</strong>, vous pouvez télécharger la version de développement (plus riche en fonctionnalité que la version stable, mais pouvant contenir des bugs) sur <a href="http://www.rstudio.com/products/rstudio/download/preview/" class="uri">http://www.rstudio.com/products/rstudio/download/preview/</a>.</p>
+</div>
+</div>
+<div id="pem_presentation_installation_installer_extensions" class="section level2">
+<h2>Installer des extensions</h2>
+<div id="pem_presentation_installation_presentation" class="section level3">
+<h3>Présentation</h3>
+<p>L’installation par défaut du logiciel <strong>R</strong> contient le cœur du programme ainsi qu’un ensemble de fonctions de base fournissant un grand nombre d’outils de traitement de données et d’analyse statistiques.</p>
+<p><strong>R</strong> étant un logiciel libre, il bénéficie d’une forte communauté d’utilisateurs qui peuvent librement contribuer au développement du logiciel en lui ajoutant des fonctionnalités supplémentaires. Ces contributions prennent la forme d’extensions (<em>packages</em>) pouvant être installées par l’utilisateur et fournissant alors diverses fonctions supplémentaires.</p>
+<p>Il existe un très grand nombre d’extensions (plus de 6500 à ce jour), qui sont diffusées par un réseau baptisé <strong>CRAN</strong> (<em>Comprehensive R Archive Network</em>).</p>
+<p>La liste de toutes les extensions disponibles sur <strong>CRAN</strong> est disponible ici : <a href="http://cran.r-project.org/web/packages/" class="uri">http://cran.r-project.org/web/packages/</a>.</p>
+<p>Pour faciliter un peu le repérage des extensions, il existe un ensemble de regroupements thématiques (économétrie, finance, génétique, données spatiales…) baptisés <em>Task views</em> : <a href="http://cran.r-project.org/web/views/" class="uri">http://cran.r-project.org/web/views/</a>.</p>
+<p>On y trouve notamment une <em>Task view</em> dédiée aux sciences sociales, listant de nombreuses extensions potentiellement utiles pour les analyses statistiques dans ce champ disciplinaire : <a href="http://cran.r-project.org/web/views/SocialSciences.html" class="uri">http://cran.r-project.org/web/views/SocialSciences.html</a>.</p>
+</div>
+<div id="pem_presentation_installation_installation-depuis-cran" class="section level3">
+<h3>Installation depuis CRAN</h3>
+<p>L’installation d’une extension se fait par la fonction <code>install.packages</code>{utils}, à qui on fournit le nom de l’extension. Par exemple, si on souhaite installer l’extension <strong>ade4</strong> :</p>
+<p>install.packages(“ade4”, dep = TRUE)</p>
+<p>L’option <code>dep=TRUE</code> indique à R de télécharger et d’installer également toutes les extensions dont l’extension choisie dépend pour son fonctionnement.</p>
+<p>Sous <strong>RStudio</strong>, on pourra également cliquer sur <em>Install</em> dans l’onglet <em>Packages</em> du quadrant inférieur droit.</p>
+<p>Une fois l’extension installée, elle peut être appelée depuis la console ou un fichier script avec la fonction <code data-package="base">library</code> ou la fonction <code data-package="base" data-rdocumentation="library">require</code> :</p>
+<p>library(ade4)</p>
+<p>À partir de là, on peut utiliser les fonctions de l’extension, consulter leur page d’aide en ligne, accéder aux jeux de données qu’elle contient, etc.</p>
+<p>Pour mettre à jour l’ensemble des extensions installées, la fonction <code data-package="utils">update.packages</code> suffit :</p>
+<p>update.packages()</p>
+<p>Sous <strong>RStudio</strong>, on pourra alternativement cliquer sur <em>Update</em> dans l’onglet <em>Packages</em> du quadrant inférieur droit.</p>
+<p>Si on souhaite désinstaller une extension précédemment installée, on peut utiliser la fonction <code data-package="utils">remove.packages</code> :</p>
+<p>remove.packages(“ade4”)</p>
+<div class="important">
+Il est important de bien comprendre la différence entre <code data-package="utils">install.packages</code> et <code data-package="base">library</code>. La première va chercher les extensions sur internet et les installe en local sur le disque dur de l’ordinateur. On n’a besoin d’effectuer cette opération qu’une seule fois. La seconde lit les informations de l’extension sur le disque dur et les met à disposition de <strong>R</strong>. On a besoin de l’exécuter à chaque début de session ou de script.
+</div>
+</div>
+<div id="pem_presentation_installation_installation-depuis-github" class="section level3">
+<h3>Installation depuis GitHub</h3>
+<p>Certains packages sont développés sur <a href="https://github.com/">GitHub</a>. Dès lors, la version de développement sur <strong>GitHub</strong> peut contenir des fonctions qui ne sont pas encore disponibles dans la version stable disponible sur <strong>CRAN</strong>. Ils arrivent aussi parfois que certains packages ne soient disponibles que sur <strong>GitHub</strong>.</p>
+<p>L’installation d’un package depuis <strong>GitHub</strong> est très facile grâce à la fonction <code data-package="devtools">install_github</code> de l’extension <strong class="package">devtools</strong> (que l’on aura préalablement installée depuis <strong>CRAN</strong> ;-) ).</p>
+</div>
+</div>
+<div id="pem_presentation_installation_mise-a-jour-de-r-sous-windows" class="section level2">
+<h2>Mise à jour de R sous Windows</h2>
+<p>Pour mettre à jour <strong>R</strong> sous <strong>Windows</strong>, il suffit de télécharger et d’installer la dernière version du programme d’installation.</p>
+<p>Petite particularité, la nouvelle version sera installée à côté de l’ancienne version. Si vous souhaitez faire de la place sur votre disque dur, vous pouvez désinstaller l’ancienne version en utilisant l’utilitaire <em>Désinstaller un programme</em> de <strong>Windows</strong>.</p>
+<p>Lorsque plusieurs versions de <strong>R</strong> sont disponibles, <strong>RStudio</strong> choisit par défaut la plus récente. Il est vous est possible de spécifier à <strong>RStudio</strong> quelle version de <strong>R</strong> utiliser via le menu <em>Tools</em> &gt; <em>Global Options</em> &gt; <em>General</em>.</p>
+<p>Petit défaut, les extensions (<em>packages</em>) sont installées par défaut sous <strong>Windows</strong> dans le répertoire <code>Documents de l'utilisateur &gt; R &gt; win-library &gt; x.y</code> avec <code>x.y</code> correspondant au numéro de la version de <strong>R</strong>. Ainsi, si l’on travaillait avec la version 3.0 et que l’on passe à la version 3.2, les extensions que l’on avait sous l’ancienne version ne sont plus disponibles pour la nouvelle version. Une astuce consiste à recopier le contenu du répertoire <code>3.0</code> dans le répertoire <code>3.2</code>. Puis, on lancera <strong>RStudio</strong> (s’il était déjà ouvert, on le fermera puis relancera) et on mettra à jour l’ensemble des packages, soit avec la fonction, <code data-package="utils">update.packages</code> soit en cliquant sur <em>Update</em> dans l’onglet <em>Packages</em> du quadrant inférieur droit.</p>
+</div>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="pem_presentation_installation_fn1"><p>Pour plus d’informations sur ce qu’est un logiciel libre, voir : <a href="http://www.gnu.org/philosophy/free-sw.fr.html" class="uri">http://www.gnu.org/philosophy/free-sw.fr.html</a><a href="#pem_presentation_installation_fnref1">↩</a></p></li>
+<li id="pem_presentation_installation_fn2"><p>Voir MAJ_LIEN.<a href="#pem_presentation_installation_fnref2">↩</a></p></li>
+<li id="pem_presentation_installation_fn3"><p>Abordé dans un chapitre dédié, MAJ_LIEN<a href="#pem_presentation_installation_fnref3">↩</a></p></li>
+<li id="pem_presentation_installation_fn4"><p>On verra qu’il est possible avec <strong>RStudio</strong> de disposer d’une telle vue<a href="#pem_presentation_installation_fnref4">↩</a></p></li>
+<li id="pem_presentation_installation_fn5"><p>Dans le cas particulier où votre ordinateur est situé derrière un <em>proxy</em>, il est préférable de choisir <em>Options de démarrage personnalisées</em> lorsque cela vous sera demandé par le programme d’installation, puis <em>Internet2</em> lorsqu’on vous demandera le mode de connexion à Internet. Ainsi, <strong>R</strong> utilisera par défaut la configuration internet du navigateur <strong>Internet Explorer</strong> et prendra ainsi en compte les paramètres du <em>proxy</em>.<a href="#pem_presentation_installation_fnref5">↩</a></p></li>
+</ol>
+</div>
+
+</article>
+<article id="pem_premier_contact">
+
+<div id="pem_premier_contact_header">
+<h1 class="title">Premier contact</h1>
+</div>
+
+<div class="TOC">
+<ul>
+<li><a href="#pem_premier_contact_linvite-de-commandes">L’invite de commandes</a></li>
+<li><a href="#pem_premier_contact_des-objets">Des objets</a><ul>
+<li><a href="#pem_premier_contact_objets-simples">Objets simples</a></li>
+<li><a href="#pem_premier_contact_vecteurs">Vecteurs</a></li>
+</ul></li>
+<li><a href="#pem_premier_contact_des-fonctions">Des fonctions</a><ul>
+<li><a href="#pem_premier_contact_arguments">Arguments</a></li>
+<li><a href="#pem_premier_contact_quelques-fonctions-utiles">Quelques fonctions utiles</a></li>
+<li><a href="#pem_premier_contact_aide-sur-une-fonction">Aide sur une fonction</a></li>
+<li><a href="#pem_premier_contact_interpretation-des-arguments">Interprétation des arguments</a></li>
+<li><a href="#pem_premier_contact_auto-completion">Auto-complétion</a></li>
+</ul></li>
+</ul>
+</div>
+
+<div class="note">
+Ce chapitre est inspiré de la section <em>Prise en main</em> du support de cours <a href="https://github.com/juba/intro-r">Introduction à R</a> réalisé par Julien Barnier.
+</div>
+<p>Une fois <strong>RStudio</strong> lancé, vous devriez obtenir une fenêtre similaire à la figure ci-après.</p>
+<figure>
+<img src="images/capture_RStudio.png" alt="Interface de RStudio au démarrage"/>
+<figcaption>
+Interface de RStudio au démarrage
+</figcaption>
+</figure>
+<p>L’interface de <strong>RStudio</strong> est divisée en quatre quadrants :</p>
+<ul>
+<li>le quadrant supérieur gauche est dédié aux différents fichiers de travail (nous y reviendrons dans le chapitre <a href="#pem_premier_travail">Premier travail avec les données</a>) ;</li>
+<li>le quadrant inférieur gauche correspond à ce que l’on appelle la <em>console</em>, c’est-à-dire à <strong>R</strong> proprement dit ;</li>
+<li>le quadrant supérieur droit permet de connaître
+<ul>
+<li>la liste des objets en mémoire (onglet <em>Environment</em>)</li>
+<li>ainsi que l’historique des commandes saisies dans la console (onglet <em>History</em>) ;</li>
+</ul></li>
+<li>le quadrant inférieur droit affiche
+<ul>
+<li>la liste des fichiers du répertoire de travail (onglet <em>Files</em>),</li>
+<li>les graphiques réalisés (onglet <em>Plots</em>),</li>
+<li>la liste des extensions disponibles (onglet <em>Packages</em>),</li>
+<li>l’aide en ligne (onglet <em>Help</em>)</li>
+<li>et un <em>Viewer</em> utilisé pour visualiser certains types de graphiques au format web.</li>
+</ul></li>
+</ul>
+<p>Inutile de tout retenir pour le moment. Nous aborderons chaque outil en temps utile. Pour l’heure, concentrons-nous sur la <em>console</em>, c’est-à-dire le quadrant inférieur gauche.</p>
+<div id="pem_premier_contact_linvite-de-commandes" class="section level2">
+<h2>L’invite de commandes</h2>
+<p>Au démarrage, la console contient un petit texte de bienvenue ressemblant à peu près à ce qui suit :</p>
+<pre><code>R version 3.2.0 (2015-04-16) -- "Full of Ingredients"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.</code></pre>
+<p>suivi d’une ligne commençant par le caractère <code>&gt;</code> et sur laquelle devrait se trouver votre curseur. Cette ligne est appelée l’<em>invite de commande</em> (ou <em>prompt</em> en anglais). Elle signifie que <strong>R</strong> est disponible et en attente de votre prochaine commande.</p>
+<p>Nous allons tout de suite lui fournir une première commande. Tapez <code>2 + 3</code> dans la console et validez avec la touche <kbd>Entrée</kbd>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="dv">2</span> +<span class="st"> </span><span class="dv">3</span></code></pre>
+<pre><code>[1] 5</code></pre>
+<p>En premier lieu, vous pouvez noter la convention typographique utilisée dans ce documents. Les commandes saisies dans la console sont indiquées sur un fond gris et précédé de <code>R&gt;</code>. Le résultat renvoyé par <strong>R</strong> est quant à lui affiché juste en-dessous sur fond blanc.</p>
+<p>Bien, nous savons désormais que <strong>R</strong> sait faire les additions à un chiffre<a href="#pem_premier_contact_fn1" class="footnoteRef" id="pem_premier_contact_fnref1"><sup>1</sup></a>. Nous pouvons désormais continuer avec d’autres opérations arithmétiques de base :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="dv">8</span> -<span class="st"> </span><span class="dv">12</span></code></pre>
+<pre><code>[1] -4</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="dv">14</span> *<span class="st"> </span><span class="dv">25</span></code></pre>
+<pre><code>[1] 350</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">-<span class="dv">3</span>/<span class="dv">10</span></code></pre>
+<pre><code>[1] -0.3</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">-<span class="fl">0.3</span></code></pre>
+<pre><code>[1] -0.3</code></pre>
+<p>On remarquera que <strong>R</strong> est anglo-saxon. Les nombres sont donc saisies « à l’anglaise », c’est-à-dire en utilisant le point (<code>.</code>) comme séparateur pour les décimales.</p>
+<div class="astuce">
+<p>Une petite astuce très utile lorsque vous tapez des commandes directement dans la console : en utilisant les flèches Haut et Bas du clavier, vous pouvez naviguer dans l’historique des commandes tapées précédemment, que vous pouvez alors facilement réexécuter ou modifier une commande particulière.</p>
+<p>Sous <strong>RStudio</strong>, l’onglet History du quadrant haut-droite vous permet de consulter l’historique des commandes que vous avez transmises à <strong>R</strong>.</p>
+<p><img src="images/capture_RStudio_onglet_history.png" alt="Onglet History sous RStudio"/></p>
+<p>Un double-clic sur une commande la recopiera automatiquement dans la console. Vous pouvez également sélectionner une ou plusieurs commandes puis cliquer sur <em>To Console</em>.</p>
+Voir également (en anglais) : <a href="http://www.rstudio.com/ide/docs/using/history" class="uri">http://www.rstudio.com/ide/docs/using/history</a>
+</div>
+<p>Lorsqu’on fournit à <strong>R</strong> une commande incomplète, celui-ci nous propose de la compléter en nous présentant une invite de commande spéciale utilisant les signe <code>+</code>. Imaginons par exemple que nous avons malencontreusement tapé sur <kbd>Entrée</kbd> alors que nous souhaitions calculer <code>4 * 3</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="dv">4</span> *</code></pre>
+<p>On peut alors compléter la commande en saisissant simplement <code>3</code> :</p>
+<pre class="r">4 *
++ 3
+</pre>
+<pre>
+[1] 12
+</pre>
+<div class="info">
+<p>Pour des commandes plus complexes, il arrive parfois qu’on se retrouve coincé avec une invite <code>+</code> sans plus savoir comment compléter la saisie correctement. On peut alors annuler la commande en utilisant la touche <kbd>Echap</kbd> ou <kbd>Esc</kbd> sous <strong>Windows</strong>.</p>
+Sous <strong>Linux</strong> on utilise le traditionnel <kbd>Control + C</kbd>.
+</div>
+<p>À noter que les espaces autour des opérateurs n’ont pas d’importance lorsque l’on saisit les commandes dans <strong>R</strong>. Les trois commandes suivantes sont donc équivalentes, mais on privilégie en général la deuxième pour des raisons de lisibilité du code.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="dv">10+2</span>
+<span class="dv">10</span> +<span class="st"> </span><span class="dv">2</span>
+<span class="dv">10</span>    +<span class="st">    </span><span class="dv">2</span></code></pre>
+</div>
+<div id="pem_premier_contact_des-objets" class="section level2">
+<h2>Des objets</h2>
+<div id="pem_premier_contact_objets-simples" class="section level3">
+<h3>Objets simples</h3>
+<p>Faire des opérations arithmétiques, c’est bien, mais sans doute pas totalement suffisant. Notamment, on aimerait pouvoir réutiliser le résultat d’une opération sans avoir à le resaisir ou à le copier/coller.</p>
+<p>Comme tout langage de programmation, <strong>R</strong> permet de faire cela en utilisant des objets. Prenons tout de suite un exemple :</p>
+<pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="dv">2</span></code></pre>
+<p>Que signifie cette commande ? L’opérateur <code>&lt;-</code> est appelé <em>opérateur d’assignation</em>. Il prend une valeur quelconque à droite et la place dans l’objet indiqué à gauche. La commande pourrait donc se lire <em>mettre la valeur 2 dans l’objet nommé <code>x</code></em>.</p>
+<p>On va ensuite pouvoir réutiliser cet objet dans d’autres calculs ou simplement afficher son contenu :</p>
+<pre class="sourceCode r"><code class="sourceCode r">x +<span class="st"> </span><span class="dv">3</span></code></pre>
+<pre><code>[1] 5</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">x</code></pre>
+<pre><code>[1] 2</code></pre>
+<div class="info">
+Par défaut, si on donne à <strong>R</strong> seulement le nom d’un objet, il va se débrouiller pour nous présenter son contenu d’une manière plus ou moins lisible.
+</div>
+<p>On peut utiliser autant d’objets qu’on veut. Ceux-ci peuvent contenir des nombres, des chaînes de caractères (indiquées par des guillemets droits doubles <code>"</code> ou simples <code>'</code>) et bien d’autres choses encore :</p>
+<pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="dv">27</span>
+y &lt;-<span class="st"> </span><span class="dv">10</span>
+foo &lt;-<span class="st"> </span>x +<span class="st"> </span>y
+foo</code></pre>
+<pre><code>[1] 37</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> "Hello"</span>
+foo &lt;-<span class="st"> </span>x
+foo</code></pre>
+<pre><code>[1] "Hello"</code></pre>
+<div class="important">
+<p>Les noms d’objets peuvent contenir des lettres, des chiffres (mais ils ne peuvent pas commencer par un chiffre), les symboles <code>.</code> et <code>_</code>. Ils doivent impérativement commencer par une lettre. <strong>R</strong> fait la différence entre les majuscules et les minuscules, ce qui signifie que <code>x</code> et <code>X</code> sont deux objets différents. On évitera également d’utiliser des caractères accentués dans les noms d’objets. Comme les espaces ne sont pas autorisés on pourra les remplacer par un point ou un tiret bas.</p>
+Enfin, signalons que certains noms courts sont réservés par <strong>R</strong> pour son usage interne et doivent être évités. On citera notamment <code>c</code>, <code>q</code>, <code>t</code>, <code>C</code>, <code>D</code>, <code>F</code>, <code>I</code>, <code>T</code>, <code>max</code>, <code>min</code>…
+</div>
+<p>Dans <strong>RStudio</strong>, l’onglet <em>Environment</em> dans le quadrant supérieur droit indique la liste des objets que vous avez précédemment créés, leur type et la taille qu’ils occupent en mémoire.</p>
+<figure>
+<img src="images/capture_RStudio_onglet_environment.png" alt="Onglet Environment de RStudio"/>
+<figcaption>
+Onglet Environment de RStudio
+</figcaption>
+</figure>
+</div>
+<div id="pem_premier_contact_vecteurs" class="section level3">
+<h3>Vecteurs</h3>
+<p>Imaginons maintenant que nous avons interrogé dix personnes au hasard dans la rue et que nous avons relevé pour chacune d’elle sa taille en centimètres. Nous avons donc une série de dix nombres que nous souhaiterions pouvoir réunir de manière à pouvoir travailler sur l’ensemble de nos mesures.</p>
+<p>Un ensemble de données de même nature constituent pour <strong>R</strong> un vecteur (en anglais <em>vector</em>) et se construit à l’aide d’une fonction nommée <code data-package="base">c</code><a href="#pem_premier_contact_fn2" class="footnoteRef" id="pem_premier_contact_fnref2"><sup>2</sup></a>. On l’utilise en lui donnant la liste de nos données, entre parenthèses, séparées par des virgules :</p>
+<pre class="sourceCode r"><code class="sourceCode r">tailles &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">167</span>, <span class="dv">192</span>, <span class="dv">173</span>, <span class="dv">174</span>, <span class="dv">172</span>, <span class="dv">167</span>, <span class="dv">171</span>, <span class="dv">185</span>, 
+  <span class="dv">163</span>, <span class="dv">170</span>)</code></pre>
+<p>Ce faisant, nous avons créé un objet nommé <code>tailles</code> et comprenant l’ensemble de nos données, que nous pouvons afficher :</p>
+<pre class="sourceCode r"><code class="sourceCode r">tailles</code></pre>
+<pre><code> [1] 167 192 173 174 172 167 171 185 163 170</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">c</span>(<span class="dv">144</span>, <span class="dv">168</span>, <span class="dv">179</span>, <span class="dv">175</span>, <span class="dv">182</span>, <span class="dv">188</span>, <span class="dv">167</span>, <span class="dv">152</span>, <span class="dv">163</span>, <span class="dv">145</span>, 
+  <span class="dv">176</span>, <span class="dv">155</span>, <span class="dv">156</span>, <span class="dv">164</span>, <span class="dv">167</span>, <span class="dv">155</span>, <span class="dv">157</span>, <span class="dv">185</span>, <span class="dv">155</span>, <span class="dv">169</span>, 
+  <span class="dv">124</span>, <span class="dv">178</span>, <span class="dv">182</span>, <span class="dv">195</span>, <span class="dv">151</span>, <span class="dv">185</span>, <span class="dv">159</span>, <span class="dv">156</span>, <span class="dv">184</span>, <span class="dv">172</span>)</code></pre>
+<pre><code> [1] 144 168 179 175 182 188 167 152 163 145 176
+[12] 155 156 164 167 155 157 185 155 169 124 178
+[23] 182 195 151 185 159 156 184 172</code></pre>
+<p>On a bien notre suite de trente tailles, mais on peut remarquer la présence de nombres entre crochets au début de chaque ligne (<code>[1]</code>, <code>[12]</code> et <code>[23]</code>). En fait ces nombres entre crochets indiquent la position du premier élément de la ligne dans notre vecteur. Ainsi, le 155 en début de deuxième ligne est le 12<sup>e</sup> élément du vecteur, tandis que le 182 de la troisième ligne est à la 23<sup>e</sup> position.</p>
+<p>On en déduira d’ailleurs que lorsque l’on fait :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="dv">2</span></code></pre>
+<pre><code>[1] 2</code></pre>
+<p><strong>R</strong> considère en fait le nombre 2 comme un vecteur à un seul élément.</p>
+<p>On peut appliquer des opérations arithmétiques simples directement sur des vecteurs :</p>
+<pre class="sourceCode r"><code class="sourceCode r">tailles &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">167</span>, <span class="dv">192</span>, <span class="dv">173</span>, <span class="dv">174</span>, <span class="dv">172</span>, <span class="dv">167</span>, <span class="dv">171</span>, <span class="dv">185</span>, 
+  <span class="dv">163</span>, <span class="dv">170</span>)
+tailles +<span class="st"> </span><span class="dv">20</span></code></pre>
+<pre><code> [1] 187 212 193 194 192 187 191 205 183 190</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">tailles/<span class="dv">100</span></code></pre>
+<pre><code> [1] 1.67 1.92 1.73 1.74 1.72 1.67 1.71 1.85 1.63
+[10] 1.70</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">tailles^<span class="dv">2</span></code></pre>
+<pre><code> [1] 27889 36864 29929 30276 29584 27889 29241
+ [8] 34225 26569 28900</code></pre>
+<p>On peut aussi combiner des vecteurs entre eux. L’exemple suivant calcule l’indice de masse corporelle à partir de la taille et du poids :</p>
+<pre class="sourceCode r"><code class="sourceCode r">tailles &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">167</span>, <span class="dv">192</span>, <span class="dv">173</span>, <span class="dv">174</span>, <span class="dv">172</span>, <span class="dv">167</span>, <span class="dv">171</span>, <span class="dv">185</span>, 
+  <span class="dv">163</span>, <span class="dv">170</span>)
+poids &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">86</span>, <span class="dv">74</span>, <span class="dv">83</span>, <span class="dv">50</span>, <span class="dv">78</span>, <span class="dv">66</span>, <span class="dv">66</span>, <span class="dv">51</span>, <span class="dv">50</span>, <span class="dv">55</span>)
+tailles.m &lt;-<span class="st"> </span>tailles/<span class="dv">100</span>
+imc &lt;-<span class="st"> </span>poids/(tailles.m^<span class="dv">2</span>)
+imc</code></pre>
+<pre><code> [1] 30.83653 20.07378 27.73230 16.51473 26.36560
+ [6] 23.66524 22.57105 14.90139 18.81892 19.03114</code></pre>
+<div class="important">
+<p>Quand on fait des opérations sur les vecteurs, il faut veiller à soit utiliser un vecteur et un chiffre (dans des opérations du type <code>v * 2</code> ou <code>v + 10</code>), soit à utiliser des vecteurs de même longueur (dans des opérations du type <code>u + v</code>).</p>
+Si on utilise des vecteurs de longueur différentes, on peut avoir quelques surprises. Quand <strong>R</strong> effectue une opération avec deux vecteurs de longueurs différentes, il recopie le vecteur le plus court de manière à lui donner la même taille que le plus long, ce qui s’appelle la règle de recyclage (<em>recycling rule</em>). Ainsi, <code>c(1,2) + c(4,5,6,7,8)</code> vaudra l’équivalent de <code>c(1,2,1,2,1) + c(4,5,6,7,8)</code>.
+</div>
+<p>On a vu jusque-là des vecteurs composés de nombres, mais on peut tout à fait créer des vecteurs composés de chaînes de caractères, représentant par exemple les réponses à une question ouverte ou fermée :</p>
+<p>reponse &lt;- c(“Bac+2”, “Bac”, “CAP”, “Bac”, “Bac”, “CAP”, “BEP”)</p>
+<p>Enfin, notons que l’on peut accéder à un élément particulier du vecteur en faisant suivre le nom du vecteur de crochets contenant le numéro de l’élément désiré. Par exemple :</p>
+<pre class="sourceCode r"><code class="sourceCode r">reponse &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">"Bac+2"</span>, <span class="st">"Bac"</span>, <span class="st">"CAP"</span>, <span class="st">"Bac"</span>, <span class="st">"Bac"</span>, <span class="st">"CAP"</span>, 
+  <span class="st">"BEP"</span>)
+reponse[<span class="dv">2</span>]</code></pre>
+<pre><code>[1] "Bac"</code></pre>
+<p>Cette opération s’appelle l’<em>indexation</em> d’un vecteur. Il s’agit ici de sa forme la plus simple, mais il en existe d’autres beaucoup plus complexes. L’indexation des vecteurs et des tableaux dans <strong>R</strong> est l’un des éléments particulièrement souples et puissants du langage (mais aussi l’un des plus délicats à comprendre et à maîtriser). Nous en reparlerons dans le chapitre sur la <a href="#pem_manipulation_indexation">manipulation de données</a>.</p>
+<p>Sous <strong>RStudio</strong>, vous avez du remarquer que ce dernier effectue une coloration syntaxique. Lorsque vous tapez une commande, les valeurs numériques sont affichées dans une certaine couleur, les valeurs textuelles dans une autre et les noms des fonctions dans une troisième. De plus, si vous tapez une parenthèse ouvrante, <strong>RStudio</strong> va créer automatiquement après le curseur la parenthèse fermante correspondante (de même avec les guillements ou les crochets). De plus, si vous placez le curseur juste après une parenthèse fermante, la parenthèse ouvrante correspondante sera surlignée, ce qui sera bien pratique lors de la rédaction de commandes complexes.</p>
+</div>
+</div>
+<div id="pem_premier_contact_des-fonctions" class="section level2">
+<h2>Des fonctions</h2>
+<p>Nous savons désormais faire des opérations simples sur des nombres et des vecteurs, stocker ces données et résultats dans des objets pour les réutiliser par la suite.</p>
+<p>Pour aller un peu plus loin nous allons aborder, après les objets, l’autre concept de base de <strong>R</strong>, à savoir les <em>fonctions</em>. Une fonction se caractérise de la manière suivante :</p>
+<ul>
+<li>elle a un nom ;</li>
+<li>elle accepte des arguments (qui peuvent avoir un nom ou pas) ;</li>
+<li>elle retourne un résultat et peut effectuer une action comme dessiner un graphique ou lire un fichier.</li>
+</ul>
+<p>En fait rien de bien nouveau puisque nous avons déjà utilisé plusieurs fonctions jusqu’ici, dont la plus visible est la fonction <code data-package="&quot;base">c</code>. Dans la ligne suivante :</p>
+<p>reponse &lt;- c(“Bac+2”, “Bac”, “CAP”, “Bac”, “Bac”, “CAP”, “BEP”)</p>
+<p>on fait appel à la fonction nommée <code data-package="base">c</code>, on lui passe en arguments (entre parenthèses et séparées par des virgules) une série de chaînes de caractères et elle retourne comme résultat un vecteur de chaînes de caractères, que nous stockons dans l’objet <code>reponse</code>.</p>
+<p>Prenons tout de suite d’autres exemples de fonctions courantes :</p>
+<p>tailles &lt;- c(167, 192, 173, 174, 172, 167, 171, 185, 163, 170) length(tailles) mean(tailles) var(tailles)</p>
+<p>Ici, la fonction <code data-package="base">length</code> nous renvoie le nombre d’éléments du vecteur, la fonction <code data-package="base">mean</code> nous donne la moyenne des éléments du vecteur et fonction <code data-package="stats" data-rdocumentation="cor">var</code> sa variance.</p>
+<div id="pem_premier_contact_arguments" class="section level3">
+<h3>Arguments</h3>
+<p>Les arguments de la fonction lui sont indiqués entre parenthèses, juste après son nom. En général les premiers arguments passés à la fonction sont des données servant au calcul et les suivants des paramètres influant sur ce calcul. Ceux-ci sont en général transmis sous la forme d’argument nommés.</p>
+<p>Reprenons l’exemple des tailles précédent :</p>
+<p>tailles &lt;- c(167, 192, 173, 174, 172, 167, 171, 185, 163, 170)</p>
+<p>Imaginons que le deuxième enquêté n’ait pas voulu nous répondre. Nous avons alors dans notre vecteur une valeur manquante. Celle-ci est symbolisée dans <strong>R</strong> par le code <code>NA</code> :</p>
+<p>tailles &lt;- c(167, NA, 173, 174, 172, 167, 171, 185, 163, 170)</p>
+<p>Recalculons notre taille moyenne :</p>
+<p>mean(tailles)</p>
+<p>Et oui, par défaut, <strong>R</strong> renvoie <code>NA</code> pour un grand nombre de calculs (dont la moyenne) lorsque les données comportent une valeur manquante. On peut cependant modifier ce comportement en fournissant un paramètre supplémentaire à la fonction <code data-package="base">mean</code>, nommé <code>na.rm</code> :</p>
+<p>mean(tailles, na.rm = TRUE)</p>
+<p>Positionner le paramètre <code>na.rm</code> à <code>TRUE</code> (vrai) indique à la fonction <code data-package="base">mean</code> de ne pas tenir compte des valeurs manquantes dans le calcul.</p>
+<p>Lorsqu’on passe un argument à une fonction de cette manière, c’est-à-dire sous la forme <code>nom=valeur</code>, on parle d’<em>argument nommé</em>.</p>
+<div class="important">
+<code>NA</code> signifie <em>not available</em>. Cette valeur particulière peut être utilisée pour indiquer une valeur manquante pour tout type de liste (nombres, textes, valeurs logique, etc.).
+</div>
+</div>
+<div id="pem_premier_contact_quelques-fonctions-utiles" class="section level3">
+<h3>Quelques fonctions utiles</h3>
+<p>Récapitulons la liste des fonctions que nous avons déjà rencontrées :</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Fonction</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code data-package="base">c</code></td>
+<td align="left">construit un vecteur à partir d’une série de valeurs</td>
+</tr>
+<tr class="even">
+<td align="left"><code data-package="base">length</code></td>
+<td align="left">nombre d’éléments d’un vecteur</td>
+</tr>
+<tr class="odd">
+<td align="left"><code data-package="base">mean</code></td>
+<td align="left">moyenne d’un vecteur de type numérique</td>
+</tr>
+<tr class="even">
+<td align="left"><code data-package="stats" data-rdocumentation="cor">var</code></td>
+<td align="left">variance d’un vecteur de type numérique</td>
+</tr>
+<tr class="odd">
+<td align="left"><code data-package="base" data-rdocumentation="Arithmetic">+</code>, <code data-package="base" data-rdocumentation="Arithmetic">-</code>, <code data-package="base" data-rdocumentation="Arithmetic">*</code>, <code data-package="base" data-rdocumentation="Arithmetic">/</code></td>
+<td align="left">opérateurs mathématiques de base</td>
+</tr>
+<tr class="even">
+<td align="left"><code data-package="base" data-rdocumentation="Arithmetic">ˆ</code></td>
+<td align="left">passage à la puissance</td>
+</tr>
+</tbody>
+</table>
+<p>On peut rajouter les fonctions de base suivantes :</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Fonction</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code data-package="base" data-rdocumentation="Extremes">min</code></td>
+<td align="left">valeur minimale d’un vecteur numérique</td>
+</tr>
+<tr class="even">
+<td align="left"><code data-package="base" data-rdocumentation="Extremes">max</code></td>
+<td align="left">valeur maximale d’un vecteur numérique</td>
+</tr>
+<tr class="odd">
+<td align="left"><code data-package="stats">sd</code></td>
+<td align="left">écart-type d’un vecteur numérique</td>
+</tr>
+<tr class="even">
+<td align="left"><code data-package="base" data-rdocumentation="Colon">:</code></td>
+<td align="left">génère une séquence de nombres. <code>1:4</code> équivaut à <code>c(1,2,3,4)</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="pem_premier_contact_aide-sur-une-fonction" class="section level3">
+<h3>Aide sur une fonction</h3>
+<p>Il est très fréquent de ne plus se rappeler quels sont les paramètres d’une fonction ou le type de résultat qu’elle retourne. Dans ce cas on peut très facilement accéder à l’aide décrivant une fonction particulière avec <code data-package="=&quot;utils&quot;" data-rdocumentation="=&quot;Question&quot;">?</code> ou <code data-package="utils">help</code>. Ainsi, pour obtenir de l’aide sur la fonction <code data-package="base">mean</code>, on saisira l’une des deux entrées équivalentes suivantes :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="st">`</span><span class="dt">?</span><span class="st">`</span>(mean)
+<span class="kw">help</span>(<span class="st">"mean"</span>)</code></pre>
+<div class="note">
+L’utilisation du raccourci <code data-package="=&quot;utils&quot;" data-rdocumentation="=&quot;Question&quot;">?</code> ne fonctionne pas pour certains opérateurs comme <code data-package="base" data-rdocumentation="Arithmetic">*</code>. Dans ce cas on pourra utiliser <code>?'*'</code> ou bien simplement <code>help("*")</code>.
+</div>
+<p>Sous <strong>RStudio</strong>, le fichier d’aide associé apparaitra dans le quadrant inférieur droit sous l’onglet <em>Help</em>.</p>
+<figure>
+<img src="images/capture_RStudio_onglet_help.png" alt="Onglet Help de RStudio"/>
+<figcaption>
+Onglet Help de RStudio
+</figcaption>
+</figure>
+<p>Cette page décrit (en anglais) la fonction, ses arguments, son résultat, le tout accompagné de diverses notes, références et exemples. Ces pages d’aide contiennent à peu près tout ce que vous pourrez chercher à savoir, mais elles ne sont pas toujours d’une lecture aisée.</p>
+<p>Un autre cas très courant dans <strong>R</strong> est de ne pas se souvenir ou de ne pas connaître le nom de la fonction effectuant une tâche donnée. Dans ce cas on se reportera aux différentes manières de trouver de l’aide décrites dans le chapitre [Où trouver de l’aide ?] MAJ_LIEN.</p>
+</div>
+<div id="pem_premier_contact_interpretation-des-arguments" class="section level3">
+<h3>Interprétation des arguments</h3>
+<p>Prenons l’exemple de la fonction <code data-package="base">format</code> dont la version de base permet de mettre en forme un nombre. Affichons le fichier d’aide associé.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="st">`</span><span class="dt">?</span><span class="st">`</span>(format)</code></pre>
+<p>La section <em>Usage</em> présente les arguments de cette fonction et leur valeur par défaut :</p>
+<pre>
+format(x, trim = FALSE, digits = NULL, nsmall = 0L,
+       justify = c("left", "right", "centre", "none"),
+       width = NULL, na.encode = TRUE, scientific = NA,
+       big.mark = "",   big.interval = 3L,
+       small.mark = "", small.interval = 5L,
+       decimal.mark = ".", zero.print = NULL,
+       drop0trailing = FALSE, ...)
+</pre>
+<p>Regardons ce que cette fonction peut faire. Passons-lui un vecteur avec deux nombres :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">format</span>(<span class="kw">c</span>(<span class="fl">12.3</span>, <span class="dv">5678</span>))</code></pre>
+<pre><code>[1] "  12.3" "5678.0"</code></pre>
+<p>Elle renvoie un vecteur de chaînes de caractères. Le nombre de décimales a été harmonisé et des espaces ont été ajoutés au début du premier nombre afin que l’ensemble des valeurs soient alignées vers la droite.</p>
+<p>L’argument <code>trim</code> permet de supprimer les espaces ajoutés en début de chaîne.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">format</span>(<span class="kw">c</span>(<span class="fl">12.3</span>, <span class="dv">5678</span>), <span class="ot">TRUE</span>)</code></pre>
+<pre><code>[1] "12.3"   "5678.0"</code></pre>
+<p>Dans le cas présent, nous avons saisi les arguments de la fonction sans les nommer. Dès lors, <strong>R</strong> considère l’ordre dans lesquels nous avons saisi les arguments, ordre qui correspond à celui du fichier d’aide. Il a dès lors considéré que <code>c(12.3, 5678)</code> correspond à la valeur attribuée à <code>x</code> et que <code>TRUE</code> est la valeur attribuée à <code>trim</code>.</p>
+<p>L’argument <code>nsmall</code> permet d’indiquer le nombre minimum de décimales que l’on souhaite afficher. Il est en quatrième position. Dès lors, pour pouvoir le renseigner avec des arguments non nommés, il faut fournir également une valeur pour le troisième argument <code>digits</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">format</span>(<span class="kw">c</span>(<span class="fl">12.3</span>, <span class="dv">5678</span>), <span class="ot">TRUE</span>, <span class="ot">NULL</span>, <span class="dv">2</span>)</code></pre>
+<pre><code>[1] "12.30"   "5678.00"</code></pre>
+<p>Ce n’est pas forcément ce qu’il y a de plus pratique. D’où l’intérêt des <em>arguments nommés</em>. En précisant <code>nsmall =</code> dans l’appel de la fonction, on pourra indiquer que l’on souhaite modifier spécifiquement cet argument. Lorsque l’on utilise des arguments non nommés, l’ordre n’importe plus puisque <strong>R</strong> sera en capacité de reconnaître ses petits.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">format</span>(<span class="dt">nsmall =</span> <span class="dv">2</span>, <span class="dt">x =</span> <span class="kw">c</span>(<span class="fl">12.3</span>, <span class="dv">5678</span>))</code></pre>
+<pre><code>[1] "  12.30" "5678.00"</code></pre>
+<p>À l’usage, on aura le plus souvent recours à une combinaison d’arguments non nommés et d’arguments nommés. On indiquera les premiers arguments (qui correspondent en général aux données de départ) sans les nommer et on précisera les options souhaitées avec des arguments nommés. Par exemple, pour un affichage à la française :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">format</span>(<span class="kw">c</span>(<span class="fl">12.3</span>, <span class="dv">5678</span>), <span class="dt">decimal.mark =</span> <span class="st">","</span>, <span class="dt">big.mark =</span> <span class="st">" "</span>)</code></pre>
+<pre><code>[1] "   12,3" "5 678,0"</code></pre>
+<p>Lorsque l’on regarde la section <em>Usage</em> du fichier d’aide, il apparait que certains arguments, suivi par le symbole <code>=</code>, ont une valeur par défaut. Il n’est donc pas nécessaire de les inclure dans l’appel de la fonction, auquel cas la valeur pas défaut sera prise en compte. Par contre, d’autres arguments, ici <code>x</code>, n’ont pas de valeur par défaut et il est donc nécessaire de fournir systématique une valeur.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">format</span>(<span class="dt">decimal.mark =</span> <span class="st">","</span>)</code></pre>
+<pre><code>Error in format.default(decimal.mark = ","): l'argument "x" est manquant, avec aucune valeur par défaut</code></pre>
+<p>Enfin, pour certaines fonctions, on verra parfois apparaître le symbole <code>...</code> Ce dernier correspond à un nombre indéterminé d’arguments. Il peut s’agir, comme dans le cas de <code data-package="base">format</code> d’arguments additionnels qui seront utilisés dans certains cas de figure, ou bien d’arguments qui seront transmis à une fonction secondaire appelée par la fonction principale, ou encore, comme pour le cas de la fonction <code data-package="base">c</code>, de la possibilité de saisir un nombre indéfini de données sources.</p>
+</div>
+<div id="pem_premier_contact_auto-completion" class="section level3">
+<h3>Auto-complétion</h3>
+<p><strong>RStudio</strong> fournit un outil bien pratique appelé <em>auto-complétion</em>. Saisissez les premières lettres d’une fonction, par exemple <code>me</code> puis appuyez sur la touche <kbd>Tabulation</kbd>. <strong>RStudio</strong> affichera la liste des fonctions dont le nom commence par <code>me</code> ainsi qu’un court descriptif de chacune. Un appui sur la touche <kbd>Entrée</kbd> provoquera la saisie du nom complet de la fonction choisie.</p>
+<figure>
+<img src="images/capture_RStudio_autocompletion.png" alt="Auto-complétion sous RStudio"/>
+<figcaption>
+Auto-complétion sous RStudio
+</figcaption>
+</figure>
+<p>À l’intérieur des parenthèses d’une fonctionn, vous pouvez utiliser l’auto-complétion pour retrouver un argument de cette fonction.</p>
+<p>Vous pouvez également utiliser l’auto-complétion pour retrouver le nom d’un objet que vous avez précédemment créé.</p>
+<p>Pour plus de détails, voir la documentation officielle de <strong>RStudio</strong> (MAJ_LIEN).</p>
+</div>
+</div>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="pem_premier_contact_fn1"><p>La présence du <code>[1]</code> en début de ligne sera expliquée par la suite dans la section sur les <a href="#pem_premier_contact_vecteurs">vecteurs</a>.<a href="#pem_premier_contact_fnref1">↩</a></p></li>
+<li id="pem_premier_contact_fn2"><p><code data-package="base">c</code> est l’abbréviation de <em>combine</em>. Le nom de cette fonction est très court car on l’utilise très souvent.<a href="#pem_premier_contact_fnref2">↩</a></p></li>
+</ol>
+</div>
+
+</article>
+<article id="pem_premier_travail">
+
+<div id="pem_premier_travail_header">
+<h1 class="title">Premier travail avec des données et statistique univariée</h1>
+</div>
+
+<div class="TOC">
+<ul>
+<li><a href="#pem_premier_travail_regrouper-les-commandes-dans-des-scripts">Regrouper les commandes dans des scripts</a></li>
+<li><a href="#pem_premier_travail_ajouter-des-commentaires">Ajouter des commentaires</a></li>
+<li><a href="#pem_premier_travail_tableaux-de-donnees">Tableaux de données</a></li>
+<li><a href="#pem_premier_travail_inspecter-les-donnees">Inspecter les données</a><ul>
+<li><a href="#pem_premier_travail_structure-du-tableau">Structure du tableau</a></li>
+<li><a href="#pem_premier_travail_inspection-visuelle">Inspection visuelle</a></li>
+<li><a href="#pem_premier_travail_acceder-aux-variables">Accéder aux variables</a></li>
+</ul></li>
+<li><a href="#pem_premier_travail_stat_univ">Analyser une variable (statistique univariée)</a><ul>
+<li><a href="#pem_premier_travail_variable-quantitative">Variable quantitative</a></li>
+<li><a href="#pem_premier_travail_variable-qualitative">Variable qualitative</a></li>
+</ul></li>
+</ul>
+</div>
+
+<div class="note">
+Ce chapitre est inspiré de la section <em>Premier travail avec les données</em> du support de cours <a href="https://github.com/juba/intro-r">Introduction à R</a> réalisé par Julien Barnier.
+</div>
+<div id="pem_premier_travail_regrouper-les-commandes-dans-des-scripts" class="section level2">
+<h2>Regrouper les commandes dans des scripts</h2>
+<p>Jusqu’à maintenant nous avons utilisé uniquement la console pour communiquer avec <strong>R</strong> via l’invite de commandes. Le principal problème de ce mode d’interaction est qu’une fois qu’une commande est tapée, elle est pour ainsi dire « perdue », c’est-à-dire qu’on doit la saisir à nouveau si on veut l’exécuter une seconde fois. L’utilisation de la console est donc restreinte aux petites commandes « jetables », le plus souvent utilisées comme test.</p>
+<p>La plupart du temps, les commandes seront stockées dans un fichier à part, que l’on pourra facilement ouvrir, éditer et exécuter en tout ou partie si besoin. On appelle en général ce type de fichier un <em>script</em>.</p>
+<p>Pour comprendre comment cela fonctionne, dans <strong>RStudio</strong> cliquez sur l’icône en haut à gauche représentant un fichier avec un signe + vert, puis choisissez <em>R script</em>.</p>
+<figure>
+<img src="images/capture_RStudio_new_R_script.png" alt="Créer un nouveau script R dans RStudio"/>
+<figcaption>
+Créer un nouveau script R dans RStudio
+</figcaption>
+</figure>
+<p>Un nouvel onglet apparaît dans le quadrant supérieur gauche.</p>
+<figure>
+<img src="images/capture_RStudio_onglet_R_script.png" alt="Onglet d’un script R dans RStudio"/>
+<figcaption>
+Onglet d’un script R dans RStudio
+</figcaption>
+</figure>
+<p>Nous pouvons désormais y saisir des commandes. Par exemple, tapez sur la première ligne la commande suivante : <code>2 + 2</code>. Ensuite, cliquez sur l’icône <em>Run</em> (en haut à droite de l’onglet du script) ou bien pressez simulatément les touches <kbd>CTRL</kbd> et <kbd>Entrée</kbd><a href="#pem_premier_travail_fn1" class="footnoteRef" id="pem_premier_travail_fnref1"><sup>1</sup></a>.</p>
+<p>Les lignes suivantes ont dû faire leur apparition dans la console :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="dv">2</span> +<span class="st"> </span><span class="dv">2</span></code></pre>
+<pre><code>[1] 4</code></pre>
+<p>Voici donc comment soumettre rapidement à <strong>R</strong> les commandes saisies dans votre fichier. Vous pouvez désormais l’enregistrer, l’ouvrir plus tard, et en exécuter tout ou partie. À noter que vous avez plusieurs possibilités pour soumettre des commandes à <strong>R</strong> :</p>
+<ul>
+<li>vous pouvez exécuter la ligne sur laquelle se trouve votre curseur en cliquant sur <em>Run</em> ou en pressant simulatément les touches <kbd>CTRL</kbd> et <kbd>Entrée</kbd> ;</li>
+<li>vous pouvez sélectionner plusieurs lignes contenant des commandes et les exécuter toutes en une seule fois exactement de la même manière ;</li>
+<li>vous pouvez exécuter d’un coup l’intégralité de votre fichier en cliquant sur l’icône <em>Source</em>.</li>
+</ul>
+<p>La plupart du travail sous <strong>R</strong> consistera donc à éditer un ou plusieurs fichiers de commandes et à envoyer régulièrement les commandes saisies à <strong>R</strong> en utilisant les raccourcis clavier <em>ad hoc</em>.</p>
+<p>Pour plus d’information sur l’utilisation des scripts <strong>R</strong> dans <strong>RStudio</strong>, voir (en anglais) : <a href="http://www.rstudio.com/ide/docs/using/source" class="uri">http://www.rstudio.com/ide/docs/using/source</a>.</p>
+<div class="note">
+Quand vous enregistrez un script sous <strong>RStudio</strong>, il est possible qu’il vous demande de choisir un type d’encodage des caractères (<em>Choose Encoding</em>). Si tel est le cas, utilisez de préférence <strong>UTF-8</strong>.
+</div>
+</div>
+<div id="pem_premier_travail_ajouter-des-commentaires" class="section level2">
+<h2>Ajouter des commentaires</h2>
+<p>Un commentaire est une ligne ou une portion de ligne qui sera ignorée par <strong>R</strong>. Ceci signifie qu’on peut y écrire ce qu’on veut et qu’on va les utiliser pour ajouter tout un tas de commentaires à notre code permettant de décrire les différentes étapes du travail, les choses à se rappeler, les questions en suspens, etc.</p>
+<p>Un commentaire sous <strong>R</strong> commence par un ou plusieurs symboles <code>#</code> (qui s’obtient avec les touches <kbd>Alt Gr</kbd> et <kbd>3</kbd> sur les claviers de type PC). Tout ce qui suit ce symbole jusqu’à la fin de la ligne est considéré comme un commentaire. On peut créer une ligne entière de commentaire en la faisant débuter par <code>##</code>. Par exemple :</p>
+<pre class="sourceCode r"><code class="sourceCode r">## Tableau croisé de la CSP par le nombre de livres
+## lus Attention au nombre de non réponses !</code></pre>
+<p>On peut aussi créer des commentaires pour une ligne en cours :</p>
+<pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="dv">2</span>  <span class="co"># On met 2 dans x, parce qu'il le vaut bien</span></code></pre>
+<div class="important">
+Dans tous les cas, il est très important de documenter ses fichiers <strong>R</strong> au fur et à mesure, faute de quoi on risque de ne plus y comprendre grand chose si on les reprend ne serait-ce que quelques semaines plus tard.
+</div>
+<p>Avec <strong>RStudio</strong>, vous pouvez également utiliser les commentaires pour créer des sections au sein de votre script et naviguer plus rapidement. Il suffit de faire suivre une ligne de commentaires d’au moins 4 signes moins (<code>----</code>). Par exemple, si vous saisissez ceci dans votre script :</p>
+<pre class="sourceCode r"><code class="sourceCode r">## Créer les objets ----
+
+x &lt;-<span class="st"> </span><span class="dv">2</span>
+y &lt;-<span class="st"> </span><span class="dv">5</span>
+
+## Calculs ----
+
+x +<span class="st"> </span>y</code></pre>
+<p>Vous verrez apparaître en bas à gauche de la fenêtre du script un symbole dièse orange. Si vous cliquez dessus, un menu de navigation s’affichera vous permettant de vous déplacez rapidement au sein de votre script. Pour plus d’information, voir la documentation de <strong>RStudio</strong> (en anglais) : <a href="http://www.rstudio.com/ide/docs/using/code_folding" class="uri">http://www.rstudio.com/ide/docs/using/code_folding</a>.</p>
+<figure>
+<img src="images/capture_RStudio_navigation_script.png" alt="Navigation rapide dans les scripts sous RStudio"/>
+<figcaption>
+Navigation rapide dans les scripts sous RStudio
+</figcaption>
+</figure>
+<p>Note : on remarquera au passage que le titre de l’onglet est affiché en rouge et suivi d’une astérisque (<code>*</code>), nous indiquant ainsi qu’il y a des modifications non enregistrées dans notre fichier.</p>
+</div>
+<div id="pem_premier_travail_tableaux-de-donnees" class="section level2">
+<h2>Tableaux de données</h2>
+<p>Dans cette partie nous allons utiliser un jeu de données inclus dans l’extension <strong class="package">questionr</strong>. L’installation d’extension est décrite dans le chapitre <a href="#pem_presentation_installation_installer_extensions">Présentation et Installation</a>.</p>
+<p>Le jeu de données en question est un extrait de l’enquête <em>Histoire de vie</em> réalisée par l’INSEE en 2003. Il contient 2000 individus et 20 variables. Pour pouvoir utiliser ces données, il faut d’abord charger l’extension <strong class="package">questionr</strong> (après l’avoir installée, bien entendu). Le chargement d’une extension en mémoire se fait à l’aide de la fonction <code data-package="base">library</code>. Sous <strong>RStudio</strong>, vous pouvez également charger une extension en allant dans l’onglet <em>Packages</em> du quadrant inférieur droit qui liste l’ensemble des packages disponibles et en cliquant la case à cocher située à gauche du nom du package désiré.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)</code></pre>
+<p>Puis nous allons indiquer à <strong>R</strong> que nous souhaitons accéder au jeu de données <code data-package="questionr">hdv2003</code> à l’aide de la fonction <code data-package="utils">data</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(hdv2003)</code></pre>
+<p>Bien. Et maintenant, elles sont où mes données ? Et bien elles se trouvent dans un objet nommé <code>hdv2003</code> désormais chargé en mémoire et accessible directement. D’ailleurs, cet objet est maintenant visible dans l’onglet <em>Environment</em> du quadrant supérieur droit.</p>
+<p>Essayons de taper son nom à l’invite de commande :</p>
+<pre class="sourceCode r"><code class="sourceCode r">hdv2003</code></pre>
+<p>Le résultat (non reproduit ici) ne ressemble pas forcément à grand-chose… Il faut se rappeler que par défaut, lorsqu’on lui fournit seulement un nom d’objet, <strong>R</strong> essaye de l’afficher de la manière la meilleure (ou la moins pire) possible. La réponse à la commande <code>hdv2003</code> n’est donc rien moins que l’affichage des données brutes contenues dans cet objet.</p>
+<p>Ce qui signifie donc que l’intégralité de notre jeu de données est inclus dans l’objet nommé <code>hdv2003</code> ! En effet, dans <strong>R</strong>, un objet peut très bien contenir un simple nombre, un vecteur ou bien le résultat d’une enquête tout entier. Dans ce cas, les objets sont appelés des <em>data frames</em>, ou tableaux de données. Ils peuvent être manipulés comme tout autre objet. Par exemple :</p>
+<pre class="sourceCode r"><code class="sourceCode r">d &lt;-<span class="st"> </span>hdv2003</code></pre>
+<p>va entraîner la copie de l’ensemble de nos données dans un nouvel objet nommé <code>d</code>, ce qui peut paraître parfaitement inutile mais a en fait l’avantage de fournir un objet avec un nom beaucoup plus court, ce qui diminuera la quantité de texte à saisir par la suite.</p>
+<p><strong>Résumons</strong></p>
+<p>Comme nous avons désormais décidé de saisir nos commandes dans un script et non plus directement dans la console, les premières lignes de notre fichier de travail sur les données de l’enquête <em>Histoire de vie</em> pourraient donc ressembler à ceci :</p>
+<pre class="sourceCode r"><code class="sourceCode r">## Chargement des extensions nécessaires ----
+<span class="kw">library</span>(questionr)
+## Jeu de données hdv2003 ----
+<span class="kw">data</span>(hdv2003)
+d &lt;-<span class="st"> </span>hdv2003</code></pre>
+</div>
+<div id="pem_premier_travail_inspecter-les-donnees" class="section level2">
+<h2>Inspecter les données</h2>
+<div id="pem_premier_travail_structure-du-tableau" class="section level3">
+<h3>Structure du tableau</h3>
+<p>Avant de travailler sur les données, nous allons essayer de voir à quoi elles ressemblent. Dans notre cas il s’agit de se familiariser avec la stucture du fichier. Lors de l’import de données depuis un autre logiciel, il s’agira souvent de vérifier que l’importation s’est bien déroulée.</p>
+<p>Un tableau de données est organisé en lignes et en colonnes, les lignes correspondant aux observations et les colonnes aux variables. Les fonctions <code data-package="base">nrow</code>, <code data-package="base" data-rdocumentation="nrow">ncol</code> et <code data-package="base">dim</code> donnent respectivement le nombre de lignes, le nombre de colonnes et les dimensions de notre tableau. Nous pouvons donc d’ores et déjà vérifier que nous avons bien 2000 lignes et 20 colonnes :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nrow</span>(d)</code></pre>
+<pre><code>[1] 2000</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ncol</span>(d)</code></pre>
+<pre><code>[1] 20</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(d)</code></pre>
+<pre><code>[1] 2000   20</code></pre>
+<p>La fonction <code data-package="base">names</code> donne les noms des colonnes de notre tableau, c’est-à-dire les noms des variables :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">names</span>(d)</code></pre>
+<pre><code> [1] "id"            "age"          
+ [3] "sexe"          "nivetud"      
+ [5] "poids"         "occup"        
+ [7] "qualif"        "freres.soeurs"
+ [9] "clso"          "relig"        
+[11] "trav.imp"      "trav.satisf"  
+[13] "hard.rock"     "lecture.bd"   
+[15] "peche.chasse"  "cuisine"      
+[17] "bricol"        "cinema"       
+[19] "sport"         "heures.tv"    </code></pre>
+<p>La fonction <code data-package="utils">str</code> est plus complète. Elle liste les différentes variables, indique leur type et donne le cas échéant des informations supplémentaires ainsi qu’un échantillon des premières valeurs prises par cette variable :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(d)</code></pre>
+<pre><code>'data.frame':   2000 obs. of  20 variables:
+ $ id           : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ age          : int  28 23 59 34 71 35 60 47 20 28 ...
+ $ sexe         : Factor w/ 2 levels "Homme","Femme": 2 2 1 1 2 2 2 1 2 1 ...
+ $ nivetud      : Factor w/ 8 levels "N'a jamais fait d'etudes",..: 8 NA 3 8 3 6 3 6 NA 7 ...
+ $ poids        : num  2634 9738 3994 5732 4329 ...
+ $ occup        : Factor w/ 7 levels "Exerce une profession",..: 1 3 1 1 4 1 6 1 3 1 ...
+ $ qualif       : Factor w/ 7 levels "Ouvrier specialise",..: 6 NA 3 3 6 6 2 2 NA 7 ...
+ $ freres.soeurs: int  8 2 2 1 0 5 1 5 4 2 ...
+ $ clso         : Factor w/ 3 levels "Oui","Non","Ne sait pas": 1 1 2 2 1 2 1 2 1 2 ...
+ $ relig        : Factor w/ 6 levels "Pratiquant regulier",..: 4 4 4 3 1 4 3 4 3 2 ...
+ $ trav.imp     : Factor w/ 4 levels "Le plus important",..: 4 NA 2 3 NA 1 NA 4 NA 3 ...
+ $ trav.satisf  : Factor w/ 3 levels "Satisfaction",..: 2 NA 3 1 NA 3 NA 2 NA 1 ...
+ $ hard.rock    : Factor w/ 2 levels "Non","Oui": 1 1 1 1 1 1 1 1 1 1 ...
+ $ lecture.bd   : Factor w/ 2 levels "Non","Oui": 1 1 1 1 1 1 1 1 1 1 ...
+ $ peche.chasse : Factor w/ 2 levels "Non","Oui": 1 1 1 1 1 1 2 2 1 1 ...
+ $ cuisine      : Factor w/ 2 levels "Non","Oui": 2 1 1 2 1 1 2 2 1 1 ...
+ $ bricol       : Factor w/ 2 levels "Non","Oui": 1 1 1 2 1 1 1 2 1 1 ...
+ $ cinema       : Factor w/ 2 levels "Non","Oui": 1 2 1 2 1 2 1 1 2 2 ...
+ $ sport        : Factor w/ 2 levels "Non","Oui": 1 2 2 2 1 2 1 1 1 2 ...
+ $ heures.tv    : num  0 1 0 2 3 2 2.9 1 2 2 ...</code></pre>
+<p>La première ligne nous informe qu’il s’agit bien d’un tableau de données avec 2000 observations et 20 variables. Vient ensuite la liste des variables. La première se nomme <em>id</em> et est de type nombre entier (<em>int</em>). La seconde se nomme <em>age</em> et est de type numérique. La troisième se nomme <em>sexe</em>, il s’agit d’un facteur (<em>factor</em>).</p>
+<p>Un facteur et une variable pouvant prendre un nombre limité de modalités (<em>levels</em>). Ici notre variable a deux modalités possibles : « Homme » et « Femme ». Ce type de variable est décrit plus en détail dans le chapitre sur la <a href="#pem_manipulation_variables">manipulation de données</a>.</p>
+<div class="important">
+La fonction <code data-package="utils">str</code> est essentielle à connaître et peut s’appliquer à n’importe quel type d’objet. C’est un excellent moyen de connaître la structure d’un objet.
+</div>
+</div>
+<div id="pem_premier_travail_inspection-visuelle" class="section level3">
+<h3>Inspection visuelle</h3>
+<p>La particularité de <strong>R</strong> par rapport à d’autres logiciels comme <strong>Modalisa</strong> ou <strong>SPSS</strong> est de ne pas proposer, par défaut, de vue des données sous forme de tableau. Ceci peut parfois être un peu déstabilisant dans les premiers temps d’utilisation, même si on perd vite l’habitude et qu’on finit par se rendre compte que « voir » les données n’est pas forcément un gage de productivité ou de rigueur dans le traitement.</p>
+<p>Néanmoins, <strong>R</strong> propose une interface permettant de visualiser le contenu d’un tableau de données à l’aide de la fonction <code data-package="utils">View</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">View</span>(d)</code></pre>
+<p>Sous <strong>RStudio</strong>, on peut aussi afficher la visionneusee (<em>viewer</em>) en cliquant sur la petite icône en forme de tableau située à droite de la ligne d’un tableau de données dans l’onglet <em>Environment</em> du quadrant supérieur droit (cf. figure ci-après).</p>
+<figure>
+<img src="images/capture_RStudio_icone_viewer.png" alt="Icône pour afficher une vue du contenu d’un tableau"/>
+<figcaption>
+Icône pour afficher une vue du contenu d’un tableau
+</figcaption>
+</figure>
+<p>Dans tous les cas, <strong>RStudio</strong> lancera le <em>viewer</em> dans un onglet dédié dans le quadrant supérieur gauche. Le visualiseur de <strong>RStudio</strong> est plus avancé que celui-de base fournit par <strong>R</strong>. Il est possible de trier les données selon une variable en cliquant sur le nom de cette dernière. Il y a également un champs de recherche et un bouton <em>Filter</em> donnant accès à des options de filtrage avancées.</p>
+<figure>
+<img src="images/capture_RStudio_data_viewer.png" alt="La visionneuse de données de RStudio"/>
+<figcaption>
+La visionneuse de données de RStudio
+</figcaption>
+</figure>
+</div>
+<div id="pem_premier_travail_acceder-aux-variables" class="section level3">
+<h3>Accéder aux variables</h3>
+<p><code>d</code> représente donc l’ensemble de notre tableau de données. Nous avons vu que si l’on saisit simplement <code>d</code> à l’invite de commandes, on obtient un affichage du tableau en question. Mais comment accéder aux variables, c’est à dire aux colonnes de notre tableau ?</p>
+<p>La réponse est simple : on utilise le nom de l’objet, suivi de l’opérateur <code data-package="base" data-rdocumentation="Extract">$</code>, suivi du nom de la variable, comme ceci :</p>
+<pre class="sourceCode r"><code class="sourceCode r">d$sexe</code></pre>
+<p>Au regard du résultat (non reproduit ici), on constate alors que <strong>R</strong> a bien accédé au contenu de notre variable <em>sexe</em> du tableau <code>d</code> et a affiché son contenu, c’est-à-dire l’ensemble des valeurs prises par la variable.</p>
+<p>Les fonctions <code data-package="utils">head</code> et <code data-package="utils" data-rdocumentation="head">tail</code> permettent d’afficher seulement les premières (respectivement les dernières) valeurs prises par la variable. On peut leur passer en argument le nombre d’éléments à afficher :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(d$sport)</code></pre>
+<pre><code>[1] Non Oui Oui Oui Non Oui
+Levels: Non Oui</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">tail</span>(d$age, <span class="dv">10</span>)</code></pre>
+<pre><code> [1] 52 42 50 41 46 45 46 24 24 66</code></pre>
+<p>À noter que ces fonctions marchent aussi pour afficher les lignes du tableau <code>d</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(d, <span class="dv">2</span>)</code></pre>
+<pre><code>  id age  sexe
+1  1  28 Femme
+2  2  23 Femme
+                                               nivetud
+1 Enseignement superieur y compris technique superieur
+2                                                 &lt;NA&gt;
+     poids                 occup  qualif
+1 2634.398 Exerce une profession Employe
+2 9738.396       Etudiant, eleve    &lt;NA&gt;
+  freres.soeurs clso                       relig
+1             8  Oui Ni croyance ni appartenance
+2             2  Oui Ni croyance ni appartenance
+       trav.imp    trav.satisf hard.rock
+1 Peu important Insatisfaction       Non
+2          &lt;NA&gt;           &lt;NA&gt;       Non
+  lecture.bd peche.chasse cuisine bricol cinema
+1        Non          Non     Oui    Non    Non
+2        Non          Non     Non    Non    Oui
+  sport heures.tv
+1   Non         0
+2   Oui         1</code></pre>
+</div>
+</div>
+<div id="pem_premier_travail_stat_univ" class="section level2">
+<h2>Analyser une variable (statistique univariée)</h2>
+<div id="pem_premier_travail_variable-quantitative" class="section level3">
+<h3>Variable quantitative</h3>
+<div id="pem_premier_travail_principaux-indicateurs" class="section level4">
+<h4>Principaux indicateurs</h4>
+<p>Comme la fonction <code data-package="utils">str</code> nous l’a indiqué, notre tableau <code>d</code> contient plusieurs valeurs numériques, dont la variable <em>heures.tv</em> qui représente le nombre moyen passé par les enquêtés à regarder la télévision quotidiennement. On peut essayer de déterminer quelques caractéristiques de cette variable, en utilisant les fonctions <code data-package="base">mean</code>, <code data-package="stats">sd</code>, <code data-package="base" data-rdocumentation="Extremes">min</code>, <code data-package="base" data-rdocumentation="Extremes">max</code> et <code data-package="base">range</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>(d$heures.tv)</code></pre>
+<pre><code>[1] NA</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>(d$heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre>
+<pre><code>[1] 2.246566</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sd</span>(d$heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre>
+<pre><code>[1] 1.775853</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">min</span>(d$heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre>
+<pre><code>[1] 0</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">max</span>(d$heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre>
+<pre><code>[1] 12</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">range</span>(d$heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre>
+<pre><code>[1]  0 12</code></pre>
+<p>On peut lui ajouter la fonction <code data-package="stats">median</code> qui donne la valeur médiane, <code data-package="stats">quantile</code> qui calcule plus généralement tout type de quantiles, et le très utile <code data-package="base">summary</code> qui donne toutes ces informations ou presque en une seule fois, avec en prime le nombre de valeurs manquantes (<code>NA</code>) :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">median</span>(d$heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre>
+<pre><code>[1] 2</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">quantile</span>(d$heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre>
+<pre><code>  0%  25%  50%  75% 100% 
+   0    1    2    3   12 </code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(d$heures.tv)</code></pre>
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  0.000   1.000   2.000   2.247   3.000  12.000 
+   NA's 
+      5 </code></pre>
+<p>La fonction <code data-package="base">summary</code> est une fonction générique qui peut être utilisée sur tout type d’objet, y compris un tableau de données. Essayez donc <code>summary(d)</code>.</p>
+</div>
+<div id="pem_premier_travail_histogramme" class="section level4">
+<h4>Histogramme</h4>
+<p>Tout cela est bien pratique, mais pour pouvoir observer la distribution des valeurs d’une variable quantitative, il n’y a quand même rien de mieux qu’un bon graphique.</p>
+<p>On peut commencer par un histogramme de la répartition des valeurs. Celui-ci peut être généré très facilement avec la fonction <code data-package="graphics">hist</code> :</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">hist</span>(d$heures.tv, <span class="dt">main =</span> <span class="st">"Nombre d'heures passées devant la télé par jour"</span>, 
+  <span class="dt">xlab =</span> <span class="st">"Heures"</span>, <span class="dt">ylab =</span> <span class="st">"Effectif"</span>)</code></pre>
+<img src="pem_premier_travail_files/figure-html/unnamed-chunk-19-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Exemple d’histogramme
+</figcaption>
+</figure>
+<p>Sous <strong>RStudio</strong>, les graphiques s’affichent dans l’onglet <em>Plots</em> du quadrant inférieur droit. Il est possible d’afficher une version plus grande de votre graphique en cliquant sur <em>Zoom</em>.</p>
+<p>Ici, les options <code>main</code>, <code>xlab</code> et <code>ylab</code> permettent de personnaliser le titre du graphique, ainsi que les étiquettes des axes. De nombreuses autres options existent pour personnaliser l’histogramme, parmi celles-ci on notera :</p>
+<ul>
+<li><code>probability</code> si elle vaut <code>TRUE</code>, l’histogramme indique la proportion des classes de valeurs au lieu des effectifs.</li>
+<li><code>breaks</code> permet de contrôler les classes de valeurs. On peut lui passer un chiffre, qui indiquera alors le nombre de classes, un vecteur, qui indique alors les limites des différentes classes, ou encore une chaîne de caractère ou une fonction indiquant comment les classes doivent être calculées.</li>
+<li><code>col</code> la couleur de l’histogramme<a href="#pem_premier_travail_fn2" class="footnoteRef" id="pem_premier_travail_fnref2"><sup>2</sup></a>.</li>
+</ul>
+<p>Voir la page d’aide de la fonction <code data-package="graphics">hist</code> pour plus de détails sur les différentes options. Les deux figures ci-après sont deux autres exemples d’histogramme.</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">hist</span>(d$heures.tv, <span class="dt">main =</span> <span class="st">"Heures de télé en 7 classes"</span>, 
+  <span class="dt">breaks =</span> <span class="dv">7</span>, <span class="dt">xlab =</span> <span class="st">"Heures"</span>, <span class="dt">ylab =</span> <span class="st">"Proportion"</span>, 
+  <span class="dt">probability =</span> <span class="ot">TRUE</span>, <span class="dt">col =</span> <span class="st">"orange"</span>)</code></pre>
+<img src="pem_premier_travail_files/figure-html/unnamed-chunk-20-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Un autre exemple d’histogramme
+</figcaption>
+</figure>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">hist</span>(d$heures.tv, <span class="dt">main =</span> <span class="st">"Heures de télé avec classes spécifiées"</span>, 
+  <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">9</span>, <span class="dv">12</span>), <span class="dt">xlab =</span> <span class="st">"Heures"</span>, <span class="dt">ylab =</span> <span class="st">"Proportion"</span>, 
+  <span class="dt">col =</span> <span class="st">"red"</span>)</code></pre>
+<img src="pem_premier_travail_files/figure-html/unnamed-chunk-21-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Encore un autre exemple d’histogramme
+</figcaption>
+</figure>
+</div>
+<div id="pem_premier_travail_boites-a-moustaches" class="section level4">
+<h4>Boîtes à moustaches</h4>
+<p>Les boîtes à moustaches, ou <em>boxplot</em> en anglais, sont une autre représentation graphique de la répartition des valeurs d’une variable quantitative. Elles sont particulièrement utiles pour comparer les distributions de plusieurs variables ou d’une même variable entre différents groupes, mais peuvent aussi être utilisées pour représenter la dispersion d’une unique variable. La fonction qui produit ces graphiques est la fonction <code data-package="graphics">boxplot</code>.</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">boxplot</span>(d$heures.tv, <span class="dt">main =</span> <span class="st">"Nombre d'heures passées devant la télé par jour"</span>, 
+  <span class="dt">ylab =</span> <span class="st">"Heures"</span>)</code></pre>
+<img src="pem_premier_travail_files/figure-html/unnamed-chunk-22-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Exemple de boîte à moustaches
+</figcaption>
+</figure>
+<p>Comment interpréter ce graphique ? On le comprendra mieux à partir de la figure ci-après<a href="#pem_premier_travail_fn3" class="footnoteRef" id="pem_premier_travail_fnref3"><sup>3</sup></a>.</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">boxplot</span>(d$heures.tv, <span class="dt">col =</span> <span class="kw">grey</span>(<span class="fl">0.8</span>), <span class="dt">main =</span> <span class="st">"Nombre d'heures passées devant la télé par jour"</span>, 
+  <span class="dt">ylab =</span> <span class="st">"Heures"</span>)
+<span class="kw">abline</span>(<span class="dt">h =</span> <span class="kw">median</span>(d$heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="dt">col =</span> <span class="st">"navy"</span>, 
+  <span class="dt">lty =</span> <span class="dv">2</span>)
+<span class="kw">text</span>(<span class="fl">1.35</span>, <span class="kw">median</span>(d$heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) +<span class="st"> </span><span class="fl">0.15</span>, 
+  <span class="st">"Médiane"</span>, <span class="dt">col =</span> <span class="st">"navy"</span>)
+Q1 &lt;-<span class="st"> </span><span class="kw">quantile</span>(d$heures.tv, <span class="dt">probs =</span> <span class="fl">0.25</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)
+<span class="kw">abline</span>(<span class="dt">h =</span> Q1, <span class="dt">col =</span> <span class="st">"darkred"</span>)
+<span class="kw">text</span>(<span class="fl">1.35</span>, Q1 +<span class="st"> </span><span class="fl">0.15</span>, <span class="st">"Q1 : premier quartile"</span>, <span class="dt">col =</span> <span class="st">"darkred"</span>, 
+  <span class="dt">lty =</span> <span class="dv">2</span>)
+Q3 &lt;-<span class="st"> </span><span class="kw">quantile</span>(d$heures.tv, <span class="dt">probs =</span> <span class="fl">0.75</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)
+<span class="kw">abline</span>(<span class="dt">h =</span> Q3, <span class="dt">col =</span> <span class="st">"darkred"</span>)
+<span class="kw">text</span>(<span class="fl">1.35</span>, Q3 +<span class="st"> </span><span class="fl">0.15</span>, <span class="st">"Q3 : troisième quartile"</span>, <span class="dt">col =</span> <span class="st">"darkred"</span>, 
+  <span class="dt">lty =</span> <span class="dv">2</span>)
+<span class="kw">arrows</span>(<span class="dt">x0 =</span> <span class="fl">0.7</span>, <span class="dt">y0 =</span> <span class="kw">quantile</span>(d$heures.tv, <span class="dt">probs =</span> <span class="fl">0.75</span>, 
+  <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="dt">x1 =</span> <span class="fl">0.7</span>, <span class="dt">y1 =</span> <span class="kw">quantile</span>(d$heures.tv, 
+  <span class="dt">probs =</span> <span class="fl">0.25</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="dt">length =</span> <span class="fl">0.1</span>, <span class="dt">code =</span> <span class="dv">3</span>)
+<span class="kw">text</span>(<span class="fl">0.7</span>, Q1 +<span class="st"> </span>(Q3 -<span class="st"> </span>Q1)/<span class="dv">2</span> +<span class="st"> </span><span class="fl">0.15</span>, <span class="st">"h"</span>, <span class="dt">pos =</span> <span class="dv">2</span>)
+<span class="kw">mtext</span>(<span class="st">"L'écart inter-quartile h contient 50 % des individus"</span>, 
+  <span class="dt">side =</span> <span class="dv">1</span>)
+<span class="kw">abline</span>(<span class="dt">h =</span> Q1 -<span class="st"> </span><span class="fl">1.5</span> *<span class="st"> </span>(Q3 -<span class="st"> </span>Q1), <span class="dt">col =</span> <span class="st">"darkgreen"</span>)
+<span class="kw">text</span>(<span class="fl">1.35</span>, Q1 -<span class="st"> </span><span class="fl">1.5</span> *<span class="st"> </span>(Q3 -<span class="st"> </span>Q1) +<span class="st"> </span><span class="fl">0.15</span>, <span class="st">"Q1 -1.5 h"</span>, 
+  <span class="dt">col =</span> <span class="st">"darkgreen"</span>, <span class="dt">lty =</span> <span class="dv">2</span>)
+<span class="kw">abline</span>(<span class="dt">h =</span> Q3 +<span class="st"> </span><span class="fl">1.5</span> *<span class="st"> </span>(Q3 -<span class="st"> </span>Q1), <span class="dt">col =</span> <span class="st">"darkgreen"</span>)
+<span class="kw">text</span>(<span class="fl">1.35</span>, Q3 +<span class="st"> </span><span class="fl">1.5</span> *<span class="st"> </span>(Q3 -<span class="st"> </span>Q1) +<span class="st"> </span><span class="fl">0.15</span>, <span class="st">"Q3 +1.5 h"</span>, 
+  <span class="dt">col =</span> <span class="st">"darkgreen"</span>, <span class="dt">lty =</span> <span class="dv">2</span>)</code></pre>
+<img src="pem_premier_travail_files/figure-html/unnamed-chunk-23-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Interprétation d’une boîte à moustaches
+</figcaption>
+</figure>
+<p>Le carré au centre du graphique est délimité par les premiers et troisième quartiles, avec la médiane représentée par une ligne plus sombre au milieu. Les « fourchettes » s’étendant de part et d’autres vont soit jusqu’à la valeur minimale ou maximale, soit jusqu’à une valeur approximativement égale au quartile le plus proche plus 1,5 fois l’écart inter-quartile. Les points se situant en-dehors de cette fourchette sont représentés par des petits ronds et sont généralement considérés comme des valeurs extrêmes, potentiellement aberrantes.</p>
+<p>On peut ajouter la représentation des valeurs sur le graphique pour en faciliter la lecture avec des petits traits dessinés sur l’axe vertical (fonction <code data-package="graphics">rug</code>) :</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">boxplot</span>(d$heures.tv, <span class="dt">main =</span> <span class="st">"Nombre d'heures passées devant la télé par</span><span class="ch">\n</span><span class="st">jour"</span>, 
+  <span class="dt">ylab =</span> <span class="st">"Heures"</span>)
+<span class="kw">rug</span>(d$heures.tv, <span class="dt">side =</span> <span class="dv">2</span>)</code></pre>
+<img src="pem_premier_travail_files/figure-html/unnamed-chunk-24-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Boîte à moustaches avec représentation des valeurs
+</figcaption>
+</figure>
+</div>
+<div id="pem_premier_travail_intervalle-de-confiance" class="section level4">
+<h4>Intervalle de confiance</h4>
+<p>L’intervalle de confiance d’une moyenne peut être calculé avec la fonction <code data-package="stats">t.test</code> (fonction qui permet également de réaliser un test <em>t</em> de Student comme nous le verrons dans le chapitre dédié à la <a href="#analyses_stat_biv_comp_moyennes">statistique bivariée</a>) :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">t.test</span>(d$heures.tv)</code></pre>
+<pre><code>
+    One Sample t-test
+
+data:  d$heures.tv
+t = 56.505, df = 1994, p-value &lt; 2.2e-16
+alternative hypothesis: true mean is not equal to 0
+95 percent confidence interval:
+ 2.168593 2.324540
+sample estimates:
+mean of x 
+ 2.246566 </code></pre>
+<p>Le niveau de confiance peut être précisé via l’argument <code>conf.level</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">t.test</span>(d$heures.tv, <span class="dt">conf.level =</span> <span class="fl">0.9</span>)</code></pre>
+<pre><code>
+    One Sample t-test
+
+data:  d$heures.tv
+t = 56.505, df = 1994, p-value &lt; 2.2e-16
+alternative hypothesis: true mean is not equal to 0
+90 percent confidence interval:
+ 2.181138 2.311995
+sample estimates:
+mean of x 
+ 2.246566 </code></pre>
+<p>Le nombre d’heures moyennes à regarder la télévision parmi les enquêtés s’avère être de 2,2 heures, avec un intervalle de confiance à 95 % de [2,17 - 2,33] et un intervalle de confiance à 90 % de [2,18 - 2,31].</p>
+</div>
+</div>
+<div id="pem_premier_travail_variable-qualitative" class="section level3">
+<h3>Variable qualitative</h3>
+<div id="pem_premier_travail_tris-a-plat" class="section level4">
+<h4>Tris à plat</h4>
+<p>La fonction la plus utilisée pour le traitement et l’analyse des variables qualitatives (variable prenant ses valeurs dans un ensemble de modalités) est sans aucun doute la fonction <code data-package="base">table</code>, qui donne les effectifs de chaque modalité de la variable.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(d$sexe)</code></pre>
+<pre><code>
+Homme Femme 
+  899  1101 </code></pre>
+<p>La tableau précédent nous indique que parmi nos enquêtés on trouve 899 hommes et 1101 femmes.</p>
+<p>Quand le nombre de modalités est élevé, on peut ordonner le tri à plat selon les effectifs à l’aide de la fonction <code data-package="base">sort</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(d$occup)</code></pre>
+<pre><code>
+Exerce une profession               Chomeur 
+                 1049                   134 
+      Etudiant, eleve              Retraite 
+                   94                   392 
+  Retire des affaires              Au foyer 
+                   77                   171 
+        Autre inactif 
+                   83 </code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sort</span>(<span class="kw">table</span>(d$occup))</code></pre>
+<pre><code>
+  Retire des affaires         Autre inactif 
+                   77                    83 
+      Etudiant, eleve               Chomeur 
+                   94                   134 
+             Au foyer              Retraite 
+                  171                   392 
+Exerce une profession 
+                 1049 </code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sort</span>(<span class="kw">table</span>(d$occup), <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</code></pre>
+<pre><code>
+Exerce une profession              Retraite 
+                 1049                   392 
+             Au foyer               Chomeur 
+                  171                   134 
+      Etudiant, eleve         Autre inactif 
+                   94                    83 
+  Retire des affaires 
+                   77 </code></pre>
+<p>À noter que la fonction <code data-package="base">table</code> exclut par défaut les non-réponses du tableau résultat. L’argument <code>useNA</code> de cette fonction permet de modifier ce comportement :</p>
+<ul>
+<li>avec <code>useNA="no"</code> (valeur par défaut), les valeurs manquantes ne sont jamais incluses dans le tri à plat ;</li>
+<li>avec <code>useNA="ifany"</code>, une colonne <code>NA</code> est ajoutée si des valeurs manquantes sont présentes dans les données ;</li>
+<li>avec <code>useNA="always"</code>, une colonne <code>NA</code> est toujours ajoutée, même s’il n’y a pas de valeurs manquantes dans les données.</li>
+</ul>
+<p>On peut donc utiliser :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(d$trav.satisf, <span class="dt">useNA =</span> <span class="st">"ifany"</span>)</code></pre>
+<pre><code>
+  Satisfaction Insatisfaction      Equilibre 
+           480            117            451 
+          &lt;NA&gt; 
+           952 </code></pre>
+<p>L’utilisation de <code data-package="base">summary</code> permet également l’affichage du tri à plat et du nombre de non-réponses :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(d$trav.satisf)</code></pre>
+<pre><code>  Satisfaction Insatisfaction      Equilibre 
+           480            117            451 
+          NA's 
+           952 </code></pre>
+<p>Pour obtenir un tableau avec la répartition en pourcentages, on peut utiliser la fonction <code data-package="questionr">freq</code> de l’extension <strong class="package">questionr</strong><a href="#pem_premier_travail_fn4" class="footnoteRef" id="pem_premier_travail_fnref4"><sup>4</sup></a>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$qualif)</code></pre>
+<pre><code>                           n    % val%
+Ouvrier specialise       203 10.2 12.3
+Ouvrier qualifie         292 14.6 17.7
+Technicien                86  4.3  5.2
+Profession intermediaire 160  8.0  9.7
+Cadre                    260 13.0 15.7
+Employe                  594 29.7 35.9
+Autre                     58  2.9  3.5
+NA                       347 17.3   NA</code></pre>
+<p>La colonne <code>n</code> donne les effectifs bruts, la colonne <code>%</code> la répartition en pourcentages et <code>val%</code> la répartition en pourcentages, données manquantes exclues. La fonction accepte plusieurs paramètres permettant d’afficher les totaux, les pourcentages cumulés, de trier selon les effectifs ou de contrôler l’affichage. Par exemple :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$qualif, <span class="dt">cum =</span> <span class="ot">TRUE</span>, <span class="dt">total =</span> <span class="ot">TRUE</span>, <span class="dt">sort =</span> <span class="st">"inc"</span>, 
+  <span class="dt">digits =</span> <span class="dv">2</span>, <span class="dt">exclude =</span> <span class="ot">NA</span>)</code></pre>
+<pre><code>                            n      %   %cum
+Autre                      58   3.51   3.51
+Technicien                 86   5.20   8.71
+Profession intermediaire  160   9.68  18.39
+Ouvrier specialise        203  12.28  30.67
+Cadre                     260  15.73  46.40
+Ouvrier qualifie          292  17.66  64.07
+Employe                   594  35.93 100.00
+Total                    1653 100.00 100.00</code></pre>
+<p>La colonne <code>%cum</code> indique ici le pourcentage cumulé, ce qui est ici une très mauvaise idée puisque pour ce type de variable cela n’a aucun sens. Les lignes du tableau résultat ont été triés par effectifs croissants, les totaux ont été ajoutés, les non-réponses exclues et les pourcentages arrondis à deux décimales.</p>
+<p>Pour plus d’informations sur la fonction <code data-package="questionr">freq</code>, consultez sa page d’aide en ligne avec <code>?freq</code> ou <code>help("freq")</code>.</p>
+</div>
+<div id="pem_premier_travail_representation-graphique" class="section level4">
+<h4>Représentation graphique</h4>
+<p>Pour représenter la répartition des effectifs parmi les modalités d’une variable qualitative, on a souvent tendance à utiliser des diagrammes en secteurs (camemberts). Ceci est possible sous <strong>R</strong> avec la fonction <code data-package="graphics">pie</code>, mais la page d’aide de la dite fonction nous le déconseille assez vivement : les diagrammes en secteur sont en effet une mauvaise manière de présenter ce type d’information, car l’oeil humain préfère comparer des longueurs plutôt que des surfaces<a href="#pem_premier_travail_fn5" class="footnoteRef" id="pem_premier_travail_fnref5"><sup>5</sup></a>.</p>
+<p>On privilégiera donc d’autres formes de représentations, à savoir les diagrammes en bâtons et les <em>diagrammes de Cleveland</em>.</p>
+<p>Les diagrammes en bâtons sont utilisés automatiquement par <strong>R</strong> lorsqu’on applique la fonction générique <code data-package="graphics" data-rdocumentation="plot.table">plot</code> à un tri à plat obtenu avec <code data-package="base">table</code>. On privilégiera cependant ce type de représentations pour les variables de type numérique comportant un nombre fini de valeurs. Le nombre de frères, soeurs, demi-frères et demi-soeurs est un bon exemple :</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">table</span>(d$freres.soeurs), <span class="dt">main =</span> <span class="st">"Nombre de frères, soeurs, demi-frères et demi-soeurs"</span>, 
+  <span class="dt">ylab =</span> <span class="st">"Effectif"</span>)</code></pre>
+<img src="pem_premier_travail_files/figure-html/unnamed-chunk-33-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Exemple de diagramme en bâtons
+</figcaption>
+</figure>
+<p>Pour les autres types de variables qualitatives, on privilégiera les <em>diagrammes de Cleveland</em>, obtenus avec la fonction <code data-package="graphics">dotchart</code>. On doit appliquer cette fonction au tri à plat de la variable, obtenu avec <code data-package="base">table</code><a href="#pem_premier_travail_fn6" class="footnoteRef" id="pem_premier_travail_fnref6"><sup>6</sup></a> :</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">t</span>(<span class="kw">table</span>(d$clso)), <span class="dt">main =</span> <span class="st">"Sentiment d'appartenance à une classe sociale"</span>, 
+  <span class="dt">pch =</span> <span class="dv">19</span>)</code></pre>
+<img src="pem_premier_travail_files/figure-html/unnamed-chunk-34-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Exemple de diagramme de Cleveland
+</figcaption>
+</figure>
+<p>Quand la variable comprend un grand nombre de modalités, il est préférable d’ordonner le tri à plat obtenu à l’aide de la fonction <code data-package="base">sort</code> :</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">sort</span>(<span class="kw">table</span>(d$qualif)), <span class="dt">main =</span> <span class="st">"Niveau de qualification"</span>)</code></pre>
+<img src="pem_premier_travail_files/figure-html/unnamed-chunk-35-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Exemple de diagramme de Cleveland ordonné
+</figcaption>
+</figure>
+<div class="astuce">
+<p>L’agument <code>pch</code>, qui est utilisé par la plupart des graphiques de type points, permet de spécifier le symbole à utiliser. Il peut prendre soit un nombre entier compris entre 0 et 25, soit un charactère textuel (voir ci-dessous).</p>
+<img src="pem_premier_travail_files/figure-html/unnamed-chunk-36-1.png" title="" alt="" width="1050"/>
+</div>
+</div>
+<div id="pem_premier_travail_intervalle-de-confiance-1" class="section level4">
+<h4>Intervalle de confiance</h4>
+<p>La fonction <code data-package="stats">prop.test</code> permet de calculer l’intervalle de confiance d’une proportion. Une première possibilité consiste à lui transmettre une table à une dimension et deux entrées. Par exemple, si l’on s’intéresse à la proportion de personnes ayant pratiqué une activité physique au cours des douze derniers mois :</p>
+<p>freq(d<span class="math"><em>s</em><em>p</em><em>o</em><em>r</em><em>t</em>)<em>p</em><em>r</em><em>o</em><em>p</em>.<em>t</em><em>e</em><em>s</em><em>t</em>(<em>t</em><em>a</em><em>b</em><em>l</em><em>e</em>(<em>d</em></span>sport))</p>
+<p>On remarquera que la fonction a calculé l’intervalle de confiance correspondant à la première entrée du tableau, autrement dit celui de la proportion d’enquêtés n’ayant pas pratiqué une activité sportive. Or, nous sommes intéressé par la proportion complémentaire, à savoir celle d’enquêtés ayant pratiqué une activité sportive. On peut dès lors modifier l’ordre de la table en indiquant notre modalité d’intérêt avec la fonction <code data-package="stats">relevel</code> ou bien indiquer à <code data-package="stats">prop.test</code> d’abord le nombre de succès puis l’effectif total :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.test</span>(<span class="kw">table</span>(<span class="kw">relevel</span>(d$sport, <span class="st">"Oui"</span>)))</code></pre>
+<pre><code>
+    1-sample proportions test with continuity
+    correction
+
+data:  table(relevel(d$sport, "Oui")), null probability 0.5
+X-squared = 152.9, df = 1, p-value &lt; 2.2e-16
+alternative hypothesis: true p is not equal to 0.5
+95 percent confidence interval:
+ 0.3404821 0.3830553
+sample estimates:
+     p 
+0.3615 </code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.test</span>(<span class="kw">sum</span>(d$sport ==<span class="st"> "Oui"</span>), <span class="kw">length</span>(d$sport))</code></pre>
+<pre><code>
+    1-sample proportions test with continuity
+    correction
+
+data:  sum(d$sport == "Oui") out of length(d$sport), null probability 0.5
+X-squared = 152.9, df = 1, p-value &lt; 2.2e-16
+alternative hypothesis: true p is not equal to 0.5
+95 percent confidence interval:
+ 0.3404821 0.3830553
+sample estimates:
+     p 
+0.3615 </code></pre>
+<p>Enfin, le niveau de confiance peut être modifié via l’argument <code>conf.level</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.test</span>(<span class="kw">table</span>(<span class="kw">relevel</span>(d$sport, <span class="st">"Oui"</span>)), <span class="dt">conf.level =</span> <span class="fl">0.9</span>)</code></pre>
+<pre><code>
+    1-sample proportions test with continuity
+    correction
+
+data:  table(relevel(d$sport, "Oui")), null probability 0.5
+X-squared = 152.9, df = 1, p-value &lt; 2.2e-16
+alternative hypothesis: true p is not equal to 0.5
+90 percent confidence interval:
+ 0.3437806 0.3795989
+sample estimates:
+     p 
+0.3615 </code></pre>
+<div class="info">
+Il existe de nombreuses manières de calculer un intervalle de confiance pour une proportion. En l’occurence, l’intervalle calculé par <code data-package="base">prop.test</code> correspond dans le cas présent à un intervalle bilatéral selon la méthode des scores de Wilson avec correction de continuité. Pour plus d’information, on pourra lire <a href="http://joseph.larmarange.net/?Intervalle-de-confiance-bilateral" class="uri">http://joseph.larmarange.net/?Intervalle-de-confiance-bilateral</a>.
+</div>
+</div>
+</div>
+</div>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="pem_premier_travail_fn1"><p>Sous <strong>Mac OS X</strong>, on utilise les touches <kbd>Pomme</kbd> et <kbd>Entrée</kbd>.<a href="#pem_premier_travail_fnref1">↩</a></p></li>
+<li id="pem_premier_travail_fn2"><p>Il existe un grand nombre de couleurs prédéfinies dans <strong>R</strong>. On peut récupérer leur liste en utilisant la fonction <code data-package="grDevices">colors</code> en tapant simplement <code>colors()</code> dans la console, ou en consultant le document suivant : <a href="http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf" class="uri">http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf</a>.<a href="#pem_premier_travail_fnref2">↩</a></p></li>
+<li id="pem_premier_travail_fn3"><p>Le code ayant servi à générer cette figure est une copie quasi conforme de celui présenté dans l’excellent document de Jean Lobry sur les graphiques de base avec <strong>R</strong>, téléchargeable sur le site du Pôle bioinformatique lyonnais : <a href="http://pbil.univ-lyon1.fr/R/pdf/lang04.pdf" class="uri">http://pbil.univ-lyon1.fr/R/pdf/lang04.pdf</a>.<a href="#pem_premier_travail_fnref3">↩</a></p></li>
+<li id="pem_premier_travail_fn4"><p>En l’absence de l’extension <strong class="package">questionr</strong>, on pourra se rabattre sur la fonction <code data-package="base">prop.table</code> avec la commande suivante : <code>prop.table(table(d$qualif))</code>.<a href="#pem_premier_travail_fnref4">↩</a></p></li>
+<li id="pem_premier_travail_fn5"><p>On trouvera des exemples illustrant cette idée dans le document de Jean Lobry cité précédemment.<a href="#pem_premier_travail_fnref5">↩</a></p></li>
+<li id="pem_premier_travail_fn6"><p>Pour des raisons liées au fonctionnement interne de la fonction <code data-package="graphics">dotchart</code>, on doit l’appliquer à la transposition du tri à plat obtenu, d’où l’appel à la fonction <code data-package="base">t</code>.<a href="#pem_premier_travail_fnref6">↩</a></p></li>
+</ol>
+</div>
+
+</article>
+<article id="pem_import_export">
+
+<div id="pem_import_export_header">
+<h1 class="title">Import / Export de données</h1>
+</div>
+
+
+<p>à venir</p>
 
 </article>
 <article id="pem_manipulation">
@@ -162,7 +1283,7 @@ Dernière mise à jour : 12 mai 2015
 <li><a href="#pem_manipulation_verification-des-recodages">Vérification des recodages</a></li>
 </ul></li>
 <li><a href="#pem_manipulation_tri-de-tables">Tri de tables</a></li>
-<li><a href="#pem_manipulation_fusion-de-tables">Fusion de tables</a></li>
+<li><a href="#pem_manipulation_fusion_tables">Fusion de tables</a></li>
 </ul>
 </div>
 
@@ -1169,7 +2290,7 @@ d$act.manuelles[d$cuisine ==<span class="st"> "Non"</span> &amp;<span class="st"
 270          0
 1542        10</code></pre>
 </div>
-<div id="pem_manipulation_fusion-de-tables" class="section level2">
+<div id="pem_manipulation_fusion_tables" class="section level2">
 <h2>Fusion de tables</h2>
 <p>Lorsqu’on traite de grosses enquêtes, notamment les enquêtes de l’INSEE, on a souvent à gérer des données réparties dans plusieurs tables, soit du fait de la construction du questionnaire, soit du fait de contraintes techniques (fichiers <strong>dbf</strong> ou <strong>Excel</strong> limités à 256 colonnes, par exemple).</p>
 <p>Une opération relativement courante consiste à fusionner plusieurs tables pour regrouper tout ou partie des données dans un unique tableau.</p>
@@ -2255,11 +3376,15 @@ F
 <div class="TOC">
 <ul>
 <li><a href="#analyses_stat_biv_deux-variables-quantitatives">Deux variables quantitatives</a></li>
-<li><a href="#analyses_stat_biv_une-variable-quantitative-et-une-variable-qualitative">Une variable quantitative et une variable qualitative</a></li>
+<li><a href="#analyses_stat_biv_une-variable-quantitative-et-une-variable-qualitative">Une variable quantitative et une variable qualitative</a><ul>
+<li><a href="#analyses_stat_biv_representations-graphiques">Représentations graphiques</a></li>
+<li><a href="#analyses_stat_biv_comp_moyennes">Comparaison de moyennes</a></li>
+</ul></li>
 <li><a href="#analyses_stat_biv_deux-variables-qualitatives">Deux variables qualitatives</a><ul>
 <li><a href="#analyses_stat_biv_tableau-croise">Tableau croisé</a></li>
 <li><a href="#analyses_stat_biv_-et-derives">χ² et dérivés</a></li>
 <li><a href="#analyses_stat_biv_representation-graphique">Représentation graphique</a></li>
+<li><a href="#analyses_stat_biv_comparaison-de-proportions">Comparaison de proportions</a></li>
 </ul></li>
 </ul>
 </div>
@@ -2267,7 +3392,8 @@ F
 <div class="note">
 La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre du support de cours <a href="https://github.com/juba/intro-r">Introduction à R</a>.
 </div>
-<p>On entend par statistique bivariée l’étude des relations entre deux variables, celles-ci pouvant être quantitatives ou qualitatives.</p>
+<p>On entend par <em>statistique bivariée</em> l’étude des relations entre deux variables, celles-ci pouvant être quantitatives ou qualitatives.</p>
+<p>La <em>statistique univariée</em> a quant à elle déjà été abordée dans le chapitre <a href="#pem_premier_travail_stat_univ">Premier travail avec les données</a>.</p>
 <p>Comme dans la partie précédente, on travaillera sur les jeux de données fournis avec l’extension <strong class="package">questionr</strong> et tiré de l’enquête <em>Histoire de vie</em> et du recensement 1999 :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
 <span class="kw">data</span>(hdv2003)
@@ -2364,6 +3490,8 @@ Pour un aperçu de la syntaxe des formules sous <strong>R</strong>, voir <a href
 </div>
 <div id="analyses_stat_biv_une-variable-quantitative-et-une-variable-qualitative" class="section level2">
 <h2>Une variable quantitative et une variable qualitative</h2>
+<div id="analyses_stat_biv_representations-graphiques" class="section level3">
+<h3>Représentations graphiques</h3>
 <p>Quand on parle de comparaison entre une variable quantitative et une variable qualitative, on veut en général savoir si la distribution des valeurs de la variable quantitative est la même selon les modalités de la variable qualitative. En clair : est ce que l’âge de ceux qui écoutent du hard rock est différent de l’âge de ceux qui n’en écoutent pas ?</p>
 <p>Là encore, l’idéal est de commencer par une représentation graphique. Les boîtes à moustaches sont parfaitement adaptées pour cela.</p>
 <p>Si on a construit des sous-populations d’individus écoutant ou non du hard rock, on peut utiliser la fonction <code data-package="graphics">boxplot</code>.</p>
@@ -2384,7 +3512,11 @@ Boxplot de la répartition des âges (sous-populations)
 Boxplot de la répartition des âges (formule)
 </figcaption>
 </figure>
-<p>À première vue, ô surprise, la population écoutant du hard rock a l’air sensiblement plus jeune. Peu-ton le tester mathématiquement ? On peut calculer la moyenne d’âge des deux groupes en utilisant la fonction <code data-package="base">tapply</code><a href="#analyses_stat_biv_fn2" class="footnoteRef" id="analyses_stat_biv_fnref2"><sup>2</sup></a> :</p>
+<p>À première vue, ô surprise, la population écoutant du hard rock a l’air sensiblement plus jeune. Peut-on le tester mathématiquement ?</p>
+</div>
+<div id="analyses_stat_biv_comp_moyennes" class="section level3">
+<h3>Comparaison de moyennes</h3>
+<p>On peut calculer la moyenne d’âge des deux groupes en utilisant la fonction <code data-package="base">tapply</code><a href="#analyses_stat_biv_fn2" class="footnoteRef" id="analyses_stat_biv_fnref2"><sup>2</sup></a> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">tapply</span>(d$age, d$hard.rock, mean)</code></pre>
 <pre><code>     Non      Oui 
 48.30211 27.57143 </code></pre>
@@ -2428,13 +3560,13 @@ La fonction <code data-package="graphics">par</code> permet de modifier de nombr
     Shapiro-Wilk normality test
 
 data:  d$age[d$hard.rock == "Oui"]
-W = 0.8693, p-value = 0.04104</code></pre>
+W = 0.86931, p-value = 0.04104</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">shapiro.test</span>(d$age[d$hard.rock ==<span class="st"> "Non"</span>])</code></pre>
 <pre><code>
     Shapiro-Wilk normality test
 
 data:  d$age[d$hard.rock == "Non"]
-W = 0.9814, p-value = 2.079e-15</code></pre>
+W = 0.98141, p-value = 2.079e-15</code></pre>
 <p>Visiblement, le test estime que les distributions ne sont pas suffisamment proches de la normalité dans les deux cas.</p>
 <p>Et concernant l’égalité des variances ?</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">tapply</span>(d$age, d$hard.rock, var)</code></pre>
@@ -2465,6 +3597,7 @@ data:  d$age by d$hard.rock
 W = 23980, p-value = 2.856e-06
 alternative hypothesis: true location shift is not equal to 0</code></pre>
 <p>Ouf ! La différence est hautement significative<a href="#analyses_stat_biv_fn4" class="footnoteRef" id="analyses_stat_biv_fnref4"><sup>4</sup></a>. Nous allons donc pouvoir entamer la rédaction de notre article pour la <em>Revue française de sociologie</em>.</p>
+</div>
 </div>
 <div id="analyses_stat_biv_deux-variables-qualitatives" class="section level2">
 <h2>Deux variables qualitatives</h2>
@@ -2580,7 +3713,7 @@ ctab</code></pre>
     Pearson's Chi-squared test
 
 data:  tab
-X-squared = 96.7983, df = 4, p-value &lt;
+X-squared = 96.798, df = 4, p-value &lt;
 2.2e-16</code></pre>
 <p>Le test est hautement significatif, on ne peut pas considérer qu’il y a indépendance entre les lignes et les colonnes du tableau.</p>
 <p>On peut affiner l’interprétation du test en déterminant dans quelle case l’écart à l’indépendance est le plus significatif en utilisant les <em>résidus</em> du test. Ceux-ci sont notamment affichables avec la fonction <code data-package="questionr">chisq.residuals</code> de <strong class="package">questionr</strong> :</p>
@@ -2635,6 +3768,31 @@ Exemple de graphe en mosaïque
 Exemple de barres cumulées
 </figcaption>
 </figure>
+</div>
+<div id="analyses_stat_biv_comparaison-de-proportions" class="section level3">
+<h3>Comparaison de proportions</h3>
+<p>La fonction <code data-package="stats">prop.test</code>, que nous avons déjà rencontrer pour calculer l’interface de confiance d’une proportion (MAJ_LIEN) permets également de comparer deux proportions.</p>
+<p>Supposons que l’on souhaite comparer la proportion de personnes faisant du sport entre ceux qui lisent des bandes dessinées et les autres :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">lprop</span>(<span class="kw">table</span>(d$lecture.bd, d$sport))</code></pre>
+<pre><code>          
+           Non   Oui   Total
+  Non       64.2  35.8 100.0
+  Oui       48.9  51.1 100.0
+  Ensemble  63.8  36.1 100.0</code></pre>
+<p>Il suffit de transmettre notre tableau croisé (à 2×2 dimensions) à <code data-package="stats">prop.test</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.test</span>(<span class="kw">table</span>(d$lecture.bd, d$sport))</code></pre>
+<pre><code>
+    2-sample test for equality of proportions
+    with continuity correction
+
+data:  table(d$lecture.bd, d$sport)
+X-squared = 4, df = 1, p-value = 0.0455
+alternative hypothesis: two.sided
+95 percent confidence interval:
+ -0.002652453  0.308107236
+sample estimates:
+   prop 1    prop 2 
+0.6420891 0.4893617 </code></pre>
 </div>
 </div>
 <div class="footnotes">
@@ -3512,6 +4670,7 @@ dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="
 <li><code data-package="survey">svytable</code> : tableaux croisés</li>
 <li><code data-pacakge="survey" data-rdocumentation="svytable">svychisq</code> : test du χ²</li>
 <li><code data-package="survey">svyby</code> : statistiques selon un facteur</li>
+<li><code data-package="survey">svyttest</code> : test <em>t</em> de comparaison de moyennes</li>
 <li><code data-pacakge="survey">svyglm</code> : modèles linéaires généralisés (dont régression logistique)</li>
 <li><code data-package="survey">svyplot</code>, <code data-package="survey">svyhist</code>, <code data-package="survey" data-rdocumentation="svyhist">svyboxplot</code> : fonctions graphiques</li>
 </ul>
@@ -3540,6 +4699,17 @@ upper)   32  47   62</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyvar</span>(~heures.tv, dw, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre>
 <pre><code>          variance     SE
 heures.tv   2.9886 0.1836</code></pre>
+<p>Pour comparer deux moyennes à l’aide d’un test <em>t</em> on aura recours à <code data-package="survey">svyttest</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyttest</span>(age ~<span class="st"> </span>sexe, dw)</code></pre>
+<pre><code>
+    Design-based t-test
+
+data:  age ~ sexe
+t = 2.0404, df = 1998, p-value = 0.04144
+alternative hypothesis: true difference in mean is not equal to 0
+sample estimates:
+difference in mean 
+          2.141129 </code></pre>
 <p>Les tris à plat se déclarent en passant comme argument le nom de la variable précédé d’un tilde (<code></code>), tandis que les tableaux croisés utilisent les noms des deux variables séparés par un signe plus (<code>+</code>) et précédés par un tilde (<code></code>).</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svytable</span>(~sexe, dw)</code></pre>
 <pre><code>sexe
@@ -3580,13 +4750,17 @@ Total 11071226 100.0 100.0</code></pre>
     Pearson's X^2: Rao &amp; Scott adjustment
 
 data:  svychisq(~sexe + clso, dw)
-F = 3.3331, ndf = 1.973, ddf = 3944.902,
+F = 3.3331, ndf = 1.9734, ddf = 3944.9000,
 p-value = 0.03641</code></pre>
 <p>Le principe de la fonction <code data-pacakge="survey">svyby</code> est similaire à celui de <code data-package="base">tapply</code><a href="#analyses_donnees_pond_fn5" class="footnoteRef" id="analyses_donnees_pond_fnref5"><sup>5</sup></a>. Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur. Par exemple :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyby</span>(~age, ~sexe, dw, svymean)</code></pre>
 <pre><code>       sexe      age        se
 Homme Homme 45.20200 0.7419450
 Femme Femme 47.34313 0.7420836</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">confint</span>(<span class="kw">svyby</span>(~age, ~sexe, dw, svymean))  <span class="co"># Intervalles de confiance</span></code></pre>
+<pre><code>         2.5 %   97.5 %
+Homme 43.74781 46.65618
+Femme 45.88867 48.79758</code></pre>
 <p><strong class="package">survey</strong> est également capable de produire des graphiques à partir des données pondérées. Quelques exemples :</p>
 <figure>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))
@@ -3595,7 +4769,7 @@ Femme Femme 47.34313 0.7420836</code></pre>
 <span class="kw">svyboxplot</span>(age ~<span class="st"> </span><span class="dv">1</span>, dw, <span class="dt">main =</span> <span class="st">"Boxplot simple"</span>, <span class="dt">ylab =</span> <span class="st">"Âge"</span>)
 <span class="kw">svyboxplot</span>(age ~<span class="st"> </span>sexe, dw, <span class="dt">main =</span> <span class="st">"Boxplot double"</span>, 
   <span class="dt">ylab =</span> <span class="st">"Âge"</span>, <span class="dt">xlab =</span> <span class="st">"Sexe"</span>)</code></pre>
-<img src="images/analyses_donnees_pond/unnamed-chunk-12-1.png" title="" alt="" width="1050"/>
+<img src="images/analyses_donnees_pond/unnamed-chunk-13-1.png" title="" alt="" width="1050"/>
 <figcaption>
 Fonctions graphiques de l’extension survey
 </figcaption>
@@ -3833,8 +5007,6 @@ On trouvera également de nombreux supports de cours en français sur l’analys
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"ade4"</span>, <span class="dt">dep =</span> <span class="ot">TRUE</span>)</code></pre>
 <p>Dans tous les cas, il faut penser à la charger en mémoire :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ade4)</code></pre>
-<pre><code>Warning: package 'ade4' was built under R version
-3.1.3</code></pre>
 <p>Comme précédemment, nous utiliserons le fichier de données <code>hdv2003</code> fourni avec l’extension <strong class="package">questionr</strong>.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
 <span class="kw">data</span>(hdv2003)
@@ -4387,10 +5559,8 @@ d$etud &lt;-<span class="st"> </span>d$nivetud
   <span class="st">"Technique/Professionnel"</span>, <span class="st">"Supérieur"</span>)
 d2 &lt;-<span class="st"> </span>d[, <span class="kw">c</span>(<span class="st">"grpage"</span>, <span class="st">"sexe"</span>, <span class="st">"etud"</span>, <span class="st">"peche.chasse"</span>, 
   <span class="st">"cinema"</span>, <span class="st">"cuisine"</span>, <span class="st">"bricol"</span>, <span class="st">"sport"</span>, <span class="st">"lecture.bd"</span>)]
-<span class="kw">library</span>(ade4)</code></pre>
-<pre><code>Warning: package 'ade4' was built under R version
-3.1.3</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r">acm &lt;-<span class="st"> </span><span class="kw">dudi.acm</span>(d2, <span class="dt">scannf =</span> <span class="ot">FALSE</span>, <span class="dt">nf =</span> <span class="dv">5</span>)</code></pre>
+<span class="kw">library</span>(ade4)
+acm &lt;-<span class="st"> </span><span class="kw">dudi.acm</span>(d2, <span class="dt">scannf =</span> <span class="ot">FALSE</span>, <span class="dt">nf =</span> <span class="dv">5</span>)</code></pre>
 <p>La matrice des distances s’obtient dès lors avec la fonction <code data-package="ade4">dist.dudi</code> :</p>
 <pre class="sourceCode r"><code class="sourceCode r">md &lt;-<span class="st"> </span><span class="kw">dist.dudi</span>(acm)</code></pre>
 </div>
@@ -4738,7 +5908,7 @@ seq &lt;-<span class="st"> </span><span class="kw">seqdef</span>(donnees[, <span
  [&gt;] 818 distinct sequences
  [&gt;] min/max sequence length: 37/37
  [&gt;] computing distances using OM metric
- [&gt;] total time: 1.86 secs</code></pre>
+ [&gt;] total time: 1.89 secs</code></pre>
 <p>Cette matrice des distances ou des dissimilarités entre séquences peut ensuite être utilisée pour une classification ascendante hiérarchique (CAH), qui permet de regrouper les séquences en un certain nombre de « classes » en fonction de leur proximité :</p>
 <pre class="sourceCode r"><code class="sourceCode r">seq.agnes &lt;-<span class="st"> </span><span class="kw">agnes</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">method =</span> <span class="st">"ward"</span>, 
   <span class="dt">keep.diss =</span> <span class="ot">FALSE</span>)</code></pre>
@@ -4875,8 +6045,7 @@ seq.part   1930-38 1939-45 1946-50 Ensemble
     Pearson's Chi-squared test
 
 data:  table(seq.part, donnees$generation)
-X-squared = 12.0319, df = 8, p-value =
-0.1498</code></pre>
+X-squared = 12.032, df = 8, p-value = 0.1498</code></pre>
 <p>Le lien entre le fait d’avoir un certain type de carrières et la cohorte de naissance est significatif à un seuil de 15 %. On constate par exemple l’augmentation continue de la proportion de carrières de type « professions intermédiaires » (classe 1) et, entre les deux cohortes les plus anciennes, l’augmentation de la part des carrières de type « employés » (classe 3) et la baisse de la part des carrières de type « cadres » (classe 4).</p>
 <p>Bien d’autres analyses sont envisageables : croiser la typologie avec d’autres variables (origine sociale, etc.), construire l’espace des carrières possibles, étudier les interactions entre trajectoires familiales et professionnelles, analyser la variance des dissimilarités entre séquences en fonction de plusieurs variables « explicatives<a href="#analyses_seq_fn15" class="footnoteRef" id="analyses_seq_fnref15"><sup>15</sup></a> »…</p>
 <p>Mais l’exemple proposé est sans doute bien suffisant pour une première introduction !</p>
@@ -5056,10 +6225,8 @@ evt &lt;-<span class="st"> </span><span class="kw">ymd</span>(<span class="st">"
 <p>L’ensemble des fonctions présentées peuvent être appliquées à des vecteurs et, par conséquent, aux colonnes d’un tableau de données (<em>data.frame</em>).</p>
 <p>Le package <strong class="package">eeptools</strong> fournit de son côté une fonction <code data-package="eeptools">age_calc</code><a href="#avance_age_fn1" class="footnoteRef" id="avance_age_fnref1"><sup>1</sup></a> qui permet le calcul des âges exacts et révolus.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(eeptools)</code></pre>
-<pre><code>Loading required package: ggplot2</code></pre>
-<pre><code>Warning: package 'ggplot2' was built under R
-version 3.1.3</code></pre>
-<pre><code>Loading required package: MASS</code></pre>
+<pre><code>Loading required package: ggplot2
+Loading required package: MASS</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r">naiss &lt;-<span class="st"> </span><span class="kw">as.Date</span>(<span class="st">"1980-01-09"</span>)
 evt &lt;-<span class="st"> </span><span class="kw">as.Date</span>(<span class="st">"2015-01-01"</span>)
 <span class="kw">age_calc</span>(naiss, evt, <span class="dt">units =</span> <span class="st">"years"</span>, <span class="dt">precise =</span> <span class="ot">TRUE</span>)</code></pre>
@@ -5113,13 +6280,22 @@ $(document).ready(function () {
       $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+$(this).text()+'">');
     });
 
-    // Figures
-    $("figure").each(function( index ) {
-      if ($(this).children("figcaption").length > 0)
-        $(this).children("figcaption:first").prepend('<span class="figure-number">Figure '+(index+1)+'.</span> ');
-      else
-        $(this).append($("<figcaption>").append('<span class="figure-number">Figure '+(index+1)+'</span>'));
+    // Figures (num�rotation intra chapitre + ajout id pour liste des figures)
+    $("article").each(function(){
+      chap = $(this).attr('id');
+      $(this).find("figure").each(function(index){
+        if ($(this).children("figcaption").length > 0)
+          $(this).children("figcaption:first").prepend('<span class="figure-number">Figure '+(index+1)+'.</span> ');
+        else
+          $(this).append($("<figcaption>").append('<span class="figure-number">Figure '+(index+1)+'</span>'));
+        if ($(this).attr('id') == undefined) $(this).attr('id', chap + '_fig_' + (index+1));
+      });
+
+
+
     });
+
+
 
 });
 
