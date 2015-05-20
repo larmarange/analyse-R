@@ -103,7 +103,7 @@ pre:not([class]) {
 Introduction<br/>à l’analyse d’enquêtes<br/> avec R et RStudio
 </h1>
 <p>
-Dernière mise à jour : 17 mai 2015
+Dernière mise à jour : 20 mai 2015
 </p>
 </div>
 <p>Ce projet de site web est basé sur le support de cours <a href="https://github.com/larmarange/intro-r/tree/CoursM2">Introduction à l’analyse d’enquêtes avec R</a> de Joseph Larmarange, qui est lui-même une adaptation de l’<a href="https://github.com/juba/intro-r">Introduction à R</a> de Julien Barnier.</p>
@@ -1290,6 +1290,35 @@ alternative hypothesis: true p is not equal to 0.5
 sample estimates:
      p 
 0.3615 </code></pre>
+<p>Pour se simplifier un peu la vie, le package <strong class="package">JLutils</strong> propose une fonction <code data-package="JLutils">prop.ci</code> (et ses deux variantes <code data-package="JLutils">prop.ci.lower</code> et <code data-package="JLutils">prop.ci.upper</code>) permettant d’appeler plus facilement <code data-package="stats">prop.test</code> et renvoyant directement l’intervalle de confiance.</p>
+<p><strong class="package">JLutils</strong> n’étant disponible que sur <a href="https://github.com/larmarange/JLutils">GitHub</a>, on aura recours au package <strong class="package">devtools</strong> et à sa fonction <code data-package="devtools">install_github</code> pour l’installer :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(devtools)
+<span class="kw">install_github</span>(<span class="st">"larmarange/JLutils"</span>)</code></pre>
+<p><code data-package="JLutils">prop.ci</code> fonction accepte directement un tri à plat obtenu avec <code data-package="base">table</code>, un vecteur de données, un vecteur logique (issu d’une condition), ou bien le nombre de succès et le nombre total d’essais. Voir les exemples ci-après :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(JLutils)
+<span class="kw">freq</span>(d$sport)</code></pre>
+<pre><code>       n    % val%
+Non 1277 63.8 63.8
+Oui  723 36.1 36.1
+NA     0  0.0   NA</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.ci</span>(d$sport)</code></pre>
+<pre><code>[1] 0.6169447 0.6595179</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.ci.lower</span>(d$sport)</code></pre>
+<pre><code>[1] 0.6169447</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.ci.upper</span>(d$sport)</code></pre>
+<pre><code>[1] 0.6595179</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.ci</span>(d$sport, <span class="dt">conf.level =</span> <span class="fl">0.9</span>)</code></pre>
+<pre><code>[1] 0.6204011 0.6562194</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.ci</span>(<span class="kw">table</span>(d$sport))</code></pre>
+<pre><code>[1] 0.6169447 0.6595179</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.ci</span>(d$sport ==<span class="st"> "Non"</span>)</code></pre>
+<pre><code>[1] 0.6169447 0.6595179</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.ci</span>(d$sport ==<span class="st"> "Oui"</span>)</code></pre>
+<pre><code>[1] 0.3404821 0.3830553</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.ci.lower</span>(<span class="kw">c</span>(<span class="dv">1277</span>, <span class="dv">723</span>), <span class="dt">n =</span> <span class="dv">2000</span>)</code></pre>
+<pre><code>[1] 0.6169447 0.3404821</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.ci.upper</span>(<span class="kw">c</span>(<span class="dv">1277</span>, <span class="dv">723</span>), <span class="dt">n =</span> <span class="dv">2000</span>)</code></pre>
+<pre><code>[1] 0.6595179 0.3830553</code></pre>
 <div class="info">
 Il existe de nombreuses manières de calculer un intervalle de confiance pour une proportion. En l’occurence, l’intervalle calculé par <code data-package="stats">prop.test</code> correspond dans le cas présent à un intervalle bilatéral selon la méthode des scores de Wilson avec correction de continuité. Pour plus d’information, on pourra lire <a href="http://joseph.larmarange.net/?Intervalle-de-confiance-bilateral" class="uri">http://joseph.larmarange.net/?Intervalle-de-confiance-bilateral</a>.
 </div>
@@ -5373,7 +5402,7 @@ dim 12                          96.14873
 dim 13                         100.00000</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sum</span>(acm2$eig$eigenvalue)</code></pre>
 <pre><code>[1] 1.444444</code></pre>
-<p>Les possibilités graphiques de <strong class="package">FactoMineR</strong> sont différentes de celles de <strong class="package">ade4</strong>. Un recours à la fonction <code data-package="FactorMineR" data-rdocumentation="plot.MCA">plot</code> affichera par défaut les individus, les modalités et les variables. La commande <code>?plot.MCA</code> permet d’accéder au fichier d’aide de cette fonction (i.e. de la méthode générique <code>plot</code> appliquée aux objets de type <code>MCA</code>) et de voir toutes les options graphiques. L’argument <code>choix</code> permet de spécifier ce que l’on souhaite afficher (« ind » pour les individus et les catégories, « var » pour les variables). L’argument <code>invisible</code> quant à lui permet de spécifier ce que l’on souhaite masquer. Les axes à afficher se précisent avec <code>axes</code>. Voir les exemples ci-dessous.</p>
+<p>Les possibilités graphiques de <strong class="package">FactoMineR</strong> sont différentes de celles de <strong class="package">ade4</strong>. Un recours à la fonction <code data-package="FactoMineR" data-rdocumentation="plot.MCA">plot</code> affichera par défaut les individus, les modalités et les variables. La commande <code>?plot.MCA</code> permet d’accéder au fichier d’aide de cette fonction (i.e. de la méthode générique <code>plot</code> appliquée aux objets de type <code>MCA</code>) et de voir toutes les options graphiques. L’argument <code>choix</code> permet de spécifier ce que l’on souhaite afficher (« ind » pour les individus et les catégories, « var » pour les variables). L’argument <code>invisible</code> quant à lui permet de spécifier ce que l’on souhaite masquer. Les axes à afficher se précisent avec <code>axes</code>. Voir les exemples ci-dessous.</p>
 <figure>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(acm2)</code></pre>
 <img src="images/analyses_acm/unnamed-chunk-30-1.png" title="" alt="" width="1050"/>
@@ -5976,7 +6005,7 @@ seq &lt;-<span class="st"> </span><span class="kw">seqdef</span>(donnees[, <span
  [&gt;] 818 distinct sequences
  [&gt;] min/max sequence length: 37/37
  [&gt;] computing distances using OM metric
- [&gt;] total time: 1.98 secs</code></pre>
+ [&gt;] total time: 1.87 secs</code></pre>
 <p>Cette matrice des distances ou des dissimilarités entre séquences peut ensuite être utilisée pour une classification ascendante hiérarchique (CAH), qui permet de regrouper les séquences en un certain nombre de « classes » en fonction de leur proximité :</p>
 <pre class="sourceCode r"><code class="sourceCode r">seq.agnes &lt;-<span class="st"> </span><span class="kw">agnes</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">method =</span> <span class="st">"ward"</span>, 
   <span class="dt">keep.diss =</span> <span class="ot">FALSE</span>)</code></pre>
