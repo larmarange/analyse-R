@@ -22,6 +22,32 @@
 <script type="text/javascript" src="./libs/zeroclipboard-2.2.0/ZeroClipboard.js"></script>
 
 
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
 
 
 </head>
@@ -66,8 +92,11 @@ img {
             <li><a href="pem_premier_contact.html">Premier contact</a></li>
             <li><a href="pem_premier_travail.html">Premier travail avec des données</a></li>
             <li><a href="pem_stat_univ.html">Statistique univariée</a></li>
+            <li><a href="pem_organiser_fichiers.html">Organiser ses fichiers</a></li>
             <li><a href="pem_import_export.html">Import / Export de données</a></li>
             <li><a href="pem_manipulation.html">Manipulation de données</a></li>
+            <li><a href="pem_export_graphiques.html">Exporter des graphiques</a></li>
+            <li><a href="pem_ou_trouver_aide.html">Où trouver de l'aide ?</a></li>
           </ul>
         </li>
         <li class="dropdown">
@@ -113,8 +142,434 @@ img {
 <h1 class="title">Import / Export de données</h1>
 </div>
 
+<div id="TOC">
+<ul>
+<li><a href="#importer-des-fichiers-texte">Importer des fichiers texte</a><ul>
+<li><a href="#structure-dun-fichier-texte">Structure d’un fichier texte</a></li>
+<li><a href="#read_table">La fonction read.table</a></li>
+<li><a href="#interface-graphique-avec-rstudio">Interface graphique avec RStudio</a></li>
+</ul></li>
+<li><a href="#importer-depuis-des-logiciels-de-statistique">Importer depuis des logiciels de statistique</a><ul>
+<li><a href="#sas">SAS</a></li>
+<li><a href="#spss">SPSS</a></li>
+<li><a href="#stata">Stata</a></li>
+<li><a href="#excel">Excel</a></li>
+<li><a href="#dbase">dBase</a></li>
+</ul></li>
+<li><a href="#donnees-spatiales">Données spatiales</a><ul>
+<li><a href="#shapefile">Shapefile</a></li>
+<li><a href="#rasters">Rasters</a></li>
+</ul></li>
+<li><a href="#autres-sources">Autres sources</a></li>
+<li><a href="#sauver-ses-donnees">Sauver ses données</a></li>
+<li><a href="#exporter-des-donnees">Exporter des données</a></li>
+</ul>
+</div>
 
-<p>à venir</p>
+<div class="important">
+Importer des données est souvent l’une des première opérations que l’on effectue lorsque l’on débute sous <strong>R</strong>, et ce n’est pas la moins compliquée. En cas de problème il ne faut donc pas hésiter à demander de l’aide par les différents moyens disponibles (voir MAJ) avant de se décourager.
+</div>
+<p>Avant toute chose, il est impératif de bien organiser ses différents fichiers (voir le <a href="pem_organiser_fichiers.html">chapitre dédié</a>). Concernant les données sources que l’on utilisera pour ses analyses, je vous recommande de les placer dans un sous-répertoire dédié de votre projet.</p>
+<div class="important">
+Lorsque l’on importe des données, il est impératif de vérifier que l’import s’est correctement déroulé (voir la section <a href="pem_premier_travail.html#inspecter">Inspecter les données</a> du chapitre <em>Premier travail avec les données</em>).
+</div>
+<div id="importer-des-fichiers-texte" class="section level2">
+<h2>Importer des fichiers texte</h2>
+<p>Les fichiers texte constituent un des formats les plus largement supportés par la majorité des logiciels statistiques. Presque tous permettent d’exporter des données dans un format texte, y compris les tableurs comme <strong>Libre Office</strong>, <strong>Open Office</strong> ou <strong>Excel</strong>.</p>
+<p>Cependant, il existe une grande variétés de format texte, qui peuvent prendre différents noms selon les outils, tels que <em>texte tabulé</em> ou <em>texte (séparateur : tabulation)</em>, <strong>CSV</strong> (pour <em>comma-separated value</em>, sachant que suivant les logiciels le séparateur peut être une virgule ou un point-virgule).</p>
+<div id="structure-dun-fichier-texte" class="section level3">
+<h3>Structure d’un fichier texte</h3>
+<p>Dès lors, avant d’importer un fichier texte dans <strong>R</strong>, il est indispensable de regarder comment ce dernier est structuré. Pour cela, il faut tout d’abord l’ouvrir avec un éditeur de texte pour voir comment les données se présentent.</p>
+<p>Pour l’exemple, téléchargez le fichier <a href="http://larmarange.github.io/analyse-R/data/exemple_texte_tabule.txt" class="uri">http://larmarange.github.io/analyse-R/data/exemple_texte_tabule.txt</a> et copiez-le dans un sous-répertoire <code>data</code> de votre projet. Nous pouvons directement ouvrir ce fichier avec <strong>RStudio</strong>, soit via le menu <em>File &gt; Open file</em>, soit en cliquant sur ce fichier dans l’onglet <em>Files</em> du quadrant inférieur droit.</p>
+<p>Le fichier apparaît dès lors dans un onglet dédié du quadrant supérieur gauche. Cependant, par défaut, on peut pas voir la différence entre un espace, une tabulation ou un retour à la ligne, c’est-à-dire entre les caractères qui sont invisibles à l’écran. Pour les afficher, il faut se rendre dans le menu <em>Tools &gt; Global options &gt; Code &gt; Display</em> et activer l’option <em>Show whitespaces characters</em>. Dès lors, les espaces sont indiqués par un petit point gris, les tabulations par une petite flèche et les retours à la ligne par une sorte de « tiret plié à droite vers le bas ».</p>
+<figure>
+<img src="images/capture_RStudio_visualisation_fichier_texte.png" alt="Visualisation d’un fichier texte sous RStudio" />
+<figcaption>
+Visualisation d’un fichier texte sous RStudio
+</figcaption>
+</figure>
+<p>Il importe de prendre note de différents éléments, en particulier :</p>
+<ul>
+<li>La première ligne contient-elle le nom des variables ? Ici c’est le cas.</li>
+<li>Quel est le caractère séparateur entre les différentes variables (encore appelé séparateur de champs) ? Ici, <strong>RStudio</strong> affiche une petite flèche. Il s’agit donc d’une tabulation. Dans le cadre d’un fichier <strong>CSV</strong>, il aurait pu s’agir d’une virgule ou d’un point-virgule.</li>
+<li>Quel est le caractère utilisé pour indiquer les décimales ? Il s’agit en général d’un point (à l’anglo-saxonne) ou d’une virgule (à la française). Ici, c’est la virgule qui est utilisée.</li>
+<li>Les valeurs textuelles sont-elles encadrées par des guillemets et, si oui, s’agit-il de guillements simple (<code>'</code>) ou de guillemets doubles (<code>&quot;</code>) ? Ici, il s’agit de guillemets simples.</li>
+<li>Pour les variables textuelles, y a-t-il des valeurs manquantes et si oui comment sont-elles indiquées ? Par exemple, le texte <code>NA</code> est parfois utilisé. Dans notre exemple, il s’agit de la chaîne de caractères vide (que l’on note <code>&quot;&quot;</code> sous <strong>R</strong>) qui est utilisée pour indiquer une valeur manquante.</li>
+</ul>
+</div>
+<div id="read_table" class="section level3">
+<h3>La fonction read.table</h3>
+<p>La fonction de base permettant d’importer un fichier texte est la fonction <code data-package="utils">read.table</code>. Elle accepte de très nombreuses options. Pour toutes les afficher, on aura recours à <code>?read.table</code>. Les plus importantes sont :</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Argument</th>
+<th align="left">Détail</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>header</code></td>
+<td align="left"><code>TRUE</code> ou <code>FALSE</code> : indique si la première ligne du fichier contient le nom des variables</td>
+</tr>
+<tr class="even">
+<td align="left"><code>sep</code></td>
+<td align="left">le séparateur de champs : s’il s’agit d’une virgule on indiquera <code>&quot;,&quot;</code>, pour une tabulation on entrera <code>&quot;\t&quot;</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>quote</code></td>
+<td align="left">les guillemets utilisés autour des variables textes (si c’est le cas) : on saisira <code>&quot;&quot;</code> si pas de guillemets, <code>&quot;'&quot;</code> pour des guillemets simples et <code>&quot;\&quot;&quot;</code> pour des guillemets doubles</td>
+</tr>
+<tr class="even">
+<td align="left"><code>dec</code></td>
+<td align="left">le séparateur de décimales, usuellement <code>&quot;.&quot;</code> ou <code>&quot;,&quot;</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>na.strings</code></td>
+<td align="left">les valeurs textuelles qui doivent être interprétées comme manquantes</td>
+</tr>
+<tr class="even">
+<td align="left"><code>stringsAsFactors</code></td>
+<td align="left"><code>TRUE</code> ou <code>FALSE</code> : les variables textuelles doivent-elles être converties en facteurs ?</td>
+</tr>
+</tbody>
+</table>
+<div class="info">
+<p>Certains caractères sont parfois précédés d’une barre oblique inversée ou <em>antislash</em> (<code>\</code>). Cela correspond à des caractères spéciaux. En effet, <code>&quot;</code> est utilisé pour délimiter dans le code le début et la fin d’une chaîne de caractères. Comment indiquer à <strong>R</strong> le caractère <code>&quot;</code> proprement dit. Et bien avec <code>\&quot;</code>. De même, <code>\t</code> sera interpréter comme une tabulation et non comme la lettre <code>t</code>.</p>
+Pour une liste complète des caractères spéciaux, voir <code>?Quotes</code>.
+</div>
+<p>Pour en revenir à notre exemple, on l’importera donc ainsi :</p>
+<pre class="sourceCode r"><code class="sourceCode r">d &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="st">&quot;data/exemple_texte_tabule.txt&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>, 
+  <span class="dt">sep =</span> <span class="st">&quot;</span><span class="ch">\t</span><span class="st">&quot;</span>, <span class="dt">quote =</span> <span class="st">&quot;&#39;&quot;</span>, <span class="dt">dec =</span> <span class="st">&quot;,&quot;</span>, <span class="dt">na.strings =</span> <span class="st">&quot;&quot;</span>)
+d</code></pre>
+<pre><code>  Sexe Age Taille     Etudes
+1    F  45   1.67   primaire
+2    H  32   1.83       &lt;NA&gt;
+3    H  24   1.72 supÃ©rieur
+4    F  36   1.64 secondaire
+5    F  23   1.54 supÃ©rieur
+6    H  18   1.62   primaire
+7    F  34   1.68 secondaire</code></pre>
+<p>Aïe ! Que s’est-il passé ? Au lieu d’afficher <code>supérieur</code>, <strong>R</strong> affiche <code>supÃ©rieur</code>. C’est une problème classique quand il y a des accents dans nos données. En effet, il y a de nombreuses manières différentes en informatique de coder les différents caractères<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>. La première chose à faire est donc de vérifier la documentation associée à votre source de données. Il est possible que soit précisé l’encodage des caractères.</p>
+<p>Si ce n’est pas le cas, il est fort probable que vos données aient été encodées soit en <strong>latin1</strong> (langues européennes occidentales), soit en <strong>UTF-8</strong> (unicode). On pourra donc essayer ces deux encodages et regarder le résultat obtenu. L’encodage peut être précisé avec l’argument <code>encoding</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r">d &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="st">&quot;data/exemple_texte_tabule.txt&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>, 
+  <span class="dt">sep =</span> <span class="st">&quot;</span><span class="ch">\t</span><span class="st">&quot;</span>, <span class="dt">quote =</span> <span class="st">&quot;&#39;&quot;</span>, <span class="dt">dec =</span> <span class="st">&quot;,&quot;</span>, <span class="dt">na.strings =</span> <span class="st">&quot;&quot;</span>, 
+  <span class="dt">encoding =</span> <span class="st">&quot;latin1&quot;</span>)
+d</code></pre>
+<pre><code>  Sexe Age Taille     Etudes
+1    F  45   1.67   primaire
+2    H  32   1.83       &lt;NA&gt;
+3    H  24   1.72 supÃ©rieur
+4    F  36   1.64 secondaire
+5    F  23   1.54 supÃ©rieur
+6    H  18   1.62   primaire
+7    F  34   1.68 secondaire</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">d &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="st">&quot;data/exemple_texte_tabule.txt&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>, 
+  <span class="dt">sep =</span> <span class="st">&quot;</span><span class="ch">\t</span><span class="st">&quot;</span>, <span class="dt">quote =</span> <span class="st">&quot;&#39;&quot;</span>, <span class="dt">dec =</span> <span class="st">&quot;,&quot;</span>, <span class="dt">na.strings =</span> <span class="st">&quot;&quot;</span>, 
+  <span class="dt">encoding =</span> <span class="st">&quot;UTF-8&quot;</span>)
+d</code></pre>
+<pre><code>  Sexe Age Taille     Etudes
+1    F  45   1.67   primaire
+2    H  32   1.83       &lt;NA&gt;
+3    H  24   1.72  supérieur
+4    F  36   1.64 secondaire
+5    F  23   1.54  supérieur
+6    H  18   1.62   primaire
+7    F  34   1.68 secondaire</code></pre>
+<p>Notre fichier était encodé en <strong>UTF-8</strong>. Problème résolu !</p>
+<p><strong>R</strong> propose quelques fonctions qui sont des raccourcis de <code data-package="utils">read.table</code> qui correspondent aux situations les plus courantes :</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Fonction</th>
+<th align="center">Séparateur de champs</th>
+<th align="center">Séparateur de décimale</th>
+<th align="center">Guillemets</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code data-package="utils" data-rdocumentation="read.table">read.csv</code></td>
+<td align="center">virgule</td>
+<td align="center">point</td>
+<td align="center">doubles</td>
+</tr>
+<tr class="even">
+<td align="left"><code data-package="utils" data-rdocumentation="read.table">read.csv2</code></td>
+<td align="center">point-virgule</td>
+<td align="center">point</td>
+<td align="center">doubles</td>
+</tr>
+<tr class="odd">
+<td align="left"><code data-package="utils" data-rdocumentation="read.table">read.delim</code></td>
+<td align="center">tabulation</td>
+<td align="center">point</td>
+<td align="center">doubles</td>
+</tr>
+<tr class="even">
+<td align="left"><code data-package="utils" data-rdocumentation="read.table">read.delim2</code></td>
+<td align="center">tabulation</td>
+<td align="center">virgule</td>
+<td align="center">doubles</td>
+</tr>
+</tbody>
+</table>
+<div class="note">
+Une extension dédiée à l’import de fichiers texte est en cours de dévelopemment : <strong class="package">readr</strong>.
+</div>
+</div>
+<div id="interface-graphique-avec-rstudio" class="section level3">
+<h3>Interface graphique avec RStudio</h3>
+<p><strong>RStudio</strong> fournit une interface graphique pour faciliter l’import d’un fichier texte. Pour cela, il suffit d’aller dans le menu <em>Tools &gt; Import Dataset</em> et de choisir l’option <em>From Text File</em> si le fichier est présent sur votre disque dur ou <em>From Web URL</em> si le fichier source est disponible sur Internet.</p>
+<figure>
+<img src="images/capture_RStudio_import_dataset.png" alt="Importer un fichier texte avec RStudio" />
+<figcaption>
+Importer un fichier texte avec RStudio
+</figcaption>
+</figure>
+<p>L’interface de <strong>RStudio</strong> vous présente sous <em>Input File</em> les données telles qu’elles sont stockées dans le fichier. Dans la colonne de gauche, vous pouvez specifier le nom de l’objet à créer et différentes options d’import. En temps réel, vous pouvez prévisualiser le résulat sous <em>Data Frame</em>.</p>
+<p>Une fois que vous avez cliqué sur <em>Import</em>, le code nécessaire à l’import sera automatiquement copié dans la console et <strong>RStudio</strong> ouvrira le visualiseur de données afin que vous puissiez contrôler le résultat obtenu.</p>
+</div>
+</div>
+<div id="importer-depuis-des-logiciels-de-statistique" class="section level2">
+<h2>Importer depuis des logiciels de statistique</h2>
+<p>La plupart des fonctions permettant l’import de fichiers de données issus d’autres logiciels font partie d’une extension nommée <strong class="package">foreign</strong>, installée par défaut avec <strong>R</strong> mais qu’il est nécessaire de charger en mémoire avant utilisation avec l’instruction :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(foreign)</code></pre>
+<div id="sas" class="section level3">
+<h3>SAS</h3>
+<p>Les fichiers <strong>SAS</strong> se présentent en général sous deux format : format <strong>SAS export</strong> (extension <code>.xport</code> ou <code>.xpt</code>) ou format <strong>SAS natif</strong> (extension <code>.sas7bdat</code>).</p>
+<p><strong>R</strong> peut lire directement les fichiers au format <strong>SAS export</strong> via la fonction <code data-package="foreign">read.xport</code> de l’extension <strong class="package">foreign</strong>. Celle-ci s’utilise très simplement, en lui passant le nom du fichier en argument :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(foreign)
+donnees &lt;-<span class="st"> </span><span class="kw">read.xport</span>(<span class="st">&quot;data/fichier.xpt&quot;</span>)</code></pre>
+<p>En ce qui concerne les fichiers au format <strong>SAS natif</strong>, il existe des fonctions permettant de les importer, mais elles nécessitent d’avoir une installation de <strong>SAS</strong> fonctionnelle sur sa machine (il s’agit des fonctions <code data-package="foreign">read.ssd</code> de l’extension <strong class="package">foreign</strong>, et <code>sas.get</code> de l’extension <strong class="package">Hmisc</strong>).</p>
+<p>Si on ne dispose que des fichiers au format <strong>SAS natif</strong>, mais pas du logiciel **SAS*, on pourra utiliser la fonction <code data-package="haven">read_sas</code> de l’extension <strong class="package">haven</strong>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(haven)
+donnees &lt;-<span class="st"> </span><span class="kw">read_sas</span>(<span class="st">&quot;data/fichier.sas7bdat&quot;</span>)</code></pre>
+<p>Une alternative consite à utiliser l’application <strong>SAS System Viewer</strong>, qui permet de lire des fichiers <strong>SAS natif</strong>, de les visualiser et de les enregistrer dans un format texte. Cette application est téléchargeable gratuitement, mais ne fonctionne que sous <strong>Windows</strong><a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> : <a href="http://www.sas.com/apps/demosdownloads/setupcat.jsp?cat=SAS+System+Viewer" class="uri">http://www.sas.com/apps/demosdownloads/setupcat.jsp?cat=SAS+System+Viewer</a>.</p>
+<p>Une fois le fichier de données au format <strong>SAS natif</strong> ouvert on peut l’enregistrer au format texte tabulé. L’import dans <strong>R</strong> se fait alors avec la commande suivante :</p>
+<pre class="sourceCode r"><code class="sourceCode r">donnees &lt;-<span class="st"> </span><span class="kw">read.delim</span>(<span class="st">&quot;data/fichier.txt&quot;</span>, <span class="dt">na.strings =</span> <span class="st">&quot;.&quot;</span>)</code></pre>
+</div>
+<div id="spss" class="section level3">
+<h3>SPSS</h3>
+<p>Les fichiers générés par <strong>SPSS</strong> sont accessibles depuis <strong>R</strong> avec la fonction <code data-package="foreign">read.spss</code> de l’extension <strong class="package">foreign</strong>.</p>
+<p>Celle-ci peut lire aussi bien les fichiers <strong>SPSS</strong> natifs (extension <code>.sav</code>) que ceux au format <strong>SPSS export</strong> (extension <code>.por</code>). On pensera à indiquer à la fonction de renvoyer un tableau de données avec <code>to.data.frame = TRUE</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r">donnees &lt;-<span class="st"> </span><span class="kw">read.spss</span>(<span class="st">&quot;data/fichier.sav&quot;</span>, <span class="dt">to.data.frame =</span> <span class="ot">TRUE</span>)</code></pre>
+<p>Par défaut, les variables numériques pour lesquelles des étiquettes de valeurs ont été définies sont transformées en variables de type facteur, les étiquettes définies dans <strong>SPSS</strong> étant utilisées comme valeurs. De même, si des valeurs manquantes ont été définies dans <strong>SPSS</strong>, ces dernières seront toutes transformées en <code>NA</code> (<strong>R</strong> ne permettant pas de gérer plusieurs types de valeurs manquantes). Ce comportement peut être modifié avec <code>use.value.labels</code> et <code>use.missings</code>.</p>
+<p>Ensuite, c’est une question de méthode de travail, mais je préfère pour ma part conserver les codes numériques et, en fonction des besoins de l’analyse, recoder les valeurs manquantes ou créer des facteurs au cas par cas. Dans cette situation, l’extension <strong class="package">JLutils</strong>, disponible sur <a href="https://github.com/larmarange/JLutils" class="uri">https://github.com/larmarange/JLutils</a>, fournit quelques fonctions pratiques (<code data-package="JLutils">lfactor</code>, <code data-package="JLutils">ltabs</code> et <code data-package="JLutils">lfreq</code>) permettant de retrouver les étiquettes <strong>SPSS</strong>/<strong>Stata</strong>. En effet, lors de l’import, une copie des étiquettes est stockée dans les attributs du tableau de données. Dans ce cas, on utilisera la commande suivante :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(foreign)
+donnees &lt;-<span class="st"> </span><span class="kw">read.spss</span>(<span class="st">&quot;data/fichier.sav&quot;</span>, <span class="dt">to.data.frame =</span> <span class="ot">TRUE</span>, 
+  <span class="dt">use.value.labels =</span> <span class="ot">FALSE</span>, <span class="dt">use.missings =</span> <span class="ot">FALSE</span>)</code></pre>
+<p>Pour importer des fichiers <strong>SPSS</strong>, on pourra aussi avoir recours à la fonction <code data-package="Hmisc">spss.get</code> de l’extension <strong class="package">Hmisc</strong> ou aux fonction <code data-package="haven">read_spss</code>, <code data-package="haven" data-rdocumentation="read_spss">read_sav</code> <code data-package="haven" data-rdocumentation="read_spss">read_por</code> de l’extension <strong class="package">haven</strong>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(haven)
+donnees &lt;-<span class="st"> </span><span class="kw">read_spss</span>(<span class="st">&quot;data/fichier.sav&quot;</span>)</code></pre>
+<p>On notera que la fonction <code data-package="haven">read_spss</code> a fait le choix de ne pas convertir automatiquement les variables numériques ayant des étiquettes de valeurs en facteurs. Les étiquettes de variable (nom long) et de valeurs sont stockées comme attributs de chaque variable. On pourra convertir une variable en facteur avec la fonction <code data-package="haven" data-rdocumentation="labelled">as_factor</code> (avec un tiret bas et non un point). Par ailleurs, <strong>RStudio</strong> détectera et affichera automatiquement les étiquettes de variables dans le visualiseur de données. Enfin, les fonctions <code data-package="JLutils">lfactor</code>, <code data-package="JLutils">ltabs</code> et <code data-package="JLutils">lfreq</code> déjà mentionnées de l’extention <code class="package">JLutils</code> fonctionnent également lorsque les données ont été importées avec <strong class="package">haven</strong>. Pour le moment, <strong class="package">haven</strong> ne supporte pas encore l’import et l’export des dates<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. Celles-ci sont donc converties en valeur numérique.</p>
+<p>Concernant la gestion des étiquettes, on pourra également jeter un oeil du côté des extensions <strong class="package">sjmisc</strong> et <strong class="package">sjPlot</strong>.</p>
+</div>
+<div id="stata" class="section level3">
+<h3>Stata</h3>
+<p>Pour les fichiers <strong>Stata</strong> (extension <code>.dta</code>), on aura recours à la fonction <code package="foreign">read.dta</code>. Comme pour <strong>SPSS</strong>, on pourra choisir ou non de convertir les variables numériques ayant des étiquettes de valeurs en facteurs avec l’argument <code>convert.factors</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(foreign)
+donnees &lt;-<span class="st"> </span><span class="kw">read.dta</span>(<span class="st">&quot;data/fichier.dta&quot;</span>)</code></pre>
+<div class="info">
+<p>L’option <code>convert.dates</code> permet de convertir les dates du format <strong>Stata</strong> dans un format de dates géré par <strong>R</strong>. Cependant, cela ne marche pas toujours. Dans ces cas là, l’opération suivante peut fonctionner. Sans garantie néanmoins, il est toujours vivement conseillé de vérifier le résultat obtenu !</p>
+<pre class="sourceCode r"><code class="sourceCode r">donnees$date &lt;-<span class="st"> </span><span class="kw">as.Date</span>(donnees$Date/(<span class="dv">1000</span> *<span class="st"> </span><span class="dv">3600</span> *<span class="st"> </span>
+<span class="st">  </span><span class="dv">24</span>), <span class="dt">origin =</span> <span class="st">&quot;1960-01-01&quot;</span>)</code></pre>
+</div>
+<p>Avec l’extension <code class="package">haven</code>, on aura recours aux fonctions <code data-package="haven">read_dta</code> et <code data-package="haven" data-rdocumentation="read_dta">read_stata</code>. Enfin, <strong class="package">Hmisc</strong> propose une fonction <code data-package="Hmisc">stata.get</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(haven)
+donnees &lt;-<span class="st"> </span><span class="kw">read_dta</span>(<span class="st">&quot;data/fichier.dta&quot;</span>)</code></pre>
+<p>On ira lire la section sur <strong>SPSS</strong> pour une discussion sur l’import des variables ayant des étiquettes de valeurs.</p>
+</div>
+<div id="excel" class="section level3">
+<h3>Excel</h3>
+<p>Une première approche pour importer des données <strong>Excel</strong> dans <strong>R</strong> consiste à les exporter depuis <strong>Excel</strong> dans un fichier texte (texte tabulé ou <strong>CSV</strong>) puis de suivre la procédure d’importation d’un fichier texte.</p>
+<p>Il existe également quelques extensions permettant d’importer directement un fichier <strong>Excel</strong>.</p>
+<div id="readxl" class="section level4">
+<h4>readxl</h4>
+<p>L’extension <strong class="package">readxl</strong> fournit une fonction <code data-package="readxl">read_excel</code> permettant d’importer à la fois des fichiers <code>.xls</code> (<strong>Excel</strong> 2003 et précédents) et <code>.xlsx</code> (<strong>Excel</strong> 2007 et suivants).</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(readxl)
+donnees &lt;-<span class="st"> </span><span class="kw">read_excel</span>(<span class="st">&quot;data/fichier.xlsx&quot;</span>)</code></pre>
+<p>Une seule feuille de calculs peut être importée à la fois. On pourra préciser la feuille désirée avec <code>sheet</code> en indiquant soit le nom de la feuille, soit sa position (première, seconde, …).</p>
+<pre class="sourceCode r"><code class="sourceCode r">donnees &lt;-<span class="st"> </span><span class="kw">read_excel</span>(<span class="st">&quot;data/fichier.xlsx&quot;</span>, <span class="dt">sheet =</span> <span class="dv">3</span>)
+donnees &lt;-<span class="st"> </span><span class="kw">read_excel</span>(<span class="st">&quot;data/fichier.xlsx&quot;</span>, <span class="dt">sheet =</span> <span class="st">&quot;mes_donnees&quot;</span>)</code></pre>
+<p>On pourra préciser avec <code>col_names</code> si la première ligne contient le nom des variables. Par défaut, <code data-package="readxl">read_excel</code> va essayer de deviner le type (numérique, textuelle, date) de chaque colonne. Au besoin, on pourra indiquer le type souhaité de chaque colonne avec <code>col_types</code>.</p>
+</div>
+<div id="xlsx" class="section level4">
+<h4>xlsx</h4>
+<p>L’extension <strong class="package">xlsx</strong> propose deux fonctions différentes pour importer des fichiers <strong>Excel</strong> : <code data-package="xlsx">read.xlsx</code> et <code data-package="xlsx" data-rdocumentation="read.xlsx">read.xlsx2</code>. La finalité est la même mais leur fonctionnement interne est différent. En cas de difficultés d’import, on pourra tester l’autre pour voir si le résultat est différent. Il est impératif de spécifier la position de la feuille de calculs que l’on souhaite importer.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(xlsx)
+donnees &lt;-<span class="st"> </span><span class="kw">read.xlsx</span>(<span class="st">&quot;data/fichier.xlsx&quot;</span>, <span class="dv">1</span>)</code></pre>
+</div>
+</div>
+<div id="dbase" class="section level3">
+<h3>dBase</h3>
+<p>L’Insee diffuse ses fichiers depuis son site Web au format <strong>dBase</strong> (extension <code>.dbf</code>). Ceux-ci sont directement lisibles dans <strong>R</strong> avec la fonction <code data-package="foreign">read.dbf</code> de l’extension <strong class="package">foreign</strong>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(foreign)
+donnees &lt;-<span class="st"> </span><span class="kw">read.dbf</span>(<span class="st">&quot;data/fichier.dbf&quot;</span>)</code></pre>
+<p>La principale limitation des fichiers <strong>dBase</strong> est de ne pas gérer plus de 256 colonnes. Les tables des enquêtes de l’Insee sont donc parfois découpées en plusieurs fichiers <code>.dbf</code> qu’il convient de fusionner avec la fonction <code data-package="base">merge</code>. L’utilisation de cette fonction est détaillée dans le chapitre sur la <a href="pem_manipulation.html#fusion_tables">manipulation de données</a>.</p>
+</div>
+</div>
+<div id="donnees-spatiales" class="section level2">
+<h2>Données spatiales</h2>
+<div id="shapefile" class="section level3">
+<h3>Shapefile</h3>
+<p>Les fichiers <strong>Shapefile</strong> sont couramment utilisés pour échanger des données géoréférencées. La majorité des logiciels de <strong>SIG</strong> (systèmes d’informations géographiques) sont en capacité d’importer et d’exporter des données dans ce format.</p>
+<p>Un <strong>shapefile</strong> contient toute l’information liée à la géométrie des objets décrits, qui peuvent être :</p>
+<ul>
+<li>des points</li>
+<li>des lignes</li>
+<li>des polygones</li>
+</ul>
+<p>Son extension est classiquement <code>.shp</code>, et il est toujours accompagné de deux autres fichiers de même nom et d’extensions :</p>
+<ul>
+<li>un fichier <code>.dbf</code>, qui contient les données attributaires relatives aux objets contenus dans le <strong>shapefile</strong></li>
+<li>un fichier <code>.shx</code>, qui stocke l’index de la géométrie</li>
+</ul>
+<p>D’autres fichiers peuvent être également fournis :</p>
+<ul>
+<li><code>.sbn</code> et <code>.sbx</code> - index spatial des formes.</li>
+<li><code>.fbn</code> et <code>.fbx</code> - index spatial des formes pour les shapefile en lecture seule</li>
+<li><code>.ain</code> et <code>.aih</code> - index des attributs des champs actifs dans une table ou dans une table d’attributs du thème.</li>
+<li><code>.prj</code> - information sur le système de coordonnées</li>
+<li><code>.shp.xml</code> - métadonnées du shapefile.</li>
+<li><code>.atx</code> - fichier d’index des attributs pour le fichier <code>.dbf</code></li>
+<li><code>.qix</code></li>
+</ul>
+<p>En premier lieu, il importe que tous les fichiers qui compose un même <strong>shapefile</strong> soit situés dans le même répertoire et aient le même nom (seule l’extension étant différente).</p>
+<p>L’extension <strong class="package">maptools</strong> fournit les fonctions permettant d’importer un <strong>shapefile</strong> dans <strong>R</strong>. Le résultat obtenu utilisera l’une des différentes classes spatiales fournies par l’extension <strong class="package">sp</strong>.</p>
+<p>La fonction générique d’import est <code data-package="maptools">readShapeSpatial</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(maptools)
+donnees_spatiales &lt;-<span class="st"> </span><span class="kw">readShapeSpatial</span>(<span class="st">&quot;data/fichier.shp&quot;</span>)</code></pre>
+<p>Si l’on connait déjà le type de données du <strong>shapefile</strong> (points, lignes ou polygones), on pourra utiliser directement <code data-package="maptools">readShapePoints</code>, <code data-package="maptools">readShapeLines</code> ou <code data-package="maptools">readShapePoly</code>.</p>
+</div>
+<div id="rasters" class="section level3">
+<h3>Rasters</h3>
+<p>Il existe de multiples formats pour stocker des données matricielles spatiales. L’un des plus communs est le format <strong>ASCII grid</strong> aussi connu sous le nom de <strong>Arc/Info ASCII grid</strong> ou <strong>ESRI grid</strong>. L’extension de ce format n’est pas toujours uniforme. On trouve parfois <code>.asc</code> ou encore <code>.ag</code> voir même <code>.txt</code>.</p>
+<p>Pour importer ce type de fichier, on pourra avoir recours à la fonction <code data-package="maptools">readAsciiGrid</code> de l’extension <strong class="package">maptools</strong>. Le résultat sera, par défaut, au format <code data-package="sp" data-rdocumentation="SpatialGridDataFrame-class">SpatialGridDataFrame</code> de l’extension <strong class="package">sp</strong>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(maptools)
+donnees_spatiales &lt;-<span class="st"> </span><span class="kw">readAsciiGrid</span>(<span class="st">&quot;data/fichier.asc&quot;</span>)</code></pre>
+<p>L’extension <strong class="package">raster</strong> permet d’effectuer de multiples manipulations sur les données du type <em>raster</em>. Elle est en capacité d’importer des données depuis différents formats (plus précisément les formats pris en charge par la librairie <strong>GDAL</strong>).</p>
+<p>De plus, les fichiers raster pouvant être particulièrement volumineux (jusqu’à plusieurs Go de données), l’extension <strong class="package">raster</strong> est capable de travailler sur un fichier raster sans avoir à le charger intégralement en mémoire.</p>
+<p>Pour plus d’informations, voir les fonctions <code data-package="raster">raster</code> et <code data-package="raster">getValues</code>.</p>
+</div>
+</div>
+<div id="autres-sources" class="section level2">
+<h2>Autres sources</h2>
+<p><strong>R</strong> offre de très nombreuses autres possibilités pour accéder aux données. Il est ainsi possible d’importer des données depuis d’autres applications qui n’ont pas été évoquées (<strong>Epi Info</strong>, <strong>S-Plus</strong>, etc.), de se connecter à un système de base de données relationelle type <strong>MySQL</strong>, de lire des données via <strong>ODBC</strong> ou des connexions réseau, etc.</p>
+<p>Pour plus d’informations on consultera le manuel <em>R Data Import/Export</em> : <a href="http://cran.r-project.org/manuals.html" class="uri">http://cran.r-project.org/manuals.html</a>.</p>
+</div>
+<div id="sauver-ses-donnees" class="section level2">
+<h2>Sauver ses données</h2>
+<p><strong>R</strong> dispose également de son propre format pour sauvegarder et échanger des données. On peut sauver n’importe quel objet créé avec <strong>R</strong> et il est possible de sauver plusieurs objets dans un même fichier. L’usage est d’utiliser l’extension <code>.RData</code> pour les fichiers de données <strong>R</strong>. La fonction à utiliser s’appelle tout simplement <code data-package="base">save</code>.</p>
+<p>Par exemple, si l’on souhaite sauvegarder son tableau de données <code>d</code> ainsi que les objets <code>tailles</code> et <code>poids</code> dans un fichier <code>export.RData</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">save</span>(d, tailles, poids, <span class="dt">file =</span> <span class="st">&quot;export.RData&quot;</span>)</code></pre>
+<p>À tout moment, il sera toujours possible de recharger ces données en mémoire à l’aide de la fonction <code data-package="base">load</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="st">&quot;export.RData&quot;</span>)</code></pre>
+<div class="important">
+Si entre temps vous aviez modifié votre tableau <code>d</code>, vos modifications seront perdus. En effet, si lors du chargement de données, un objet du même nom existe en mémoire, ce dernier sera remplacé par l’objet importé.
+</div>
+<p>La fonction <code data-package="base" data-rdocumentation="save">save.image</code> est un raccourci pour sauvergarder tous les objets de la session de travail dans le fichier <code>.RData</code> (un fichier un peu étrange car il n’a pas de nom mais juste une extension). Lors de la fermeture de <strong>RStudio</strong>, il vous sera demandé si vous souhaitez enregistrer votre session. Si vous répondez <em>Oui</em>, c’est cette fonction <code data-package="base" data-rdocumentation="save">save.image</code> qui sera appliquée.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">save.image</span>()</code></pre>
+</div>
+<div id="exporter-des-donnees" class="section level2">
+<h2>Exporter des données</h2>
+<p><strong>R</strong> propose également différentes fonctions permettant d’exporter des données vers des formats variés.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Type de fichier souhaité</th>
+<th align="left">Fonction</th>
+<th align="left">Extension</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">texte</td>
+<td align="left"><code data-package="utils">write.table</code></td>
+<td align="left"><strong class="package">utils</strong></td>
+</tr>
+<tr class="even">
+<td align="left">CSV</td>
+<td align="left"><code data-package="utils" data-rdocumentation="write.table">write.csv</code></td>
+<td align="left"><strong class="package">utils</strong></td>
+</tr>
+<tr class="odd">
+<td align="left">CSV</td>
+<td align="left"><code data-package="readr">write_csv</code></td>
+<td align="left"><strong class="package">readr</strong></td>
+</tr>
+<tr class="even">
+<td align="left">Excel</td>
+<td align="left"><code data-package="xlsx">write.xlsx</code></td>
+<td align="left"><strong class="package">xlsx</strong></td>
+</tr>
+<tr class="odd">
+<td align="left">dBase</td>
+<td align="left"><code data-package="foreign">write.dbf</code></td>
+<td align="left"><strong class="package">foreign</strong></td>
+</tr>
+<tr class="even">
+<td align="left">SPSS</td>
+<td align="left"><code data-package="haven">write_sav</code></td>
+<td align="left"><strong class="package">haven</strong></td>
+</tr>
+<tr class="odd">
+<td align="left">SPSS</td>
+<td align="left"><code data-package="foreign">write.foreign</code></td>
+<td align="left"><strong class="package">foreign</strong></td>
+</tr>
+<tr class="even">
+<td align="left">Stata</td>
+<td align="left"><code data-package="foreign">write.dta</code></td>
+<td align="left"><strong class="package">foreign</strong></td>
+</tr>
+<tr class="odd">
+<td align="left">Stata</td>
+<td align="left"><code data-package="haven">write_dta</code></td>
+<td align="left"><strong class="package">haven</strong></td>
+</tr>
+<tr class="even">
+<td align="left">SAS</td>
+<td align="left"><code data-package="foreign">write.foreign</code></td>
+<td align="left"><strong class="package">foreign</strong></td>
+</tr>
+<tr class="odd">
+<td align="left">SPSS</td>
+<td align="left"><code data-package="foreign">write.foreign</code></td>
+<td align="left"><strong class="package">foreign</strong></td>
+</tr>
+<tr class="even">
+<td align="left">Shapefile</td>
+<td align="left"><code data-package="maptools" data-rdocumentation="readShapePoints">writePointsShape</code></td>
+<td align="left"><strong class="package">maptools</strong></td>
+</tr>
+<tr class="odd">
+<td align="left">Shapefile</td>
+<td align="left"><code data-package="maptools" data-rdocumentation="readShapeLines">writeLinesShape</code></td>
+<td align="left"><strong class="package">maptools</strong></td>
+</tr>
+<tr class="even">
+<td align="left">Shapefile</td>
+<td align="left"><code data-package="maptools" data-rdocumentation="readShapePoly">writePolyShape</code></td>
+<td align="left"><strong class="package">maptools</strong></td>
+</tr>
+<tr class="odd">
+<td align="left">ASCII Grid</td>
+<td align="left"><code data-package="maptools" data-rdocumentation="readAsciiGrid">writeAsciiGrid</code></td>
+<td align="left"><strong class="package">maptools</strong></td>
+</tr>
+</tbody>
+</table>
+<p>À nouveau, pour plus de détails on se référera aux pages d’aide de ces fonctions et au manuel <em>R Data Import/Export</em> accessible à l’adresse suivante : <a href="http://cran.r-project.org/manuals.html" class="uri">http://cran.r-project.org/manuals.html</a>.</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Pour plus de détails, ne pas hésiter à aller lire <a href="http://fr.wikipedia.org/wiki/Codage_des_caract%C3%A8res">http://fr.wikipedia.org/wiki/Codage_des_caract%C3%A8res</a>. Historiquement, les premiers systèmes d’encodage de caractères ne permettaient de coder les lettres non accentués, ce qui convient très bien en anglais, mais pose tout un tas de problèmes pour les autres langues. Dès lors, de nombreux systèmes ont été développés, plus ou moins différents pour chaque langue. Depuis les années 1990, un projet appelé <em>Unicode</em> vise à définir une norme permettant de rendre compte de l’ensemble des langues humaines. Le format <strong>UTF-8</strong> issu du projet <em>Unicode</em> est aujourd’hui le format le plus employé sur Internet.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>ou sous <strong>Linux</strong> et <strong>Mac OS X</strong> avec <strong>wine</strong>.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>Cette extension étant développée par Hadley Wickham qui est l’auteur de nombreuses autres extensions telles que <strong class="package">ggplot2</strong>, <strong class="package">dplyr</strong>, <strong class="package">devtools</strong>, <strong class="package">lubridate</strong>, <strong class="package">stringr</strong>, <strong class="package">reshape</strong>, etc., on aura tout intérêt à suivre les évolutions de <strong class="package">haven</strong>.<a href="#fnref3">↩</a></p></li>
+</ol>
+</div>
 
 </article>
 </div>
