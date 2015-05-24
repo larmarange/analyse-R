@@ -16,12 +16,14 @@ for (f in fichiers) {
   content <- paste(content, collapse = " ")
   chapitre <- str_match(content, 'title: "([^"]+)"')
   chapitre <- chapitre[,2]
-  m <- str_match_all(content, '`([a-zA-Z0-9._%]+)`[{]data-package="([a-zA-Z0-9._]+)"')
+  #m <- str_match_all(content, '`([a-zA-Z0-9._%]+)`[{]data-package="([a-zA-Z0-9._]+)"')
+  m <- str_match_all(content, '`([a-zA-Z0-9._%]+)`[{]data-package="([a-zA-Z0-9._]+)"( data-rdocumentation=")?([a-zA-Z0-9._]*)')
   m <- m[[1]]
   if (nrow(m)>0)
     lf <- rbind (lf, data.frame(
       fonction = m[,2], 
       package = m[,3], 
+      rdocumentation = m[,5], 
       chapitre = chapitre,
       page = str_replace(f, ".Rmd", ".html")
       ))
@@ -29,6 +31,7 @@ for (f in fichiers) {
 
 lf$fonction <- as.character(lf$fonction)
 lf$package <- as.character(lf$package)
+lf$rdocumentation <- as.character(lf$rdocumentation)
 lf$chapitre <- as.character(lf$chapitre)
 lf$page <- as.character(lf$page)
 lf$initiale <- toupper(str_sub(lf$fonction, 1, 1))
@@ -46,8 +49,20 @@ for (j in 1:nrow(lf)) {
     res <- paste0(res, '\n<h2 id="', lf[j, "initiale"], '">', lf[j, "initiale"], "</h2>\n\n")
   i <- lf[j, "initiale"]
   
-  if (lf[j, "fonction"] != f | lf[j, "package"] != p)
-    res <- paste0(res, "\n`", lf[j, "fonction"], "` (", lf[j, "package"], ")\n\n")
+  if (lf[j, "fonction"] != f | lf[j, "package"] != p) {
+    if (nchar(lf[j, "rdocumentation"]) == 0)
+      res <- paste0(res, 
+        "\n`", lf[j, "fonction"], "`{data-package=\"", 
+        lf[j, "package"],"\"} (", lf[j, "package"], ")\n\n"
+      )
+    else
+      res <- paste0(res, 
+        "\n`", lf[j, "fonction"], "`{data-package=\"", 
+        lf[j, "package"],"\" data-rdocumentation=\"", lf[j, "rdocumentation"],
+        "\"} (", lf[j, "package"], ")\n\n"
+      )
+  }
+    
   f <- lf[j, "fonction"]
   p <- lf[j, "package"]
   
