@@ -31,11 +31,6 @@ code {
   background-color: rgba(0, 0, 0, 0.04);
 }
 
-img {
-  max-width:100%;
-  height: auto;
-}
-
 code{white-space: pre;}
 
 table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
@@ -67,25 +62,86 @@ pre:not([class]) {
 @media print {
   math {margin: 11px auto;}
 
+  .main-container {margin:0; padding:0; max-width: 100%;}
+
   @page {
 		size: A4;
- 		@bottom {content: "\2013\0000a0\0000a0\0000a0\0000a0" counter(page) "\0000a0\0000a0\0000a0\0000a0\2013"; font-size: 9pt;}
-   	@top {content: string(titre_chap); font-style: italic; font-size: 9pt;}
+		margin: 2.5cm; padding: 0;
+ 		@bottom {content: "\2013\0000a0\0000a0\0000a0\0000a0" counter(page) "\0000a0\0000a0\0000a0\0000a0\2013"; font-size: 9pt; font-family: Lato, 'Helvetica Neue', Helvetica, Arial, sans-serif;}
 		@footnotes {
-			border-top: solid black thin;
+			border-top: solid #999 thin;
 			padding-top: 8pt;
+			footnote-style-position: inside;
     }
 	}
 	@page:first {
-  	@top{content: "";}
+  	@bottom { content: normal;}
+	  @top-left { content:normal;}
+		@top-right { content:normal;}
   }
-	article{page-break-before: right;}
+  @page:left{
+    @top-left {content: "analyse-R"; font-style: italic; font-size: 9pt; font-family: Lato, 'Helvetica Neue', Helvetica, Arial, sans-serif;}
+  }
+  @page:right{
+    @top-right {content: string(titre_chap); font-style: italic; font-size: 9pt; font-family: Lato, 'Helvetica Neue', Helvetica, Arial, sans-serif;}
+  }
+  @page:blank{
+		@bottom { content: normal;}
+	  @top-left { content:normal;}
+		@top-right { content:normal;}
+	}
+
+  article {string-set: titre_chap "";} /* �viter en-t�te en d�but de chapitre */
 	h1 {string-set: titre_chap content();}
+
+	body {font-size: 10pt; color: black;}
+	pre {font-size: 10pt;}
+	h1 {font-size:36pt; margin-top: 5cm; margin-bottom: 1cm; padding:0; color: #2c3e50;}
+	article:first-child h1:first-child {margin-top: 0; margin-bottom: .5cm; padding:0; font-size: 48pt;}
+	.jumbotron h1 {font-size: 30pt;  color: #2c3e50;}
+	h2 {font-size: 20pt; margin-top: 1cm; margin-bottom: .5cm; padding:0; color: #2c3e50;}
+	h3 {font-size: 16pt; margin-top: 1cm; margin-bottom: .5cm; padding:0; color: #2c3e50;}
+	h4 {font-size: 12pt; margin-top: 1cm; margin-bottom: .5cm; padding:0; color: #2c3e50;}
+
+	/* Page-break */
+	article{page-break-before: right;}
+	article:first-child {page-break-before: auto;}
 	h1, h2, h3, h4, heading, caption {page-break-after: avoid;}
 	figcaption {page-break-before: avoid;}
 	figure, table, pre {page-break-inside: avoid;}
-	div.note, div.info, div.astuce, div.important, div.attention {page-break-inside: avoid;}
+	div.note, div.info, div.astuce, div.important, div.attention, #licence {page-break-inside: avoid;}
 
+  /* Footnotes */
+  .fn {
+    float: footnote;
+    counter-increment: footnote;
+    font-size: 9pt;
+  }
+  article {counter-reset: footnote;}
+  .fn::footnote-call {font-size: 75%; vertical-align: super; line-height: none;}
+
+  /* Liens */
+  a[href^="#"] {color: black;}
+  a[href^="#"]:after { content: ", page\0000a0" target-counter(attr(href), page);}
+
+  /* Table des mati�res */
+  #tdm strong {font-size: 16pt;}
+  .list-group-item {padding: 2pt 0; border:none;}
+  a.list-group-item::after {content: leader(" . ") target-counter(attr(href), page);}
+
+  /* Index des fonctions */
+  #index_fonctions nav {display: none;}
+  #index_fonctions_index_fonctions {column-count: 2; column-rule: thin solid #2c3e50; column-gap: 1cm;}
+  #index_fonctions p {page-break-after: avoid; margin: 10px 0 0 0;}
+  #index_fonctions ul a[href^="#"] {color: black;}
+  #index_fonctions ul a[href^="#"]:after {content: leader(" . ") target-counter(attr(href), page);}
+  #index_fonctions ul {
+    list-style: none;
+    padding: 0; margin: 0;
+    font-size: 9pt;
+    page-break-inside: avoid;
+  }
+  #index_fonctions li {padding-left: 0.5cm;}
 }
 
 </style>
@@ -100,7 +156,7 @@ pre:not([class]) {
 
 <div class="jumbotron">
 <h1>
-Introduction<br/>à l’analyse d’enquêtes<br/> avec R et RStudio
+Introduction <br/>à l’analyse d’enquêtes <br/>avec R et RStudio
 </h1>
 <p>
 Dernière mise à jour : 24 mai 2015
@@ -139,6 +195,14 @@ Dernière mise à jour : 24 mai 2015
 </p>
 <div class="list-group">
 <span class="list-group-item list-group-item-header">Astuces</span> <a href="#avance_age" class="list-group-item">Calculer un âge</a>
+</div>
+</div>
+<div class="col-md-12">
+<p>
+<strong>Index</strong>
+</p>
+<div class="list-group">
+<a href="#index_fonctions" class="list-group-item">Index des fonctions</a>
 </div>
 </div>
 </div>
@@ -4623,7 +4687,7 @@ Intermediaire       Ouvrier
   Oui 132 222</code></pre>
 </div>
 <p>On n’a cependant que les effectifs, ce qui rend difficile les comparaisons. L’extension <strong class="package">questionr</strong> fournit des fonctions permettant de calculer facilement les pourcentages lignes, colonnes et totaux d’un tableau croisé.</p>
-<p>Les pourcentages lignes s’obtiennent avec la fonction <code data-package="questionr" data-rdocumentation="rprop">lprop</code><a href="#analyses_stat_biv_fn5" class="footnoteRef" id="analyses_stat_biv_fnref5"><sup>5</sup></a>. Celle-ci s’applique au tableau croisé généré par <code data-package="base" data-rdocumentation="rprop">table</code> :</p>
+<p>Les pourcentages lignes s’obtiennent avec la fonction <code data-package="questionr" data-rdocumentation="rprop">lprop</code><a href="#analyses_stat_biv_fn5" class="footnoteRef" id="analyses_stat_biv_fnref5"><sup>5</sup></a>. Celle-ci s’applique au tableau croisé généré par <code data-package="base">table</code> :</p>
 <pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">table</span>(d$sport, d$qualreg)
 <span class="kw">lprop</span>(tab)</code></pre>
 <pre><code>          
@@ -6891,7 +6955,7 @@ seq &lt;-<span class="st"> </span><span class="kw">seqdef</span>(donnees[, <span
  [&gt;] 818 distinct sequences
  [&gt;] min/max sequence length: 37/37
  [&gt;] computing distances using OM metric
- [&gt;] total time: 1.84 secs</code></pre>
+ [&gt;] total time: 1.83 secs</code></pre>
 <p>Cette matrice des distances ou des dissimilarités entre séquences peut ensuite être utilisée pour une classification ascendante hiérarchique (CAH), qui permet de regrouper les séquences en un certain nombre de « classes » en fonction de leur proximité :</p>
 <pre class="sourceCode r"><code class="sourceCode r">seq.agnes &lt;-<span class="st"> </span><span class="kw">agnes</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">method =</span> <span class="st">"ward"</span>, 
   <span class="dt">keep.diss =</span> <span class="ot">FALSE</span>)</code></pre>
@@ -7234,6 +7298,1218 @@ evt -<span class="st"> </span>naiss</code></pre>
 </div>
 
 </article>
+<article id="index_fonctions">
+
+<div id="index_fonctions_header">
+<h1 class="title">Index des fonctions</h1>
+</div>
+
+
+<nav>
+<ul class="pagination pagination-sm">
+<li>
+<a href="#index_fonctions_%">%</a>
+</li>
+<li>
+<a href="#index_fonctions_A">A</a>
+</li>
+<li>
+<a href="#index_fonctions_B">B</a>
+</li>
+<li>
+<a href="#index_fonctions_C">C</a>
+</li>
+<li>
+<a href="#index_fonctions_D">D</a>
+</li>
+<li>
+<a href="#index_fonctions_E">E</a>
+</li>
+<li>
+<a href="#index_fonctions_F">F</a>
+</li>
+<li>
+<a href="#index_fonctions_G">G</a>
+</li>
+<li>
+<a href="#index_fonctions_H">H</a>
+</li>
+<li>
+<a href="#index_fonctions_I">I</a>
+</li>
+<li>
+<a href="#index_fonctions_J">J</a>
+</li>
+<li>
+<a href="#index_fonctions_K">K</a>
+</li>
+<li>
+<a href="#index_fonctions_L">L</a>
+</li>
+<li>
+<a href="#index_fonctions_M">M</a>
+</li>
+<li>
+<a href="#index_fonctions_N">N</a>
+</li>
+<li>
+<a href="#index_fonctions_O">O</a>
+</li>
+<li>
+<a href="#index_fonctions_P">P</a>
+</li>
+<li>
+<a href="#index_fonctions_Q">Q</a>
+</li>
+<li>
+<a href="#index_fonctions_R">R</a>
+</li>
+<li>
+<a href="#index_fonctions_S">S</a>
+</li>
+<li>
+<a href="#index_fonctions_T">T</a>
+</li>
+<li>
+<a href="#index_fonctions_U">U</a>
+</li>
+<li>
+<a href="#index_fonctions_V">V</a>
+</li>
+<li>
+<a href="#index_fonctions_W">W</a>
+</li>
+</ul>
+<p/></nav>
+<div id="index_fonctions_index_fonctions">
+<h2 id="index_fonctions_%">
+%
+</h2>
+<p><code data-package="base" data-rdocumentation="match">%in%</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<h2 id="index_fonctions_A">
+A
+</h2>
+<p><code data-package="JLutils">A2Rplot</code> (JLutils)</p>
+<ul>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="graphics">abline</code> (graphics)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="base">add.NA</code> (base)</p>
+<ul>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+</ul>
+<p><code data-package="base" data-rdocumentation="factor">addNA</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="eeptools">age_calc</code> (eeptools)</p>
+<ul>
+<li><a href="#avance_age">Calculer un âge</a></li>
+</ul>
+<p><code data-package="cluster">agnes</code> (cluster)</p>
+<ul>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="survey" data-rdocumentation="anova.svyglm">AIC.svyglm</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="effects" data-rdocumentation="effect">allEffects</code> (effects)</p>
+<ul>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+</ul>
+<p><code data-package="base" data-rdocumentation="character">as.character</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="cluster" data-rdocumentation="agnes.object">as.hclust</code> (cluster)</p>
+<ul>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="base" data-rdocumentation="matrix">as.matrix</code> (base)</p>
+<ul>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="base" data-rdocumentation="numeric">as.numeric</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="haven" data-rdocumentation="labelled">as_factor</code> (haven)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<h2 id="index_fonctions_B">
+B
+</h2>
+<p><code data-package="graphics">barplot</code> (graphics)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="JLutils">best.cutree</code> (JLutils)</p>
+<ul>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="ade4" data-rdocumentation="scatter">biplot</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="ade4" data-rdocumentation="dudi.acm">boxplot</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="graphics">boxplot</code> (graphics)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="RColorBrewer" data-rdocumentation="RColorsBrewer">brewer.pal</code> (RColorBrewer)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="base">by</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<h2 id="index_fonctions_C">
+C
+</h2>
+<p><code data-package="base">c</code> (base)</p>
+<ul>
+<li><a href="#pem_premier_contact">Premier contact</a></li>
+</ul>
+<p><code data-package="FactoMineR">CA</code> (FactoMineR)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="base">cbind</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="questionr">chisq.residuals</code> (questionr)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="stats">chisq.test</code> (stats)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="base">class</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="stats">cmdscale</code> (stats)</p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+</ul>
+<p><code data-package="stats">coef</code> (stats)</p>
+<ul>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+</ul>
+<p><code data-package="survey" data-rdocumentation="svyglm">coef</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="grDevices">colors</code> (grDevices)</p>
+<ul>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="stats">complete.cases</code> (stats)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="stats">confint</code> (stats)</p>
+<ul>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+</ul>
+<p><code data-package="survey" data-rdocumentation="surveysummary">confint</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="graphics">contour</code> (graphics)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="stats">cor</code> (stats)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="MASS">corresp</code> (MASS)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="questionr">cprop</code> (questionr)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="questionr">cramer.v</code> (questionr)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="base">cut</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<h2 id="index_fonctions_D">
+D
+</h2>
+<p><code data-package="cluster">daisy</code> (cluster)</p>
+<ul>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="utils">data</code> (utils)</p>
+<ul>
+<li><a href="#pem_premier_travail">Premier travail avec des données</a></li>
+</ul>
+<p><code data-package="grDevices" data-rdocumentation="dev">dev.off</code> (grDevices)</p>
+<ul>
+<li><a href="#pem_export_graphiques">Exporter des graphiques</a></li>
+</ul>
+<p><code data-package="grDevices" data-rdocumentation="dev2">dev.print</code> (grDevices)</p>
+<ul>
+<li><a href="#pem_export_graphiques">Exporter des graphiques</a></li>
+</ul>
+<p><code data-package="base">dim</code> (base)</p>
+<ul>
+<li><a href="#pem_premier_travail">Premier travail avec des données</a></li>
+</ul>
+<p><code data-package="FactoMineR">dimdesc</code> (FactoMineR)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="RColorBrewer" data-rdocumentation="RColorsBrewer">display.brewer.all</code> (RColorBrewer)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="TraMineR">disscenter</code> (TraMineR)</p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+</ul>
+<p><code data-package="stats">dist</code> (stats)</p>
+<ul>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="ade4">dist.dudi</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="graphics">dotchart</code> (graphics)</p>
+<ul>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="base">dput</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="ade4">dudi.acm</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="ade4">dudi.coa</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="ade4">dudi.mix</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="ade4">dudi.pca</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="lubridate" data-rdocumentation="Duration">Duration</code> (lubridate)</p>
+<ul>
+<li><a href="#avance_age">Calculer un âge</a></li>
+</ul>
+<h2 id="index_fonctions_E">
+E
+</h2>
+<p><code data-package="utils">example</code> (utils)</p>
+<ul>
+<li><a href="#pem_ou_trouver_aide">Où trouver de l’aide ?</a></li>
+</ul>
+<p><code data-package="base" data-rdocumentation="log">exp</code> (base)</p>
+<ul>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+</ul>
+<h2 id="index_fonctions_F">
+F
+</h2>
+<p><code data-package="base">factor</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="graphics">filled.contour</code> (graphics)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="stats">fisher.test</code> (stats)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="base">format</code> (base)</p>
+<ul>
+<li><a href="#pem_premier_contact">Premier contact</a></li>
+</ul>
+<p><code data-package="questionr">freq</code> (questionr)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<h2 id="index_fonctions_G">
+G
+</h2>
+<p><code data-package="raster">getValues</code> (raster)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="base">getwd</code> (base)</p>
+<ul>
+<li><a href="#pem_organiser_fichiers">Organiser ses fichiers</a></li>
+</ul>
+<p><code data-package="stats">glm</code> (stats)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+</ul>
+<h2 id="index_fonctions_H">
+H
+</h2>
+<p><code data-package="flashClust" data-rdocumentation="flashClust">hclust</code> (flashClust)</p>
+<ul>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="stats">hclust</code> (stats)</p>
+<ul>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="FactoMineR">HCPC</code> (FactoMineR)</p>
+<ul>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="questionr">hdv2003</code> (questionr)</p>
+<ul>
+<li><a href="#pem_premier_travail">Premier travail avec des données</a></li>
+</ul>
+<p><code data-package="utils">head</code> (utils)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+<li><a href="#pem_premier_travail">Premier travail avec des données</a></li>
+</ul>
+<p><code data-package="utils">help</code> (utils)</p>
+<ul>
+<li><a href="#pem_ou_trouver_aide">Où trouver de l’aide ?</a></li>
+<li><a href="#pem_premier_contact">Premier contact</a></li>
+</ul>
+<p><code data-package="utils">help.search</code> (utils)</p>
+<ul>
+<li><a href="#pem_ou_trouver_aide">Où trouver de l’aide ?</a></li>
+</ul>
+<p><code data-package="utils">help.start</code> (utils)</p>
+<ul>
+<li><a href="#pem_ou_trouver_aide">Où trouver de l’aide ?</a></li>
+</ul>
+<p><code data-package="graphics">hist</code> (graphics)</p>
+<ul>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<h2 id="index_fonctions_I">
+I
+</h2>
+<p><code data-package="questionr">icut</code> (questionr)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="ifelse">ifelse</code> (ifelse)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="graphics">image</code> (graphics)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="ade4">inertia.dudi</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="utils">install.packages</code> (utils)</p>
+<ul>
+<li><a href="#pem_presentation_installation">Présentation et Installation</a></li>
+</ul>
+<p><code data-package="devtools">install_github</code> (devtools)</p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+<li><a href="#pem_presentation_installation">Présentation et Installation</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="lubridate" data-rdocumentation="Interval">Interval</code> (lubridate)</p>
+<ul>
+<li><a href="#avance_age">Calculer un âge</a></li>
+</ul>
+<p><code data-package="questionr">iorder</code> (questionr)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="questionr">irec</code> (questionr)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="base" data-rdocumentation="NA">is.na</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<h2 id="index_fonctions_J">
+J
+</h2>
+<p><code data-package="grDevices" data-rdocumentation="png">jpeg</code> (grDevices)</p>
+<ul>
+<li><a href="#pem_export_graphiques">Exporter des graphiques</a></li>
+</ul>
+<h2 id="index_fonctions_K">
+K
+</h2>
+<p><code data-package="MASS">kde2d</code> (MASS)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<h2 id="index_fonctions_L">
+L
+</h2>
+<p><code data-package="base">length</code> (base)</p>
+<ul>
+<li><a href="#pem_premier_contact">Premier contact</a></li>
+</ul>
+<p><code data-package="base">levels</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+</ul>
+<p><code data-package="JLutils">lfactor</code> (JLutils)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="JLutils">lfreq</code> (JLutils)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="base">library</code> (base)</p>
+<ul>
+<li><a href="#pem_organiser_fichiers">Organiser ses fichiers</a></li>
+<li><a href="#pem_premier_travail">Premier travail avec des données</a></li>
+<li><a href="#pem_presentation_installation">Présentation et Installation</a></li>
+</ul>
+<p><code data-package="stats">lm</code> (stats)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="base">load</code> (base)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="questionr" data-rdocumentation="rprop">lprop</code> (questionr)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="JLutils">ltabs</code> (JLutils)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<h2 id="index_fonctions_M">
+M
+</h2>
+<p><code data-package="base" data-rdocumentation="Extremes">max</code> (base)</p>
+<ul>
+<li><a href="#pem_premier_contact">Premier contact</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="MASS">mca</code> (MASS)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="FactoMineR">MCA</code> (FactoMineR)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="base">mean</code> (base)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+<li><a href="#pem_ou_trouver_aide">Où trouver de l’aide ?</a></li>
+<li><a href="#pem_premier_contact">Premier contact</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="stats">median</code> (stats)</p>
+<ul>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="base">merge</code> (base)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="base" data-rdocumentation="Extremes">min</code> (base)</p>
+<ul>
+<li><a href="#pem_premier_contact">Premier contact</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="graphics">mosaicplot</code> (graphics)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="nnet">multinom</code> (nnet)</p>
+<ul>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+</ul>
+<h2 id="index_fonctions_N">
+N
+</h2>
+<p><code data-package="base">names</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+<li><a href="#pem_premier_travail">Premier travail avec des données</a></li>
+</ul>
+<p><code data-package="base" data-rdocumentation="nrow">ncol</code> (base)</p>
+<ul>
+<li><a href="#pem_premier_travail">Premier travail avec des données</a></li>
+</ul>
+<p><code data-package="base">nrow</code> (base)</p>
+<ul>
+<li><a href="#pem_premier_travail">Premier travail avec des données</a></li>
+</ul>
+<h2 id="index_fonctions_O">
+O
+</h2>
+<p><code data-package="questionr">odds.ratio</code> (questionr)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="base">order</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<h2 id="index_fonctions_P">
+P
+</h2>
+<p><code data-package="graphics">par</code> (graphics)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="FactoMineR">PCA</code> (FactoMineR)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="grDevices">pdf</code> (grDevices)</p>
+<ul>
+<li><a href="#pem_export_graphiques">Exporter des graphiques</a></li>
+</ul>
+<p><code data-package="lubridate" data-rdocumentation="Period">Period</code> (lubridate)</p>
+<ul>
+<li><a href="#avance_age">Calculer un âge</a></li>
+</ul>
+<p><code data-package="graphics">pie</code> (graphics)</p>
+<ul>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="effects" data-rdocumentation="summary.effect">plot</code> (effects)</p>
+<ul>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+</ul>
+<p><code data-package="FactoMineR" data-rdocumentation="plot.MCA">plot</code> (FactoMineR)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="graphics" data-rdocumentation="plot.table">plot</code> (graphics)</p>
+<ul>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="stats" data-rdocumentation="dendrogram">plot</code> (stats)</p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="FactoMineR">plotellipses</code> (FactoMineR)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="grDevices">png</code> (grDevices)</p>
+<ul>
+<li><a href="#pem_export_graphiques">Exporter des graphiques</a></li>
+</ul>
+<p><code data-package="grDevices">postscript</code> (grDevices)</p>
+<ul>
+<li><a href="#pem_export_graphiques">Exporter des graphiques</a></li>
+</ul>
+<p><code data-package="stats" data-rdocumentation="predict.glm">predict</code> (stats)</p>
+<ul>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+</ul>
+<p><code data-package="survey" data-rdocumentation="svyglm">predict</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="stats">princomp</code> (stats)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="questionr" data-rdocumentation="print.proptab">print</code> (questionr)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="questionr">prop</code> (questionr)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="JLutils">prop.ci</code> (JLutils)</p>
+<ul>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="JLutils">prop.ci.lower</code> (JLutils)</p>
+<ul>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="JLutils">prop.ci.upper</code> (JLutils)</p>
+<ul>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="base">prop.table</code> (base)</p>
+<ul>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="stats">prop.test</code> (stats)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<h2 id="index_fonctions_Q">
+Q
+</h2>
+<p><code data-package="questionr">quant.cut</code> (questionr)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="stats">quantile</code> (stats)</p>
+<ul>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<h2 id="index_fonctions_R">
+R
+</h2>
+<p><code data-package="base">range</code> (base)</p>
+<ul>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="raster">raster</code> (raster)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="base" data-rdocumentation="cbind">rbind</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="utils" data-rdocumentation="read.table">read.csv</code> (utils)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="utils" data-rdocumentation="read.table">read.csv2</code> (utils)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="foreign">read.dbf</code> (foreign)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="utils" data-rdocumentation="read.table">read.delim</code> (utils)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="utils" data-rdocumentation="read.table">read.delim2</code> (utils)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="foreign">read.spss</code> (foreign)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="foreign">read.ssd</code> (foreign)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="utils">read.table</code> (utils)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="xlsx">read.xlsx</code> (xlsx)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="xlsx" data-rdocumentation="read.xlsx">read.xlsx2</code> (xlsx)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="foreign">read.xport</code> (foreign)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="haven">read_dta</code> (haven)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="readxl">read_excel</code> (readxl)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="haven" data-rdocumentation="read_spss">read_por</code> (haven)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="haven">read_sas</code> (haven)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="haven" data-rdocumentation="read_spss">read_sav</code> (haven)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="haven">read_spss</code> (haven)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="haven" data-rdocumentation="read_dta">read_stata</code> (haven)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="maptools">readAsciiGrid</code> (maptools)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="maptools">readShapeLines</code> (maptools)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="maptools">readShapePoints</code> (maptools)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="maptools">readShapePoly</code> (maptools)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="maptools">readShapeSpatial</code> (maptools)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="stats">rect.hclust</code> (stats)</p>
+<ul>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="stats">relevel</code> (stats)</p>
+<ul>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="utils">remove.packages</code> (utils)</p>
+<ul>
+<li><a href="#pem_presentation_installation">Présentation et Installation</a></li>
+</ul>
+<p><code data-package="questionr">rename.variable</code> (questionr)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="base" data-rdocumentation="library">require</code> (base)</p>
+<ul>
+<li><a href="#pem_presentation_installation">Présentation et Installation</a></li>
+</ul>
+<p><code data-package="base">row.names</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="questionr">rprop</code> (questionr)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="graphics">rug</code> (graphics)</p>
+<ul>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<h2 id="index_fonctions_S">
+S
+</h2>
+<p><code data-package="ade4">s.arrow</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="ade4">s.chull</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="ade4">s.class</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="ade4">s.corcicle</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="JLutils">s.freq</code> (JLutils)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="s.hist">s.hist</code> (s.hist)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="ade4">s.label</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="ade4">s.value</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="base">save</code> (base)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="base" data-rdocumentation="save">save.image</code> (base)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="ade4">scatter</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="ade4" data-rdocumentation="score.acm">score</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="ade4" data-rdocumentation="scatter">screeplot</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="stats">sd</code> (stats)</p>
+<ul>
+<li><a href="#pem_premier_contact">Premier contact</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="JLutils">seq_heatmap</code> (JLutils)</p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+</ul>
+<p><code data-package="TraMineR">seqdef</code> (TraMineR)</p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+</ul>
+<p><code data-package="TraMineR">seqdist</code> (TraMineR)</p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><code data-package="TraMineR" data-rdocumentation="seqplot">seqdplot</code> (TraMineR)</p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+</ul>
+<p><code data-package="TraMineR" data-rdocumentation="seqplot">seqfplot</code> (TraMineR)</p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+</ul>
+<p><code data-package="TraMineR" data-rdocumentation="seqplot">seqHtplot</code> (TraMineR)</p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+</ul>
+<p><code data-package="TraMineR" data-rdocumentation="seqplot">seqiplot</code> (TraMineR)</p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+</ul>
+<p><code data-package="TraMineR" data-rdocumentation="seqplot">seqmsplot</code> (TraMineR)</p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+</ul>
+<p><code data-package="TraMineR" data-rdocumentation="seqplot">seqmtplot</code> (TraMineR)</p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+</ul>
+<p><code data-package="TraMineR">seqsubm</code> (TraMineR)</p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+</ul>
+<p><code data-package="base" data-rdocumentation="getwd">setwd</code> (base)</p>
+<ul>
+<li><a href="#pem_organiser_fichiers">Organiser ses fichiers</a></li>
+</ul>
+<p><code data-package="stats">shapiro.test</code> (stats)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="base">sort</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="base">source</code> (base)</p>
+<ul>
+<li><a href="#pem_organiser_fichiers">Organiser ses fichiers</a></li>
+</ul>
+<p><code data-package="sp" data-rdocumentation="SpatialGridDataFrame">SpatialGridDataFrame</code> (sp)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="Hmisc">spss.get</code> (Hmisc)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="Hmisc">stata.get</code> (Hmisc)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="stats">step</code> (stats)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+</ul>
+<p><code data-package="utils">str</code> (utils)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+<li><a href="#pem_premier_travail">Premier travail avec des données</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="base">subset</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><code data-package="survey" data-rdocumentation="subset.survey.design">subset</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="ade4" data-rdocumentation="dudi">summary</code> (ade4)</p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-package="base">summary</code> (base)</p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="stats" data-rdocumentation="summary.glm">summary</code> (stats)</p>
+<ul>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+</ul>
+<p><code data-package="grDevices" data-rdocumentation="cairo">svg</code> (grDevices)</p>
+<ul>
+<li><a href="#pem_export_graphiques">Exporter des graphiques</a></li>
+</ul>
+<p><code data-package="survey" data-rdocumentation="svyhist">svyboxplot</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="survey">svyby</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="survey" data-rdocumentation="svytable">svychisq</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="survey">svyciprop</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="survey">svydesign</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="survey">svyglm</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="survey">svyhist</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="survey" data-rdocumentation="surveysummary">svymean</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="survey">svyplot</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="survey">svyquantile</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="survey">svyratio</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="survey">svytable</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="survey" data-rdocumentation="surveysummary">svytotal</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="survey">svyttest</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="survey" data-rdocumentation="surveysummary">svyvar</code> (survey)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<h2 id="index_fonctions_T">
+T
+</h2>
+<p><code data-package="stats">t.test</code> (stats)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="base">table</code> (base)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><code data-package="utils" data-rdocumentation="head">tail</code> (utils)</p>
+<ul>
+<li><a href="#pem_premier_travail">Premier travail avec des données</a></li>
+</ul>
+<p><code data-package="base">tapply</code> (base)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="grDevices" data-rdocumentation="png">tiff</code> (grDevices)</p>
+<ul>
+<li><a href="#pem_export_graphiques">Exporter des graphiques</a></li>
+</ul>
+<p><code data-package="lubridate">time_length</code> (lubridate)</p>
+<ul>
+<li><a href="#avance_age">Calculer un âge</a></li>
+</ul>
+<h2 id="index_fonctions_U">
+U
+</h2>
+<p><code data-package="utils">update.packages</code> (utils)</p>
+<ul>
+<li><a href="#pem_presentation_installation">Présentation et Installation</a></li>
+</ul>
+<h2 id="index_fonctions_V">
+V
+</h2>
+<p><code data-package="base" data-rdocumentation="cor">var</code> (base)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="stats" data-rdocumentation="cor">var</code> (stats)</p>
+<ul>
+<li><a href="#pem_premier_contact">Premier contact</a></li>
+</ul>
+<p><code data-package="stats">var.test</code> (stats)</p>
+<ul>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<p><code data-package="utils">View</code> (utils)</p>
+<ul>
+<li><a href="#pem_premier_travail">Premier travail avec des données</a></li>
+</ul>
+<h2 id="index_fonctions_W">
+W
+</h2>
+<p><code data-package="grDevices" data-rdocumentation="windows">win.metafile</code> (grDevices)</p>
+<ul>
+<li><a href="#pem_export_graphiques">Exporter des graphiques</a></li>
+</ul>
+<p><code data-package="utils" data-rdocumentation="write.table">write.csv</code> (utils)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="foreign">write.dbf</code> (foreign)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="foreign">write.dta</code> (foreign)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="foreign">write.foreign</code> (foreign)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="utils">write.table</code> (utils)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="xlsx">write.xlsx</code> (xlsx)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="readr">write_csv</code> (readr)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="haven">write_dta</code> (haven)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="haven">write_sav</code> (haven)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="maptools" data-rdocumentation="readAsciiGrid">writeAsciiGrid</code> (maptools)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="maptools" data-rdocumentation="readShapeLines">writeLinesShape</code> (maptools)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="maptools" data-rdocumentation="readShapePoints">writePointsShape</code> (maptools)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="maptools" data-rdocumentation="readShapePoly">writePolyShape</code> (maptools)</p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><code data-package="questionr">wtd.mean</code> (questionr)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="questionr">wtd.table</code> (questionr)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><code data-package="questionr" data-rdocumentation="wtd.mean">wtd.var</code> (questionr)</p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+</div>
+
+</article>
 </div>
 
 <script language="javascript" type="text/javascript">
@@ -7273,12 +8549,18 @@ $(document).ready(function () {
           $(this).append($("<figcaption>").append('<span class="figure-number">Figure '+(index+1)+'</span>'));
         if ($(this).attr('id') == undefined) $(this).attr('id', chap + '_fig_' + (index+1));
       });
-
-
-
     });
 
-
+    // Footnotes (prince xml only)
+    if (typeof Prince !== "undefined") {
+      $(".footnotes li").each(function(){
+        lien = $(this).find("a[href*='fnref']").attr('href');
+        $(this).find("a[href*='fnref']").remove();
+        $(lien).after('<div class="fn">' + $(this).html() + '</div>');
+      });
+      $(".footnoteRef").remove();
+      $(".footnotes").remove();
+    }
 
 });
 
