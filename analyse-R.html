@@ -55,9 +55,6 @@ pre:not([class]) {
   background-color: white;
 }
 
-/* Ne pas afficher les tables de mati�res des chapitres */
-.TOC {display: none;}
-
 /* Print CSS */
 @media print {
   math {margin: 11px auto;}
@@ -100,14 +97,14 @@ pre:not([class]) {
 	pre {font-size: 10pt;}
 	h1 {font-size:36pt; margin-top: 5cm; margin-bottom: 1cm; padding:0; color: #2c3e50;}
 	article:first-child h1:first-child {margin-top: 0; margin-bottom: .5cm; padding:0; font-size: 48pt;}
-	.jumbotron h1 {font-size: 30pt;  color: #2c3e50;}
+	article:first-child .jumbotron h1 {font-size: 32pt;  color: #2c3e50;}
 	h2 {font-size: 20pt; margin-top: 1cm; margin-bottom: .5cm; padding:0; color: #2c3e50;}
 	h3 {font-size: 16pt; margin-top: 1cm; margin-bottom: .5cm; padding:0; color: #2c3e50;}
 	h4 {font-size: 12pt; margin-top: 1cm; margin-bottom: .5cm; padding:0; color: #2c3e50;}
 	blockquote p {font-size: 11pt;}
 
 	/* Page-break */
-	article{page-break-before: right;}
+	article, #tdm {page-break-before: right;}
 	article:first-child {page-break-before: auto;}
 	h1, h2, h3, h4, heading, caption {page-break-after: avoid;}
 	figcaption {page-break-before: avoid;}
@@ -131,20 +128,30 @@ pre:not([class]) {
   #tdm strong {font-size: 16pt;}
   .list-group-item {padding: 2pt 0; border:none;}
   a.list-group-item::after {content: leader(" . ") target-counter(attr(href), page);}
-
+  .TOC a::after {content: leader(" . ") target-counter(attr(href), page);}
+  .TOC a {color: black;}
+  .TOC ul {list-style: none; padding:0; margin:0;}
+  .TOC ul ul {padding-left: 0.5cm; font-size: 9pt;}
   /* Index des fonctions */
-  #index_fonctions nav {display: none;}
-  #index_fonctions_index_fonctions {column-count: 2; column-rule: thin solid #2c3e50; column-gap: 1cm;}
-  #index_fonctions p {page-break-after: avoid; margin: 10px 0 0 0;}
-  #index_fonctions ul a[href^="#"] {color: black;}
-  #index_fonctions ul a[href^="#"]:after {content: leader(" . ") target-counter(attr(href), page);}
-  #index_fonctions ul {
+  #index_fonctions nav, #index_extensions nav
+    {display: none;}
+  #index_fonctions_index_fonctions, #index_extensions_index_extensions
+    {column-count: 2; column-rule: thin solid #2c3e50; column-gap: 1cm;}
+  #index_fonctions p, #index_extensions p
+    {page-break-after: avoid; margin: 10px 0 0 0;}
+  #index_fonctions ul a[href^="#"] , #index_extensions ul a[href^="#"]
+    {color: black;}
+  #index_fonctions ul a[href^="#"]:after, #index_extensions ul a[href^="#"]:after
+    {content: leader(" . ") target-counter(attr(href), page);}
+  #index_fonctions ul, #index_extensions ul
+  {
     list-style: none;
     padding: 0; margin: 0;
     font-size: 9pt;
     page-break-inside: avoid;
   }
-  #index_fonctions li {padding-left: 0.5cm;}
+  #index_fonctions li, #index_extensions li
+    {padding-left: 0.5cm;}
 }
 
 </style>
@@ -162,7 +169,7 @@ pre:not([class]) {
 Introduction <br/>à l’analyse d’enquêtes <br/>avec R et RStudio
 </h1>
 <p>
-Dernière mise à jour : 24 mai 2015
+Dernière mise à jour : 25 mai 2015
 </p>
 </div>
 <p>Ce projet de site web est basé sur le support de cours <a href="https://github.com/larmarange/intro-r/tree/CoursM2">Introduction à l’analyse d’enquêtes avec R</a> de Joseph Larmarange, qui est lui-même une adaptation de l’<a href="https://github.com/juba/intro-r">Introduction à R</a> de Julien Barnier.</p>
@@ -170,7 +177,7 @@ Dernière mise à jour : 24 mai 2015
 <h2>Contributeurs</h2>
 <p><strong>Par ordre alphabétique :</strong></p>
 <p>Julien Barnier, Julien Biaudet, Milan Bouchet-Valat, Frédérique Giraud, Joël Gombin, Mayeul Kauffmann, Joseph Larmarange, Nicolas Robette.</p>
-<p><strong>Maintenance :</strong></p>
+<p><strong>Création et Maintenance :</strong></p>
 <p>Joseph Larmarange — <a href="http://joseph.larmarange.net" class="uri">http://joseph.larmarange.net</a></p>
 </div>
 <div id="tdm" class="section level2">
@@ -205,7 +212,7 @@ Dernière mise à jour : 24 mai 2015
 <strong>Index</strong>
 </p>
 <div class="list-group">
-<a href="#index_fonctions" class="list-group-item">Index des fonctions</a>
+<a href="#index_fonctions" class="list-group-item">Index des fonctions</a> <a href="#index_extensions" class="list-group-item">Index des extensions</a>
 </div>
 </div>
 </div>
@@ -213,7 +220,7 @@ Dernière mise à jour : 24 mai 2015
 <div id="licence" class="section level2">
 <h2>Licence</h2>
 <p>Le contenu de ce site est diffusé sous licence <em>Creative Commons Attribution - Pas dutilisation commerciale - Partage dans les mêmes conditions</em> (<a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/" class="uri">https://creativecommons.org/licenses/by-nc-sa/3.0/fr/</a>).</p>
-<p><img src="images\by-nc-sa.png" alt="CC by-nc-sa"/></p>
+<p><img src="images\by-nc-sa.svg" alt="CC by-nc-sa"/></p>
 </div>
 
 </article>
@@ -1275,24 +1282,35 @@ Exemple de diagramme en bâtons
 </figure>
 <p>Pour les autres types de variables qualitatives, on privilégiera les <em>diagrammes de Cleveland</em>, obtenus avec la fonction <code data-package="graphics">dotchart</code>. On doit appliquer cette fonction au tri à plat de la variable, obtenu avec <code data-package="base">table</code><a href="#pem_stat_univ_fn5" class="footnoteRef" id="pem_stat_univ_fnref5"><sup>5</sup></a> :</p>
 <figure>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">table</span>(d$clso)), <span class="dt">main =</span> <span class="st">"Sentiment d'appartenance à une classe sociale"</span>, 
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">table</span>(d$clso))[, <span class="dv">1</span>], <span class="dt">main =</span> <span class="st">"Sentiment d'appartenance à une classe sociale"</span>, 
   <span class="dt">pch =</span> <span class="dv">19</span>)</code></pre>
 <img src="images/pem_stat_univ/unnamed-chunk-19-1.png" title="" alt="" width="1050"/>
 <figcaption>
 Exemple de diagramme de Cleveland
 </figcaption>
 </figure>
+<div class="note">
+<p>Il est possible d’entrer directement la commande suivante dans la console :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">table</span>(d$clso))</code></pre>
+<p><strong>R</strong> produira bien le diagramme de Cleveland désiré mais affichera un message d’avertissement (<em>Warning</em>) car pour des raisons liées au fonctionnement interne de la fonction <code data-package="graphics">dotchart</code>, il est attendu une matrice ou un vecteur, non un objet de type table. Pour éviter cet avertissement, il est nécessaire de faire appel à la fonction <code data-package="base" data-rdocumentation="matrix">as.matrix</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">table</span>(d$clso)))</code></pre>
+<p><img src="images/pem_stat_univ/unnamed-chunk-21-1.png" title="" alt="" width="1050"/></p>
+<p>Dans le cas présent, on voit apparaître un chiffre 1 au-dessus des modalités. En fait, <code data-package="graphics">dotchart</code> peut être appliqué au résultat d’un tableau croisé à deux entrées, auquel cas il présentera les résultats pour chaque colonne. Comme dans l’exemple ci-après.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">table</span>(d$clso, d$sexe)))</code></pre>
+<p><img src="images/pem_stat_univ/unnamed-chunk-22-1.png" title="" alt="" width="1050"/></p>
+Cela ne résoud pas le problème pour notre diagramme de Cleveland issu d’un tri à plat simple. Pour bien comprendre, la fonction <code data-package="base" data-rdocumentation="matrix">as.matrix</code> a produit un objet à deux dimensions ayant une colonne et plusieurs lignes. On indiquera à <strong>R</strong> que l’on ne souhaite extraire la première colonne avec <code>[, 1]</code> (juste après l’appel à <code data-package="base" data-rdocumentation="matrix">as.matrix</code>). C’est ce qu’on appelle l’<em>indexation</em> que l’on abordera plus en détails dans le chapite <a href="#pem_manipulation_indexation">Manipulation de données</a>.
+</div>
 <p>Quand la variable comprend un grand nombre de modalités, il est préférable d’ordonner le tri à plat obtenu à l’aide de la fonction <code data-package="base">sort</code> :</p>
 <figure>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">sort</span>(<span class="kw">table</span>(d$qualif))), <span class="dt">main =</span> <span class="st">"Niveau de qualification"</span>)</code></pre>
-<img src="images/pem_stat_univ/unnamed-chunk-20-1.png" title="" alt="" width="1050"/>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">sort</span>(<span class="kw">table</span>(d$qualif)))[, <span class="dv">1</span>], <span class="dt">main =</span> <span class="st">"Niveau de qualification"</span>)</code></pre>
+<img src="images/pem_stat_univ/unnamed-chunk-23-1.png" title="" alt="" width="1050"/>
 <figcaption>
 Exemple de diagramme de Cleveland ordonné
 </figcaption>
 </figure>
 <div class="astuce">
 <p>L’agument <code>pch</code>, qui est utilisé par la plupart des graphiques de type points, permet de spécifier le symbole à utiliser. Il peut prendre soit un nombre entier compris entre 0 et 25, soit un charactère textuel (voir ci-dessous).</p>
-<img src="images/pem_stat_univ/unnamed-chunk-21-1.png" title="" alt="" width="1050"/>
+<img src="images/pem_stat_univ/unnamed-chunk-24-1.png" title="" alt="" width="1050"/>
 </div>
 </div>
 <div id="pem_stat_univ_intervalle-de-confiance-1" class="section level3">
@@ -6958,7 +6976,7 @@ seq &lt;-<span class="st"> </span><span class="kw">seqdef</span>(donnees[, <span
  [&gt;] 818 distinct sequences
  [&gt;] min/max sequence length: 37/37
  [&gt;] computing distances using OM metric
- [&gt;] total time: 1.81 secs</code></pre>
+ [&gt;] total time: 1.83 secs</code></pre>
 <p>Cette matrice des distances ou des dissimilarités entre séquences peut ensuite être utilisée pour une classification ascendante hiérarchique (CAH), qui permet de regrouper les séquences en un certain nombre de « classes » en fonction de leur proximité :</p>
 <pre class="sourceCode r"><code class="sourceCode r">seq.agnes &lt;-<span class="st"> </span><span class="kw">agnes</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">method =</span> <span class="st">"ward"</span>, 
   <span class="dt">keep.diss =</span> <span class="ot">FALSE</span>)</code></pre>
@@ -8509,6 +8527,349 @@ W
 <p><code data-package="questionr" data-rdocumentation="wtd.mean">wtd.var</code> (questionr)</p>
 <ul>
 <li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+</div>
+
+</article>
+<article id="index_extensions">
+
+<div id="index_extensions_header">
+<h1 class="title">Index des extensions</h1>
+</div>
+
+
+<nav>
+<ul class="pagination pagination-sm">
+<li>
+<a href="#index_extensions_A">A</a>
+</li>
+<li>
+<a href="#index_extensions_B">B</a>
+</li>
+<li>
+<a href="#index_extensions_C">C</a>
+</li>
+<li>
+<a href="#index_extensions_D">D</a>
+</li>
+<li>
+<a href="#index_extensions_E">E</a>
+</li>
+<li>
+<a href="#index_extensions_F">F</a>
+</li>
+<li>
+<a href="#index_extensions_G">G</a>
+</li>
+<li>
+<a href="#index_extensions_H">H</a>
+</li>
+<li>
+<a href="#index_extensions_I">I</a>
+</li>
+<li>
+<a href="#index_extensions_J">J</a>
+</li>
+<li>
+<a href="#index_extensions_L">L</a>
+</li>
+<li>
+<a href="#index_extensions_M">M</a>
+</li>
+<li>
+<a href="#index_extensions_N">N</a>
+</li>
+<li>
+<a href="#index_extensions_P">P</a>
+</li>
+<li>
+<a href="#index_extensions_Q">Q</a>
+</li>
+<li>
+<a href="#index_extensions_R">R</a>
+</li>
+<li>
+<a href="#index_extensions_S">S</a>
+</li>
+<li>
+<a href="#index_extensions_T">T</a>
+</li>
+<li>
+<a href="#index_extensions_U">U</a>
+</li>
+<li>
+<a href="#index_extensions_X">X</a>
+</li>
+</ul>
+<p/></nav>
+<div id="index_extensions_index_extensions">
+<h2 id="index_extensions_A">
+A
+</h2>
+<p><strong class="package">ade4</strong></p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<h2 id="index_extensions_B">
+B
+</h2>
+<p><strong class="package">base</strong></p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+<li><a href="#pem_organiser_fichiers">Organiser ses fichiers</a></li>
+<li><a href="#pem_ou_trouver_aide">Où trouver de l’aide ?</a></li>
+<li><a href="#pem_premier_contact">Premier contact</a></li>
+<li><a href="#pem_premier_travail">Premier travail avec des données</a></li>
+<li><a href="#pem_presentation_installation">Présentation et Installation</a></li>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<h2 id="index_extensions_C">
+C
+</h2>
+<p><strong class="package">cluster</strong></p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<h2 id="index_extensions_D">
+D
+</h2>
+<p><strong class="package">data.table</strong></p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<p><strong class="package">devtools</strong></p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#avance_age">Calculer un âge</a></li>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+<li><a href="#pem_presentation_installation">Présentation et Installation</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><strong class="package">dplyr</strong></p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<h2 id="index_extensions_E">
+E
+</h2>
+<p><strong class="package">eeptools</strong></p>
+<ul>
+<li><a href="#avance_age">Calculer un âge</a></li>
+</ul>
+<p><strong class="package">effects</strong></p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+</ul>
+<h2 id="index_extensions_F">
+F
+</h2>
+<p><strong class="package">FactoMineR</strong></p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<p><strong class="package">flashClust</strong></p>
+<ul>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><strong class="package">foreign</strong></p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<h2 id="index_extensions_G">
+G
+</h2>
+<p><strong class="package">ggplot2</strong></p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><strong class="package">graphics</strong></p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><strong class="package">grDevices</strong></p>
+<ul>
+<li><a href="#pem_export_graphiques">Exporter des graphiques</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<h2 id="index_extensions_H">
+H
+</h2>
+<p><strong class="package">haven</strong></p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><strong class="package">Hmisc</strong></p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<h2 id="index_extensions_I">
+I
+</h2>
+<p><strong class="package">ifelse</strong></p>
+<ul>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+</ul>
+<h2 id="index_extensions_J">
+J
+</h2>
+<p><strong class="package">JLutils</strong></p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<h2 id="index_extensions_L">
+L
+</h2>
+<p><strong class="package">lubridate</strong></p>
+<ul>
+<li><a href="#avance_age">Calculer un âge</a></li>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<h2 id="index_extensions_M">
+M
+</h2>
+<p><strong class="package">maptools</strong></p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><strong class="package">MASS</strong></p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+</ul>
+<h2 id="index_extensions_N">
+N
+</h2>
+<p><strong class="package">nnet</strong></p>
+<ul>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+</ul>
+<h2 id="index_extensions_P">
+P
+</h2>
+<p><strong class="package">packrat</strong></p>
+<ul>
+<li><a href="#pem_organiser_fichiers">Organiser ses fichiers</a></li>
+</ul>
+<h2 id="index_extensions_Q">
+Q
+</h2>
+<p><strong class="package">questionr</strong></p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+<li><a href="#pem_premier_travail">Premier travail avec des données</a></li>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<h2 id="index_extensions_R">
+R
+</h2>
+<p><strong class="package">raster</strong></p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><strong class="package">RColorBrewer</strong></p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><strong class="package">readr</strong></p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><strong class="package">readxl</strong></p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><strong class="package">reshape</strong></p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<h2 id="index_extensions_S">
+S
+</h2>
+<p><strong class="package">s.hist</strong></p>
+<ul>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><strong class="package">sjmisc</strong></p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><strong class="package">sjPlot</strong></p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><strong class="package">sp</strong></p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><strong class="package">stats</strong></p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+<li><a href="#pem_premier_contact">Premier contact</a></li>
+<li><a href="#analyses_reglog">Régression logistique</a></li>
+<li><a href="#analyses_stat_biv">Statistique bivariée</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<p><strong class="package">stringr</strong></p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+</ul>
+<p><strong class="package">survey</strong></p>
+<ul>
+<li><a href="#analyses_donnees_pond">Données pondérées</a></li>
+</ul>
+<h2 id="index_extensions_T">
+T
+</h2>
+<p><strong class="package">TraMineR</strong></p>
+<ul>
+<li><a href="#analyses_seq">Analyse de séquences</a></li>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<h2 id="index_extensions_U">
+U
+</h2>
+<p><strong class="package">utils</strong></p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
+<li><a href="#pem_manipulation">Manipulation de données</a></li>
+<li><a href="#pem_ou_trouver_aide">Où trouver de l’aide ?</a></li>
+<li><a href="#pem_premier_contact">Premier contact</a></li>
+<li><a href="#pem_premier_travail">Premier travail avec des données</a></li>
+<li><a href="#pem_presentation_installation">Présentation et Installation</a></li>
+<li><a href="#pem_stat_univ">Statistique univariée</a></li>
+</ul>
+<h2 id="index_extensions_X">
+X
+</h2>
+<p><strong class="package">xlsx</strong></p>
+<ul>
+<li><a href="#pem_import_export">Import / Export de données</a></li>
 </ul>
 </div>
 
