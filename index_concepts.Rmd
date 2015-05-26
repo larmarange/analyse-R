@@ -1,0 +1,93 @@
+---
+title: "Index des concepts"
+---
+
+```{r options, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
+
+fichiers = list.files(pattern = ".Rmd")
+fichiers <- fichiers[fichiers != 'index_fonctions.Rmd']
+fichiers <- fichiers[fichiers != 'index_extensions.Rmd']
+fichiers <- fichiers[fichiers != 'index_concepts.Rmd']
+
+lc <- data.frame()
+
+require(stringr)
+require(xml2)
+
+for (f in fichiers) {
+  content <- read_html(f, encoding = "UTF-8")
+  content_text <- xml_text(content)
+  Encoding(content_text) <- "UTF-8" # due to a bug of xml_text
+  chapitre <- str_match(content_text, 'title: "([^"]+)"')
+  chapitre <- chapitre[,2]
+  dfns <- xml_find_all(content, ".//dfn")
+  
+  for (dfn in dfns) {
+    term <- xml_text(dfn)
+    index <- xml_attr(dfn, "data-index")
+    lang <- xml_attr(dfn, "lang")
+    Encoding(term) <- "UTF-8"
+    Encoding(index) <- "UTF-8"
+    Encoding(lang) <- "UTF-8"
+    lc <- rbind(lc, data.frame(
+      term = term,
+      index = index,
+      lang = lang,
+      chapitre = chapitre,
+      page = str_replace(f, ".Rmd", ".html")
+    ))
+  }
+}
+
+lc$term <- as.character(lc$term)
+lc$index <- as.character(lc$index)
+lc$chapitre <- as.character(lc$chapitre)
+lc$page <- as.character(lc$page)
+lc[is.na(lc$index),"index"] <- lc[is.na(lc$index),"term"]
+lc$initiale <- toupper(str_sub(lc$index, 1, 1))
+lc$attr_lang <- ""
+lc[!is.na(lc$lang), "attr_lang"] <- paste0(' lang="', lc[!is.na(lc$lang), "lang"], '"')
+
+lc <- lc[order(lc$initiale, lc$index, lc$chapitre), ]
+lc <- lc[!duplicated(lc[, c("index", "chapitre")]), ]
+
+res <- ""
+i <- ""
+ind <- ""
+
+for (j in 1:nrow(lc)) {
+  if (lc[j, "initiale"] != i) 
+    res <- paste0(res, '\n<h2 id="', lc[j, "initiale"], '">', lc[j, "initiale"], "</h2>\n\n")
+  i <- lc[j, "initiale"]
+  
+  if (lc[j, "index"] != ind) {
+    res <- paste0(res, 
+        "\n<dfn", lc[j, "attr_lang"],">", lc[j, "index"], "</dfn>", "\n\n"
+      )  
+  }
+    
+  ind <- lc[j, "index"]
+  
+  res <- paste0(res, "* [", lc[j, "chapitre"], "](", lc[j, "page"], ")\n")
+  
+}
+
+```
+
+<nav>
+  <ul class="pagination pagination-sm">
+```{r, results='asis', echo=FALSE}
+toc <- ""
+for (i in unique(lc$initiale)) {
+  toc <- paste0(toc, '\n<li><a href="#', i, '">', i, '</a></li>') 
+}
+cat(toc)
+```
+  </ul>
+</nav>
+
+<div id="index_concepts">
+```{r, results='asis', echo=FALSE}
+cat(res)
+```
+</div>
