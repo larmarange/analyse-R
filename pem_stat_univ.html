@@ -122,6 +122,7 @@ img {
         <li class="dropdown">
           <a href="index" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Index <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
+            <li><a href="index_concepts.html">Index des concepts</a></li>
             <li><a href="index_fonctions.html">Index des fonctions</a></li>
             <li><a href="index_extensions.html">Index des extensions</a></li>
           </ul>
@@ -161,7 +162,7 @@ img {
 <li><a href="#variable-qualitative">Variable qualitative</a><ul>
 <li><a href="#tris-a-plat">Tris à plat</a></li>
 <li><a href="#representation-graphique">Représentation graphique</a></li>
-<li><a href="#intervalle-de-confiance-1">Intervalle de confiance</a></li>
+<li><a href="#ic_proportion">Intervalle de confiance</a></li>
 </ul></li>
 </ul>
 </div>
@@ -169,37 +170,16 @@ img {
 <div class="note">
 Ce chapitre est inspiré de la section <em>Premier travail avec les données</em> du support de cours <a href="https://github.com/juba/intro-r">Introduction à R</a> réalisé par Julien Barnier.
 </div>
+<p>On entend par <dfn>statistique univariée</dfn><dfn data-index="univariée, statistique"></dfn> l’étude d’une seule variable, que celle-ci soit quantitative ou qualitative. La statistique univariée fait partie de la <dfn>statistique descriptive</dfn><dfn data-index="descriptive, statistique"></dfn>.</p>
 <p>Faisant suite au chapitre <a href="pem_premier_travail.html">Premier travail avec les données</a>, nous reprendrons dans ce chapitre les données de l’enquête <em>Histoire de vie 2003</em> fournies avec l’extension <strong class="package">questionr</strong>.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
 <span class="kw">data</span>(<span class="st">&quot;hdv2003&quot;</span>)
-d &lt;-<span class="st"> </span>hdv2003
-<span class="kw">str</span>(d)</code></pre>
-<pre><code>&#39;data.frame&#39;:   2000 obs. of  20 variables:
- $ id           : int  1 2 3 4 5 6 7 8 9 10 ...
- $ age          : int  28 23 59 34 71 35 60 47 20 28 ...
- $ sexe         : Factor w/ 2 levels &quot;Homme&quot;,&quot;Femme&quot;: 2 2 1 1 2 2 2 1 2 1 ...
- $ nivetud      : Factor w/ 8 levels &quot;N&#39;a jamais fait d&#39;etudes&quot;,..: 8 NA 3 8 3 6 3 6 NA 7 ...
- $ poids        : num  2634 9738 3994 5732 4329 ...
- $ occup        : Factor w/ 7 levels &quot;Exerce une profession&quot;,..: 1 3 1 1 4 1 6 1 3 1 ...
- $ qualif       : Factor w/ 7 levels &quot;Ouvrier specialise&quot;,..: 6 NA 3 3 6 6 2 2 NA 7 ...
- $ freres.soeurs: int  8 2 2 1 0 5 1 5 4 2 ...
- $ clso         : Factor w/ 3 levels &quot;Oui&quot;,&quot;Non&quot;,&quot;Ne sait pas&quot;: 1 1 2 2 1 2 1 2 1 2 ...
- $ relig        : Factor w/ 6 levels &quot;Pratiquant regulier&quot;,..: 4 4 4 3 1 4 3 4 3 2 ...
- $ trav.imp     : Factor w/ 4 levels &quot;Le plus important&quot;,..: 4 NA 2 3 NA 1 NA 4 NA 3 ...
- $ trav.satisf  : Factor w/ 3 levels &quot;Satisfaction&quot;,..: 2 NA 3 1 NA 3 NA 2 NA 1 ...
- $ hard.rock    : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1 1 1 1 1 1 1 1 1 ...
- $ lecture.bd   : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1 1 1 1 1 1 1 1 1 ...
- $ peche.chasse : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1 1 1 1 1 2 2 1 1 ...
- $ cuisine      : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 2 1 1 2 1 1 2 2 1 1 ...
- $ bricol       : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1 1 2 1 1 1 2 1 1 ...
- $ cinema       : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 2 1 2 1 2 1 1 2 2 ...
- $ sport        : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 2 2 2 1 2 1 1 1 2 ...
- $ heures.tv    : num  0 1 0 2 3 2 2.9 1 2 2 ...</code></pre>
+d &lt;-<span class="st"> </span>hdv2003</code></pre>
 <div id="variable-quantitative" class="section level2">
 <h2>Variable quantitative</h2>
 <div id="principaux-indicateurs" class="section level3">
 <h3>Principaux indicateurs</h3>
-<p>Comme la fonction <code data-package="utils">str</code> nous l’a indiqué, notre tableau <code>d</code> contient plusieurs valeurs numériques, dont la variable <em>heures.tv</em> qui représente le nombre moyen passé par les enquêtés à regarder la télévision quotidiennement. On peut essayer de déterminer quelques caractéristiques de cette variable, en utilisant les fonctions <code data-package="base">mean</code>, <code data-package="stats">sd</code>, <code data-package="base" data-rdocumentation="Extremes">min</code>, <code data-package="base" data-rdocumentation="Extremes">max</code> et <code data-package="base">range</code> :</p>
+<p>Comme la fonction <code data-package="utils">str</code> nous l’a indiqué, notre tableau <code>d</code> contient plusieurs <dfn data-index="variable numérique">variables numériques</dfn><dfn data-index="numérique, variable"></dfn> ou <dfn data-index="variable quantitative">variables quantitatives</dfn><dfn data-index="quantitative, variable"></dfn>, dont la variable <em>heures.tv</em> qui représente le nombre moyen passé par les enquêtés à regarder la télévision quotidiennement. On peut essayer de déterminer quelques caractéristiques de cette variable, en utilisant les fonctions <code data-package="base">mean</code> (<dfn>moyenne</dfn>), <code data-package="stats">sd</code> (<dfn>écart-type</dfn>), <code data-package="base" data-rdocumentation="Extremes">min</code> (<dfn>minimum</dfn>), <code data-package="base" data-rdocumentation="Extremes">max</code> (<dfn>maximum</dfn>) et <code data-package="base">range</code> (<dfn>étendue</dfn>) :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>(d$heures.tv)</code></pre>
 <pre><code>[1] NA</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>(d$heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre>
@@ -212,7 +192,7 @@ d &lt;-<span class="st"> </span>hdv2003
 <pre><code>[1] 12</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">range</span>(d$heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre>
 <pre><code>[1]  0 12</code></pre>
-<p>On peut lui ajouter la fonction <code data-package="stats">median</code> qui donne la valeur médiane, <code data-package="stats">quantile</code> qui calcule plus généralement tout type de quantiles, et le très utile <code data-package="base">summary</code> qui donne toutes ces informations ou presque en une seule fois, avec en prime le nombre de valeurs manquantes (<code>NA</code>) :</p>
+<p>On peut lui ajouter la fonction <code data-package="stats">median</code> qui donne la valeur <dfn>médiane</dfn>, <code data-package="stats">quantile</code> qui calcule plus généralement tout type de <dfn data-index="quantile">quantiles</dfn>, et le très utile <code data-package="base">summary</code> qui donne toutes ces informations ou presque en une seule fois, avec en prime le nombre de <dfn data-index="valeur manquante">valeurs manquantes</dfn> (<code>NA</code>) :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">median</span>(d$heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre>
 <pre><code>[1] 2</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">quantile</span>(d$heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre>
@@ -227,8 +207,8 @@ d &lt;-<span class="st"> </span>hdv2003
 </div>
 <div id="histogramme" class="section level3">
 <h3>Histogramme</h3>
-<p>Tout cela est bien pratique, mais pour pouvoir observer la distribution des valeurs d’une variable quantitative, il n’y a quand même rien de mieux qu’un bon graphique.</p>
-<p>On peut commencer par un histogramme de la répartition des valeurs. Celui-ci peut être généré très facilement avec la fonction <code data-package="graphics">hist</code> :</p>
+<p>Tout cela est bien pratique, mais pour pouvoir observer la <dfn>distribution</dfn> des valeurs d’une variable quantitative, il n’y a quand même rien de mieux qu’un bon graphique.</p>
+<p>On peut commencer par un <dfn>histogramme</dfn> de la répartition des valeurs. Celui-ci peut être généré très facilement avec la fonction <code data-package="graphics">hist</code> :</p>
 <figure>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">hist</span>(d$heures.tv, <span class="dt">main =</span> <span class="st">&quot;Nombre d&#39;heures passées devant la télé par jour&quot;</span>, 
   <span class="dt">xlab =</span> <span class="st">&quot;Heures&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Effectif&quot;</span>)</code></pre>
@@ -240,7 +220,7 @@ Exemple d’histogramme
 <p>Sous <strong>RStudio</strong>, les graphiques s’affichent dans l’onglet <em>Plots</em> du quadrant inférieur droit. Il est possible d’afficher une version plus grande de votre graphique en cliquant sur <em>Zoom</em>.</p>
 <p>Ici, les options <code>main</code>, <code>xlab</code> et <code>ylab</code> permettent de personnaliser le titre du graphique, ainsi que les étiquettes des axes. De nombreuses autres options existent pour personnaliser l’histogramme, parmi celles-ci on notera :</p>
 <ul>
-<li><code>probability</code> si elle vaut <code>TRUE</code>, l’histogramme indique la proportion des classes de valeurs au lieu des effectifs.</li>
+<li><code>probability</code> si elle vaut <code>TRUE</code>, l’histogramme indique la proportion des <dfn data-index="classe de valeurs">classes de valeurs</dfn> au lieu des effectifs.</li>
 <li><code>breaks</code> permet de contrôler les classes de valeurs. On peut lui passer un chiffre, qui indiquera alors le nombre de classes, un vecteur, qui indique alors les limites des différentes classes, ou encore une chaîne de caractère ou une fonction indiquant comment les classes doivent être calculées.</li>
 <li><code>col</code> la couleur de l’histogramme<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</li>
 </ul>
@@ -266,7 +246,7 @@ Encore un autre exemple d’histogramme
 </div>
 <div id="boites-a-moustaches" class="section level3">
 <h3>Boîtes à moustaches</h3>
-<p>Les boîtes à moustaches, ou <em>boxplot</em> en anglais, sont une autre représentation graphique de la répartition des valeurs d’une variable quantitative. Elles sont particulièrement utiles pour comparer les distributions de plusieurs variables ou d’une même variable entre différents groupes, mais peuvent aussi être utilisées pour représenter la dispersion d’une unique variable. La fonction qui produit ces graphiques est la fonction <code data-package="graphics">boxplot</code>.</p>
+<p>Les <dfn data-index="boîte à moustaches">boîtes à moustaches</dfn><dfn data-index="moustaches, boîte"></dfn>, ou <dfn data-index="boxplot" lang="en">boxplots</dfn> en anglais, sont une autre représentation graphique de la répartition des valeurs d’une variable quantitative. Elles sont particulièrement utiles pour comparer les distributions de plusieurs variables ou d’une même variable entre différents groupes, mais peuvent aussi être utilisées pour représenter la dispersion d’une unique variable. La fonction qui produit ces graphiques est la fonction <code data-package="graphics">boxplot</code>.</p>
 <figure>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">boxplot</span>(d$heures.tv, <span class="dt">main =</span> <span class="st">&quot;Nombre d&#39;heures passées devant la télé par jour&quot;</span>, 
   <span class="dt">ylab =</span> <span class="st">&quot;Heures&quot;</span>)</code></pre>
@@ -308,7 +288,7 @@ Q3 &lt;-<span class="st"> </span><span class="kw">quantile</span>(d$heures.tv, <
 Interprétation d’une boîte à moustaches
 </figcaption>
 </figure>
-<p>Le carré au centre du graphique est délimité par les premiers et troisième quartiles, avec la médiane représentée par une ligne plus sombre au milieu. Les « fourchettes » s’étendant de part et d’autres vont soit jusqu’à la valeur minimale ou maximale, soit jusqu’à une valeur approximativement égale au quartile le plus proche plus 1,5 fois l’écart inter-quartile. Les points se situant en-dehors de cette fourchette sont représentés par des petits ronds et sont généralement considérés comme des valeurs extrêmes, potentiellement aberrantes.</p>
+<p>Le carré au centre du graphique est délimité par les premiers et troisième <dfn data-index="quartile">quartiles</dfn>, avec la <dfn>médiane</dfn> représentée par une ligne plus sombre au milieu. Les « fourchettes » s’étendant de part et d’autres vont soit jusqu’à la valeur minimale ou maximale, soit jusqu’à une valeur approximativement égale au quartile le plus proche plus 1,5 fois l’<dfn>écart interquartile</dfn><dfn data-index="interquartilen écart"></dfn>. Les points se situant en-dehors de cette fourchette sont représentés par des petits ronds et sont généralement considérés comme des valeurs extrêmes, potentiellement aberrantes.</p>
 <p>On peut ajouter la représentation des valeurs sur le graphique pour en faciliter la lecture avec des petits traits dessinés sur l’axe vertical (fonction <code data-package="graphics">rug</code>) :</p>
 <figure>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">boxplot</span>(d$heures.tv, <span class="dt">main =</span> <span class="st">&quot;Nombre d&#39;heures passées devant la télé par</span><span class="ch">\n</span><span class="st">jour&quot;</span>, 
@@ -322,7 +302,7 @@ Boîte à moustaches avec représentation des valeurs
 </div>
 <div id="intervalle-de-confiance" class="section level3">
 <h3>Intervalle de confiance</h3>
-<p>L’intervalle de confiance d’une moyenne peut être calculé avec la fonction <code data-package="stats">t.test</code> (fonction qui permet également de réaliser un test <em>t</em> de Student comme nous le verrons dans le chapitre dédié à la <a href="analyses_stat_biv.html#comp_moyennes">statistique bivariée</a>) :</p>
+<p>L’<dfn>intervalle de confiance d’une moyenne</dfn><dfn data-index="moyenne, intervalle de confiance"></dfn><dfn data-index="intervalle de confiance"></dfn> peut être calculé avec la fonction <code data-package="stats">t.test</code> (fonction qui permet également de réaliser un test <em>t</em> de Student comme nous le verrons dans le chapitre dédié à la <a href="analyses_stat_biv.html#comp_moyennes">statistique bivariée</a>) :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">t.test</span>(d$heures.tv)</code></pre>
 <pre><code>
     One Sample t-test
@@ -355,7 +335,7 @@ mean of x
 <h2>Variable qualitative</h2>
 <div id="tris-a-plat" class="section level3">
 <h3>Tris à plat</h3>
-<p>La fonction la plus utilisée pour le traitement et l’analyse des variables qualitatives (variable prenant ses valeurs dans un ensemble de modalités) est sans aucun doute la fonction <code data-package="base">table</code>, qui donne les effectifs de chaque modalité de la variable.</p>
+<p>La fonction la plus utilisée pour le traitement et l’analyse des <dfn data-index="variable qualitative">variables qualitatives</dfn><dfn data-index="qualitative, variable"></dfn> (variable prenant ses valeurs dans un ensemble de <dfn data-index="modalité">modalités</dfn>) est sans aucun doute la fonction <code data-package="base">table</code>, qui donne les effectifs de chaque modalité de la variable, ce qu’on appelle un <dfn>tri à plat</dfn> ou <dfn>tableau de fréquences</dfn><dfn data-index="fréquence, tableau"></dfn>.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(d$sexe)</code></pre>
 <pre><code>
 Homme Femme 
@@ -439,8 +419,8 @@ Total                    1653 100.00 100.00</code></pre>
 </div>
 <div id="representation-graphique" class="section level3">
 <h3>Représentation graphique</h3>
-<p>Pour représenter la répartition des effectifs parmi les modalités d’une variable qualitative, on a souvent tendance à utiliser des diagrammes en secteurs (camemberts). Ceci est possible sous <strong>R</strong> avec la fonction <code data-package="graphics">pie</code>, mais la page d’aide de la dite fonction nous le déconseille assez vivement : les diagrammes en secteur sont en effet une mauvaise manière de présenter ce type d’information, car l’oeil humain préfère comparer des longueurs plutôt que des surfaces<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>.</p>
-<p>On privilégiera donc d’autres formes de représentations, à savoir les diagrammes en bâtons et les <em>diagrammes de Cleveland</em>.</p>
+<p>Pour représenter la répartition des effectifs parmi les modalités d’une variable qualitative, on a souvent tendance à utiliser des <dfn data-index="diagramme en secteur">diagrammes en secteurs</dfn><dfn data-index="secteur, diagramme"></dfn> (<dfn data-index="camembert, graphique">camemberts</dfn>). Ceci est possible sous <strong>R</strong> avec la fonction <code data-package="graphics">pie</code>, mais la page d’aide de la dite fonction nous le déconseille assez vivement : les diagrammes en secteur sont en effet une mauvaise manière de présenter ce type d’information, car l’oeil humain préfère comparer des longueurs plutôt que des surfaces<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>.</p>
+<p>On privilégiera donc d’autres formes de représentations, à savoir les <dfn data-index="diagramme en bâtons">diagrammes en bâtons</dfn><dfn data-index="bâton, diagramme"></dfn> et les <dfn data-index="diagramme de Cleveland">diagrammes de Cleveland</dfn><dfn data-index="Cleveland, diagramme"></dfn>.</p>
 <p>Les diagrammes en bâtons sont utilisés automatiquement par <strong>R</strong> lorsqu’on applique la fonction générique <code data-package="graphics" data-rdocumentation="plot.table">plot</code> à un tri à plat obtenu avec <code data-package="base">table</code>. On privilégiera cependant ce type de représentations pour les variables de type numérique comportant un nombre fini de valeurs. Le nombre de frères, soeurs, demi-frères et demi-soeurs est un bon exemple :</p>
 <figure>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">table</span>(d$freres.soeurs), <span class="dt">main =</span> <span class="st">&quot;Nombre de frères, soeurs, demi-frères et demi-soeurs&quot;</span>, 
@@ -450,7 +430,7 @@ Total                    1653 100.00 100.00</code></pre>
 Exemple de diagramme en bâtons
 </figcaption>
 </figure>
-<p>Pour les autres types de variables qualitatives, on privilégiera les <em>diagrammes de Cleveland</em>, obtenus avec la fonction <code data-package="graphics">dotchart</code>. On doit appliquer cette fonction au tri à plat de la variable, obtenu avec <code data-package="base">table</code><a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a> :</p>
+<p>Pour les autres types de variables qualitatives, on privilégiera les diagrammes de Cleveland, obtenus avec la fonction <code data-package="graphics">dotchart</code>. On doit appliquer cette fonction au tri à plat de la variable, obtenu avec <code data-package="base">table</code><a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a> :</p>
 <figure>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">table</span>(d$clso))[, <span class="dv">1</span>], <span class="dt">main =</span> <span class="st">&quot;Sentiment d&#39;appartenance à une classe sociale&quot;</span>, 
   <span class="dt">pch =</span> <span class="dv">19</span>)</code></pre>
@@ -470,7 +450,7 @@ Exemple de diagramme de Cleveland
 <p><img src="images/pem_stat_univ/unnamed-chunk-22-1.png" title="" alt="" width="1050" /></p>
 Cela ne résoud pas le problème pour notre diagramme de Cleveland issu d’un tri à plat simple. Pour bien comprendre, la fonction <code data-package="base" data-rdocumentation="matrix">as.matrix</code> a produit un objet à deux dimensions ayant une colonne et plusieurs lignes. On indiquera à <strong>R</strong> que l’on ne souhaite extraire la première colonne avec <code>[, 1]</code> (juste après l’appel à <code data-package="base" data-rdocumentation="matrix">as.matrix</code>). C’est ce qu’on appelle l’<em>indexation</em> que l’on abordera plus en détails dans le chapite <a href="pem_manipulation.html#indexation">Manipulation de données</a>.
 </div>
-<p>Quand la variable comprend un grand nombre de modalités, il est préférable d’ordonner le tri à plat obtenu à l’aide de la fonction <code data-package="base">sort</code> :</p>
+<p>Quand la variable comprend un grand nombre de modalités, il est préférable d’<dfn>ordonner le tri à plat</dfn><dfn data-index="tri à plat, ordonner"></dfn> obtenu à l’aide de la fonction <code data-package="base">sort</code> :</p>
 <figure>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">sort</span>(<span class="kw">table</span>(d$qualif)))[, <span class="dv">1</span>], <span class="dt">main =</span> <span class="st">&quot;Niveau de qualification&quot;</span>)</code></pre>
 <img src="images/pem_stat_univ/unnamed-chunk-23-1.png" title="" alt="" width="1050" />
@@ -483,9 +463,9 @@ Exemple de diagramme de Cleveland ordonné
 <img src="images/pem_stat_univ/unnamed-chunk-24-1.png" title="" alt="" width="1050" />
 </div>
 </div>
-<div id="intervalle-de-confiance-1" class="section level3">
+<div id="ic_proportion" class="section level3">
 <h3>Intervalle de confiance</h3>
-<p>La fonction <code data-package="stats">prop.test</code> permet de calculer l’intervalle de confiance d’une proportion. Une première possibilité consiste à lui transmettre une table à une dimension et deux entrées. Par exemple, si l’on s’intéresse à la proportion de personnes ayant pratiqué une activité physique au cours des douze derniers mois :</p>
+<p>La fonction <code data-package="stats">prop.test</code> permet de calculer l’<dfn>intervalle de confiance d’une proportion</dfn><dfn data-index="proportion, intervalle de confiance"></dfn><dfn data-index="intervalle de confiance"></dfn>. Une première possibilité consiste à lui transmettre une table à une dimension et deux entrées. Par exemple, si l’on s’intéresse à la proportion de personnes ayant pratiqué une activité physique au cours des douze derniers mois :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$sport)</code></pre>
 <pre><code>       n    % val%
 Non 1277 63.8 63.8
@@ -545,6 +525,10 @@ alternative hypothesis: true p is not equal to 0.5
 sample estimates:
      p 
 0.3615 </code></pre>
+<div class="info">
+Il existe de nombreuses manières de calculer un intervalle de confiance pour une proportion. En l’occurence, l’intervalle calculé par <code data-package="stats">prop.test</code> correspond dans le cas présent à un intervalle bilatéral selon la méthode des scores de Wilson avec correction de continuité. Pour plus d’information, on pourra lire <a href="http://joseph.larmarange.net/?Intervalle-de-confiance-bilateral" class="uri">http://joseph.larmarange.net/?Intervalle-de-confiance-bilateral</a>.
+</div>
+<div class="astuce">
 <p>Pour se simplifier un peu la vie, le package <strong class="package">JLutils</strong> propose une fonction <code data-package="JLutils">prop.ci</code> (et ses deux variantes <code data-package="JLutils">prop.ci.lower</code> et <code data-package="JLutils">prop.ci.upper</code>) permettant d’appeler plus facilement <code data-package="stats">prop.test</code> et renvoyant directement l’intervalle de confiance.</p>
 <p><strong class="package">JLutils</strong> n’étant disponible que sur <a href="https://github.com/larmarange/JLutils">GitHub</a>, on aura recours au package <strong class="package">devtools</strong> et à sa fonction <code data-package="devtools">install_github</code> pour l’installer :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(devtools)
@@ -574,8 +558,6 @@ NA     0  0.0   NA</code></pre>
 <pre><code>[1] 0.6169447 0.3404821</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.ci.upper</span>(<span class="kw">c</span>(<span class="dv">1277</span>, <span class="dv">723</span>), <span class="dt">n =</span> <span class="dv">2000</span>)</code></pre>
 <pre><code>[1] 0.6595179 0.3830553</code></pre>
-<div class="info">
-Il existe de nombreuses manières de calculer un intervalle de confiance pour une proportion. En l’occurence, l’intervalle calculé par <code data-package="stats">prop.test</code> correspond dans le cas présent à un intervalle bilatéral selon la méthode des scores de Wilson avec correction de continuité. Pour plus d’information, on pourra lire <a href="http://joseph.larmarange.net/?Intervalle-de-confiance-bilateral" class="uri">http://joseph.larmarange.net/?Intervalle-de-confiance-bilateral</a>.
 </div>
 </div>
 </div>
@@ -643,16 +625,14 @@ $(document).ready(function () {
       pack = $(this).attr('data-package');
       if ($(this).attr('data-rdocumentation') !== undefined) {
         rdocumentation = $(this).attr('data-rdocumentation');
-        page = ' (' + $(this).attr('data-rdocumentation') + ')';
       } else {
         rdocumentation = $(this).text();
-        page = '';
       }
       fonction = $(this).text();
       $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+pack+'/functions/'+rdocumentation+'">');
       $(this).attr('data-toggle','tooltip');
       $(this).attr('data-placement','top');
-      $(this).attr('title','package : ' + pack + page);
+      $(this).attr('title','package : ' + pack);
       $('[data-toggle="tooltip"]').tooltip();
     });
 
