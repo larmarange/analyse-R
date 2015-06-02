@@ -168,7 +168,7 @@ img {
 <div class="note">
 La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre du support de cours <a href="https://github.com/juba/intro-r">Introduction à R</a>, complétée par Joseph Larmarange dans <a href="https://github.com/larmarange/intro-r/tree/CoursM2">Introduction à l’analyse d’enquêtes avec R</a>.
 </div>
-<p>S’il est tout à fait possible de travailler avec des données pondérées sous R, cette fonctionnalité n’est pas aussi bien intégrée que dans la plupart des autres logiciels de traitement statistique. En particulier, il y a plusieurs manières possibles de gérer la pondération.</p>
+<p>S’il est tout à fait possible de travailler avec des <dfn>données pondérées</dfn> sous R, cette fonctionnalité n’est pas aussi bien intégrée que dans la plupart des autres logiciels de traitement statistique. En particulier, il y a plusieurs manières possibles de gérer la <dfn>pondération</dfn>. Cependant, lorsque l’on doit également prendre un compte un <dfn>plan d’échantillonnage</dfn><dfn data-index="échantillonnage, plan"></dfn> complexe (voir section dédiée ci-après), <strong>R</strong> fournit tous les outils nécessaires, alors que dans la plupart des logiciels propriétaires, il faut disposer d’une extension adéquate, pas toujours vendue de base avec le logiciel.</p>
 <p>Dans ce qui suit, on utilisera le jeu de données tiré de l’enquête <em>Histoire de vie</em> et notamment sa variable de pondération <em>poids</em><a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
 <span class="kw">data</span>(hdv2003)
@@ -177,7 +177,7 @@ d &lt;-<span class="st"> </span>hdv2003
 <pre><code>[1]    78.07834 31092.14132</code></pre>
 <div id="options-de-certaines-fonctions" class="section level2">
 <h2>Options de certaines fonctions</h2>
-<p>Tout d’abord, certaines fonctions de <strong>R</strong> acceptent en argument un vecteur permettant de pondérer les observations (l’option est en général nommée <code>weights</code> ou <code>row.w</code>). C’est le cas par exemple des méthodes d’estimation de modèles linéaires (<code data-package="stats">lm</code>) ou de modèles linéaires généralisés (<code data-package="stats">glm</code>), ou dans les analyses de correspondances<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> des extensions <strong class="package">ade4</strong> ou <strong class="package">FactoMineR</strong>.</p>
+<p>Tout d’abord, certaines fonctions de <strong>R</strong> acceptent en argument un vecteur permettant de pondérer les observations (l’option est en général nommée <code>weights</code> ou <code>row.w</code>). C’est le cas par exemple des méthodes d’estimation de modèles linéaires (<code data-package="stats">lm</code>) ou de modèles linéaires généralisés (<code data-package="stats">glm</code>) ou dans les analyses de correspondances<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> des extensions <strong class="package">ade4</strong> ou <strong class="package">FactoMineR</strong>.</p>
 <p>Par contre cette option n’est pas présente dans les fonctions de base comme <code data-package="base">mean</code>, <code data-package="base" data-rdocumentation="cor">var</code>, <code data-package="base">table</code> ou <code data-package="stats">chisq.test</code>.</p>
 </div>
 <div id="fonctions-de-lextension-questionr" class="section level2">
@@ -189,46 +189,57 @@ d &lt;-<span class="st"> </span>hdv2003
 <li><code data-package="questionr">wtd.table</code> : tris à plat et tris croisés pondérés</li>
 </ul>
 <p>On les utilise de la manière suivante :</p>
-<p>library(questionr) mean(d<span class="math"><em>a</em><em>g</em><em>e</em>)<em>w</em><em>t</em><em>d</em>.<em>m</em><em>e</em><em>a</em><em>n</em>(<em>d</em></span>age, weights = d<span class="math"><em>p</em><em>o</em><em>i</em><em>d</em><em>s</em>)<em>w</em><em>t</em><em>d</em>.<em>v</em><em>a</em><em>r</em>(<em>d</em></span>age, weights = d$poids)</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
+<span class="kw">mean</span>(d$age)</code></pre>
+<pre><code>[1] 48.157</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">wtd.mean</span>(d$age, <span class="dt">weights =</span> d$poids)</code></pre>
+<pre><code>[1] 46.34726</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">wtd.var</span>(d$age, <span class="dt">weights =</span> d$poids)</code></pre>
+<pre><code>[1] 325.2658</code></pre>
 <p>Pour les tris à plat, on utilise la fonction wtd.table à laquelle on passe la variable en paramètre :</p>
-<p>wtd.table(d<span class="math"><em>s</em><em>e</em><em>x</em><em>e</em>, <em>w</em><em>e</em><em>i</em><em>g</em><em>h</em><em>t</em><em>s</em> = <em>d</em></span>poids)</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">wtd.table</span>(d$sexe, <span class="dt">weights =</span> d$poids)</code></pre>
+<pre><code>  Homme   Femme 
+5149382 5921844 </code></pre>
 <p>Pour un tri croisé, il suffit de passer deux variables en paramètres :</p>
-<p>wtd.table(d<span class="math"><em>s</em><em>e</em><em>x</em><em>e</em>, <em>d</em></span>hard.rock, weights = d$poids)</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">wtd.table</span>(d$sexe, d$hard.rock, <span class="dt">weights =</span> d$poids)</code></pre>
+<pre><code>             Non        Oui
+Homme 5109366.41   40016.02
+Femme 5872596.42   49247.49</code></pre>
 <p>Ces fonctions admettent notamment les deux options suivantes :</p>
 <ul>
 <li><code>na.rm</code> : si <code>TRUE</code>, on ne conserve que les observations sans valeur manquante.</li>
 <li><code>normwt</code> : si <code>TRUE</code>, on normalise les poids pour que les effectifs totaux pondérés soient les mêmes que les effectifs initiaux. Il faut utiliser cette option, notamment si on souhaite appliquer un test sensible aux effectifs comme le χ².</li>
 </ul>
-<p>Ces fonctions rendent possibles l’utilisation des statistiques descriptives les plus simples et le traitement des tableaux croisés (les fonctions <code data-package="questionr" data-rdocumentation="rprop">lprop</code>, <code data-package="questionr">cprop</code> ou <code data-package="stats">chisq.test</code> peuvent être appliquées au résultat d’un <code data-package="questionr">wtd.table</code>) mais restent limitées en termes de tests statistiques ou de graphiques. . .</p>
+<p>Ces fonctions rendent possibles l’utilisation des statistiques descriptives les plus simples et le traitement des tableaux croisés (les fonctions <code data-package="questionr" data-rdocumentation="rprop">lprop</code>, <code data-package="questionr">cprop</code> ou <code data-package="stats">chisq.test</code> peuvent être appliquées au résultat d’un <code data-package="questionr">wtd.table</code>) mais restent limitées en termes de tests statistiques ou de graphiques…</p>
 </div>
 <div id="donnees-ponderees-avec-lextension-survey" class="section level2">
 <h2>Données pondérées avec l’extension survey</h2>
 <p>L’extension <strong class="package">survey</strong> est spécialement dédiée au traitement d’enquêtes ayant des techniques d’échantillonnage et de pondération potentiellement très complexes.</p>
 <p>L’extension s’installe comme la plupart des autres :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">&quot;survey&quot;</span>)</code></pre>
-<p>Le site officiel (en anglais) comporte beaucoup d’informations, mais pas forcément très accessibles : <a href="http://faculty.washington.edu/tlumley/survey/" class="uri">http://faculty.washington.edu/tlumley/survey/</a>.</p>
-<p>Pour utiliser les fonctionnalités de l’extension, on doit d’abord définir le <em>plan d’échantillonnage</em> ou <em>design</em> de notre enquête. C’est-à-dire indiquer quel type de pondération nous souhaitons lui appliquer.</p>
-<p>Dans notre cas nous utilisons plan d’échantillonnage le plus simple, avec une variable de pondération déjà calculée. Ceci se fait à l’aide de la fonction <code data-package="survey">svydesign</code> :</p>
+<p>Le site officiel (en anglais) comporte beaucoup d’informations, mais pas forcément très accessibles : <br /><a href="http://faculty.washington.edu/tlumley/survey/" class="uri">http://faculty.washington.edu/tlumley/survey/</a>.</p>
+<p>Pour utiliser les fonctionnalités de l’extension, on doit d’abord définir le <dfn>plan d’échantillonnage</dfn> ou <dfn lang="en">design</dfn> de notre enquête, c’est-à-dire indiquer quel type de pondération nous souhaitons lui appliquer.</p>
+<p>Dans un premier temps, nous utiliserons le plan d’échantillonnage le plus simple, avec une variable de pondération déjà calculée. Ceci se fait à l’aide de la fonction <code data-package="survey">svydesign</code> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(survey)
 dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~<span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> ~d$poids)</code></pre>
 <p>Cette fonction crée un nouvel objet, que nous avons nommé <code>dw</code>. Cet objet n’est pas à proprement parler un tableau de données, mais plutôt un tableau de données plus une méthode de pondération. <code>dw</code> et <code>d</code> sont des objets distincts, les opérations effectuées sur l’un n’ont pas d’influence sur l’autre. On peut cependant retrouver le contenu de <code>d</code> depuis <code>dw</code> en utilisant <code>dw$variables</code> :</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>(d$age)</code></pre>
-<pre><code>[1] 48.157</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>(dw$variables$age)</code></pre>
-<pre><code>[1] 48.157</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(d$age)</code></pre>
+<pre><code> int [1:2000] 28 23 59 34 71 35 60 47 20 28 ...</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(dw$variables$age)</code></pre>
+<pre><code> int [1:2000] 28 23 59 34 71 35 60 47 20 28 ...</code></pre>
 <p>Lorsque notre plan d’échantillonnage est déclaré, on peut lui appliquer une série de fonctions permettant d’effectuer diverses opérations statistiques en tenant compte de la pondération. On citera notamment :</p>
 <ul>
-<li><code data-package="survey" data-rdocumentation="surveysummary">svymean</code>, <code data-package="survey" data-rdocumentation="surveysummary">svyvar</code>, <code data-package="survey" data-rdocumentation="surveysummary">svytotal</code>, <code data-package="survey">svyquantile</code> : statistiques univariées</li>
-<li><code data-package="survey">svytable</code> : tableaux croisés</li>
-<li><code data-pacakge="survey" data-rdocumentation="svytable">svychisq</code> : test du χ²</li>
+<li><code data-package="survey" data-rdocumentation="surveysummary">svymean</code>, <code data-package="survey" data-rdocumentation="surveysummary">svyvar</code>, <code data-package="survey" data-rdocumentation="surveysummary">svytotal</code>, <code data-package="survey">svyquantile</code> : <dfn data-index="statistique univariée">statistiques univariées</dfn> <dfn data-index="univariée, statistique"></dfn>(<dfn>moyenne</dfn>, <dfn>variance</dfn>, <dfn>total</dfn>, <dfn data-index="quantile">quantiles</dfn>)</li>
+<li><code data-package="survey">svytable</code> : <dfn>tri à plat</dfn> et <dfn>tableau croisé</dfn></li>
+<li><code data-package="survey" data-rdocumentation="svytable">svychisq</code> : <dfn data-index="test du Chi²">test du χ²</dfn> <dfn data-index="Chi², test"></dfn></li>
 <li><code data-package="survey">svyby</code> : statistiques selon un facteur</li>
-<li><code data-package="survey">svyttest</code> : test <em>t</em> de comparaison de moyennes</li>
-<li><code data-pacakge="survey">svyglm</code> : modèles linéaires généralisés (dont régression logistique)</li>
+<li><code data-package="survey">svyttest</code> : <dfn>test t de Student</dfn><dfn data-index="Student, test-t"></dfn> de <dfn>comparaison de moyennes</dfn><dfn data-index="moyenne, comparaison"></dfn></li>
+<li><code data-package="survey">svyglm</code> : <dfn data-index="modèle linéaire généralisé">modèles linéaires généralisés</dfn> (dont <dfn>régression logistique</dfn><dfn data-index="logistique, régression"></dfn>)</li>
 <li><code data-package="survey">svyplot</code>, <code data-package="survey">svyhist</code>, <code data-package="survey" data-rdocumentation="svyhist">svyboxplot</code> : fonctions graphiques</li>
 </ul>
 <p>D’autres fonctions sont disponibles, comme <code data-package="survey">svyratio</code>, mais elles ne seront pas abordées ici.</p>
 <p>Pour ne rien arranger, ces fonctions prennent leurs arguments sous forme de formules, c’est-à-dire pas de la manière habituelle. En général l’appel de fonction se fait en spécifiant d’abord les variables d’intérêt sous forme de formule, puis l’objet <em>survey.design</em>.</p>
-<p>L’intervalle de confiance d’une moyenne s’obtient avec <code data-package="survey" data-rdocumentation="surveysummary">confint</code> et celui d’une proportion avec <code data-package="survey">svyciprop</code>.</p>
+<p>L’<dfn>intervalle de confiance d’une moyenne</dfn><dfn data-index="moyenne, intervalle de confiance"></dfn> s’obtient avec <code data-package="survey" data-rdocumentation="surveysummary">confint</code> et celui d’une <dfn data-index="intervalle de confiance d'une proportion">proportion</dfn><dfn data-index="proportion, intervalle de confiance"></dfn> avec <code data-package="survey">svyciprop</code>.</p>
 <p>Voyons tout de suite quelques exemples<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svymean</span>(~age, dw)</code></pre>
 <pre><code>      mean     SE
@@ -262,7 +273,7 @@ alternative hypothesis: true difference in mean is not equal to 0
 sample estimates:
 difference in mean 
           2.141129 </code></pre>
-<p>Les tris à plat se déclarent en passant comme argument le nom de la variable précédé d’un tilde (<code></code>), tandis que les tableaux croisés utilisent les noms des deux variables séparés par un signe plus (<code>+</code>) et précédés par un tilde (<code></code>).</p>
+<p>Les tris à plat se déclarent en passant comme argument le nom de la variable précédé d’un tilde (<code>~</code>), tandis que les tableaux croisés utilisent les noms des deux variables séparés par un signe plus (<code>+</code>) et précédés par un tilde (<code>~</code>).</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svytable</span>(~sexe, dw)</code></pre>
 <pre><code>sexe
   Homme   Femme 
@@ -289,14 +300,14 @@ sexe       Oui   Non   Ne sait pas Total
   Homme     51.6  47.0   1.4       100.0
   Femme     43.9  54.8   1.3       100.0
   Ensemble  47.5  51.1   1.4       100.0</code></pre>
-<p>La fonction <code data-package="questionr">freq</code> peut également être utilisée si on lui passe en argument non pas la variable elle-même, mais son tri à plat obtenu avec <code data-package="survey">svytable</code>svychisq(~sexe + clso, dw):</p>
+<p>La fonction <code data-package="questionr">freq</code> peut également être utilisée si on lui passe en argument non pas la variable elle-même, mais son tri à plat obtenu avec <code data-package="survey">svytable</code> :</p>
 <pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">svytable</span>(~peche.chasse, dw)
 <span class="kw">freq</span>(tab, <span class="dt">total =</span> <span class="ot">TRUE</span>)</code></pre>
 <pre><code>             n     %  val%
 Non    9716683  87.8  87.8
 Oui    1354544  12.2  12.2
 Total 11071226 100.0 100.0</code></pre>
-<p>Par contre, il ne faut pas utiliser <code data-package="stats">chisq.test</code> sur un tableau généré par <code>svytable</code>{data-package=“survey”&gt;. Les effectifs étant extrapolés à partir de la pondération, les résultats du test seraient complètement faussés. Si on veut faire un test du χ² sur un tableau croisé pondéré, il faut utiliser <code data-package="survey" data-rdocumentation="svytable">svychisq</code> :</p>
+<p>Par contre, il ne faut pas utiliser <code data-package="stats">chisq.test</code> sur un tableau généré par <code data-package="survey">svytable</code>. Les effectifs étant extrapolés à partir de la pondération, les résultats du test seraient complètement faussés. Si on veut faire un test du χ² sur un tableau croisé pondéré, il faut utiliser <code data-package="survey" data-rdocumentation="svytable">svychisq</code> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svychisq</span>(~sexe +<span class="st"> </span>clso, dw)</code></pre>
 <pre><code>
     Pearson&#39;s X^2: Rao &amp; Scott adjustment
@@ -304,7 +315,7 @@ Total 11071226 100.0 100.0</code></pre>
 data:  svychisq(~sexe + clso, dw)
 F = 3.3331, ndf = 1.9734, ddf = 3944.9000,
 p-value = 0.03641</code></pre>
-<p>Le principe de la fonction <code data-pacakge="survey">svyby</code> est similaire à celui de <code data-package="base">tapply</code><a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a>. Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur. Par exemple :</p>
+<p>Le principe de la fonction <code data-package="survey">svyby</code> est similaire à celui de <code data-package="base">tapply</code><a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a>. Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur. Par exemple :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyby</span>(~age, ~sexe, dw, svymean)</code></pre>
 <pre><code>       sexe      age        se
 Homme Homme 45.20200 0.7419450
@@ -321,7 +332,7 @@ Femme 45.88867 48.79758</code></pre>
 <span class="kw">svyboxplot</span>(age ~<span class="st"> </span><span class="dv">1</span>, dw, <span class="dt">main =</span> <span class="st">&quot;Boxplot simple&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Âge&quot;</span>)
 <span class="kw">svyboxplot</span>(age ~<span class="st"> </span>sexe, dw, <span class="dt">main =</span> <span class="st">&quot;Boxplot double&quot;</span>, 
   <span class="dt">ylab =</span> <span class="st">&quot;Âge&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Sexe&quot;</span>)</code></pre>
-<img src="images/analyses_donnees_pond/unnamed-chunk-13-1.png" title="" alt="" width="1050" />
+<img src="images/analyses_donnees_pond/unnamed-chunk-16-1.png" title="" alt="" width="1050" />
 <figcaption>
 Fonctions graphiques de l’extension survey
 </figcaption>
@@ -398,7 +409,7 @@ heures.tv                        ***
 ---
 Signif. codes:  
 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>Dans ses dernières versions, <strong class="package">survey</strong> fournit une méthode <code data-package="survey" data-rdocumentation="anova.svyglm">AIC.svyglm</code> permettant d’estimer un AIC sur un modèle calculé avec <code data-package="survey">svyglm</code>. Il est dès lors possible d’utiliser la fonction <code data-package="stats">step</code> pour réaliser une <em>sélection descendante pas à pas</em>.</p>
+<p>Dans ses dernières versions, <strong class="package">survey</strong> fournit une méthode <code data-package="survey" data-rdocumentation="anova.svyglm">AIC.svyglm</code> permettant d’estimer un <dfn>AIC</dfn> sur un modèle calculé avec <code data-package="survey">svyglm</code>. Il est dès lors possible d’utiliser la fonction <code data-package="stats">step</code> pour réaliser une <dfn>sélection descendante pas à pas</dfn><dfn data-index="pas à pas, sélection descendante"></dfn>.</p>
 <p>L’extension <strong class="package">effects</strong> n’est quant à elle pas compatible avec <code data-package="survey">svyglm</code><a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a>.</p>
 </div>
 <div id="definir-un-plan-dechantillonage-complexe-avec-survey" class="section level2">
@@ -406,16 +417,16 @@ Signif. codes:
 <p>L’extension <strong class="package">survey</strong> ne permet pas seulement d’indiquer une variable de pondération mais également de prendre les spécificités du plan d’échantillonnage (strates, grappes, …). Le plan d’échantillonnage ne joue pas seulement sur la pondération des données, mais influence le calcul des variances et par ricochet tous les tests statistiques. Deux échantillons identiques avec la même variable de pondération mais des designs différents produiront les mêmes moyennes et proportions mais des intervalles de confiance différents.</p>
 <div id="differents-types-dechantillonnage" class="section level3">
 <h3>Différents types d’échantillonnage</h3>
-<p>L’<em>échantillonnage aléatoire simple</em> ou <em>échantillonnage équiprobable</em> est une méthode pour laquelle tous les échantillons possibles (de même taille) ont la même probabilité d’être choisis et tous les éléments de la population ont une chance égale de faire partie de l’échantillon. C’est l’échantillonnage le plus simple : chaque individu à la même probabilité d’être sélectionné.</p>
-<p>L’<em>échantillonnage stratifié</em> est une méthode qui consiste d’abord à subdiviser la population en groupes homogènes (strates) pour ensuite extraire un échantillon aléatoire de chaque strate. Cette méthode suppose la connaissance de la structure de la population. Pour estimer les paramètres, les résultats doivent être pondérés par l’importance relative de chaque strate dans la population.</p>
-<p>L’<em>échantillonnage par grappes</em> est une méthode qui consiste à choisir un échantillon aléatoire d’unités qui sont elles-mêmes des sous-ensembles de la population (« grappes »). Cette méthode suppose que les unités de chaque grappe sont représentatives. Elle possède l’avantage d’être souvent plus économique.</p>
-<p>Il est possible de combiner plusieurs de ces approches. Par exemple, les *Enquêtes Démographiques et de Santé<a href="#fn7" class="footnoteRef" id="fnref7"><sup>7</sup></a> (EDS) sont des enquêtes stratifiées en grappes à deux degrés. Dans un premier temps, la population est divisée en strates par région et milieu de résidence. Dans chaque strate, des zones d’enquêtes, correspondant à des unités de recensement, sont tirées au sort avec une probabilité proportionnelle au nombre de ménages de chaque zone au dernier recensement de population. Enfin, au sein de chaque zone d’enquête sélectionnée, un recensement de l’ensemble des ménages est effectué puis un nombre identique de ménages par zone d’enquête est tiré au sort de manière alétoire simple.</p>
+<p>L’<dfn>échantillonnage aléatoire simple</dfn><dfn data-index="aléatoire, échantillonnage"></dfn> ou <dfn>échantillonnage équiprobable</dfn><dfn data-index="équiprobable, échantillonnage"></dfn> est une méthode pour laquelle tous les échantillons possibles (de même taille) ont la même probabilité d’être choisis et tous les éléments de la population ont une chance égale de faire partie de l’échantillon. C’est l’échantillonnage le plus simple : chaque individu à la même probabilité d’être sélectionné.</p>
+<p>L’<dfn>échantillonnage stratifié</dfn><dfn data-index="stratifié, échantillonnage"></dfn> est une méthode qui consiste d’abord à subdiviser la population en groupes homogènes (<dfn data-index="strate">strates</dfn>) pour ensuite extraire un échantillon aléatoire de chaque strate. Cette méthode suppose la connaissance de la structure de la population. Pour estimer les paramètres, les résultats doivent être pondérés par l’importance relative de chaque strate dans la population.</p>
+<p>L’<dfn>échantillonnage par grappes</dfn> est une méthode qui consiste à choisir un échantillon aléatoire d’unités qui sont elles-mêmes des sous-ensembles de la population (<dfn data-index="grappe, échantillonnage">grappes</dfn> ou <dfn data-index="cluster" lang="en">clusters</dfn> en anglais). Cette méthode suppose que les unités de chaque grappe sont représentatives. Elle possède l’avantage d’être souvent plus économique.</p>
+<p>Il est possible de combiner plusieurs de ces approches. Par exemple, les <em>Enquêtes Démographiques et de Santé</em><a href="#fn7" class="footnoteRef" id="fnref7"><sup>7</sup></a> (EDS) sont des enquêtes stratifiées en grappes à deux degrés. Dans un premier temps, la population est divisée en strates par région et milieu de résidence. Dans chaque strate, des zones d’enquêtes, correspondant à des unités de recensement, sont tirées au sort avec une probabilité proportionnelle au nombre de ménages de chaque zone au dernier recensement de population. Enfin, au sein de chaque zone d’enquête sélectionnée, un recensement de l’ensemble des ménages est effectué puis un nombre identique de ménages par zone d’enquête est tiré au sort de manière alétoire simple.</p>
 </div>
 <div id="les-options-de-svydesign" class="section level3">
 <h3>Les options de svydesign</h3>
-<p>La fonction <code data-package="survey">svydesign</code> accepte plusieus arguments décrits sur sa page d’aide (obtenue avec la commande <code>?svydesign</code>).</p>
+<p>La fonction <code data-package="survey">svydesign</code> accepte plusieurs arguments décrits sur sa page d’aide (obtenue avec la commande <code>?svydesign</code>).</p>
 <p>L’agument <code>data</code> permet de spécifier le tableau de données contenant les observations.</p>
-<p>L’argument <code>ids</code> est obligatoire et spécifie sous la forme d’une formule les identifiants des différents niveaux d’un tirage en grappe. S’il s’agit d’un échantillon aléatoire simple, on entrera <code>ids=1</code>. Autre situation : supposons une étude portant sur la population française. Dans un premier temps, on a tiré au sort un certain nombre de départements français. Dans un second temps, on tire au sort dans chaque département des communes. Dans chaque commune sélectionnée, on tire au sort des quartiers. Enfin, on interroge de manière exhaustive toutes les personnes habitant les quartiers enquêtés. Notre fichier de données devra donc comporter pour chaque observation les variables <em>id_departement</em>, <em>id_commune</em> et <em>id_quartier</em>. On écrira alors pour l’argument <code>ids</code> la valeur suivante : <code>ids=id_departement+id_commune+id_quartier</code>.</p>
+<p>L’argument <code>ids</code> est obligatoire et spécifie sous la forme d’une formule les identifiants des différents niveaux d’un tirage en grappe. S’il s’agit d’un échantillon aléatoire simple, on entrera <code>ids=1</code>. Autre situation : supposons une étude portant sur la population française. Dans un premier temps, on a tiré au sort un certain nombre de départements français. Dans un second temps, on tire au sort dans chaque département des communes. Dans chaque commune sélectionnée, on tire au sort des quartiers. Enfin, on interroge de manière exhaustive toutes les personnes habitant les quartiers enquêtés. Notre fichier de données devra donc comporter pour chaque observation les variables <em>id_departement</em>, <em>id_commune</em> et <em>id_quartier</em>. On écrira alors pour l’argument <code>ids</code> la valeur suivante :<br /><code>ids=id_departement+id_commune+id_quartier</code>.</p>
 <p>Si l’échantillon est stratifié, on spécifiera les strates à l’aide de l’argument <code>strata</code> en spécifiant la variable contenant l’identifiant des strates. Par exemple : <code>strata=id_strate</code>.</p>
 <p>Il faut encore spécifier les probabilités de tirage de chaque cluster ou bien la pondération des individus. Si l’on dispose de la probabilité de chaque observation d’être sélectionnée, on utilisera l’argument <code>probs</code>. Si, par contre, on connaît la pondération de chaque observation (qui doit être proportionnelle à l’inverse de cette probabilité), on utilisera l’argument <code>weights</code>.</p>
 <p>Si l’échantillon est stratifié, qu’au sein de chaque strate les individus ont été tirés au sort de manière aléatoire et que l’on connaît la taille de chaque strate, il est possible de ne pas avoir à spécifier la probabilité de tirage ou la pondération de chaque observation. Il est préférable de fournir une variable contenant la taille de chaque strate à l’argument <code>fpc</code>. De plus, dans ce cas-là, une petite correction sera appliquée au modèle pour prendre en compte la taille finie de chaque strate.</p>
@@ -440,11 +451,11 @@ plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class
 <span class="co"># statistiques de chaque observation est connu.</span>
 plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~id_cluster, <span class="dt">data =</span> donnees, 
   <span class="dt">strata =</span> ~id_strate, <span class="dt">weights =</span> ~poids)</code></pre>
-<p>Prenons l’exemple d’une enquête démographique et de santé. Le nom des différentes variables est standardisé et commun quelle que soit l’enquête. Nous supposerons que vous avez importé le fichier <em>individus</em> dans un tableau de données nommés <code>eds</code>. Le poids statistique de chaque individu est fourni par la variable <em>V005</em> qui doit au préalable être divisée par un million. Les grappes d’échantillonnage au premier degré sont fournies par la variable <em>V021 (primary sample unit)</em>. Si elle n’est pas renseignée, on pourra utilisier le numéro de grappe <em>V001</em>. Enfin, le milieu de résidence (urbain / rural) est fourni par <em>V025</em> et la région par <em>V024</em>. Pour rappel, l’échantillon a été stratifié à la fois par région et par mileu de résidence. Certaines enquêtes fournissent directement un numéro de strate via <em>V022</em>. Si tel est le cas, on pourra préciser le plan d’échantillonnage ainsi :</p>
+<p>Prenons l’exemple d’une <em>Enquête Démographique et de Santé</em>. Le nom des différentes variables est standardisé et commun quelle que soit l’enquête. Nous supposerons que vous avez importé le fichier <em>individus</em> dans un tableau de données nommés <code>eds</code>. Le poids statistique de chaque individu est fourni par la variable <em>V005</em> qui doit au préalable être divisée par un million. Les grappes d’échantillonnage au premier degré sont fournies par la variable <em>V021 (primary sample unit)</em>. Si elle n’est pas renseignée, on pourra utilisier le numéro de grappe <em>V001</em>. Enfin, le milieu de résidence (urbain / rural) est fourni par <em>V025</em> et la région par <em>V024</em>. Pour rappel, l’échantillon a été stratifié à la fois par région et par mileu de résidence. Certaines enquêtes fournissent directement un numéro de strate via <em>V022</em>. Si tel est le cas, on pourra préciser le plan d’échantillonnage ainsi :</p>
 <pre class="sourceCode r"><code class="sourceCode r">eds$poids &lt;-<span class="st"> </span>eds$V005/<span class="fl">1e+06</span>
 design.eds &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~V021, <span class="dt">data =</span> eds, <span class="dt">strata =</span> ~V022, 
   <span class="dt">weights =</span> ~poids)</code></pre>
-<p>Si V022 n’est pas fourni mais que l’enquête a bien été stratifié par région et milieu de résidence (vérifiez toujours le premier chapitre du rapport d’enquête), on pourra créer une variable strate ainsi <a href="#fn8" class="footnoteRef" id="fnref8"><sup>8</sup></a> :</p>
+<p>Si <em>V022</em> n’est pas fourni mais que l’enquête a bien été stratifiée par région et milieu de résidence (vérifiez toujours le premier chapitre du rapport d’enquête), on pourra créer une variable strate ainsi<a href="#fn8" class="footnoteRef" id="fnref8"><sup>8</sup></a> :</p>
 <pre class="sourceCode r"><code class="sourceCode r">eds$strate &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">as.integer</span>(eds$V024) *<span class="st"> </span><span class="dv">10</span> +<span class="st"> </span>
 <span class="st">  </span><span class="kw">as.integer</span>(eds$V025))
 <span class="kw">levels</span>(eds$strate) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">paste</span>(<span class="kw">levels</span>(eds$V024), <span class="st">&quot;Urbain&quot;</span>), 
@@ -454,13 +465,13 @@ design.eds &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span
 </div>
 <div id="extraire-un-sous-echantillon" class="section level3">
 <h3>Extraire un sous-échantillon</h3>
-<p>Si l’on souhaite travailler sur un sous-échantillon tout en gardant les informations d’échantillonnage, on utilisera la fonction <code data-package="survey" data-rdocumentation="subset.survey.design">subset</code> présentée en détail dans le chapitre <a href="pem_manipulation.html#subset">Manipulation de données</a>.</p>
+<p>Si l’on souhaite travailler sur un <dfn>sous-échantillon</dfn> tout en gardant les informations d’échantillonnage, on utilisera la fonction <code data-package="survey" data-rdocumentation="subset.survey.design">subset</code> présentée en détail dans le chapitre <a href="pem_manipulation.html#subset">Manipulation de données</a>.</p>
 <pre class="sourceCode r"><code class="sourceCode r">sous &lt;-<span class="st"> </span><span class="kw">subset</span>(dw, sexe ==<span class="st"> &quot;Femme&quot;</span> &amp;<span class="st"> </span>age &gt;=<span class="st"> </span><span class="dv">40</span>)</code></pre>
 </div>
 </div>
 <div id="conclusion" class="section level2">
 <h2>Conclusion</h2>
-<p>En attendant mieux, la gestion de la pondération sous <strong>R</strong> n’est sans doute pas ce qui se fait de plus pratique et de plus simple. On pourra quand même donner les conseils suivants :</p>
+<p>Si, la gestion de la pondération sous <strong>R</strong> n’est sans doute pas ce qui se fait de plus pratique et de plus simple, on pourra quand même donner les conseils suivants :</p>
 <ul>
 <li>utiliser les options de pondération des fonctions usuelles ou les fonctions d’extensions comme <strong class="package">questionr</strong> pour les cas les plus simples ;</li>
 <li>si on utilise <strong class="package">survey</strong>, effectuer autant que possible tous les recodages et manipulations sur les données non pondérées ;</li>
@@ -472,13 +483,13 @@ design.eds &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span
 <hr />
 <ol>
 <li id="fn1"><p>On notera que cette variable est utilisée à titre purement illustratif. Le jeu de données étant un extrait d’enquête et la variable de pondération n’ayant pas été recalculée, elle n’a ici à proprement parler aucun sens.<a href="#fnref1">↩</a></p></li>
-<li id="fn2"><p>Voir le chapitre dédié à l’analyse des correspondances, MAJ LIEN.<a href="#fnref2">↩</a></p></li>
+<li id="fn2"><p>Voir le chapitre dédié à l’<a href="analyses_acm.html">analyse des correspondances</a>.<a href="#fnref2">↩</a></p></li>
 <li id="fn3"><p>Les fonctions <code data-package="questionr">wtd.mean</code> et <code data-package="questionr" data-rdocumentation="wtd.mean">wtd.var</code> sont des copies conformes des fonctions du même nom de l’extension <strong class="package">Hmisc</strong> de Frank Harrel. <strong class="package">Hmisc</strong> étant une extension « de taille », on a préféré recopié les fonctions pour limiter le poids des dépendances.<a href="#fnref3">↩</a></p></li>
 <li id="fn4"><p>Pour d’autres exemples, voir <a href="http://www.ats.ucla.edu/stat/r/faq/svy_r_oscluster.htm" class="uri">http://www.ats.ucla.edu/stat/r/faq/svy_r_oscluster.htm</a> (en anglais).<a href="#fnref4">↩</a></p></li>
 <li id="fn5"><p>La fonction <code data-package="base">tapply</code> est présentée plus en détails dans le chapitre <a href="pem_manipulation.html#tapply">Manipulation de données</a>.<a href="#fnref5">↩</a></p></li>
 <li id="fn6"><p>Compatibilité qui pourra éventuellement être introduite dans une future version de l’extension.<a href="#fnref6">↩</a></p></li>
-<li id="fn7"><p>Vaste programme d’enquêtes réalisées à intervalles réguliers dans les pays en dévelop’ent, disponibles sur <a href="http://www.dhsprogram.com/" class="uri">http://www.dhsprogram.com/</a>.<a href="#fnref7">↩</a></p></li>
-<li id="fn8"><p>L’astuce consiste à utiliser as.integer pour obetnir le code des facteurs et non leur valeur textuelle. L’addition des deux valeurs après multiplication du code de la région par 10 permet d’obtenir une valeur unique pour chaque combinaison des deux variables. On retransforme le résultat en facteurs puis on modifie les étiquettes des modalités.<a href="#fnref8">↩</a></p></li>
+<li id="fn7"><p>Vaste programme d’enquêtes réalisées à intervalles réguliers dans les pays du Sud, disponibles sur <a href="http://www.dhsprogram.com/" class="uri">http://www.dhsprogram.com/</a>.<a href="#fnref7">↩</a></p></li>
+<li id="fn8"><p>L’astuce consiste à utiliser <code data-package="base">as.integer</code> pour obtenir le code des facteurs et non leur valeur textuelle. L’addition des deux valeurs après multiplication du code de la région par 10 permet d’obtenir une valeur unique pour chaque combinaison des deux variables. On retransforme le résultat en facteurs puis on modifie les étiquettes des modalités.<a href="#fnref8">↩</a></p></li>
 </ol>
 </div>
 

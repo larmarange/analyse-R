@@ -160,13 +160,15 @@ img {
 </ul></li>
 <li><a href="#age-revolu-ou-age-au-dernier-anniversaire">Âge révolu ou âge au dernier anniversaire</a></li>
 <li><a href="#age-par-difference-de-millesimes">Âge par différence de millésimes</a></li>
+<li><a href="#calcul-dun-age-moyen">Calcul d’un âge moyen</a></li>
+<li><a href="#notes">Notes</a></li>
 </ul>
 </div>
 
 <div class="note">
 La version originale de cette astuce a été publiée par Joseph Larmarange sur <a href="http://joseph.larmarange.net/?Calculer-proprement-un-age-sous-R" class="uri">http://joseph.larmarange.net/?Calculer-proprement-un-age-sous-R</a>.
 </div>
-<p>Le calcul d’un âge sous <strong>R</strong> n’est pas forcément aussi trivial qu’il n’y parait.</p>
+<p>Le calcul d’un <dfn>âge</dfn> sous <strong>R</strong> n’est pas forcément aussi trivial qu’il n’y parait.</p>
 <div id="rappel-sur-les-ages" class="section level2">
 <h2>Rappel sur les âges</h2>
 <p>Il convient en premier lieu de rappeler les principaux âges utilisés les démographes :</p>
@@ -179,7 +181,7 @@ Source : <a href="http://fr-ii.demopaedia.org/wiki/32#322"><cite>Demopædia</ci
 </div>
 <div id="le-package-lubridate" class="section level2">
 <h2>Le package lubridate</h2>
-<p>Le package <strong class="package">lubridate</strong> est spécialement développé pour faciliter la manipulation et le calcul autour des dates. La version de développement intègre depuis peu une fonction <code data-package="lubridate">time_length</code> adaptée au calcul des âges exacts.</p>
+<p>Le package <strong class="package">lubridate</strong> est spécialement développé pour faciliter la manipulation et le calcul autour des <dfn data-index="date, variable">dates</dfn>. La version de développement intègre depuis peu une fonction <code data-package="lubridate">time_length</code> adaptée au calcul des âges exacts.</p>
 <div class="info">
 <p>La fonction <code data-package="lubridate">time_length</code> étant récente, elle n’est pas encore disponible dans la version stable du package. Pour installer la version de développement de <strong class="package">lubridate</strong>, on aura recours au package <strong class="package">devtools</strong> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(devtools)
@@ -189,6 +191,7 @@ Source : <a href="http://fr-ii.demopaedia.org/wiki/32#322"><cite>Demopædia</ci
 </div>
 <div id="calcul-dun-age-exact" class="section level2">
 <h2>Calcul d’un âge exact</h2>
+<p>On appelle <dfn>âge exact</dfn><dfn data-index="exact, âge"></dfn> l’expression d’un âge avec sa partie décimale.</p>
 <p>Une approche simple consiste à calculer une différence en jours puis à diviser par 365. Or, le souci c’est que toutes les années n’ont pas le même nombre de jours. Regardons par exemple ce qui se passe si l’on calcule l’âge au 31 décembre 1999 d’une personne née le 1<sup>er</sup> janvier 1900.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(lubridate)
 naiss &lt;-<span class="st"> </span><span class="kw">ymd</span>(<span class="st">&quot;1900-01-01&quot;</span>)
@@ -205,7 +208,7 @@ evt &lt;-<span class="st"> </span><span class="kw">ymd</span>(<span class="st">&
 <span class="kw">time_length</span>(<span class="kw">interval</span>(naiss, evt), <span class="st">&quot;days&quot;</span>)/<span class="fl">365.25</span></code></pre>
 <pre><code>[1] 2.997947</code></pre>
 <p>Or, à la date du premier janvier 1903, cette personne a bien fêté son troisième anniversaire.</p>
-<p>Pour calculer proprement un âge en années (ou en mois), il est dès lors nécessaire de prendre en compte la date anniversaire et le fait que la durée de chaque année (ou mois) est variable. C’est justement ce que fait la fonction <code data-package="lubridate">time_length</code> appliquée à un objet de type <code data-package="lubridate" data-rdocumentation="Interval-class">Interval</code>. On détermine le dernier et le prochain anniversaire et l’on rajoute, à l’âge atteint au dernier anniversaire, le ratio entre le nombre de jours entre l’événement et le dernier anniversaire par le nombre de jours entre le prochain et le dernier anniversaire.</p>
+<p>Pour calculer proprement un âge en années (ou en mois), il est dès lors nécessaire de prendre en compte la date <dfn>anniversaire</dfn> et le fait que la durée de chaque année (ou mois) est variable. C’est justement ce que fait la fonction <code data-package="lubridate">time_length</code> appliquée à un objet de type <code data-package="lubridate" data-rdocumentation="Interval-class">Interval</code>. On détermine le dernier et le prochain anniversaire et l’on rajoute, à l’âge atteint au dernier anniversaire, le ratio entre le nombre de jours entre l’événement et le dernier anniversaire par le nombre de jours entre le prochain et le dernier anniversaire.</p>
 <pre class="sourceCode r"><code class="sourceCode r">naiss &lt;-<span class="st"> </span><span class="kw">ymd</span>(<span class="st">&quot;1900-01-01&quot;</span>)
 evt &lt;-<span class="st"> </span><span class="kw">ymd</span>(<span class="st">&quot;1999-12-31&quot;</span>)
 <span class="kw">time_length</span>(<span class="kw">interval</span>(naiss, evt), <span class="st">&quot;years&quot;</span>)</code></pre>
@@ -255,7 +258,7 @@ evt &lt;-<span class="st"> </span><span class="kw">ymd_hms</span>(<span class="s
 </div>
 <div id="age-revolu-ou-age-au-dernier-anniversaire" class="section level2">
 <h2>Âge révolu ou âge au dernier anniversaire</h2>
-<p>Une fois que l’on sait calculer un âge exact, le calcul d’un âge révolu est assez simple. Il suffit de ne garder que la partie entière de l’âge exact (approche conseillée).</p>
+<p>Une fois que l’on sait calculer un âge exact, le calcul d’un <dfn>âge révolu</dfn><dfn data-index="révolu, âge"></dfn> ou <dfn>âge au dernier anniversaire</dfn> est assez simple. Il suffit de ne garder que la partie entière de l’âge exact (approche conseillée).</p>
 <pre class="sourceCode r"><code class="sourceCode r">naiss &lt;-<span class="st"> </span><span class="kw">ymd</span>(<span class="st">&quot;1980-01-09&quot;</span>)
 evt &lt;-<span class="st"> </span><span class="kw">ymd</span>(<span class="st">&quot;2015-01-01&quot;</span>)
 <span class="kw">time_length</span>(<span class="kw">interval</span>(naiss, evt), <span class="st">&quot;years&quot;</span>)</code></pre>
@@ -270,12 +273,18 @@ evt &lt;-<span class="st"> </span><span class="kw">ymd</span>(<span class="st">&
 </div>
 <div id="age-par-difference-de-millesimes" class="section level2">
 <h2>Âge par différence de millésimes</h2>
-<p>L’âge par différence de millésimes, encore appelé âge atteint dans l’année, s’obtient tout simplement en soustrayant l’année de naissance à l’année de l’événement.</p>
+<p>L’<dfn>âge par différence de millésimes</dfn>, encore appelé <dfn>âge atteint dans l’année</dfn>, s’obtient tout simplement en soustrayant l’année de naissance à l’année de l’événement.</p>
 <pre class="sourceCode r"><code class="sourceCode r">naiss &lt;-<span class="st"> </span><span class="kw">ymd</span>(<span class="st">&quot;1980-01-09&quot;</span>)
 evt &lt;-<span class="st"> </span><span class="kw">ymd</span>(<span class="st">&quot;2015-01-01&quot;</span>)
 <span class="kw">year</span>(evt) -<span class="st"> </span><span class="kw">year</span>(naiss)</code></pre>
 <pre><code>[1] 35</code></pre>
-<div class="note">
+</div>
+<div id="calcul-dun-age-moyen" class="section level2">
+<h2>Calcul d’un âge moyen</h2>
+<p>Le calcul d’un <dfn>âge moyen</dfn><dfn data-index="moyenne, âge"></dfn> s’effectue normalement à partir d’âges exacts. Il arrive fréquemment que l’on ne dispose dans les données d’enquêtes que de l’âge révolu. Auquel cas, il faut bien penser à rajouter 0,5 au résultat obtenu. En effet, un âge révolu peut être vu comme une classe d’âges exacts : les individus ayant 20 ans révolus ont entre 20 et 21 ans exacts, soit en moyenne 20,5 ans !</p>
+</div>
+<div id="notes" class="section level2">
+<h2>Notes</h2>
 <p>L’ensemble des fonctions présentées peuvent être appliquées à des vecteurs et, par conséquent, aux colonnes d’un tableau de données (<em>data.frame</em>).</p>
 <p>Le package <strong class="package">eeptools</strong> fournit de son côté une fonction <code data-package="eeptools">age_calc</code><a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> qui permet le calcul des âges exacts et révolus.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(eeptools)</code></pre>
@@ -288,14 +297,13 @@ evt &lt;-<span class="st"> </span><span class="kw">as.Date</span>(<span class="s
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">time_length</span>(<span class="kw">interval</span>(naiss, evt), <span class="st">&quot;years&quot;</span>)</code></pre>
 <pre><code>[1] 34.97808</code></pre>
 <p>La méthode utilisée par <code data-package="eeptools">age_calc</code> donne des résultats légèrement différent de ceux de <code data-package="lubridate">time_length</code>. Il est donc conseillé d’utiliser de préférence le package <strong class="package">lubridate</strong>.</p>
-<p>En l’absence du package lubridate, il reste facile de calculer une durée en jours avec les fonctions de base de <strong>R</strong>.</p>
+<p>En l’absence du package <strong class="package">lubridate</strong>, il reste facile de calculer une durée en jours avec les fonctions de base de <strong>R</strong> :</p>
 <pre class="sourceCode r"><code class="sourceCode r">naiss &lt;-<span class="st"> </span><span class="kw">as.Date</span>(<span class="st">&quot;1900-01-01&quot;</span>)
 evt &lt;-<span class="st"> </span><span class="kw">as.Date</span>(<span class="st">&quot;1999-12-31&quot;</span>)
 evt -<span class="st"> </span>naiss</code></pre>
 <pre><code>Time difference of 36523 days</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">as.integer</span>(evt -<span class="st"> </span>naiss)</code></pre>
 <pre><code>[1] 36523</code></pre>
-</div>
 </div>
 <div class="footnotes">
 <hr />

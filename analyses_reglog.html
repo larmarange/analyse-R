@@ -163,8 +163,9 @@ img {
 <div class="note">
 La version originale de ce chapitre a été écrite par Joseph Larmarange dans le cadre du support de cours <a href="https://github.com/larmarange/intro-r/tree/CoursM2">Introduction à l’analyse d’enquêtes avec R</a>.
 </div>
-<p>La régression logistique est fréquemment utilisée en sciences sociales car elle permet d’effectuer un raisonnement dit <em>toutes choses étant égales par ailleurs</em>. Plus précisément, la régression logistique a pour but d’isoler les effets de chaque variable, c’est-à-dire d’identifier les effets résiduels d’une <em>variable explicative</em> sur une <em>variable d’intérêt</em>, une fois pris en compte les autres variables explicatives introduites dans le modèle. La régression logistique est ainsi prisée en épidémiologie pour identifier les facteurs associés à telle ou telle pathologie.</p>
-<p>La régression logistique ordinaire ou régression logistique binaire vise à expliquer une variable d’intérêt binaire (c’est-à-dire de type « Oui/Non »). Les variables explicatives qui seront introduites dans le modèle peuvent être quantitatives ou qualitatives.</p>
+<p>La <dfn>régression logistique</dfn><dfn data-index="logistique, régression"></dfn> est fréquemment utilisée en sciences sociales car elle permet d’effectuer un raisonnement dit <em>toutes choses étant égales par ailleurs</em>. Plus précisément, la régression logistique a pour but d’isoler les effets de chaque variable, c’est-à-dire d’identifier les effets résiduels d’une <dfn>variable explicative</dfn><dfn data-index="explicative, variable"></dfn> sur une <dfn>variable d’intérêt</dfn>, une fois pris en compte les autres variables explicatives introduites dans le modèle. La régression logistique est ainsi prisée en épidémiologie pour identifier les facteurs associés à telle ou telle pathologie.</p>
+<p>La <dfn>régression logistique ordinaire</dfn><dfn data-index="ordinaire, régression logistique"></dfn> ou <dfn>régression logistique binaire</dfn><dfn data-index="binaire, régression logistique"></dfn> vise à expliquer une variable d’intérêt binaire (c’est-à-dire de type « oui / non » ou « vrai / faux »). Les variables explicatives qui seront introduites dans le modèle peuvent être <dfn data-index="variable quantitative">quantitatives</dfn><dfn data-index="quantitative, variable"></dfn> ou <dfn data-index="variable qualitative">qualitatives</dfn><dfn data-index="qualitative, variable"></dfn>.</p>
+<p>La <dfn>régression logistique multinomiale</dfn><dfn data-index="multinomiale, régression logistique"></dfn> est une extension de la régression logistique aux variables qualitatives à trois modalités ou plus.</p>
 <div id="preparation-des-donnees" class="section level2">
 <h2>Préparation des données</h2>
 <p>Dans ce chapite, nous allons encore une fois utiliser les données de l’enquête <em>Histoire de vie</em>, fournies avec l’extension <strong class="package">questionr</strong>.</p>
@@ -172,12 +173,12 @@ La version originale de ce chapitre a été écrite par Joseph Larmarange dans l
 <span class="kw">data</span>(hdv2003)
 d &lt;-<span class="st"> </span>hdv2003</code></pre>
 <p>À titre d’exemple, nous allons étudier l’effet de l’âge, du sexe, du niveau d’étude, de la pratique religieuse et du nombre moyen d’heures passées à regarder la télévision par jour.</p>
-<p>En premier lieu, il importe de vérifier que notre variable d’intérêt (ici <em>sport</em>) est correctement codée. Une possibilité consiste à créer une variable booléenne (vrai / faux) selon que l’individu a pratiqué du sport ou non :</p>
+<p>En premier lieu, il importe de vérifier que notre variable d’intérêt (ici <em>sport</em>) est correctement codée. Une possibilité consiste à créer une <dfn>variable booléenne</dfn><dfn data-index="booléenne, variable"></dfn> (vrai / faux) selon que l’individu a pratiqué du sport ou non :</p>
 <pre class="sourceCode r"><code class="sourceCode r">d$sport2 &lt;-<span class="st"> </span><span class="ot">FALSE</span>
 d$sport2[d$sport ==<span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> </span><span class="ot">TRUE</span></code></pre>
-<p>Dans le cas présent, cette variable n’a pas de valeur manquante. Mais le cas échéant il faut bien renseigner <code>NA</code> pour les valeurs manquantes, les individus en question étant alors exclu de l’analyse.</p>
-<p>Il n’est pas forcément nécessaire de transformer notre variable d’intérêt en variable booléenne. En effet, <strong>R</strong> accepte sans problème une variable de type facteur. Cependant, l’ordre des valeurs d’un facteur a de l’importance. En effet, <strong>R</strong> considère toujours la première modalité comme étant la modalité de référence. Dans le cas de la variable d’intérêt, la modalité de référence correspond au fait de ne pas remplir le critère étudié, dans notre exemple au fait de ne pas avoir eu d’activité sportive au cours des douze derniers mois.</p>
-<p>Pour connaître l’ordre des modalités d’une variable de type facteur, on peut utiliser la fonction <code data-package="base">levels</code> ou bien encore tout simplement la fonction <code data-package="questionr">freq</code> :</p>
+<p>Dans le cas présent, cette variable n’a pas de <dfn>valeur manquante</dfn><dfn data-index="manquante, valeur">/dfn&gt;. Mais, le cas échéant, il importe de bien coder les valeurs manquantes en <code>NA</code>, les individus en question étant alors exclu de l’analyse.</p>
+<p>Il n’est pas forcément nécessaire de transformer notre variable d’intérêt en variable booléenne. En effet, <strong>R</strong> accepte sans problème une variable de type <dfn>facteur</dfn>. Cependant, l’ordre des valeurs d’un facteur a de l’importance. En effet, <strong>R</strong> considère toujours la première modalité comme étant la <dfn>modalité de référence</dfn><dfn data-index="référence, modalité"></dfn>. Dans le cas de la variable d’intérêt, la modalité de référence correspond au fait de ne pas remplir le critère étudié, dans notre exemple au fait de ne pas avoir eu d’activité sportive au cours des douze derniers mois.</p>
+<p>Pour connaître l’ordre des modalités d’une variable de type facteur, on peut utiliser la fonction <code data-package="base">levels</code> ou bien encore tout simplement la fonction <code data-package="questionr">freq</code> de l’extension <strong class="package">questionr</strong> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d$sport)</code></pre>
 <pre><code>[1] &quot;Non&quot; &quot;Oui&quot;</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$sport)</code></pre>
@@ -203,13 +204,17 @@ NA       0  0   NA</code></pre>
 Femme 1101 55   55
 Homme  899 45   45
 NA       0  0   NA</code></pre>
+<div class="info">
+<p>Si l’on a importé nos données depuis <strong>SPSS</strong> ou <strong>Stata</strong> avec l’extension <strong class="package">haven</strong>, les variables codées numériquement et disposant d’étiquettes sont conservées stockées sous forme de <dfn lang="en">labelled vector</dfn>, c’est-à-dire d’un vecteur numérique ayant des attributs indiquant les étiquettes des modalités. Il importera donc de convertir notre variable en facteur avant d’effectuer notre analyse. La fonction <code data-package="haven" data-rdocumentation="labelled">as_factor</code> créera automatiquement un facteur à partir des étiquettes.</p>
+Une alternative consiste à utiliser la fonction <code data-package="JLutils">lfactor</code> de l’extension <strong class="package">JLutils</strong> qui fonctionne également si les données ont été importées avec <code data-package="foreign">read.spss</code> ou <code data-package="foreign">read.dta</code> de l’extension <strong class="package">foreign</strong> sans avoir converti les variables labelisées en facteurs.
+</div>
 <p>Les variables <em>age</em> et <em>heures.tv</em> sont des variables quantitatives. Il importe de vérifier qu’elles sont bien enregistrées en tant que variables numériques. En effet, il arrive parfois que dans le fichier source les variables quantitatives soient renseignées sous forme de valeur textuelle et non sous forme numérique.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(d$age)</code></pre>
 <pre><code> int [1:2000] 28 23 59 34 71 35 60 47 20 28 ...</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(d$heures.tv)</code></pre>
 <pre><code> num [1:2000] 0 1 0 2 3 2 2.9 1 2 2 ...</code></pre>
 <p>Nos deux variables sont bien renseignées sous forme numérique.</p>
-<p>Cependant, l’effet de l’âge est rarement linéaire. Un exemple trivial est par exemple le fait d’occuper un emploi qui sera moins fréquent aux jeunes âges et aux âges élevés. Dès lors, on pourra transformer la variable <em>age</em> en groupe d’âges (voir MAJ_LIEN) :</p>
+<p>Cependant, l’effet de l’âge est rarement linéaire. Un exemple trivial est par exemple le fait d’occuper un emploi qui sera moins fréquent aux jeunes âges et aux âges élevés. Dès lors, on pourra transformer la variable <em>age</em> en groupe d’âges avec la fonction <code data-package="base">cut</code> (voir le chapitre <a href="pem_manipulation.html#decouper_en_classes">Manipulation de données</a>) :</p>
 <pre class="sourceCode r"><code class="sourceCode r">d$grpage &lt;-<span class="st"> </span><span class="kw">cut</span>(d$age, <span class="kw">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">93</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, 
   <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)
 <span class="kw">freq</span>(d$grpage)</code></pre>
@@ -251,7 +256,7 @@ Enseignement technique ou professionnel court                   24.5
 Enseignement technique ou professionnel long                     6.9
 Enseignement superieur y compris technique superieur            23.4
 NA                                                                NA</code></pre>
-<p>En premier lieu, cette variable est détaillée en pas moins de huit modalités dont certaines sont peu représentées (seulement 39 individus soit 2 % n’ont jamais fait d’études par exemple). Afin d’améliorier notre modèle logistique, il peut être pertinent de regrouper certaines modalités (voir MAJ_LIEN) :</p>
+<p>En premier lieu, cette variable est détaillée en pas moins de huit modalités dont certaines sont peu représentées (seulement 39 individus soit 2 % n’ont jamais fait d’études par exemple). Afin d’améliorier notre modèle logistique, il peut être pertinent de regrouper certaines modalités (voir le chapitre <a href="pem_manipulation.html#regrouper_modalites">Manipulation de données</a>) :</p>
 <pre class="sourceCode r"><code class="sourceCode r">d$etud &lt;-<span class="st"> </span>d$nivetud
 <span class="kw">levels</span>(d$etud) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, 
   <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, 
@@ -279,8 +284,8 @@ NA                      112  5.6   NA</code></pre>
 </div>
 <div id="regression-logistique-binaire" class="section level2">
 <h2>Régression logistique binaire</h2>
-<p>La fonction <code data-package="stats">glm</code> (pour <em lang="en">generalized linear models</em>) permet de calculer une grande variété de modèles statistiques. La régression logistique ordinaire correspond au modèle <em>logit</em> de la famille des modèles binomiaux, ce que l’on indique à <code data-package="stats">glm</code> avec l’argument <code>family=binomial(logit)</code>.</p>
-<p>Le modèle proprement dit sera renseigné sous la forme d’une formule (MAJ_LIEN). On indiquera d’abord la variable d’intérêt, suivie du signe <kbd>~</kbd> puis de la liste des variables explicatives séparées par un signe <kbd>+</kbd>. Enfin, l’argument <code>data</code> permettra d’indiquer notre tableau de données.</p>
+<p>La fonction <code data-package="stats">glm</code> (pour <dfn lang="en">generalized linear models</dfn> soit <dfn>modèle linéaire généralisé</dfn> en français) permet de calculer une grande variété de modèles statistiques. La régression logistique ordinaire correspond au modèle <em>logit</em> de la famille des modèles binomiaux, ce que l’on indique à <code data-package="stats">glm</code> avec l’argument <code>family=binomial(logit)</code>.</p>
+<p>Le modèle proprement dit sera renseigné sous la forme d’une <dfn>formule</dfn> (que nous avons déjà rencontrée dans le chapitre sur la <a href="analyses_stat_biv.html">statistique bivariée</a>). On indiquera d’abord la variable d’intérêt, suivie du signe <code>~</code> (que l’on obtient en appuyant sur les touches <kbd>Alt Gr</kbd> et <kbd>3</kbd> sur un clavier de type PC) puis de la liste des variables explicatives séparées par un signe <code>+</code>. Enfin, l’argument <code>data</code> permettra d’indiquer notre tableau de données.</p>
 <pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">glm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>grpage +<span class="st"> </span>etud +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, 
   <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>(logit))
 reg</code></pre>
@@ -415,8 +420,8 @@ Residual deviance: 2205.9  on 1978  degrees of freedom
 AIC: 2235.9
 
 Number of Fisher Scoring iterations: 4</code></pre>
-<p>Dans le cadre d’un modèle logistique, généralement on ne présente pas les coefficients du modèle mais leur valeur exponentielle, cette dernière correspondant en effet à des <em>odds ratio</em>, également appelés <em>rapports des cotes</em>. L’odds ratio diffère du <em>risque relatif</em>. Cependent son interprétation est similaire. Un odds ratio de 1 signifie l’absence d’effet. Un odds ratio largement supérieur à 1 correspond à une augmentation du phénomène étudié et un odds ratio largement inféieur à 1 correspond à une diminution du phénomène étudié<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</p>
-<p>La fonction <code data-package="stats">coef</code> permet d’obtenir les coefficients d’un modèle, <code data-package="stats">confint</code> leurs intervalles de confiance et <code data-package="base" data-rdocumentation="log">exp</code> de calculer l’exponentiel. Les odds ratio et leurs intervalles de confiance s’obtiennent ainsi :</p>
+<p>Dans le cadre d’un modèle logistique, généralement on ne présente pas les <dfn data-index="coefficient, modèle">coefficients</dfn> du modèle mais leur valeur exponentielle, cette dernière correspondant en effet à des <dfn data-index="odds ratio" lang="en">odds ratio</dfn>, également appelés <dfn data-index="rapport des cotes">rapports des cotes</dfn>. L’odds ratio diffère du <dfn>risque relatif</dfn><dfn data-index="relatif, risque"></dfn>. Cependent son interprétation est similaire. Un <em>odds ratio</em> de 1 signifie l’absence d’effet. Un <em>odds ratio</em> largement supérieur à 1 correspond à une augmentation du phénomène étudié et un <em>odds ratio</em> largement inféieur à 1 correspond à une diminution du phénomène étudié<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</p>
+<p>La fonction <code data-package="stats">coef</code> permet d’obtenir les coefficients d’un modèle, <code data-package="stats">confint</code> leurs intervalles de confiance et <code data-package="base" data-rdocumentation="log">exp</code> de calculer l’exponentiel. Les <em>odds ratio</em> et leurs <dfn data-index="intervalle de confiance d'un odds ratio">intervalles de confiance</dfn><dfn data-index="odds ratio, intervalle de confiance"></dfn> s’obtiennent ainsi :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">exp</span>(<span class="kw">coef</span>(reg))</code></pre>
 <pre><code>                     (Intercept) 
                        0.4505151 
@@ -533,8 +538,8 @@ religNi croyance ni appartenance  1.1798422
 religRejet                        1.1898605
 religNSP ou NVPR                  2.0221544
 heures.tv                         0.9459484</code></pre>
-<p>Pour savoir si un odds ratio diffère significativement de 1 (ce qui est identique au fait que le coefficient soit différent de 0), on pourra se référer à la colonne <em>Pr(&gt;|z|)</em> obtenue avec <code data-package="stats" data-rdocumentation="summary.glm">summary</code>.</p>
-<p>Si vous disposez de l’extension <strong class="package">questionr</strong>, la fonction <code data-pacakge="questionr">odds.ratio</code> permet de calculer directement les odds ratio, leur intervalles de confiance et les p-value :</p>
+<p>Pour savoir si un <em>odds ratio</em> diffère significativement de 1 (ce qui est identique au fait que le coefficient soit différent de 0), on pourra se référer à la colonne <em>Pr(&gt;|z|)</em> obtenue avec <code data-package="stats" data-rdocumentation="summary.glm">summary</code>.</p>
+<p>Si vous disposez de l’extension <strong class="package">questionr</strong>, la fonction <code data-pacakge="questionr">odds.ratio</code> permet de calculer directement les <em>odds ratio</em>, leur intervalles de confiance et les <em>p-value</em> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
 <span class="kw">odds.ratio</span>(reg)</code></pre>
 <pre><code>Waiting for profiling to be done...</code></pre>
@@ -598,7 +603,7 @@ Signif. codes:
 Représentation graphique de l’effet de chaque variable du modèle logistique
 </figcaption>
 </figure>
-<p>Une manière de tester la qualité d’un modèle est le calcul d’une <em>matrice de confusion</em>, c’est-à-dire le tableau croisé des valeurs observées et celles des valeurs prédites en appliquant le modèle aux données d’origine.</p>
+<p>Une manière de tester la qualité d’un modèle est le calcul d’une <dfn>matrice de confusion</dfn><dfn data-index="confusion, matrice"></dfn>, c’est-à-dire le tableau croisé des valeurs observées et celles des valeurs prédites en appliquant le modèle aux données d’origine.</p>
 <p>La méthode <code data-package="stats" data-rdocumentation="predict.glm">predict</code> avec l’argument <code>type=&quot;response&quot;</code> permet d’appliquer notre modèle logistique à un tableau de données et renvoie pour chaque individu la probabilité qu’il ait vécu le phénomène étudié.</p>
 <pre class="sourceCode r"><code class="sourceCode r">sport.pred &lt;-<span class="st"> </span><span class="kw">predict</span>(reg, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>, <span class="dt">newdata =</span> d)
 <span class="kw">head</span>(sport.pred)</code></pre>
@@ -617,8 +622,8 @@ Représentation graphique de l’effet de chaque variable du modèle logistique
 <div id="selection-de-modeles" class="section level2">
 <h2>Sélection de modèles</h2>
 <p>Il est toujours tentant lorsque l’on recherche les facteurs associés à un phénomène d’inclure un nombre important de variables explicatives potentielles dans un mmodèle logistique. Cependant, un tel modèle n’est pas forcément le plus efficace et certaines variables n’auront probablement pas d’effet significatif sur la variable d’intérêt.</p>
-<p>La technique de <em>sélection descendante pas à pas</em> est une approche visant à améliorer son modèle explicatif<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>. On réalise un premier modèle avec toutes les variables spécifiées, puis on regarde s’il est possible d’améliorer le modèle en supprimant une des variables du modèle. Si plusieurs variables permettent d’améliorer le modèle, on supprimera la variable dont la suppression améliorera le plus le modèle. Puis on recommence le même procédé pour voir si la suppression d’une seconde variable peut encore améliorer le modèle et ainsi de suite. Lorsque le modèle ne peut plus être améliorer par la suppresion d’une variable, on s’arrête.</p>
-<p>Il faut également définir un critère pour déterminer la qualité d’un modèle. L’un des plus utilisés est le <em>Akaike Information Criterion</em> ou AIC. Plus l’AIC sera faible, meilleure sera le modèle.</p>
+<p>La technique de <dfn>sélection descendante pas à pas</dfn><dfn data-index="pas à pas, sélection descendante"></dfn> est une approche visant à améliorer son modèle explicatif<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>. On réalise un premier modèle avec toutes les variables spécifiées, puis on regarde s’il est possible d’améliorer le modèle en supprimant une des variables du modèle. Si plusieurs variables permettent d’améliorer le modèle, on supprimera la variable dont la suppression améliorera le plus le modèle. Puis on recommence le même procédé pour voir si la suppression d’une seconde variable peut encore améliorer le modèle et ainsi de suite. Lorsque le modèle ne peut plus être améliorer par la suppresion d’une variable, on s’arrête.</p>
+<p>Il faut également définir un critère pour déterminer la qualité d’un modèle. L’un des plus utilisés est le <dfn lang="en">Akaike Information Criterion</dfn> ou <dfn>AIC</dfn>. Plus l’AIC sera faible, meilleure sera le modèle.</p>
 <p>La fonction <code data-package="stats">step</code> permet justement de sélectionner le meilleur modèle par une procédure pas à pas descendante basée sur la minimisation de l’AIC. La fonction affiche à l’écran les différentes étapes de la sélection et renvoie le modèle final.</p>
 <pre class="sourceCode r"><code class="sourceCode r">reg2 &lt;-<span class="st"> </span><span class="kw">step</span>(reg)</code></pre>
 <pre><code>Start:  AIC=2235.94
@@ -641,11 +646,11 @@ sport ~ sexe + grpage + etud + heures.tv
 - sexe       1   2226.1 2244.1
 - grpage     3   2260.3 2274.3
 - etud       4   2333.8 2345.8</code></pre>
-<p>Le modèle initial a un AIC de 2114,8. À la première étape, il apparait que la suppression de la variable religion permet diminuer l’AIC à 2109,1. Lors de la seconde étape, toute suppression d’une autre variable ferait augmenter l’AIC. La procédure s’arrête donc.</p>
+<p>Le modèle initial a un AIC de 2235,9. À la première étape, il apparait que la suppression de la variable religion permet diminuer l’AIC à 2230,2. Lors de la seconde étape, toute suppression d’une autre variable ferait augmenter l’AIC. La procédure s’arrête donc.</p>
 </div>
 <div id="regression-logistique-multinomiale" class="section level2">
 <h2>Régression logistique multinomiale</h2>
-<p>La régression logistique multinomiale est une extension de la régression logistique aux variables qualitatives à trois modalités ou plus. Dans ce cas de figure, chaque modalité de la variable d’intérêt sera comparée à la modalité de réference. Les odds ratio seront donc exprimés par rapport à cette dernière.</p>
+<p>La <dfn>régression logistique multinomiale</dfn> est une extension de la régression logistique aux variables qualitatives à trois modalités ou plus. Dans ce cas de figure, chaque modalité de la variable d’intérêt sera comparée à la modalité de réference. Les <em>odds ratio</em> seront donc exprimés par rapport à cette dernière.</p>
 <p>Nous allons prendre pour exemple la variable <em>trav.satisf</em>, à savoir la satisfaction ou l’insatisfaction au travail.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$trav.satisf)</code></pre>
 <pre><code>                 n    % val%
@@ -653,7 +658,7 @@ Satisfaction   480 24.0 45.8
 Insatisfaction 117  5.9 11.2
 Equilibre      451 22.6 43.0
 NA             952 47.6   NA</code></pre>
-<p>Nous allons choisir comme modalité de référence la position intermédiaire, à savoir l’« équilibre ».</p>
+<p>Nous allons choisir comme modalité de référence la position intermédiaire, à savoir l’« équilibre ».</p>
 <pre class="sourceCode r"><code class="sourceCode r">d$trav.satisf &lt;-<span class="st"> </span><span class="kw">relevel</span>(d$trav.satisf, <span class="st">&quot;Equilibre&quot;</span>)</code></pre>
 <p>Enfin, nous allons aussi en profiter pour raccourcir les étiquettes de la variable <em>trav.imp</em> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d$trav.imp) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Le plus&quot;</span>, <span class="st">&quot;Aussi&quot;</span>, <span class="st">&quot;Moins&quot;</span>, 
