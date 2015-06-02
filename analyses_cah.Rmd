@@ -15,29 +15,31 @@ La version originale de ce chapitre a été écrite par Joseph Larmarange dans l
 [Introduction à l'analyse d'enquêtes avec R](https://github.com/larmarange/intro-r/tree/CoursM2).
 </div>
 
-Il existe de nombreuses techniques statistiques visant à partinionner une population en différentes
-classes ou sous-groupes. La *classification ascendante hiérarchique* (CAH) est l'une d'entre elles. On cherche
+Il existe de nombreuses techniques statistiques visant à partinionner 
+une population en différentes classes ou sous-groupes. 
+La <dfn>classification ascendante hiérarchique</dfn> (<dfn>CAH</dfn>) est l'une d'entre elles. On cherche
 à ce que les individus regroupés au sein d'une même classe (homogénéité intra-classe) soient le plus
 semblables possibles tandis que les classes soient le plus dissemblables (hétérogénéité inter-classe).
 
 Le principe de la CAH est de rassembler des individus selon un critère de ressemblance défini au
-préalable qui s'exprimera sous la forme d'une *matrice de distances*, exprimant la distance existant entre
+préalable qui s'exprimera sous la forme d'une <dfn>matrice de distances</dfn>, exprimant la distance existant entre
 chaque individu pris deux à deux. Deux observations identiques auront une distance nulle. Plus les deux
 observations seront dissemblables, plus la distance sera importante. La CAH va ensuite rassembler les
-individus de manière itérative afin de produire un *dendrogramme* ou *arbre de classification*. La classification
+individus de manière itérative afin de produire un <dfn>dendrogramme</dfn> ou 
+<dfn>arbre de classification</dfn><dfn data-index="classification, arbre"></dfn>. La classification
 est *ascendante* car elle part des observations individuelles ; elle est *hiérarchique* car elle produit des
 classes ou groupes de plus en plus vastes, incluant des sous-groupes en leur sein. En découpant cet arbre
-à une certaine hauteur choisie, on produira la partition désirée.
+à une certaine hauteur choisie, on produira la <dfn>partition</dfn> désirée.
 
 <div class="info">
 On trouvera également de nombreux supports de cours en français sur la CAH sur le site de François
-Gilles Carpentier : <http://geai.univ-brest.fr/~carpenti/>.
+Gilles Carpentier : <http://pagesperso.univ-brest.fr/~carpenti/>.
 </div>
 
 ## Calculer une matrice des distances
 
-La notion de *ressemblance* entre observations est évaluée par une distance entre individus. Plusieurs
-type de ditances existent selon les données utilisées.
+La notion de <dfn>ressemblance</dfn> entre observations est évaluée par une <dfn>distance</dfn> entre individus.
+Plusieurs type de ditances existent selon les données utilisées.
 
 Il existe de nombreuses distances mathématiques pour les variables quantitatives (euclidiennes, Manhattan...)
 que nous n'aborderons pas ici^[Pour une présentation de ces différentes distances, on pourra se référer à
@@ -45,26 +47,30 @@ que nous n'aborderons pas ici^[Pour une présentation de ces différentes distan
 par D. Chessel, J. Thioulouse et A.B. Dufour disponible à <http://pbil.univ-lyon1.fr/R/pdf/stage7.pdf>.]. 
 La plupart peuvent être calculées avec la fonction `dist`{data-package="stats"}.
 
-Usuellement, pour un ensemble de variables qualitatives, on aura recours à la distance du &Phi;² qui est
+Usuellement, pour un ensemble de variables qualitatives, on aura recours à la 
+<dfn data-index="distance du Phi²">distance du &Phi;²</dfn><dfn data-index="Phi², distance"></dfn> qui est
 celle utilisée pour l'analyse des correspondances multiples (voir le [chapitre dédié](analyses_acm.html)).
 Avec l'extension <strong class="package">ade4</strong>, la distance du &Phi;² s'obtient avec la fonction 
 `dist.dudi`{data-package="ade4"}^[Cette même fonction peut aussi être utilisée pour calculer une distance 
 après une analyse en composantes principales ou une analyse mixte de Hill et Smith.].
 Le cas particulier de la CAH avec l'extension <strong class="package">FactoMineR</strong> sera abordée dans 
-une section spécifique (MAJ LIEN). Nous évoquerons également la *distance de Gower* qui peut s'appliquer à
+une section spécifique ci-après. Nous évoquerons également la 
+<dfn>distance de Gower</dfn><dfn data-index="Gower, distance"></dfn> qui peut s'appliquer à
 un ensemble de variables à la fois qualitatives et quantitatives et qui se calcule avec la fonction 
 `daisy`{data-package="cluster"} de l'extension <strong class="package">cluster</strong>. Enfin, dans le 
-chapitre sur l'analyse de séquences (MAJ LIEN), nous verrons également la fonction 
+chapitre sur l'[analyse de séquences](analyses_seq.html), nous verrons également la fonction 
 `seqdist`{data-package="TraMineR"} (extension <strong class="package">TraMineR</strong>) permettant de
 calculer une distance entre séquences.
 
 ### Distance de Gower
 
-En 1971, Gower a proposé un indice de similarité qui porte son nom. L'objectif de cet indice consiste
-à mesurer dans quelle mesure deux individus sont semblables. L'indice de Gower varie entre 0 et 1. Si
-l'indice vaut 1, les deux individus sont identiques. À l'opposé, s'il vaut 0, les deux individus considérés
-n'ont pas de point commun. Si l'on note *S~g~* l'indice de similarité de Gower, la distance de Gower *D~g~*
-s'obtient simplement de la manière suivante : *D~g~* = 1-*S~g~*. Ainsi, la distance sera nulle entre deux individus
+En 1971, Gower a proposé un <dfn>indice de similarité</dfn><dfn data-index="similarité, indice"></dfn>
+qui porte son nom. L'objectif de cet indice consiste à mesurer dans quelle mesure deux individus sont semblables.
+L'indice de Gower varie entre 0 et 1. Si l'indice vaut 1, les deux individus sont identiques. 
+À l'opposé, s'il vaut 0, les deux individus considérés n'ont pas de point commun. 
+Si l'on note *S~g~* l'<dfn>indice de similarité de Gower</dfn><dfn data-index="Gower, indice de similarité"></dfn>,
+la distance de Gower *D~g~* s'obtient simplement de la manière suivante :
+*D~g~* = 1 - *S~g~*. Ainsi, la distance sera nulle entre deux individus
 identiques et elle sera égale à 1 entre deux individus totalement différents. Cette distance s'obtient sous
 **R** avec la fonction `daisy`{data-package="cluster"} du package <strong class="package">cluster</strong>.
 
@@ -119,7 +125,9 @@ converted on http://www2.ph.ed.ac.uk/snuggletex/MathInputDemo
 
 *p* représente le nombre total de caractères (ou de variables) descriptifs utilisés pour comparer les deux
 individus. *s*~12*j*~ représente la similarité partielle entre les individus 1 et 2 concernant le descripteur *j*.
-Cette similarité partielle se calcule différemment s'il s'agit d'une variable qualitative ou quantitative :
+Cette similarité partielle se calcule différemment s'il s'agit d'une 
+<dfn>variable qualitative</dfn><dfn data-index="qualitative, variable"></dfn> ou 
+<dfn data-index="variable quantitative">quantitative</dfn><dfn data-index="quantitative, variable"></dfn> :
 
 * **variable qualitative :** *s*~12*j*~ vaut 1 si la variable *j* prend la même valeur pour les individus 1 et 2,
   et vaut 0 sinon. Par exemple, si 1 et 2 sont tous les deux « grand », alors *s*~12*j*~ vaudra 1. 
@@ -149,8 +157,9 @@ Le choix retenu modifiera les distances de Gower calculées. Supposons que l'on 
 1. homme / grand / blond / étudiant / urbain
 2. femme / grande / brune / étudiante / manquant
 
-Si l'on supprime individus ayant des valeurs manquantes, 2 est retirée du fichier d'observations et aucune
-distance n'est calculée. 
+Si l'on supprime les individus ayant des 
+<dfn data-index="valeur manquante">valeurs manquantes</dfn><dfn data-index="manquante, valeur"></dfn>,
+2 est retirée du fichier d'observations et aucune distance n'est calculée. 
 
 Si l'on traite les valeurs manquantes comme une modalité particulière, 1 et 2
 partagent alors 2 caractères sur les 5 analysés, la distance de Gower entre eux est alors de 
@@ -163,8 +172,9 @@ uniquement sur les 4 caractères renseignés et vaudra 1 − 2/4 = 0,5.
 ### Distance du &Phi;²
 
 Il s'agit de la distance utilisée dans les analyses de correspondance multiples (ACM). C'est une variante
-de la distance du &chi;². Nous considérons ici que nous avons *Q* questions (soit *Q* variables initiales de type
-facteur). À chaque individu est associé un *patron* c'est-à-dire une certaine combinaison de réponses aux
+de la <dfn data-index="distance du Chi²">distance du &chi;²</dfn><dfn data-index="Chi&, distance"></dfn>.
+Nous considérons ici que nous avons *Q* questions (soit *Q* variables initiales de type
+facteur). À chaque individu est associé un <dfn>patron</dfn> c'est-à-dire une certaine combinaison de réponses aux
 *Q* questions. La distance entre deux individus correspond à la distance entre leurs deux patrons. Si les
 deux individus présentent le même patron, leur distance sera nulle. La distance du &Phi;² peut s'exprimer
 ainsi :
@@ -387,11 +397,12 @@ md <- dist.dudi(acm)
 
 ## Calcul du dendrogramme
 
-Il faut ensuite choisir une méthode d'agrégation pour construire le dendrogramme. De nombreuses
+Il faut ensuite choisir une méthode d'<dfn>agrégation</dfn> pour construire le dendrogramme. De nombreuses
 solutions existent (saut minimum, distance maximum, moyenne, Ward...). Chacune d'elle produira un
 dendrogramme différent. Nous ne détaillerons pas ici ces différentes techniques^[On pourra consulter 
 le cours de FG Carpentier déjà cité ou bien des ouvrages d'analyse statistique.]. Cependant, à l'usage,
-on privilégiera le plus souvent la *méthode de Ward*. Cette méthode se distingue de toutes les autres en
+on privilégiera le plus souvent la <dfn>méthode de Ward</dfn><dfn data-index="Ward, méthode"></dfn>.
+Cette méthode se distingue de toutes les autres en
 ce sens qu'elle utilise une analyse de la variance approchée afin d'évaluer les distances entre groupes. La
 méthode de Ward se justifie bien lorsque lorsque l'on utilise le carré de la distance. Choisir de regrouper
 les deux individus les plus proches revient alors à choisir la paire de points dont l'agrégation entraîne
@@ -404,10 +415,11 @@ classification qui fait « sens ».
 
 La fonction de base pour le calcul d'un dendrogramme est `hclust`{data-package="stats"} en précisant 
 le critère d'aggrégation avec `method`. Dans notre cas, nous allons opter pour la méthode de Ward 
-appliquée au carré des distances (ce qu'on indique avec `mdˆ2`) :
+appliquée au carré des distances (ce qu'on indique avec `method = "ward.D2"`^[Depuis la version
+3.1 de **R**.], l'option `method = "ward.D"` correspondant à la version « classique ») :
 
 ```{r}
-arbre <- hclust(md^2, method = "ward")
+arbre <- hclust(md, method = "ward.D2")
 ```
 
 <div class="astuce">
@@ -417,10 +429,13 @@ Il suffit d'installer puis d'appeler cette extension. La fonction
 `hclust`{data-package="flashClust" data-rdocumentation="flashClust"} sera automatiquement remplacée par cette 
 version optimisée :
 
-```{r, message=FALSE}
+```{r, eval=FALSE}
 library(flashClust)
 arbre <- hclust(md^2, method = "ward")
 ```
+
+ATTENTION : cette version n'implémente que la version « classique » de la méthode Ward. Il faut donc 
+manuellement indiquer que l'on souhaite utiliser le carré des distances avec `md^2`.
 </div>
 
 Le dendrogramme obtenu peut être affiché simplement avec `plot`{data-package="stats" data-rdocumentation="hclust"}.
@@ -440,8 +455,11 @@ La fonction `agnes`{data-package="cluster"} de l'extension <strong class="packag
 
 ```{r, eval=FALSE}
 library(cluster)
-arbre2 <- agnes(md^2, method = "ward")
+arbre2 <- agnes(md, method = "ward")
 ```
+
+ATTENTION : la méthode implémentée dans la fonction `agnes`{data-package="cluster"} correspond à l'option
+`method = "ward.D2"` de `hclust`{data-package="stats"}.
 
 Le résultat obtenu n'est pas au même format que celui de `hclust`{data-package="stats"}. Il est possible de 
 transformer un objet `agnes`{data-package="cluster" data-rdocumentation="agnes.object"} au format 
@@ -458,13 +476,14 @@ sont disponibles à cette adresse : <http://rpubs.com/gaston/dendrograms>.
 
 ## Découper le dendrogramme
 
-Pour obtenir une partition de la population, il suffit de découper le dendrogramme obtenu à une
+Pour obtenir une <dfn>partition</dfn> de la population, il suffit de découper le dendrogramme obtenu à une
 certaine hauteur. En premier lieu, une analyse de la forme du dendrogramme pourra nous donner une indication
 sur le nombre de classes à retenir. Dans notre exemple, deux branches bien distinctes apparaissent
 sur l'arbre.
 
-Pour nous aider, nous pouvons représenter les sauts d'inertie du dendrogramme selon le nombre de
-classes retenues.
+Pour nous aider, nous pouvons représenter les 
+<dfn data-index="saut d'inertie">sauts d'inertie</dfn><dfn data-index="inertie, saut"></dfn>
+du dendrogramme selon le nombre de classes retenues.
 
 <figure>
 ```{r}
@@ -474,7 +493,7 @@ plot(inertie[1:20], type = "s", xlab = "Nombre de classes", ylab = "Inertie")
 <figcaption>Inertie du dendrogramme</figcaption>
 </figure>
 
-On voit trois sauts assez nets, à 2, 5 et 8 classes, que nous avons représentés ci-dessous 
+On voit trois sauts assez nets à 2, 5 et 8 classes, que nous avons représentés ci-dessous 
 respectivement en vert, en rouge et en bleu.
 
 <figure>
@@ -500,10 +519,10 @@ rect.hclust(arbre, 8, border = "blue3")
 
 L'extension <strong class="package">FactoMineR</strong> (que nous aborderons 
 [dans une section dédiée ci-après](#factominer)) suggère d'utiliser la partition 
-ayant la plus grande perte relative d'inertie. 
+ayant la plus grande <dfn>perte relative d'inertie</dfn><dfn data-index="indertie, perte relative"></dfn>. 
 
-Dans l'extension <strong class="package">JLutils</strong> 
-(disponible sur [GitHub](https://github.com/larmarange/JLutils)), nous avons développer une fonction 
+L'extension <strong class="package">JLutils</strong> 
+(disponible sur [GitHub](https://github.com/larmarange/JLutils)) propose une fonction 
 `best.cutree`{data-package="JLutils"} qui permet de calculer cette indicateur à partir de n'importe 
 quel dendrogramme calculé avec `hclust`{data-package="stats"} ou `agnes`{data-package="cluster"}.
 
@@ -535,14 +554,14 @@ partition selon ce critère est représentée par un point noir et la seconde pa
 
 <figure>
 ```{r}
-best.cutree(arbre, min = 2, graph = TRUE, xlab = "Nombre de classes", ylab = "Perte relative d'inertie")
+best.cutree(arbre, min = 2, graph = TRUE, xlab = "Nombre de classes", ylab = "Inertie relative")
 ```
 <figcaption>Perte relative d'inertie selon le nombre de classes</figcaption>
 </figure>
 
 Un découpage en deux classes minimise ce critère. Cependant, si l'on souhaite réaliser
 une analyse un peu plus fine, un nombre de classes plus élevé serait pertinent. Nous allons donc retenir
-un découpage en cinq classes. Le découpage s'effectue avec la fonction `cutree`{stats}.
+un découpage en cinq classes. Le découpage s'effectue avec la fonction `cutree`{data-package="stats"}.
 
 ```{r}
 typo <- cutree(arbre, 5)
