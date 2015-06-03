@@ -201,7 +201,7 @@ pre:not([class]) {
 Introduction <br/>à l’analyse d’enquêtes <br/>avec R et RStudio
 </h1>
 <p>
-Dernière mise à jour : 2 juin 2015
+Dernière mise à jour : 3 juin 2015
 </p>
 </div>
 <div id="contributeurs" class="section level2">
@@ -2974,7 +2974,7 @@ d$score.ext[d$sport ==<span class="st"> "Oui"</span>] &lt;-<span class="st"> </s
 <pre><code>
   0  10  20  30  40  50  60 
 800 342 229 509  31  41  48 </code></pre>
-<p>Cette notation étant un peu lourde, on peut l’alléger un peu en utilisant la fonction <code data-package="ifelse">ifelse</code>. Celle-ci prend en argument une condition et deux valeurs. Si la condition est vraie elle retourne la première valeur, sinon elle retourne la seconde.</p>
+<p>Cette notation étant un peu lourde, on peut l’alléger un peu en utilisant la fonction <code data-package="base">ifelse</code>. Celle-ci prend en argument une condition et deux valeurs. Si la condition est vraie elle retourne la première valeur, sinon elle retourne la seconde.</p>
 <pre class="sourceCode r"><code class="sourceCode r">d$score.ext &lt;-<span class="st"> </span><span class="dv">0</span>
 d$score.ext &lt;-<span class="st"> </span><span class="kw">ifelse</span>(d$cinema ==<span class="st"> "Oui"</span>, <span class="dv">10</span>, <span class="dv">0</span>) +<span class="st"> </span><span class="kw">ifelse</span>(d$peche.chasse ==<span class="st"> </span>
 <span class="st">  "Oui"</span>, <span class="dv">30</span>, <span class="dv">0</span>) +<span class="st"> </span><span class="kw">ifelse</span>(d$sport ==<span class="st"> "Oui"</span>, <span class="dv">20</span>, <span class="dv">0</span>)
@@ -6383,7 +6383,7 @@ Répartition des individus selon les trois premiers axes
 Vecteurs des modalités selon les deux premiers axes
 </figcaption>
 </figure>
-<p><code data-package="s.hist">s.hist</code> permet de représenter des individus (ou des modalités) sur le plan factoriel et d’afficher leur distribution sur chaque axe :</p>
+<p><code data-package="ade4">s.hist</code> permet de représenter des individus (ou des modalités) sur le plan factoriel et d’afficher leur distribution sur chaque axe :</p>
 <figure>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">s.hist</span>(acm$li, <span class="dt">clabel =</span> <span class="dv">0</span>, <span class="dt">pch =</span> <span class="dv">15</span>)</code></pre>
 <img src="images/analyses_acm/unnamed-chunk-22-1.png" title="" alt="" width="1050"/>
@@ -6752,7 +6752,7 @@ converted on http://www2.ph.ed.ac.uk/snuggletex/MathInputDemo
 </div>
 <div id="analyses_cah_distance-du-" class="section level3">
 <h3>Distance du Φ²</h3>
-<p>Il s’agit de la distance utilisée dans les analyses de correspondance multiples (ACM). C’est une variante de la <dfn data-index="distance du Chi²">distance du χ²</dfn><dfn data-index="Chi&amp;, distance"/>. Nous considérons ici que nous avons <em>Q</em> questions (soit <em>Q</em> variables initiales de type facteur). À chaque individu est associé un <dfn>patron</dfn> c’est-à-dire une certaine combinaison de réponses aux <em>Q</em> questions. La distance entre deux individus correspond à la distance entre leurs deux patrons. Si les deux individus présentent le même patron, leur distance sera nulle. La distance du Φ² peut s’exprimer ainsi :</p>
+<p>Il s’agit de la distance utilisée dans les analyses de correspondance multiples (ACM). C’est une variante de la <dfn data-index="distance du Chi²">distance du χ²</dfn><dfn data-index="Chi², distance"/>. Nous considérons ici que nous avons <em>Q</em> questions (soit <em>Q</em> variables initiales de type facteur). À chaque individu est associé un <dfn>patron</dfn> c’est-à-dire une certaine combinaison de réponses aux <em>Q</em> questions. La distance entre deux individus correspond à la distance entre leurs deux patrons. Si les deux individus présentent le même patron, leur distance sera nulle. La distance du Φ² peut s’exprimer ainsi :</p>
 <!-- 
 $$ d_{\Phi^2}^2(L_i,L_j)=\frac{1}{Q}\sum_{k}\frac{(\delta_{ik}-\delta_{jk})^2}{f_k} $$ 
 converted on http://www2.ph.ed.ac.uk/snuggletex/MathInputDemo
@@ -6807,10 +6807,9 @@ acm &lt;-<span class="st"> </span><span class="kw">dudi.acm</span>(d2, <span cla
 <p>La fonction de base pour le calcul d’un dendrogramme est <code data-package="stats">hclust</code> en précisant le critère d’aggrégation avec <code>method</code>. Dans notre cas, nous allons opter pour la méthode de Ward appliquée au carré des distances (ce qu’on indique avec <code>method = "ward.D2"</code><a href="#analyses_cah_fn4" class="footnoteRef" id="analyses_cah_fnref4"><sup>4</sup></a>, l’option <code>method = "ward.D"</code> correspondant à la version « classique ») :</p>
 <pre class="sourceCode r"><code class="sourceCode r">arbre &lt;-<span class="st"> </span><span class="kw">hclust</span>(md, <span class="dt">method =</span> <span class="st">"ward.D2"</span>)</code></pre>
 <div class="astuce">
-<p>Le temps de calcul d’un dendrogramme peut être particulièrement important sur un gros fichier de données. L’extension <strong class="package">flashClust</strong> permet de réduire significativement le temps de calcul. Il suffit d’installer puis d’appeler cette extension. La fonction <code data-package="flashClust" data-rdocumentation="flashClust">hclust</code> sera automatiquement remplacée par cette version optimisée :</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(flashClust)
-arbre &lt;-<span class="st"> </span><span class="kw">hclust</span>(md^<span class="dv">2</span>, <span class="dt">method =</span> <span class="st">"ward"</span>)</code></pre>
-ATTENTION : cette version n’implémente que la version « classique » de la méthode Ward. Il faut donc manuellement indiquer que l’on souhaite utiliser le carré des distances avec <code>md^2</code>.
+<p>Le temps de calcul d’un dendrogramme peut être particulièrement important sur un gros fichier de données. L’extension <strong class="package">fastcluster</strong> permet de réduire significativement le temps de calcul. Il suffit d’installer puis d’appeler cette extension. La fonction <code data-package="fastcluster">hclust</code> sera automatiquement remplacée par cette version optimisée. Elle prends les mêmes paramètres :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fastcluster)
+arbre &lt;-<span class="st"> </span><span class="kw">hclust</span>(md, <span class="dt">method =</span> <span class="st">"ward.D2"</span>)</code></pre>
 </div>
 <p>Le dendrogramme obtenu peut être affiché simplement avec <code data-package="stats" data-rdocumentation="hclust">plot</code>. Lorsque le nombre d’individus est important, il peut être utile de ne pas afficher les étiquettes des individus avec <code>labels=FALSE</code>.</p>
 <figure>
@@ -7145,7 +7144,7 @@ seq &lt;-<span class="st"> </span><span class="kw">seqdef</span>(donnees[, <span
  [&gt;] 818 distinct sequences
  [&gt;] min/max sequence length: 37/37
  [&gt;] computing distances using OM metric
- [&gt;] total time: 2.1 secs</code></pre>
+ [&gt;] total time: 3.25 secs</code></pre>
 <p>Cette matrice des distances ou des dissimilarités entre séquences peut ensuite être utilisée pour une <dfn>classification ascendante hiérarchique</dfn> (<dfn>CAH</dfn>), qui permet de regrouper les séquences en un certain nombre de « classes » en fonction de leur proximité :</p>
 <pre class="sourceCode r"><code class="sourceCode r">seq.agnes &lt;-<span class="st"> </span><span class="kw">agnes</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">method =</span> <span class="st">"ward"</span>, 
   <span class="dt">keep.diss =</span> <span class="ot">FALSE</span>)</code></pre>
@@ -7754,7 +7753,7 @@ C
 <ul>
 <li><a href="#pem_organiser_fichiers">Organiser ses fichiers</a></li>
 </ul>
-<p><dfn>Chi&amp;, distance</dfn></p>
+<p><dfn>Chi², distance</dfn></p>
 <ul>
 <li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
 </ul>
@@ -9383,7 +9382,7 @@ G
 <h2 id="index_fonctions_H">
 H
 </h2>
-<p><code data-package="flashClust" data-rdocumentation="flashClust">hclust</code> (flashClust)</p>
+<p><code data-package="fastcluster">hclust</code> (fastcluster)</p>
 <ul>
 <li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
 </ul>
@@ -9428,7 +9427,7 @@ I
 <ul>
 <li><a href="#pem_manipulation">Manipulation de données</a></li>
 </ul>
-<p><code data-package="ifelse">ifelse</code> (ifelse)</p>
+<p><code data-package="base">ifelse</code> (base)</p>
 <ul>
 <li><a href="#pem_manipulation">Manipulation de données</a></li>
 </ul>
@@ -9884,7 +9883,7 @@ S
 <ul>
 <li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
 </ul>
-<p><code data-package="s.hist">s.hist</code> (s.hist)</p>
+<p><code data-package="ade4">s.hist</code> (ade4)</p>
 <ul>
 <li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
 </ul>
@@ -10262,9 +10261,6 @@ X
 <a href="#index_extensions_H">H</a>
 </li>
 <li>
-<a href="#index_extensions_I">I</a>
-</li>
-<li>
 <a href="#index_extensions_J">J</a>
 </li>
 <li>
@@ -10370,7 +10366,7 @@ F
 <li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
 <li><a href="#analyses_donnees_pond">Données pondérées</a></li>
 </ul>
-<p><strong class="package">flashClust</strong></p>
+<p><strong class="package">fastcluster</strong></p>
 <ul>
 <li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
 </ul>
@@ -10405,13 +10401,6 @@ H
 <ul>
 <li><a href="#analyses_donnees_pond">Données pondérées</a></li>
 <li><a href="#pem_import_export">Import / Export de données</a></li>
-</ul>
-<h2 id="index_extensions_I">
-I
-</h2>
-<p><strong class="package">ifelse</strong></p>
-<ul>
-<li><a href="#pem_manipulation">Manipulation de données</a></li>
 </ul>
 <h2 id="index_extensions_J">
 J
@@ -10497,10 +10486,6 @@ R
 <h2 id="index_extensions_S">
 S
 </h2>
-<p><strong class="package">s.hist</strong></p>
-<ul>
-<li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
-</ul>
 <p><strong class="package">sjmisc</strong></p>
 <ul>
 <li><a href="#pem_import_export">Import / Export de données</a></li>
