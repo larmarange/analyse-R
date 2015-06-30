@@ -20,7 +20,7 @@ et le cas échéant d'installer, les extensions nécessaires à **analyse-R**.
 
 Le script **R** `make_pdf.R` permet de générer un PDF de l'ensemble du site. Pour cela,
 il est nécessaire que le logiciel **Prince XML** soit disponible sur votre machine.
-On pourra télécharger **Prinec XML** à <http://www.princexml.com/>.
+On pourra télécharger **Prince XML** à <http://www.princexml.com/>.
 
 Le fichier `Makefile` regénérera l'ensemble des pages web du site à partir 
 des fichiers sources écrits en **Rmarkdown** puis appelera le script 
