@@ -6,7 +6,7 @@ Site consultable à l'adresse <http://larmarange.github.io/analyse-R/>
 
 L'ensemble des chapitres sont écrits en **Rmarkdown** et encodés en UTF-8. 
 Le fichier `convention.txt` indique les conventions retenues (typographie, figures,
-nom des fonctions, dex extensions, des concepts, encadrés...).
+nom des fonctions, extensions, concepts, encadrés...).
 
 Le nom des fichiers doit être préfixé par `pem_`, `analyses_` ou `avance_`
 en fonction de la section où le chapitre sera placé. Par ailleurs,
