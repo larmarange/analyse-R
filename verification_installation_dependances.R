@@ -42,6 +42,10 @@ library(lubridate)
 if (!exists("time_length"))
   install_github("hadley/lubridate")
 
+library(questionr)
+if (is.null(getS3method("odds.ratio", "numeric", TRUE)))
+  install_github("juba/questionr")
+
 # 4. Identifier la version minimal de R requise ---------------
 
 #' @source http://stackoverflow.com/a/30600526/635806
