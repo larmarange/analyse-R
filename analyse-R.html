@@ -201,7 +201,7 @@ pre:not([class]) {
 Introduction <br/>à l’analyse d’enquêtes <br/>avec R et RStudio
 </h1>
 <p>
-Dernière mise à jour : 4 juin 2015
+Dernière mise à jour : 3 juillet 2015
 </p>
 </div>
 <div id="contributeurs" class="section level2">
@@ -2639,6 +2639,11 @@ dh &lt;-<span class="st"> </span><span class="kw">subset</span>(d, sexe ==<span 
 <span class="kw">dim</span>(d.satisf)</code></pre>
 <pre><code>[1] 1432   22</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r">d.satisf &lt;-<span class="st"> </span><span class="kw">subset</span>(d, trav.satisf ==<span class="st"> "Satisfaction"</span>)
+<span class="kw">dim</span>(d.satisf)</code></pre>
+<pre><code>[1] 480  22</code></pre>
+<p>Dans le cas présent, l’extraction obtenue avec <code data-package="base">subset</code> est équivalente à :</p>
+<pre class="sourceCode r"><code class="sourceCode r">d.satisf &lt;-<span class="st"> </span>d[d$trav.satisf ==<span class="st"> "Satisfaction"</span> &amp;<span class="st"> </span>!<span class="kw">is.na</span>(d$trav.satisf), 
+  ]
 <span class="kw">dim</span>(d.satisf)</code></pre>
 <pre><code>[1] 480  22</code></pre>
 <p>Enfin, l’utilisation de l’argument <code>select</code> est simplifié pour l’expression de condition sur les colonnes. On peut ainsi spécifier les noms de variable sans guillemets et leur appliquer directement l’opérateur d’exclusion <code>-</code> :</p>
@@ -6824,9 +6829,6 @@ arbre2 &lt;-<span class="st"> </span><span class="kw">agnes</span>(md, <span cla
 <p>ATTENTION : la méthode implémentée dans la fonction <code data-package="cluster">agnes</code> correspond à l’option <code>method = "ward.D2"</code> de <code data-package="stats">hclust</code>.</p>
 <p>Le résultat obtenu n’est pas au même format que celui de <code data-package="stats">hclust</code>. Il est possible de transformer un objet <code data-package="cluster" data-rdocumentation="agnes.object">agnes</code> au format <code data-package="stats">hclust</code> avec <code data-package="cluster" data-rdocumentation="agnes.object">as.hclust</code>.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">as.hclust</span>(arbre2)</code></pre>
-<div class="info">
-De nombreuses possibilités graphiques sont possibles avec les dendrogrammes. Des exemples documentés sont disponibles à cette adresse : <a href="http://rpubs.com/gaston/dendrograms" class="uri">http://rpubs.com/gaston/dendrograms</a>.
-</div>
 </div>
 <div id="analyses_cah_decouper-le-dendrogramme" class="section level2">
 <h2>Découper le dendrogramme</h2>
@@ -6910,16 +6912,15 @@ NA    0  0.0   NA</code></pre>
 Projection de la typologie obtenue par CAH selon les 4 premiers axes
 </figcaption>
 </figure>
+<div class="astuce">
+<p>De nombreuses possibilités graphiques sont possibles avec les dendrogrammes. Des exemples documentés sont disponibles à cette adresse : <a href="http://rpubs.com/gaston/dendrograms" class="uri">http://rpubs.com/gaston/dendrograms</a>.</p>
 <p>Romain François a developpé une fonction <code data-package="JLutils">A2Rplot</code> permettant de réaliser facilement un dendrogramme avec les branches colorées<a href="#analyses_cah_fn5" class="footnoteRef" id="analyses_cah_fnref5"><sup>5</sup></a>. Par commodité, cette fonction est disponible directement au sein de l’extension <strong class="package">JLutils</strong>.</p>
 <p>Pour réaliser le graphique, on indiquera le nombre de classes et les couleurs à utiliser pour chaque branche de l’arbre :</p>
-<figure>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">A2Rplot</span>(arbre, <span class="dt">k =</span> <span class="dv">5</span>, <span class="dt">boxes =</span> <span class="ot">FALSE</span>, <span class="dt">col.up =</span> <span class="st">"gray50"</span>, 
   <span class="dt">col.down =</span> <span class="kw">brewer.pal</span>(<span class="dv">5</span>, <span class="st">"Dark2"</span>), <span class="dt">show.labels =</span> <span class="ot">FALSE</span>)</code></pre>
-<img src="images/analyses_cah/unnamed-chunk-17-1.png" title="" alt="" width="1050"/>
-<figcaption>
-Un dendrogramme coloré
-</figcaption>
-</figure>
+<p><img src="images/analyses_cah/unnamed-chunk-17-1.png" title="" alt="" width="1050"/></p>
+On pourra aussi noter l’extension <strong class="package">ggdendro</strong> pour représenter des dendrogrammes avec <strong class="package">ggplot2</strong> ou encore l’extension <strong class="package">dendextend</strong> qui permet de manipuler, représenter et comparer des dendrogrammes<a href="#analyses_cah_fn6" class="footnoteRef" id="analyses_cah_fnref6"><sup>6</sup></a>.
+</div>
 </div>
 <div id="analyses_cah_factominer" class="section level2">
 <h2>CAH avec l’extension FactoMineR</h2>
@@ -6945,7 +6946,7 @@ Dendrogramme obtenu avec HCPC (5 axes)
 </figure>
 <p>Il apparait que le dendrogramme obtenu avec <code data-pacakge="FactoMineR">HCPC</code> diffère de celui que nous avons calculé précédemment en utilisant la matrice des distances fournies par <code data-package="ade4">dist.dudi</code>. Cela est dû au fait que <code data-package="FactoMineR">HCPC</code> procède différement pour calculer la matrice des distances en ne prenant en compte que les axes retenus dans le cadre de l’ACM. Pour rappel, nous avions retenu que 5 axes dans le cadre de notre ACM :</p>
 <pre class="sourceCode r"><code class="sourceCode r">acm2 &lt;-<span class="st"> </span><span class="kw">MCA</span>(d2[<span class="kw">complete.cases</span>(d2), ], <span class="dt">ncp =</span> <span class="dv">5</span>, <span class="dt">graph =</span> <span class="ot">FALSE</span>)</code></pre>
-<p><code data-package="FactoMineR">HCPC</code> n’a donc pris en compte que ces 5 premiers axes pour calculer les distances entre les individus, considérant que les autres axes n’apportent que du « bruit » rendant la classification instable. Cependant, comme le montre <code>summary(acm2)</code>, nos cinq premiers axes n’expliquent que 54 % de la variance. Il usuellement préférable de garder un plus grande nombre d’axes afin de couvrir au moins 80 à 90 % de la variance<a href="#analyses_cah_fn6" class="footnoteRef" id="analyses_cah_fnref6"><sup>6</sup></a>. De son côté, <code data-package="ade4">dist.dudi</code> prends en compte l’ensemble des axes pour calculer la matrice des distances. On peut reproduire cela avec <strong class="package">FactoMineR</strong> en indiquant <code>ncp=Inf</code> lors du calcul de l’ACM.</p>
+<p><code data-package="FactoMineR">HCPC</code> n’a donc pris en compte que ces 5 premiers axes pour calculer les distances entre les individus, considérant que les autres axes n’apportent que du « bruit » rendant la classification instable. Cependant, comme le montre <code>summary(acm2)</code>, nos cinq premiers axes n’expliquent que 54 % de la variance. Il usuellement préférable de garder un plus grande nombre d’axes afin de couvrir au moins 80 à 90 % de la variance<a href="#analyses_cah_fn7" class="footnoteRef" id="analyses_cah_fnref7"><sup>7</sup></a>. De son côté, <code data-package="ade4">dist.dudi</code> prends en compte l’ensemble des axes pour calculer la matrice des distances. On peut reproduire cela avec <strong class="package">FactoMineR</strong> en indiquant <code>ncp=Inf</code> lors du calcul de l’ACM.</p>
 <pre class="sourceCode r"><code class="sourceCode r">acm2 &lt;-<span class="st"> </span><span class="kw">MCA</span>(d2[<span class="kw">complete.cases</span>(d2), ], <span class="dt">ncp =</span> <span class="ot">Inf</span>, <span class="dt">graph =</span> <span class="ot">FALSE</span>)
 cah &lt;-<span class="st"> </span><span class="kw">HCPC</span>(acm2, <span class="dt">nb.clust =</span> -<span class="dv">1</span>, <span class="dt">graph =</span> <span class="ot">FALSE</span>)</code></pre>
 <p>On obtient bien cette fois-ci le même résultat.</p>
@@ -7024,7 +7025,8 @@ NA    0  0.0   NA</code></pre>
 <li id="analyses_cah_fn3"><p>On pourra consulter le cours de FG Carpentier déjà cité ou bien des ouvrages d’analyse statistique.<a href="#analyses_cah_fnref3">↩</a></p></li>
 <li id="analyses_cah_fn4"><p>Depuis la version 3.1 de <strong>R</strong>.<a href="#analyses_cah_fnref4">↩</a></p></li>
 <li id="analyses_cah_fn5"><p>Voir <a href="http://addicted2or.free.fr/packages/A2R/lastVersion/R/code.R" class="uri">http://addicted2or.free.fr/packages/A2R/lastVersion/R/code.R</a>.<a href="#analyses_cah_fnref5">↩</a></p></li>
-<li id="analyses_cah_fn6"><p>Voir <a href="http://factominer.free.fr/classical-methods/classification-hierarchique-sur-composantes-principales.html" class="uri">http://factominer.free.fr/classical-methods/classification-hierarchique-sur-composantes-principales.html</a><a href="#analyses_cah_fnref6">↩</a></p></li>
+<li id="analyses_cah_fn6"><p>Pour une présentation succincte, voir par exemple <a href="http://www.r-bloggers.com/dendextend-version-1-0-1-user2015-presentation/" class="uri">http://www.r-bloggers.com/dendextend-version-1-0-1-user2015-presentation/</a> (en anglais).<a href="#analyses_cah_fnref6">↩</a></p></li>
+<li id="analyses_cah_fn7"><p>Voir <a href="http://factominer.free.fr/classical-methods/classification-hierarchique-sur-composantes-principales.html" class="uri">http://factominer.free.fr/classical-methods/classification-hierarchique-sur-composantes-principales.html</a><a href="#analyses_cah_fnref7">↩</a></p></li>
 </ol>
 </div>
 
@@ -7064,7 +7066,7 @@ La version originale de ce chapitre est une reprise, avec l’aimable autorisati
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="kw">c</span>(<span class="st">"TraMineR"</span>))</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(TraMineR)</code></pre>
 <pre><code>
-TraMineR stable version 1.8-9 (Built: 2015-05-07)
+TraMineR stable version 1.8-9 (Built: 2015-06-20)
 Website: http://mephisto.unige.ch/traminer
 Please type 'citation("TraMineR")' for citation information.</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(cluster)</code></pre>
@@ -7143,7 +7145,7 @@ seq &lt;-<span class="st"> </span><span class="kw">seqdef</span>(donnees[, <span
  [&gt;] 818 distinct sequences
  [&gt;] min/max sequence length: 37/37
  [&gt;] computing distances using OM metric
- [&gt;] total time: 2.1 secs</code></pre>
+ [&gt;] total time: 1.83 secs</code></pre>
 <p>Cette matrice des distances ou des dissimilarités entre séquences peut ensuite être utilisée pour une <dfn>classification ascendante hiérarchique</dfn> (<dfn>CAH</dfn>), qui permet de regrouper les séquences en un certain nombre de « classes » en fonction de leur proximité :</p>
 <pre class="sourceCode r"><code class="sourceCode r">seq.agnes &lt;-<span class="st"> </span><span class="kw">agnes</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">method =</span> <span class="st">"ward"</span>, 
   <span class="dt">keep.diss =</span> <span class="ot">FALSE</span>)</code></pre>
@@ -10335,6 +10337,10 @@ C
 <h2 id="index_extensions_D">
 D
 </h2>
+<p><strong class="package">dendextend</strong></p>
+<ul>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
 <p><strong class="package">devtools</strong></p>
 <ul>
 <li><a href="#analyses_seq">Analyse de séquences</a></li>
@@ -10377,6 +10383,14 @@ F
 <h2 id="index_extensions_G">
 G
 </h2>
+<p><strong class="package">ggdendro</strong></p>
+<ul>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><strong class="package">ggplot2</strong></p>
+<ul>
+<li><a href="#analyses_cah">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
 <p><strong class="package">graphics</strong></p>
 <ul>
 <li><a href="#analyses_acm">Analyse des correspondances multiples (ACM)</a></li>
