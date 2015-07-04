@@ -111,33 +111,36 @@ img {
             <li><a href="pem_presentation_installation.html">Présentation et Installation</a></li>
             <li><a href="pem_premier_contact.html">Premier contact</a></li>
             <li><a href="pem_premier_travail.html">Premier travail avec des données</a></li>
-            <li><a href="pem_stat_univ.html">Statistique univariée</a></li>
             <li><a href="pem_organiser_fichiers.html">Organiser ses fichiers</a></li>
             <li><a href="pem_import_export.html">Import / Export de données</a></li>
             <li><a href="pem_manipulation.html">Manipulation de données</a></li>
             <li><a href="pem_export_graphiques.html">Exporter des graphiques</a></li>
-			<li><a href="pem_graphiques_avec_ggplot2.html" class="list-group-item">
-				Graphiques avec <strong class="package">ggplot2</strong></a>
-			</li>
             <li><a href="pem_ou_trouver_aide.html">Où trouver de l'aide ?</a></li>
           </ul>
         </li>
         <li class="dropdown">
           <a href="analyses" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Analyses <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
+            <li class="dropdown-header">Statistiques introductives</li>
+            <li><a href="analyses_stat_univ.html">Statistique univariée</a></li>
             <li><a href="analyses_stat_biv.html">Statistique bivariée</a></li>
-            <li><a href="analyses_reglog.html">Régression logistique</a></li>
+            <li><a href="analyses_graph_biv.html">Graphiques bivariés avec ggplot2</a></li>
             <li><a href="analyses_donnees_pond.html">Données pondérées</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Statistiques intermédiaires</li>
+            <li><a href="analyses_reglog.html">Régression logistique</a></li>
             <li><a href="analyses_acm.html">Analyse des correspondances multiples (ACM)</a></li>
             <li><a href="analyses_cah.html">Classification ascendante hiérarchique (CAH)</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Statistiques avancées</li>
             <li><a href="analyses_seq.html">Analyse de séquences</a></li>
           </ul>
         </li>
         <li class="dropdown">
-          <a href="avance" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Avancé <span class="caret"></span></a>
+          <a href="extra" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Extra <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
             <li class="dropdown-header">Astuces</li>
-            <li><a href="avance_age.html">Calculer un âge</a></li>
+            <li><a href="extra_age.html">Calculer un âge</a></li>
           </ul>
         </li>
         <li class="dropdown">
@@ -189,7 +192,7 @@ La version originale de ce chapitre a été écrite par Joseph Larmarange dans l
 <p>La <dfn>régression logistique multinomiale</dfn><dfn data-index="multinomiale, régression logistique"></dfn> est une extension de la régression logistique aux variables qualitatives à trois modalités ou plus.</p>
 <div id="preparation-des-donnees" class="section level2">
 <h2>Préparation des données</h2>
-<p>Dans ce chapite, nous allons encore une fois utiliser les données de l’enquête <em>Histoire de vie</em>, fournies avec l’extension <strong class="pkg">questionr</strong>.</p>
+<p>Dans ce chapite, nous allons encore une fois utiliser les données de l’enquête <em>Histoire de vie</em>, fournies avec l’extension <code class="pkg">questionr</code>.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
 <span class="kw">data</span>(hdv2003)
 d &lt;-<span class="st"> </span>hdv2003</code></pre>
@@ -199,7 +202,7 @@ d &lt;-<span class="st"> </span>hdv2003</code></pre>
 d$sport2[d$sport ==<span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> </span><span class="ot">TRUE</span></code></pre>
 <p>Dans le cas présent, cette variable n’a pas de <dfn>valeur manquante</dfn><dfn data-index="manquante, valeur">/dfn&gt;. Mais, le cas échéant, il importe de bien coder les valeurs manquantes en <code>NA</code>, les individus en question étant alors exclu de l’analyse.</p>
 <p>Il n’est pas forcément nécessaire de transformer notre variable d’intérêt en variable booléenne. En effet, <strong>R</strong> accepte sans problème une variable de type <dfn>facteur</dfn>. Cependant, l’ordre des valeurs d’un facteur a de l’importance. En effet, <strong>R</strong> considère toujours la première modalité comme étant la <dfn>modalité de référence</dfn><dfn data-index="référence, modalité"></dfn>. Dans le cas de la variable d’intérêt, la modalité de référence correspond au fait de ne pas remplir le critère étudié, dans notre exemple au fait de ne pas avoir eu d’activité sportive au cours des douze derniers mois.</p>
-<p>Pour connaître l’ordre des modalités d’une variable de type facteur, on peut utiliser la fonction <code data-pkg="base">levels</code> ou bien encore tout simplement la fonction <code data-pkg="questionr">freq</code> de l’extension <strong class="pkg">questionr</strong> :</p>
+<p>Pour connaître l’ordre des modalités d’une variable de type facteur, on peut utiliser la fonction <code data-pkg="base">levels</code> ou bien encore tout simplement la fonction <code data-pkg="questionr">freq</code> de l’extension <code class="pkg">questionr</code> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d$sport)</code></pre>
 <pre><code>[1] &quot;Non&quot; &quot;Oui&quot;</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$sport)</code></pre>
@@ -226,8 +229,8 @@ Femme 1101 55   55
 Homme  899 45   45
 NA       0  0   NA</code></pre>
 <div class="info">
-<p>Si l’on a importé nos données depuis <strong>SPSS</strong> ou <strong>Stata</strong> avec l’extension <strong class="pkg">haven</strong>, les variables codées numériquement et disposant d’étiquettes sont conservées stockées sous forme de <dfn lang="en">labelled vector</dfn>, c’est-à-dire d’un vecteur numérique ayant des attributs indiquant les étiquettes des modalités. Il importera donc de convertir notre variable en facteur avant d’effectuer notre analyse. La fonction <code data-pkg="haven" data-rdoc="labelled">as_factor</code> créera automatiquement un facteur à partir des étiquettes.</p>
-Une alternative consiste à utiliser la fonction <code data-pkg="JLutils">lfactor</code> de l’extension <strong class="pkg">JLutils</strong> qui fonctionne également si les données ont été importées avec <code data-pkg="foreign">read.spss</code> ou <code data-pkg="foreign">read.dta</code> de l’extension <strong class="pkg">foreign</strong> sans avoir converti les variables labelisées en facteurs.
+<p>Si l’on a importé nos données depuis <strong>SPSS</strong> ou <strong>Stata</strong> avec l’extension <code class="pkg">haven</code>, les variables codées numériquement et disposant d’étiquettes sont conservées stockées sous forme de <dfn lang="en">labelled vector</dfn>, c’est-à-dire d’un vecteur numérique ayant des attributs indiquant les étiquettes des modalités. Il importera donc de convertir notre variable en facteur avant d’effectuer notre analyse. La fonction <code data-pkg="haven" data-rdoc="labelled">as_factor</code> créera automatiquement un facteur à partir des étiquettes.</p>
+Une alternative consiste à utiliser la fonction <code data-pkg="JLutils">lfactor</code> de l’extension <code class="pkg">JLutils</code> qui fonctionne également si les données ont été importées avec <code data-pkg="foreign">read.spss</code> ou <code data-pkg="foreign">read.dta</code> de l’extension <code class="pkg">foreign</code> sans avoir converti les variables labelisées en facteurs.
 </div>
 <p>Les variables <em>age</em> et <em>heures.tv</em> sont des variables quantitatives. Il importe de vérifier qu’elles sont bien enregistrées en tant que variables numériques. En effet, il arrive parfois que dans le fichier source les variables quantitatives soient renseignées sous forme de valeur textuelle et non sous forme numérique.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(d$age)</code></pre>
@@ -560,7 +563,7 @@ religRejet                        1.1898605
 religNSP ou NVPR                  2.0221544
 heures.tv                         0.9459484</code></pre>
 <p>Pour savoir si un <em>odds ratio</em> diffère significativement de 1 (ce qui est identique au fait que le coefficient soit différent de 0), on pourra se référer à la colonne <em>Pr(&gt;|z|)</em> obtenue avec <code data-pkg="stats" data-rdoc="summary.glm">summary</code>.</p>
-<p>Si vous disposez de l’extension <strong class="pkg">questionr</strong>, la fonction <code data-pacakge="questionr">odds.ratio</code> permet de calculer directement les <em>odds ratio</em>, leur intervalles de confiance et les <em>p-value</em> :</p>
+<p>Si vous disposez de l’extension <code class="pkg">questionr</code>, la fonction <code data-pacakge="questionr">odds.ratio</code> permet de calculer directement les <em>odds ratio</em>, leur intervalles de confiance et les <em>p-value</em> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
 <span class="kw">odds.ratio</span>(reg)</code></pre>
 <pre><code>Waiting for profiling to be done...</code></pre>
@@ -615,7 +618,7 @@ heures.tv                        ***
 ---
 Signif. codes:  
 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>L’extension <strong class="pkg">effects</strong> propose une représentation graphique résumant les effets de chaque variable du modèle. Pour cela, il suffit d’appliquer la méthode <code data-pkg="effects" data-rdoc="summary.effect">plot</code> au résultat de la fonction <code data-pkg="effects" data-rdoc="effect">allEffects</code>. Nous obtenons alors la <a href="#reglog_alleffects">figure ci-dessous</a>.</p>
+<p>L’extension <code class="pkg">effects</code> propose une représentation graphique résumant les effets de chaque variable du modèle. Pour cela, il suffit d’appliquer la méthode <code data-pkg="effects" data-rdoc="summary.effect">plot</code> au résultat de la fonction <code data-pkg="effects" data-rdoc="effect">allEffects</code>. Nous obtenons alors la <a href="#reglog_alleffects">figure ci-dessous</a>.</p>
 <figure id="reglog_alleffects">
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(effects)
 <span class="kw">plot</span>(<span class="kw">allEffects</span>(reg))</code></pre>
@@ -684,7 +687,7 @@ NA             952 47.6   NA</code></pre>
 <p>Enfin, nous allons aussi en profiter pour raccourcir les étiquettes de la variable <em>trav.imp</em> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d$trav.imp) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Le plus&quot;</span>, <span class="st">&quot;Aussi&quot;</span>, <span class="st">&quot;Moins&quot;</span>, 
   <span class="st">&quot;Peu&quot;</span>)</code></pre>
-<p>Pour calculer un modèle logistique multinomial, nous allons utiliser la fonction <code data-pkg="nnet">multinom</code> de l’extension <strong class="pkg">nnet</strong><a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. La syntaxe de <code data-pkg="nnet">multinom</code> est similaire à celle de <code data-pkg="stats">glm</code>, le paramètre <code>family</code> en moins.</p>
+<p>Pour calculer un modèle logistique multinomial, nous allons utiliser la fonction <code data-pkg="nnet">multinom</code> de l’extension <code class="pkg">nnet</code><a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. La syntaxe de <code data-pkg="nnet">multinom</code> est similaire à celle de <code data-pkg="stats">glm</code>, le paramètre <code>family</code> en moins.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(nnet)
 regm &lt;-<span class="st"> </span><span class="kw">multinom</span>(trav.satisf ~<span class="st"> </span>sexe +<span class="st"> </span>etud +<span class="st"> </span>grpage +<span class="st"> </span>
 <span class="st">  </span>trav.imp, <span class="dt">data =</span> d)</code></pre>
@@ -949,7 +952,7 @@ Signif. codes:
 <ol>
 <li id="fn1"><p>Pour plus de détails, voir <a href="http://www.spc.univ-lyon1.fr/polycop/odds%20ratio.htm">http://www.spc.univ-lyon1.fr/polycop/odds%20ratio.htm</a>.<a href="#fnref1">↩</a></p></li>
 <li id="fn2"><p>Il existe également des méthodes de <em>sélection ascendante pas à pas</em>, mais nous les aborderons pas ici.<a href="#fnref2">↩</a></p></li>
-<li id="fn3"><p>Une alternative est d’avoir recours à l’extension <strong class=""package>mlogit</strong> que nous n’aborderons pas ici. Voir <a href="http://www.ats.ucla.edu/stat/r/dae/mlogit.htm" class="uri">http://www.ats.ucla.edu/stat/r/dae/mlogit.htm</a> (en anglais) pour plus de détails.<a href="#fnref3">↩</a></p></li>
+<li id="fn3"><p>Une alternative est d’avoir recours à l’extension <code class="pkg">mlogit</code> que nous n’aborderons pas ici. Voir <a href="http://www.ats.ucla.edu/stat/r/dae/mlogit.htm" class="uri">http://www.ats.ucla.edu/stat/r/dae/mlogit.htm</a> (en anglais) pour plus de détails.<a href="#fnref3">↩</a></p></li>
 </ol>
 </div>
 
@@ -978,8 +981,8 @@ $(document).ready(function () {
       $('a[href="' + 'pem' + '"]').parent().addClass('active');
     else if (href.startsWith('analyses_'))
       $('a[href="' + 'analyses' + '"]').parent().addClass('active');
-    else if (href.startsWith('avance_'))
-      $('a[href="' + 'avance' + '"]').parent().addClass('active');
+    else if (href.startsWith('extra_'))
+      $('a[href="' + 'extra' + '"]').parent().addClass('active');
     else if (href.startsWith('index_'))
       $('a[href="' + 'index' + '"]').parent().addClass('active');
 
@@ -1017,7 +1020,7 @@ $(document).ready(function () {
       $('[data-toggle="tooltip"]').tooltip();
     });
 
-    $("strong.pkg").each(function( index ) {
+    $("code.pkg").each(function( index ) {
       $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+$(this).text()+'">');
     });
 
