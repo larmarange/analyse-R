@@ -26,7 +26,15 @@ for (f in fichiers) {
       chapitre = chapitre,
       page = str_replace(f, ".Rmd", ".html")
       ))
-  m <- str_match_all(content, '<strong class="pkg">([^<]+)</strong>')
+  m <- str_match_all(content, '`([a-zA-Z0-9._%]+)`\\{\\.pkg\\}')
+  m <- m[[1]]
+  if (nrow(m)>0)
+    lf <- rbind (lf, data.frame(
+      package = m[,2], 
+      chapitre = chapitre,
+      page = str_replace(f, ".Rmd", ".html")
+      ))
+  m <- str_match_all(content, 'library\\(([a-zA-Z0-9._%]+)\\)')
   m <- m[[1]]
   if (nrow(m)>0)
     lf <- rbind (lf, data.frame(
@@ -56,7 +64,7 @@ for (j in 1:nrow(lf)) {
   
   if (lf[j, "package"] != p) {
     res <- paste0(res, 
-        "\n<strong class=\"package\">", lf[j, "package"], "</strong>", "\n\n"
+        "\n<code class=\"pkg\">", lf[j, "package"], "</code>", "\n\n"
       )  
   }
     
