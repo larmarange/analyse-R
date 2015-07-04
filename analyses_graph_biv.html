@@ -183,29 +183,36 @@ img {
 </ul></li>
 <li><a href="#visualisation-des-donnees">Visualisation des données</a><ul>
 <li><a href="#visualisation-par-petits-multiples">Visualisation par <q>petits multiples</q></a></li>
+<li><a href="#visualisation-en-series-temporelles">Visualisation en séries temporelles</a></li>
 <li><a href="#combinaisons-delements-graphiques">Combinaisons d’éléments graphiques</a></li>
 </ul></li>
 <li><a href="#composition-graphique-avec-ggplot2">Composition graphique avec ggplot2</a><ul>
-<li><a href="#modification-de-parametres">Modification de paramètres</a></li>
+<li><a href="#couleurs-et-echelles">Couleurs et échelles</a></li>
 <li><a href="#utilisation-des-themes">Utilisation des thèmes</a></li>
 <li><a href="#export-des-graphiques">Export des graphiques</a></li>
 </ul></li>
-<li><a href="#documentation-sur-ggplot2">Documentation sur ggplot2</a></li>
+<li><a href="#pour-aller-plus-loin">Pour aller plus loin</a><ul>
+<li><a href="#ressources-essentielles">Ressources essentielles</a></li>
+<li><a href="#extensions-de-ggplot2">Extensions de ggplot2</a></li>
+</ul></li>
 </ul>
 </div>
 
 <div class="note">
 Ce chapitre est tiré d’une <a href="https://github.com/briatte/aad/tree/master/reinhart-rogoff">séance de cours</a> destiné à des étudiants de L2 sans aucune connaissance de <strong>R</strong>. Cette séance de cours est elle-même inspirée d’un <a href="http://www.stat.cmu.edu/~cshalizi/uADA/13/hw/11/">exercice</a> tiré d’un cours de <a href="http://www.stat.cmu.edu/~cshalizi/">Cosma Shalizi</a>.
 </div>
-<p>Comme expliqué dans le <a href="pem_graphiques_de_base.html">précédent chapitre</a>, <strong>R</strong> possède un puissant moteur graphique interne, qui permet de <q>dessiner</q> dans un graphique en y rajoutant des segments, des points, du texte, ou toutes sortes d’autres symboles. Toutefois, pour produire un graphique complet avec les fonctions basiques de <strong>R</strong>, il faut un peu bricoler : d’abord, ouvrir une fenêtre ; puis rajouter des points ; puis rajouter des lignes ; tout en configurant les couleurs au fur et à mesure ; puis finir par fermer la fenêtre graphique.</p>
-<p><strong>R</strong> est distribué avec une extension qui permet de moins avoir à bricoler les graphiques : <code class="pkg">lattice</code>. Mais surtout, <strong>R</strong> est aussi capable de comprendre la <q>grammaire graphique</q> <a href="https://books.google.fr/books/about/The_Grammar_of_Graphics.html">théorisée par Leland Wilkinson</a>, et traduite pour <strong>R</strong> par Hadley Wickham sous la forme de l’extension <code class="pkg">ggplot2</code><a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>. Ce chapitre présente ces deux extensions à partir d’un exemple simple de visualisation de séries temporelles, puis rentre dans le détail de la syntaxe de <code class="pkg">ggplot2</code><a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>.</p>
+<p>Comme expliqué dans un <a href="pem_graphiques_de_base.html">précédent chapitre</a>, <strong>R</strong> possède un puissant moteur graphique interne, qui permet de <q>dessiner</q> dans un graphique en y rajoutant des segments, des points, du texte, ou toutes sortes d’autres symboles. Toutefois, pour produire un graphique complet avec les fonctions basiques de <strong>R</strong>, il faut un peu bricoler : d’abord, ouvrir une fenêtre ; puis rajouter des points ; puis rajouter des lignes ; tout en configurant les couleurs au fur et à mesure ; puis finir par fermer la fenêtre graphique.</p>
+<p><strong>R</strong> est distribué avec une extension qui permet de moins avoir à bricoler les graphiques : <code class="pkg">lattice</code>. Mais surtout, <strong>R</strong> est aussi capable de comprendre la <q>grammaire graphique</q> <a href="https://books.google.fr/books/about/The_Grammar_of_Graphics.html">théorisée par Leland Wilkinson</a>, et traduite pour <strong>R</strong> par Hadley Wickham sous la forme de l’extension <code class="pkg">ggplot2</code><a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>. Ce chapitre présente cette dernière extension à partir d’un exemple simple de visualisation de séries temporelles, puis rentre dans le détail de sa syntaxe<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>.</p>
 <div id="les-donnees-de-lexemple" class="section level2">
 <h2>Les données de l’exemple</h2>
 <p>Il y a quelques années, les chercheurs Carmen M. Reinhart et Kenneth S. Rogoff publiaient un article intitulé <cite><a href="http://scholar.harvard.edu/files/rogoff/files/growth_in_time_debt_aer.pdf">Growth in a Time of Debt</a></cite>, dans lequel ils faisaient la démonstration qu’un niveau élevé de dette publique nuisait à la croissance économique. Plus exactement, les deux chercheurs y défendaient l’idée que, lorsque la dette publique dépasse 90% du produit intérieur brut, ce produit cesse de croître.</p>
 <p>Cette conclusion, proche du discours porté par des institutions comme le Fonds Monétaire International, a <a href="http://www.economist.com/news/finance-and-economics/21576362-seminal-analysis-relationship-between-debt-and-growth-comes-under">alimenté plusieurs argumentaires politiques</a>. Des parlementaires américains s’en ainsi sont servi pour exiger une diminution du budget fédéral, et surtout, la Commission européenne s’est appuyée sur cet argumentaire pour exiger que des pays comme la Grèce, durement frappés par la crise financière globale de 2008, adoptent des plans d’austérité drastiques.</p>
 <p>Or, en tentant de reproduire les résultats de Reinhart et Rogoff, les chercheurs Thomas Herndon, Michael Ash et Robert Pollin y ont trouvé <a href="http://www.peri.umass.edu/236/hash/31e2ff374b6377b2ddec04deaa6388b1/publication/566/">de nombreuses erreurs</a>, ainsi qu’une <a href="http://www.nextnewdeal.net/rortybomb/researchers-finally-replicated-reinhart-rogoff-and-there-are-serious-problems">bête erreur de calcul</a> due à une utilisation peu attentive du logiciel <strong>Microsoft Excel</strong>. La révélation de ces erreurs donna lieu à un débat très vif entre adversaires et partisans des politiques économiques d’austérité, débat toujours autant d’actualité aujourd’hui.</p>
 <p>Dans ce chapitre, on va se servir des données (corrigées) de Reinhart et Rogoff pour évaluer, de manière indépendante, la cohérence de leur argument sur le rapport entre endettement et croissance économique. Commençons par récupérer ces données au format CSV sur le site du chercheur américain <a href="http://www.stat.cmu.edu/~cshalizi/">Cosma Shalizi</a>, qui utilise ces données dans <a href="http://www.stat.cmu.edu/~cshalizi/uADA/">l’un de ses exercices de cours</a> :</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># emplacement souhaité pour le jeu de données</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># charger l&#39;extension lisant le format CSV</span>
+<span class="kw">library</span>(readr)
+
+<span class="co"># emplacement souhaité pour le jeu de données</span>
 file =<span class="st"> &quot;data/debt.csv&quot;</span>
 
 <span class="co"># télécharger le jeu de données s&#39;il n&#39;existe pas</span>
@@ -214,15 +221,18 @@ if(!<span class="kw">file.exists</span>(file))
                 file, <span class="dt">mode =</span> <span class="st">&quot;wb&quot;</span>)
 
 <span class="co"># charger les données dans l&#39;objet &#39;debt&#39;</span>
-debt =<span class="st"> </span><span class="kw">read.csv</span>(file)</code></pre>
+debt =<span class="st"> </span><span class="kw">read_csv</span>(file)</code></pre>
+<div class="note">
+Le code ci-dessus utilise la fonction <code data-pkg="readr" data-rdoc="read_csv">read_csv</code> de l’extension <code class="pkg">readr</code>, dont on a recommandé l’utilisation dans un <a href="https://larmarange.github.io/analyse-R/pem_import_export.html">précédent chapitre</a>. En l’absence de cette extension, on aurait pu utiliser la fonction de base <code data-pkg="utils" data-rdoc="read.csv">read.csv</code>.
+</div>
 <div id="nettoyage-des-donnees" class="section level3">
 <h3>Nettoyage des données</h3>
-<p>Les données de Reinhart et Rogoff contiennent, pour un échantillon de 20 pays occidentaux membres de la zone <a href="https://fr.wikipedia.org/wiki/Organisation_de_coop%C3%A9ration_et_de_d%C3%A9veloppement_%C3%A9conomiques">OCDE</a>, la croissance de leur <a href="https://fr.wikipedia.org/wiki/Produit_intérieur_brut">produit intérieur brut</a> (PIB)<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>, et le ratio entre leur <a href="https://fr.wikipedia.org/wiki/Dette_publique">dette publique</a> et ce produit, exprimé sous la forme d’un pourcentage <q>Dette / PIB</q>. Les données vont du milieu des années 1940 à la fin des années 2000. La première colonne du jeu de données n’étant pas utile, on va la supprimer d’entrée de jeu :</p>
+<p>Les données de Reinhart et Rogoff contiennent, pour un échantillon de 20 pays occidentaux membres de la zone <a href="https://fr.wikipedia.org/wiki/Organisation_de_coop%C3%A9ration_et_de_d%C3%A9veloppement_%C3%A9conomiques">OCDE</a>, la croissance de leur <a href="https://fr.wikipedia.org/wiki/Produit_intérieur_brut">produit intérieur brut</a> (PIB)<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>, et le ratio entre leur <a href="https://fr.wikipedia.org/wiki/Dette_publique">dette publique</a> et ce produit, exprimé sous la forme d’un pourcentage <q>Dette / PIB</q>. Les données vont du milieu des années 1940 à la fin des années 2000. La première colonne du jeu de données ne contenant que les numéros des lignes, on va la supprimer d’entrée de jeu :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># inspection du jeu de données</span>
 <span class="kw">str</span>(debt)</code></pre>
-<pre><code>&#39;data.frame&#39;:   1171 obs. of  5 variables:
- $ X      : int  147 148 149 150 151 152 153 154 155 156 ...
- $ Country: Factor w/ 20 levels &quot;Australia&quot;,&quot;Austria&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+<pre><code>Classes &#39;tbl_df&#39;, &#39;tbl&#39; and &#39;data.frame&#39;:   1171 obs. of  5 variables:
+ $ [EMPTY]: int  147 148 149 150 151 152 153 154 155 156 ...
+ $ Country: chr  &quot;Australia&quot; &quot;Australia&quot; &quot;Australia&quot; &quot;Australia&quot; ...
  $ Year   : int  1946 1947 1948 1949 1950 1951 1952 1953 1954 1955 ...
  $ growth : num  -3.56 2.46 6.44 6.61 6.92 ...
  $ ratio  : num  190 177 149 126 110 ...</code></pre>
@@ -260,55 +270,50 @@ debt$Decade =<span class="st"> </span><span class="kw">factor</span>(<span class
 </div>
 <div id="visualisation-des-donnees" class="section level2">
 <h2>Visualisation des données</h2>
-<p>Chargeons à présent les deux extensions graphiques dont nous allons nous servir dans cet exemple :</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)
-<span class="kw">library</span>(lattice)</code></pre>
+<p>Chargeons à présent l’extension graphique <code class="pkg">ggplot2</code> dont nous allons nous servir dans ce chapitre, et dans de nombreux chapitres suivants :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)</code></pre>
 <p>Procédons désormais à quelques visualisations très simples de ces données. On dispose de trois variables continues : l’année, le taux de croissance du PIB, et le ratio <q>Dette publique / PIB</q>. Si l’on souhaite visualiser la croissance du PIB au cours du temps, la solution basique dans <strong>R</strong> s’écrit de la manière suivante :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">with</span>(debt, <span class="kw">plot</span>(Year, growth))</code></pre>
 <p><img src="images/analyses_graph_biv/unnamed-chunk-7-1.png" title="" alt="" width="1050" /></p>
 <p>Le code de la visualisation est très simple et se lit : <q>avec l’objet <code>debt</code>, construire le graphique montrant l’année d’observation <var>Year</var> en abcisse et le taux de croissance du PIB <var>growth</var> en ordonnée</q>. Le code est compris de cette manière par <strong>R</strong> car la fonction <code>plot</code> comprend le premier argument comme étant la variable à représenter sur l’axe horizontal <code>x</code>, et le second comme la variable à représenter sur l’axe vertical <code>y</code>.</p>
-<p>Le même graphique s’écrit de la mnière suivante avec l’extension <code class="pkg">lattice</code> :</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">with</span>(debt, <span class="kw">xyplot</span>(growth ~<span class="st"> </span>Year))</code></pre>
-<p><img src="images/analyses_graph_biv/unnamed-chunk-8-1.png" title="" alt="" width="1050" /></p>
-<p>Comme on peut le voir, le code est très proche du code utilisé dans <q><strong>R</strong> base</q>, et le résultat est le même, bien que plusieurs paramètres graphiques aient changé : cette couleur bleu clair est caractéristique des graphiques de <code class="pkg">lattice</code>, qui l’utilisent par défaut. La véritable différence réside dans la formule <code>growth ~ Year</code> : <code class="pkg">lattice</code> utilise en effet la même syntaxe <code>y ~ x</code> que les équations de <strong>R</strong>.</p>
-<p>Voici enfin le même graphique avec <code class="pkg">ggplot2</code> :</p>
+<p>Le même graphique s’écrit de la manière suivante avec l’extension <code class="pkg">ggplot2</code> :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">with</span>(debt, <span class="kw">qplot</span>(Year, growth))</code></pre>
-<p><img src="images/analyses_graph_biv/unnamed-chunk-9-1.png" title="" alt="" width="1050" /></p>
-<p>La syntaxe de cet exemple est redevenue : <q>avec le jeu de données <code>debt</code>, visualiser les variables <var>Year</var> sur l’axe <code>x</code> et <var>growth</var> sur l’axe <code>y</code></q>. Il faut aussi noter que, dans les deux exemples précédents, on a écrit <code>with(debt, ...)</code> pour indiquer que l’on travaillait avec l’objet <code>debt</code>, mais les extensions <code class="pkg">lattice</code> et <code class="pkg">ggplot2</code> permettent aussi d’utiliser l’argument <code>data</code> pour ce faire :</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">xyplot</span>(growth ~<span class="st"> </span>Year, <span class="dt">data =</span> debt)
-<span class="kw">qplot</span>(Year, growth, <span class="dt">data =</span> debt)</code></pre>
+<p><img src="images/analyses_graph_biv/unnamed-chunk-8-1.png" title="" alt="" width="1050" /></p>
+<p>Comme on peut le voir, le code est très proche du code utilisé dans <q><strong>R</strong> base</q>, la syntaxe signifiant toujours : <q>avec le jeu de données <code>debt</code>, visualiser les variables <var>Year</var> sur l’axe <code>x</code> et <var>growth</var> sur l’axe <code>y</code></q>. Le résultat est similaire, bien que plusieurs paramètres graphiques aient changé : le fond gris clair, en particulier, est caractéristique du thème graphique par défaut de <code class="pkg">ggplot2</code>, que l’on apprendra à modifier plus loin.</p>
+<p>Par ailleurs, dans les deux exemples précédents, on a écrit <code>with(debt, ...)</code> pour indiquer que l’on travaillait avec l’objet <code>debt</code>. Lorsque l’on travaille avec l’extension <code class="pkg">ggplot2</code>, il est toutefois plus commun d’utiliser l’argument <code>data</code> pour indiquer ce choix :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">qplot</span>(Year, growth, <span class="dt">data =</span> debt)</code></pre>
 <div id="visualisation-par-petits-multiples" class="section level3">
 <h3>Visualisation par <q>petits multiples</q></h3>
 <p>Cherchons désormais à mieux comprendre les variations du taux de croissance du PIB au fil des années.</p>
 <p>Dans les graphiques précédents, on voit clairement que ce taux est très variable dans l’immédiat après-guerre, puis qu’il oscille entre environ -5% et +15%, puis qu’il semble chuter dramatiquement à la fin des années 2000, marquées par la crise financière globale. Mais comment visualiser ces variations pour chacun des vingt pays de l’échantillon ?</p>
-<p>On va ici utiliser le principe de la visualisation par <q><a href="http://www.juiceanalytics.com/writing/better-know-visualization-small-multiples/">petits multiples</a></q>, c’est-à-dire que l’on va reproduire le même graphique pour chacun des pays, et visualiser l’ensemble des graphiques dans une même fenêtre. l’extension <code class="pkg">lattice</code> permet de le faire en ajoutant un terme à l’équation vue précédemment, qui va désormais signifier <q>montrer la croissance du PIB par année <em>pour chaque pays</em>“</q> :</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">xyplot</span>(growth ~<span class="st"> </span>Year |<span class="st"> </span>Country, <span class="dt">data =</span> debt)</code></pre>
-<p><img src="images/analyses_graph_biv/unnamed-chunk-11-1.png" title="" alt="" width="1050" /></p>
+<p>On va ici utiliser le principe de la visualisation par <q><a href="http://www.juiceanalytics.com/writing/better-know-visualization-small-multiples/">petits multiples</a></q>, c’est-à-dire que l’on va reproduire le même graphique pour chacun des pays, et visualiser l’ensemble de ces graphiques dans une même fenêtre. Concrètement, il va donc s’agir de montrer la croissance annuelle du PIB en faisant apparaître chaque pays dans une <dfn>facette</dfn> différente du graphique.</p>
+<p><code class="pkg">ggplot2</code> permet d’effectuer cette opération en rajoutant au graphique précédent, au moyen de l’opérateur <code>+</code>, l’élément <code>facet_wrap(~ Country)</code> au graphique, qui utilise la syntaxe <q>équation</q> de <strong>R</strong>, et qui signifie <q>construire le graphique pour chaque valeur différente de la variable <var>Country</var></q>. Par défaut, ces <q>facettes</q> sont classées par ordre alphabétique :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">qplot</span>(Year, growth, <span class="dt">data =</span> debt) +
+<span class="st">  </span><span class="kw">facet_wrap</span>(~<span class="st"> </span>Country)</code></pre>
+<p><img src="images/analyses_graph_biv/unnamed-chunk-10-1.png" title="" alt="" width="1050" /></p>
 <p>Voilà qui est beaucoup plus clair ! On aperçoit bien, dans ce graphique, les variations très importantes de croissance du PIB dans un pays comme l’Autriche, ruinée après la Seconde guerre mondiale, ou l’Irlande, très durement frappée par la crise financière globale en 2008 et 2009. On aperçoit aussi où se trouvent les données manquantes : voir le graphique de l’Espagne, par exemple.</p>
-<p>Le même graphique avec <code class="pkg">ggplot2</code> va introduire deux éléments essentiels de sa grammaire graphique. D’une part, on va améliorer le graphique en utilisant des lignes plutôt que des points, en utilisant l’argument <code>geom = &quot;line&quot;</code>. D’autre part, on va diviser le graphique par pays comme vu ci-dessus, avec l’argument <code>facet_wrap(~ Country)</code>, qui utilise aussi la notation <q>équation</q> de <strong>R</strong>. Notez, enfin, que l’on va définir l’axe <code>y</code> avant de définir l’axe <code>x</code>, en écrivant ces arguments de manière explicite :</p>
+<p>Il faut noter ici un élément essentiel de la grammaire graphique de <code class="pkg">ggplot2</code>, qui utilise une syntaxe additive, où différents éléments et paramètres graphiques peuvent être combinés en les additionnant, ce qui permet de construire et de modifier des graphiques de manière cumulative, pas à pas. Cette caractéristique permet de tâtonner, et de construire progressivement des graphiques très complets.</p>
+</div>
+<div id="visualisation-en-series-temporelles" class="section level3">
+<h3>Visualisation en séries temporelles</h3>
+<p>Enfin, pour produire le même graphique que ci-dessus en utilisant des lignes plutôt que des points, il suffit d’utiliser l’argument <code>geom = &quot;line&quot;</code>, ce qui peut être considéré comme une meilleure manière de visualiser des séries temporelles, mais qui tend aussi à rendre plus difficile la détection des périodes pour lesquelles il manque des données (voir, à nouveau, le graphique pour l’Espagne) :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">qplot</span>(<span class="dt">data =</span> debt, <span class="dt">y =</span> growth, <span class="dt">x =</span> Year, <span class="dt">geom =</span> <span class="st">&quot;line&quot;</span>) +<span class="st"> </span>
-<span class="st">  </span><span class="kw">facet_wrap</span>(~Country)</code></pre>
-<p><img src="images/analyses_graph_biv/unnamed-chunk-12-1.png" title="" alt="" width="1050" /></p>
-<p>Il faut noter que <code class="pkg">ggplot2</code> a ici réordonné les pays par ordre alphabétique, et que la visualisation par ligne tend à rendre plus difficile les périodes pour lesquelles il manque des données (voir, toujours, la ligne pour l’Espagne). Le résultat est toutefois assez lisible, et donne à voir les couleurs utilisées par défaut par les graphiques de <code class="pkg">ggplot2</code>.</p>
-<p>Il faut aussi noter que <code class="pkg">ggplot2</code> utilise une syntaxe additive, où différents éléments et paramètres graphiques peuvent être combinés en les additionnant, ce qui permet de construire et de modifier des graphiques de manière cumulative, pas à pas. Cette caractéristique permet de tâtonner, et de construire progressivement des graphiques très complets.</p>
+<span class="st">  </span><span class="kw">facet_wrap</span>(~<span class="st"> </span>Country)</code></pre>
+<p><img src="images/analyses_graph_biv/unnamed-chunk-11-1.png" title="" alt="" width="1050" /></p>
+<p>Dans ce dernier exemple, on a défini l’axe <code>y</code> avant de définir l’axe <code>x</code>, en écrivant ces arguments de manière explicite ; de même, on a commencé par spécifier l’argument <code>data</code>, et l’on a terminé par l’argument <code>geom</code>. Cet ordre d’écriture permet de conserver une forme de cohérence dans l’écriture des fonctions graphiques.</p>
 </div>
 <div id="combinaisons-delements-graphiques" class="section level3">
 <h3>Combinaisons d’éléments graphiques</h3>
-<p>On n’a pas encore visualisé le ratio <q>Dette publique / PIB</q>, l’autre variable du raisonnement de Reinhart et Rogoff. C’est l’occasion de voir comment rajouter des titres aux axes des graphiques de <code class="pkg">lattice</code>, et d’utiliser les lignes en même temps que des points, grâce à l’argument <code>type</code>, qui peut prendre plusieurs valeurs (ici, <code>&quot;o&quot;</code> produit les points et <code>&quot;l&quot;</code> produit les lignes) :</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">xyplot</span>(ratio ~<span class="st"> </span>Year |<span class="st"> </span>Country, <span class="dt">data =</span> debt,
-       <span class="dt">type =</span> <span class="kw">c</span>(<span class="st">&quot;o&quot;</span>, <span class="st">&quot;l&quot;</span>),
-       <span class="dt">xlab =</span> <span class="st">&quot;Année&quot;</span>,
-       <span class="dt">ylab =</span> <span class="st">&quot;Ratio dette publique / produit intérieur brut&quot;</span>)</code></pre>
-<p><img src="images/analyses_graph_biv/unnamed-chunk-13-1.png" title="" alt="" width="1050" /></p>
-<p>Avec <code class="pkg">ggplot2</code>, la syntaxe est assez proche : il suffit de combiner deux <q>objets géométriques</q> (<code>geom</code>) pour afficher à la fois des points (<code>point</code>) et des lignes (<code>line</code>). On définit ensuite les titres des axes, en supprimant celui de l’axe <code>x</code>, et en rajoutant un peu d’espace entre le titre de l’axe <code>y</code> et l’axe lui-même grâce à la chaîne de caractères finale <code>\n</code>, qui rajoute une ligne vide entre ces deux éléments :</p>
+<p>On n’a pas encore visualisé le ratio <q>Dette publique / PIB</q>, l’autre variable du raisonnement de Reinhart et Rogoff. C’est l’occasion de voir comment rajouter des titres aux axes des graphiques, et d’utiliser les lignes en même temps que des points, toujours grâce à l’argument <code>geom</code>, qui peut prendre plusieurs valeurs (ici, <code>&quot;point&quot;</code> produit les points et <code>&quot;line&quot;</code> produit les lignes) :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">qplot</span>(<span class="dt">data =</span> debt, <span class="dt">y =</span> ratio, <span class="dt">x =</span> Year, <span class="dt">geom =</span> <span class="kw">c</span>(<span class="st">&quot;line&quot;</span>, <span class="st">&quot;point&quot;</span>)) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">facet_wrap</span>(~<span class="st"> </span>Country) +
 <span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="ot">NULL</span>,
-       <span class="dt">y =</span> <span class="st">&quot;Ratio dette publique / produit intérieur brut</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
-<p><img src="images/analyses_graph_biv/unnamed-chunk-14-1.png" title="" alt="" width="1050" /></p>
-<p>Les différents exemples vus ci-dessus demandent d’apprendre un minimum de syntaxe graphique en se familiarisant soit avec <code class="pkg">lattice</code>, soit avec <code class="pkg">ggplot2</code>. Ce petit investissement permet de savoir très vite produire de très nombreux graphiques, assez élégants de surcroît. La suite du texte se concentre sur l’apprentissage de la syntaxe de <code class="pkg">ggplot2</code>.</p>
+       <span class="dt">y =</span> <span class="st">&quot;Ratio dette publique / produit intérieur brut (%)</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
+<p><img src="images/analyses_graph_biv/unnamed-chunk-12-1.png" title="" alt="" width="1050" /></p>
+<p>Dans ce graphique, on a combiné deux <q>objets géométriques</q> (<code>geom</code>) pour afficher à la fois des points et des lignes. On a ensuite défini les titres des axes, en supprimant celui de l’axe <code>x</code>, et en rajoutant un peu d’espace entre le titre de l’axe <code>y</code> et l’axe lui-même grâce à la chaîne de caractères finale <code>\n</code>, qui rajoute une ligne vide entre ces deux éléments.</p>
+<p>Les différents exemples vus dans cette section montrent qu’il va falloir apprendre un minimum de syntaxe graphique pour parvenir à produire des graphiques avec <code class="pkg">ggplot2</code>. Ce petit investissement permet de savoir très vite produire de très nombreux types de graphiques, assez élégants de surcroît, et très facilement modifiables à l’aide de toutes sortes de paramètres optionnels.</p>
 <div class="important">
-Aussi élégants que soient vos graphiques, il ne vous dispense évidemment pas de réfléchir à ce que vous êtes en train de visualiser, un graphique très élégant pouvant naturellement être complètement erroné, en particulier si les données de base du graphique ont été mal mesurées…
+Aussi élégants que soient vos graphiques, il ne vous dispense évidemment pas de réfléchir à ce que vous êtes en train de visualiser, un graphique très élégant pouvant naturellement être complètement erroné, en particulier si les données de base du graphique ont été mal mesurées… ou endommagées.
 </div>
 </div>
 </div>
@@ -321,35 +326,37 @@ Aussi élégants que soient vos graphiques, il ne vous dispense évidemment pas 
 <p>Rajoutons désormais un objet géométrique, <code data-pkg="ggplot2" data-rdoc="geom_point">geom_point</code>, qui va projeter, sur le graphique, des points aux coordonnées précédemment définies, et divisons le graphique par un <q>petit multiple</q>, en projetant les points de chaque décennie dans une facette différente du graphique. Ce graphique propose une décomposition temporelle de la relation étudiée par Reinhart et Rogoff :</p>
 <pre class="sourceCode r"><code class="sourceCode r">p +<span class="st"> </span><span class="kw">geom_point</span>() +
 <span class="st">  </span><span class="kw">facet_grid</span>(. ~<span class="st"> </span>Decade)</code></pre>
-<p><img src="images/analyses_graph_biv/unnamed-chunk-16-1.png" title="" alt="" width="1050" /></p>
+<p><img src="images/analyses_graph_biv/unnamed-chunk-14-1.png" title="" alt="" width="1050" /></p>
 <div class="note">
-Le paramètre <code data-pkg="ggplot2" data-rdoc="facet_grid">facet_grid</code>, qui utilise aussi la notation <q>équation</q>, permet de créer des facettes plus compliquées que celles créées par le paramètre <code data-pkg="ggplot2" data-rdoc="facet_wrap">facet_wrap</code>, même si, dans nos exemples, on aurait pu utiliser aussi bien l’un que l’autre.
+Le paramètre <code data-pkg="ggplot2" data-rdoc="facet_grid">facet_grid</code>, qui utilise aussi la syntaxe <q>équation</q>, permet de créer des facettes plus compliquées que celles créées par le paramètre <code data-pkg="ggplot2" data-rdoc="facet_wrap">facet_wrap</code>, même si, dans nos exemples, on aurait pu utiliser aussi bien l’un que l’autre.
 </div>
 <p>Le graphique ci-dessus présente un problème fréquent : l’axe horizontal du graphique, très important puisque Reinhart et Rogoff évoquent un seuil <q>fatidique</q>, pour la croissance, de 90% du PIB, est illisible. Grâce à l’argument <code data-pkg="ggplot2" data-rdoc="continuous_scale">scale_x_continuous</code>, on va pouvoir clarifier cet axe en n’y faisant figurer que certaines valeurs :</p>
-<pre class="sourceCode r"><code class="sourceCode r">p +<span class="st"> </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">facet_grid</span>(. ~<span class="st"> </span>Decade) +<span class="st"> </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, 
-  <span class="dv">200</span>, <span class="dt">by =</span> <span class="dv">100</span>))</code></pre>
-<p><img src="images/analyses_graph_biv/unnamed-chunk-17-1.png" title="" alt="" width="1050" /></p>
-<p>Ces réglages nous conviennent : on va donc les sauvegarder dans l’objet <code>p</code>, pour continuer de construire notre graphique en incluant ces différents éléments.</p>
-<pre class="sourceCode r"><code class="sourceCode r">p =<span class="st"> </span>p +<span class="st"> </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">facet_grid</span>(. ~<span class="st"> </span>Decade) +<span class="st"> </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, 
-  <span class="dv">200</span>, <span class="dt">by =</span> <span class="dv">100</span>))</code></pre>
-<div id="modification-de-parametres" class="section level3">
-<h3>Modification de paramètres</h3>
+<pre class="sourceCode r"><code class="sourceCode r">p +<span class="st"> </span><span class="kw">geom_point</span>() +
+<span class="st">  </span><span class="kw">facet_grid</span>(. ~<span class="st"> </span>Decade) +
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">200</span>, <span class="dt">by =</span> <span class="dv">100</span>))</code></pre>
+<p><img src="images/analyses_graph_biv/unnamed-chunk-15-1.png" title="" alt="" width="1050" /></p>
+<p>Ces réglages nous conviennent : on va donc les sauvegarder dans l’objet <code>p</code>, de manière à continuer de construire notre graphique en incluant ces différents éléments.</p>
+<pre class="sourceCode r"><code class="sourceCode r">p =<span class="st"> </span>p +<span class="st"> </span><span class="kw">geom_point</span>() +
+<span class="st">  </span><span class="kw">facet_grid</span>(. ~<span class="st"> </span>Decade) +
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">200</span>, <span class="dt">by =</span> <span class="dv">100</span>))</code></pre>
+<div id="couleurs-et-echelles" class="section level3">
+<h3>Couleurs et échelles</h3>
 <p>Abordons désormais un élément-clé de <code class="pkg">ggplot2</code> : la manipulation des paramètres esthétiques. Précédemment, on n’a montré que deux de ces paramètres : <code>x</code> et <code>y</code>, les coordonnées du graphique. Mais ces paramètres peuvent aussi influencer la couleur des points de notre graphique comme le montre l’exemple suivant :</p>
 <pre class="sourceCode r"><code class="sourceCode r">p +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">color =</span> ratio &lt;<span class="st"> </span><span class="dv">90</span>)</code></pre>
-<p><img src="images/analyses_graph_biv/unnamed-chunk-19-1.png" title="" alt="" width="1050" /></p>
+<p><img src="images/analyses_graph_biv/unnamed-chunk-17-1.png" title="" alt="" width="1050" /></p>
 <p>Qu’a-t-on fait ici ? On a rajouté, au graphique stocké dans <code>p</code>, un paramètre esthétique qui détermine la couleur de ses points en fonction d’une inégalité, <code>ratio &lt; 90</code>, qui est vraie quand le ratio <q>Dette publique / PIB</q> est inférieur au seuil <q>fatidique</q> de Reinhart et Rogoff, et fausse quand ce ratio dépasse ce seuil. Les couleurs des points correspondent aux couleurs par défaut de <code class="pkg">ggplot2</code>, que l’on peut très facilement modifier avec une autre <a href="http://docs.ggplot2.org/current/scale_brewer.html">variante</a> du paramètre <code data-pkg="ggplot2" data-rdoc="scale_brewer">scale</code> :</p>
 <pre class="sourceCode r"><code class="sourceCode r">p +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">color =</span> ratio &lt;<span class="st"> </span><span class="dv">90</span>) +<span class="st"> </span><span class="kw">scale_color_brewer</span>(<span class="dt">palette =</span> <span class="st">&quot;Set1&quot;</span>)</code></pre>
-<p><img src="images/analyses_graph_biv/unnamed-chunk-20-1.png" title="" alt="" width="1050" /></p>
+<p><img src="images/analyses_graph_biv/unnamed-chunk-18-1.png" title="" alt="" width="1050" /></p>
 <p>Ici, on a fait appel à la palette de couleur <code>Set1</code> de l’éventail de couleurs <a href="http://colorbrewer2.org/">ColorBrewer</a>, qui est automatiquement disponible dans <code class="pkg">ggplot2</code>, et qui est contenu dans l’extension <code class="pkg">RColorBrewer</code>. La palette de couleurs que l’on a choisie affiche les points situés au-dessus du seuil <q>fatidique</q> de Reinhart et Rogoff en rouge, les autres en bleu.</p>
 <p>Que peut-on dire, à ce stade, du seuil <q>fatidique</q> de Reinhart et Rogoff ? On peut observer qu’après la Seconde guerre mondiale, de nombreux pays sont <em>déjà</em> endettés au-delà de ce seuil, et dégagent <em>déjà</em> moins de croissance que les autres. Sur la base de cette trajectoire, de nombreux critiques de Reinhart et Rogoff ont fait remarquer que le raisonnement de Reinhart et Rogoff pose en réalité un sérieux problème d’<a href="http://www.nextnewdeal.net/rortybomb/guest-post-reinhartrogoff-and-growth-time-debt">inversion du rapport causal</a> entre endettement et croissance au cours du temps.</p>
-<p>Envisageons une nouvelle modification des paramètres graphiques. La légende du graphique, qui affiche <code>FALSE</code> et <code>TRUE</code> en fonction de l’inégalité <code>ratio &lt; 90</code>, peut être déroutante. Clarifions un peu cette légende en supprimant son titre et en remplaçant les étiquettes (“<em>labels</em>”) <code>FALSE</code> et <code>TRUE</code> par leur signification :</p>
+<p>Envisageons une nouvelle modification des paramètres graphiques. La légende du graphique, qui affiche <code>FALSE</code> et <code>TRUE</code> en fonction de l’inégalité <code>ratio &lt; 90</code>, peut être déroutante. Clarifions un peu cette légende en supprimant son titre et en remplaçant les libellés (“<em>labels</em>”) <code>FALSE</code> et <code>TRUE</code> par leur signification :</p>
 <pre class="sourceCode r"><code class="sourceCode r">p =<span class="st"> </span>p +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">color =</span> ratio &lt;<span class="st"> </span><span class="dv">90</span>) +
 <span class="st">  </span><span class="kw">scale_color_brewer</span>(<span class="st">&quot;&quot;</span>, <span class="dt">palette =</span> <span class="st">&quot;Set1&quot;</span>,
                      <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;ratio &gt; 90&quot;</span>, <span class="st">&quot;ratio &lt; 90&quot;</span>))</code></pre>
 <p>Dans le bloc de code ci-dessus, on a stocké l’ensemble de nos modifications dans l’objet <code>p</code>, sans l’afficher ; en effet, on souhaite encore procéder à une dernière modification, en rajoutant une <a href="https://fr.wikipedia.org/wiki/Régression_locale">régression locale</a> à travers les points de chaque facette<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>. Après consultation de la documentation de <code class="pkg">ggplot2</code> <a href="http://docs.ggplot2.org/current/geom_smooth.html">ici</a> et <a href="http://docs.ggplot2.org/current/stat_smooth.html">là</a>, on en arrive au code ci-dessous, où <code>p</code> produit le graphique précédent et <code data-pkg="ggplot2" data-rdoc="geom_smooth">geom_smooth</code> produit la régression locale :</p>
 <pre class="sourceCode r"><code class="sourceCode r">p +<span class="st"> </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&quot;loess&quot;</span>, <span class="dt">se =</span> <span class="ot">FALSE</span>,
                 <span class="dt">size =</span> <span class="dv">1</span>, <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>)</code></pre>
-<p><img src="images/analyses_graph_biv/unnamed-chunk-22-1.png" title="" alt="" width="1050" /></p>
+<p><img src="images/analyses_graph_biv/unnamed-chunk-20-1.png" title="" alt="" width="1050" /></p>
 <p>Le graphique permet d’évaluer de manière encore un peu plus précise l’argument de Reinhart et Rogoff, et en particulier la nature pas si <q>fatidique</q> du seuil de 90% du ratio “Dette publique / PIB”, qui sans être une bonne nouvelle pour l’économie, ne détermine pas <q>fatidiquement</q> la direction du taux de croissance : si c’était le cas, toutes les courbes du graphique ressembleraient à celles des années 2000. Autrement dit, l’argumentaire de Reinhart et Rogoff laisse clairement à désirer.</p>
 </div>
 <div id="utilisation-des-themes" class="section level3">
@@ -362,13 +369,13 @@ Le paramètre <code data-pkg="ggplot2" data-rdoc="facet_grid">facet_grid</code>,
 <span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">200</span>, <span class="dt">by =</span> <span class="dv">100</span>)) +
 <span class="st">  </span><span class="kw">facet_grid</span>(. ~<span class="st"> </span>Decade) +
 <span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;Taux de croissance du produit intérieur brut</span><span class="ch">\n</span><span class="st">&quot;</span>,
-       <span class="dt">x =</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">Ratio dette publique / produit intérieur brut&quot;</span>,
+       <span class="dt">x =</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">Ratio dette publique / produit intérieur brut (%)&quot;</span>,
        <span class="dt">title =</span> <span class="st">&quot;Données Reinhart et Rogoff corrigées, 1946-2009</span><span class="ch">\n</span><span class="st">&quot;</span>) +
 <span class="st">  </span><span class="kw">theme_bw</span>() +
 <span class="st">  </span><span class="kw">theme</span>(<span class="dt">strip.background =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span> <span class="st">&quot;grey90&quot;</span>, <span class="dt">color =</span> <span class="st">&quot;grey50&quot;</span>),
         <span class="dt">strip.text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="kw">rel</span>(<span class="dv">1</span>)),
         <span class="dt">panel.grid =</span> <span class="kw">element_blank</span>())</code></pre>
-<p><img src="images/analyses_graph_biv/unnamed-chunk-23-1.png" title="" alt="" width="1050" /></p>
+<p><img src="images/analyses_graph_biv/unnamed-chunk-21-1.png" title="" alt="" width="1050" /></p>
 <p>Ce graphique utilise tous les éléments présentés dans ce chapitre, ainsi qu’une dernière nouveauté : l’utilisation d’un thème graphique différent du thème par défaut de <code class="pkg">ggplot2</code>. Le thème par défaut, qui s’appelle <code>theme_grey</code>, est ici remplacé par un thème moins chargé, <code>theme_bw</code> (“<em>black and white</em>”), que l’on a modifié en y rajoutant <a href="http://docs.ggplot2.org/current/theme.html">quelques paramètres supplémentaires</a> :</p>
 <ul>
 <li>le paramètre <code>strip.background</code> détermine la couleur du rectangle contenant les titres des facettes, c’est-à-dire les décennies observées ;</li>
@@ -386,35 +393,43 @@ Le paramètre <code data-pkg="ggplot2" data-rdoc="facet_grid">facet_grid</code>,
        <span class="dt">width =</span> <span class="dv">11</span>, <span class="dt">height =</span> <span class="dv">8</span>)</code></pre>
 </div>
 </div>
-<div id="documentation-sur-ggplot2" class="section level2">
-<h2>Documentation sur ggplot2</h2>
+<div id="pour-aller-plus-loin" class="section level2">
+<h2>Pour aller plus loin</h2>
 <p>Ce chapitre n’a pu faire la démonstration que d’une infime partie des manières d’utiliser <code class="pkg">ggplot2</code>. En voici une dernière illustration, qui donne une idée des différents types de graphiques que l’extension permet de produire dès que l’on connaît les principaux éléments de sa syntaxe :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(<span class="dt">data =</span> debt, <span class="kw">aes</span>(<span class="dt">x =</span> ratio &gt;<span class="st"> </span><span class="dv">90</span>, <span class="dt">y =</span> growth)) +
 <span class="st">  </span><span class="kw">geom_boxplot</span>() +
 <span class="st">  </span><span class="kw">scale_x_discrete</span>(<span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;&lt; 90&quot;</span>, <span class="st">&quot;90+&quot;</span>)) +
 <span class="st">  </span><span class="kw">facet_grid</span>(. ~<span class="st"> </span>Decade) +
 <span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;Taux de croissance du produit intérieur brut</span><span class="ch">\n</span><span class="st">&quot;</span>,
-       <span class="dt">x =</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">Ratio dette publique / produit intérieur brut&quot;</span>,
+       <span class="dt">x =</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">Ratio dette publique / produit intérieur brut (%)&quot;</span>,
        <span class="dt">title =</span> <span class="st">&quot;Données Reinhart et Rogoff corrigées, 1946-2009</span><span class="ch">\n</span><span class="st">&quot;</span>) +
 <span class="st">  </span><span class="kw">theme_linedraw</span>() +
 <span class="st">  </span><span class="kw">theme</span>(<span class="dt">strip.text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="kw">rel</span>(<span class="dv">1</span>)),
         <span class="dt">panel.grid =</span> <span class="kw">element_blank</span>())</code></pre>
-<p><img src="images/analyses_graph_biv/unnamed-chunk-26-1.png" title="" alt="" width="1050" /></p>
+<p><img src="images/analyses_graph_biv/unnamed-chunk-24-1.png" title="" alt="" width="1050" /></p>
 <p>Le code ci-dessus est somme toute très proche du code présenté dans le reste du texte, et en même temps, on a basculé de la visualisation sous forme de série temporelles à une visualisation par <em>boxplots</em>. Ces basculements sont très faciles à envisager dès que l’on maîtrise les principaux éléments de <code class="pkg">ggplot2</code>, <code>geom</code>, <code>scale</code> et <code>facet</code>, et les paramètres <code>labs</code> et <code>theme</code> pour effectuer les finitions.</p>
-<p>Pour tout ce qui concerne l’utilisation de <code class="pkg">ggplot2</code>, <a href="http://ggplot2.org/book/">l’ouvrage de Wickham</a>, <a href="https://github.com/hadley/ggplot2-book">en cours d’actualisation</a>, est la ressource essentielle à consulter. <a href="https://books.google.fr/books?id=ob0VAAAAQBAJ">L’ouvrage de Winston Chang</a>, qui contient des <a href="http://www.cookbook-r.com/Graphs/">dizaines d’exemples</a>, le complète utilement, de même que la <a href="http://docs.ggplot2.org/current/">documentation en ligne</a> de l’extension. Enfin, le site de questions/réponses <a href="https://stackoverflow.com/questions/tagged/ggplot2">StackOverflow</a> contient de très nombreuses discussion des subtilités de sa syntaxe.</p>
-<p>On trouve aussi très facilement, ailleurs sur Internet, des dizaines de <em>tutorials</em> et autres <em>cheatsheets</em> pour <code class="pkg">ggplot2</code>, <a href="http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/">ici</a> ou <a href="http://www.rstudio.com/wp-content/uploads/2015/04/ggplot2-cheatsheet.pdf">là</a> par exemple. Enfin, il faut signaler quelques-unes des différentes extensions que l’extension a inspirées, dont la plupart sont encore en cours de développement :</p>
+<div id="ressources-essentielles" class="section level3">
+<h3>Ressources essentielles</h3>
+<p>Pour tout ce qui concerne l’utilisation de <code class="pkg">ggplot2</code>, <a href="http://ggplot2.org/book/">l’ouvrage de Wickham</a>, <a href="https://github.com/hadley/ggplot2-book">en cours d’actualisation</a>, est la ressource essentielle à consulter. <a href="https://books.google.fr/books?id=ob0VAAAAQBAJ">L’ouvrage de Winston Chang</a>, qui contient des <a href="http://www.cookbook-r.com/Graphs/">dizaines d’exemples</a>, le complète utilement, de même que la <a href="http://docs.ggplot2.org/current/">documentation en ligne</a> de l’extension. Enfin, le site <a href="https://stackoverflow.com/questions/tagged/ggplot2">StackOverflow</a> contient de très nombreuses questions/réponses sur les subtilités de sa syntaxe.</p>
+<p>On trouve aussi très facilement, ailleurs sur Internet, des dizaines de <em>tutorials</em> et autres <em>cheatsheets</em> pour <code class="pkg">ggplot2</code>, <a href="http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/">ici</a> ou <a href="http://www.rstudio.com/wp-content/uploads/2015/04/ggplot2-cheatsheet.pdf">là</a> par exemple.</p>
+</div>
+<div id="extensions-de-ggplot2" class="section level3">
+<h3>Extensions de ggplot2</h3>
+<p>Il faut signaler, pour terminer, quelques-unes des différentes extensions inspirées de <code class="pkg">ggplot2</code>, dont la plupart sont encore en cours de développement, mais qui permettent d’ores et déjà de produire des centaines de types de graphiques différents, à partir d’une syntaxe graphique proche de celle présentée dans ce chapitre :</p>
 <ul>
 <li>l’extension <code class="pkg">ggfortify</code> permet de <a href="https://github.com/sinhrks/ggfortify/blob/master/README.rst#examples">visualiser les résultats de différentes fonctions de modélisation</a> avec <code class="pkg">ggplot2</code> ;</li>
 <li>l’extension <code class="pkg">ggmap</code> permet de visualiser des fonds de carte et d’y superposer des éléments graphiques rédigés avec <code class="pkg">ggplot2</code> ;</li>
 <li>l’extension <code class="pkg">GGally</code> rajoute quelques types de graphiques à ceux que <code class="pkg">ggplot2</code> peut produire par défaut ;</li>
 <li>et des extensions comme <code class="pkg">ggvis</code> permettent de <a href="http://ggvis.rstudio.com/">produire des graphiques interactifs</a> en utilisant la syntaxe de base de <code class="pkg">ggplot2</code>.</li>
 </ul>
+<p>On reviendra sur ces extensions dans un chapitre plus avancé. Pour l’instant, on se contentera des éléments de syntaxe présentés dans ce chapitre, qui seront très souvent mobilisés dans les chapitres suivants, de manière à pleinement illustrer la richesse et la flexibilité de <code class="pkg">ggplot2</code>.</p>
+</div>
 </div>
 <div class="footnotes">
 <hr />
 <ol>
 <li id="fn1"><p>Voir l’excellente <a href="http://ggplot2.org/">documentation de l’extension</a> et les autres ressources citées en fin de texte.<a href="#fnref1">↩</a></p></li>
-<li id="fn2"><p>Bien que l’on ait fait le choix de présenter le détail de l’extension <code class="pkg">ggplot2</code> plutôt que de l’extension <code class="pkg">lattice</code>, ce dernier reste un excellent choix pour la visualisation, notamment, de <a href="http://www.magesblog.com/2013/09/using-planelgroups-in-lattice.html">panels</a> et de <a href="http://www.fromthebottomoftheheap.net/2013/10/23/time-series-plots-with-lattice-and-ggplot/">séries temporelles</a>. On trouve de <a href="https://procomun.wordpress.com/2015/04/14/mapping-flows-in-r-with-data-table-and-lattice/">très beaux exemples</a> d’utilisation de <code class="pkg">lattice</code> en ligne, mais un peu moins de documentation, et beaucoup moins d’extensions, que pour <code class="pkg">ggplot2</code>.<a href="#fnref2">↩</a></p></li>
+<li id="fn2"><p>Bien que l’on ait fait le choix de présenter l’extension <code class="pkg">ggplot2</code> plutôt que l’extension <code class="pkg">lattice</code>, celle-ci reste un excellent choix pour la visualisation, notamment, de <a href="http://www.magesblog.com/2013/09/using-planelgroups-in-lattice.html">panels</a> et de <a href="http://www.fromthebottomoftheheap.net/2013/10/23/time-series-plots-with-lattice-and-ggplot/">séries temporelles</a>. On trouve de <a href="https://procomun.wordpress.com/2015/04/14/mapping-flows-in-r-with-data-table-and-lattice/">très beaux exemples</a> d’utilisation de <code class="pkg">lattice</code> en ligne, mais un peu moins de documentation, et beaucoup moins d’extensions, que pour <code class="pkg">ggplot2</code>.<a href="#fnref2">↩</a></p></li>
 <li id="fn3"><p>Ce produit est mesuré en <a href="https://fr.wikipedia.org/wiki/Produit_intérieur_brut_réel">termes réels</a>, de manière à ce que le calcul de sa croissance ne soit pas affecté par l’inflation.<a href="#fnref3">↩</a></p></li>
 <li id="fn4"><p>La régression locale est une variante du calcul de la <a href="https://fr.wikipedia.org/wiki/Moyenne_glissante">moyenne glissante</a> (ou <q>moyenne mobile</q>) d’une courbe.<a href="#fnref4">↩</a></p></li>
 </ol>
