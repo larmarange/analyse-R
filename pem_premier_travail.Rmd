@@ -136,127 +136,62 @@ fichier.
 
 ## Tableaux de données
 
-Dans cette partie nous allons utiliser un jeu de données inclus dans l'extension 
-`questionr`{.pkg}. L'installation d'extension est décrite dans
-le chapitre [Présentation et Installation](pem_presentation_installation.html#installer_extensions).
+Dans cette partie nous allons utiliser un jeu de données comprenant les résultats d'une enquête
+du type EDS (Enquête Démographie et de Santé). Il est composé de trois
+<dfn data-index="tableau de donnée">tableaux de données</dfn> :
 
-Le jeu de données en question est un extrait de l'enquête *Histoire de vie* réalisée par l'INSEE en 2003.
-Il contient 2000 individus et 20 variables. Pour pouvoir utiliser ces données, il faut d'abord charger
-l'extension `questionr`{.pkg} (après l'avoir installée, bien entendu).
-Le chargement d'une extension en mémoire se fait à l'aide de la fonction `library`{data-pkg="base"}.
-Sous **RStudio**, vous pouvez également charger une extension en allant dans l'onglet *Packages* du
-quadrant inférieur droit qui liste l'ensemble des packages disponibles et en cliquant la case à 
-cocher située à gauche du nom du package désiré.
+* une table `ménages` comportant quelques données sur les ménages sélectionnés pour l'enquête ;
+* une table `femmes` comportant les données du questionnaire administré à toutes les femmes
+  adultes (15-49 ans) habitant dans les ménages sélectionnés ;
+* et une table `enfants` comportant des informations sur l'ensemble des naissances vivantes des
+  femmes enquêtées.
 
-```{r}
-library(questionr)
+Pour charger ces données en mémoire, on utilisera la commande suivante :
+
+```{r, echo=FALSE}
+load("data/enquete_menages.Rdata")
 ```
-
-Puis nous allons indiquer à **R** que nous souhaitons accéder au jeu de données 
-`hdv2003`{data-pkg="questionr"} à l'aide de la fonction `data`{data-pkg="utils"} :
-
-```{r}
-data(hdv2003)
-```
-
-Bien. Et maintenant, elles sont où mes données ? Et bien elles se trouvent dans un objet nommé
-`hdv2003` désormais chargé en mémoire et accessible directement. D'ailleurs, cet objet est maintenant
-visible dans l'onglet *Environment* du quadrant supérieur droit.
-
-Essayons de taper son nom à l'invite de commande :
 
 ```{r, eval=FALSE}
-hdv2003
+load(url("http://larmarange.github.io/analyse-R/data/enquete_menages.Rdata"))
+```
+
+Bien. Et maintenant, elles sont où mes données ? Et bien elles se trouvent dans trois objets nommés
+`menages`, `femmes` et `enfants`, désormais chargé en mémoire et accessible directement. D'ailleurs, 
+ces objets sont maintenant visibles dans l'onglet *Environment* du quadrant supérieur droit.
+
+Intéressons nous plus spécifiquement à l'objet `femmes`. Essayons de taper son nom à l'invite de commande :
+
+```{r, eval=FALSE}
+femmes
 ```
 
 Le résultat (non reproduit ici) ne ressemble pas forcément à grand-chose... Il faut se rappeler que par
 défaut, lorsqu'on lui fournit seulement un nom d'objet, **R** essaye de l'afficher de la manière la meilleure
-(ou la moins pire) possible. La réponse à la commande `hdv2003` n'est donc rien moins que l'affichage des
+(ou la moins pire) possible. La réponse à la commande `femmes` n'est donc rien moins que l'affichage des
 données brutes contenues dans cet objet.
 
-Ce qui signifie donc que l'intégralité de notre jeu de données est inclus dans l'objet nommé `hdv2003` !
+Ce qui signifie donc que l'intégralité du questionnaire femmes est inclus dans l'objet nommé `femmes` !
 En effet, dans **R**, un objet peut très bien contenir un simple nombre, un vecteur ou bien le résultat d'une
-enquête tout entier. Dans ce cas, les objets sont appelés des 
+enquête tout entière. Dans ce cas, les objets sont appelés des 
 <dfn data-index="data frame" lang="en">data frames</dfn>, ou 
-<dfn data-index="tableau de donnée">tableaux de données</dfn>.
-Ils peuvent être manipulés comme tout autre objet. Par exemple :
+<dfn data-index="tableau de donnée">tableaux de données</dfn>. Ce type d'objet ressemble
+aux fichiers de données que l'on a l'habitude de manipuler avec **SPSS**, **Stat**, **SAS**
+ou encore **Excel**. Ils sont organisés en lignes et en colonnes, chaque colonne correspondant
+à une <dfn>variable</dfn> et chaque ligne à une <dfn>observation</dfn>.
+
+Les tableaux de données peuvent être manipulés comme tout autre objet. Par exemple :
 
 ```{r}
-d <- hdv2003
+d <- femmes
 ```
 
 va entraîner la copie de l'ensemble de nos données dans un nouvel objet nommé `d`, ce qui peut paraître
 parfaitement inutile mais a en fait l'avantage de fournir un objet avec un nom beaucoup plus court, ce
 qui diminuera la quantité de texte à saisir par la suite.
 
-**Résumons**
-
-Comme nous avons désormais décidé de saisir nos commandes dans un script et non plus
-directement dans la console, les premières lignes de notre fichier de travail sur les données de l'enquête
-*Histoire de vie* pourraient donc ressembler à ceci :
-
-```{r, eval=FALSE}
-## Chargement des extensions nécessaires ----
-library(questionr)
-## Jeu de données hdv2003 ----
-data(hdv2003)
-d <- hdv2003
-```
-
 ## Inspecter les données {#inspecter}
 
-### Structure du tableau
-
-Avant de travailler sur les données, nous allons essayer de voir à quoi elles ressemblent. Dans notre cas
-il s'agit de se familiariser avec la stucture du fichier. Lors de l'import de données depuis un autre logiciel,
-il s'agira souvent de vérifier que l'importation s'est bien déroulée.
-
-Un tableau de données est organisé en lignes et en colonnes, les lignes correspondant aux 
-<dfn data-index="observation">observations</dfn> et les colonnes aux 
-<dfn data-index="variable">variables</dfn>. Les fonctions `nrow`{data-pkg="base"}, 
-`ncol`{data-pkg="base" data-rdoc="nrow"} et `dim`{data-pkg="base"} donnent respectivement 
-le nombre de lignes, le nombre de colonnes et les dimensions de notre tableau. Nous pouvons donc d'ores et 
-déjà vérifier que nous avons bien 2000 lignes et 20 colonnes :
-
-```{r}
-nrow(d)
-ncol(d)
-dim(d)
-```
-
-La fonction `names`{data-pkg="base"} donne les noms des colonnes de notre tableau, c'est-à-dire 
-les noms des variables :
-
-```{r}
-names(d)
-```
-
-La fonction `str`{data-pkg="utils"} est plus complète. Elle liste les différentes variables, 
-indique leur type et donne le cas échéant des informations supplémentaires ainsi qu'un échantillon 
-des premières valeurs prises par cette variable :
-
-```{r}
-str(d)
-```
-
-La première ligne nous informe qu'il s'agit bien d'un tableau de données avec 2000 observations et
-20 variables. Vient ensuite la liste des variables. La première se nomme *id* et est de type 
-<dfn>entier</dfn> (*int*<dfn data-index="integer" lang="en"></dfn>). 
-La seconde se nomme *age* et est de type 
-<dfn data-index="numérique, variable">numérique</dfn><dfn data-index="variable numérique"></dfn><dfn data-index="numeric" lang="en"></dfn>. 
-La troisième se nomme *sexe*, il s'agit d'un <dfn>facteur</dfn> (<dfn lang="en">factor</dfn>).
-
-Un facteur est une variable pouvant prendre un nombre limité de 
-<dfn data-index="modalité, facteur">modalités</dfn> 
-(<dfn data-index="level, factor" lang="en">levels</dfn>). Ici notre variable
-a deux modalités possibles : « Homme » et « Femme ». Ce type de variable est décrit plus en détail 
-dans le chapitre sur la [manipulation de données](pem_manipulation.html#variables).
-
-<div class="important">
-La fonction `str`{data-pkg="utils"} est essentielle à connaître et peut s'appliquer à n'importe quel 
-type d'objet. C'est un excellent moyen de connaître la 
-<dfn>structure d'un objet</dfn>.
-</div>
 
 ### Inspection visuelle
 
@@ -294,6 +229,169 @@ avancées.
 <figcaption>La visionneuse de données de RStudio</figcaption>
 </figure>
 
+### Structure du tableau
+
+Avant de travailler sur les données, nous allons essayer de comprendre comment elles sont structurées. 
+Lors de l'import de données depuis un autre logiciel (que nous aborderons dans un autre 
+[chapitre](pem_import_export.html)), il s'agira souvent de vérifier que l'importation s'est bien déroulée.
+
+Nous avons déjà vu qu'un tableau de données est organisé en lignes et en colonnes, les lignes correspondant aux 
+<dfn data-index="observation">observations</dfn> et les colonnes aux 
+<dfn data-index="variable">variables</dfn>. Les fonctions `nrow`{data-pkg="base"}, 
+`ncol`{data-pkg="base" data-rdoc="nrow"} et `dim`{data-pkg="base"} donnent respectivement 
+le nombre de lignes, le nombre de colonnes et les dimensions de notre tableau. Nous pouvons donc d'ores et 
+déjà vérifier que nous avons bien 2000 lignes et 17 colonnes :
+
+```{r}
+nrow(d)
+ncol(d)
+dim(d)
+```
+
+La fonction `names`{data-pkg="base"} donne les noms des colonnes de notre tableau, c'est-à-dire 
+les noms des variables :
+
+```{r}
+names(d)
+```
+
+Lorsque les données ont été importées depuis **SPSS**, **Stata** ou **SAS**, ont pu également
+être importées des <dfn data-index="métadonnée">métadonnées</dfn> à propos de nos variables,
+telles que des <dfn data-index="étiquette de variable">étiquettes de variable</dfn><dfn data-index="variable, étiquette"></dfn>,
+c'est-à-dire un nom long décrivant la variable. Notre tableau de données `femmes` contient justement de telles
+informations. Si vous vous souvenez bien, ces étiquettes étaient même affichées dans le *viewer* de
+**RStudio**^[Il faut noter que la manière dont les méta-données sont stockées sous **R** dépend de l'extension
+utilisée pour les importer. Le *viewer* de **RStudio** ne reconnait les étiquettes de variables que si les
+données ont été importées avec l'extension `haven`{.pkg}. Nous y reviendrons dans le cadre du chapitre sur
+l'[importation de données](pem_import_export.html).].
+
+Pour afficher les étiquettes de variables, on pourra utiliser la fonction `lookfor`{data-pkg="questionr"}
+de l'extension `questionr`{.pkg}. Les <dfn data-index="extension">extensions</dfn>, ou
+<dfn data-index="package" lang="en">packages</dfn> en anglais, permettent d'étendre **R** en lui ajoutant
+de nombreuses fonctionnalités. Pour accéder aux fonctions d'une extension, deux étapes sont nécessaires :
+
+1. Tout d'abord l'extension doit avoir été installée sur votre ordinateur. Pour le vérifier, vous pouvez
+   regarder si l'extension qui vous intéresse est listée dans l'onglet *Packages* dans le quadrant
+   inférieur droit. Si ce n'est pas le cas, cliquez sur le bouton *Install* de l'onglet *Packages*.
+   Pour plus de détails, vous pouvez vous référer au chapitre 
+   [Présentation et Installation](pem_presentation_installation.html#installer_extensions).
+2. Si l'extension désirée est bien installée, il est encore nécessaire de la charger en mémoire
+   pour avoir accès aux fonctions qu'elle propose. Pour cela, on aura recours à la fonction
+   `library`{data-pkg="base"}.
+   
+```{r}
+library(questionr)
+```
+
+<div class="important">
+Il est nécessaire de charger en mémoire les extensions requises au début de chaque session de travail.
+Dès lors, plutôt que d'éparpiller les appels à `library`{data-pkg="base"} dans vos scripts, de les regrouper
+au début de ces derniers.
+
+On pourra noter qu'il n'est pas nécessaire d'entourer le nom d'une extension avec des guillemets lors d'un
+appel à `library`{data-pkg="base"}. Les deux syntaxes suivantes sont donc équivalentes.
+
+```{r}
+library(questionr)
+library("questionr")
+```
+</div>
+
+Maintenant que l'extension `questionr`{.pkg} est chargée en mémoire, nous pouvons appeler la
+fonction `lookfor`{data-pkg="questionr"} :
+
+```{r}
+lookfor(d)
+```
+
+Lorsque l'on a un gros tableau de données avec de nombreuses variables, il peut être difficile
+de retrouver la ou les variables d'intérêt. Il est possible d'indiquer à `lookfor`{data-pkg="questionr"}
+un mot-clé pour limiter la recherche. Par exemple :
+
+```{r}
+lookfor(d, "date")
+lookfor(d, "re")
+```
+
+Il est à noter que si la recherche n'est pas sensible à la casse (i.e. aux majuscules et aux minuscules), 
+elle est sensible aux accents.
+
+Tous les tableaux de données ne contiennent pas forcément des métadonnées telles que les
+étiquettes de variables. C'est le cas par exemple du tableau `iris`. `iris` est un tableau
+de données directement accessibles dans **R** et souvent utilisé pour les exemples de la 
+documentation. Il contient les dimensions des sépales et des pétales de plusieurs espères
+d'iris^[Pour plus d'information, tapez la commande `?iris`.]. Ce tableau de données ne contient
+pas de métadonnées. Dans le cas là, la fonction `lookfor`{data-pkg="questionr"}ne renverra que 
+les noms des variables :
+
+```{r}
+lookfor(iris)
+```
+
+### La fonction str
+
+La fonction `str`{data-pkg="utils"} est plus complète. Elle liste les différentes variables, 
+indique leur type et donne le cas échéant des informations supplémentaires ainsi qu'un échantillon 
+des premières valeurs prises par cette variable :
+
+```{r}
+str(iris)
+```
+
+La première ligne nous informe qu'il s'agit bien d'un tableau de données avec 150 observations et
+5 variables. Vient ensuite la liste des variables. Les quatre premières sont de type 
+<dfn data-index="numérique, variable">numérique</dfn><dfn data-index="variable numérique"></dfn><dfn data-index="numeric" lang="en"></dfn>. La cinquième se nomme <var>Species</var> et il s'agit d'un 
+<dfn>facteur</dfn> (<dfn lang="en">factor</dfn>).
+
+Un facteur est une variable pouvant prendre un nombre limité de 
+<dfn data-index="modalité, facteur">modalités</dfn> 
+(<dfn data-index="level, factor" lang="en">levels</dfn>). Ici notre variable
+a trois modalités possibles : « setosa », « versicolor » et « virginica ». 
+Ce type de variable sera décrit plus en détail 
+dans le chapitre sur la [manipulation de données](pem_manipulation.html#variables).
+
+Appliquons maintenant la fonction `str`{data-pkg="utils"} à notre objet `d`.
+
+```{r}
+str(d)
+```
+
+Le résultat est à première vue un peu plus compliqué. C'est dû au fait que nos données
+ont été importées depuis **SPSS** avec `haven`{.pkg} et contiennent dès lors des méta-données,
+telles que des étiquettes de variables et des étiquettes de valeurs.
+
+Que peut-on lire ?
+
+* Tout d'abord notre objet a trois <dfn data-index="classe, objet">classes</dfn>.
+  Il s'agit bien d'un tableau de données (`data.frame`) mais il a été « étendu » avec les classes
+  `tbl_df` et `tbl`. À ce stade, cela nous importe peu. Disons juste que cela nous donnera accès à des
+  fonctionnalités supplémentaires lorsqu'on nous aborderons l'extension `dplyr`{.pkg} dans le chapitre
+  sur la [manipulation de données](pem_manipulation.html).
+* Notre tableau de données contient 2000 observations et 17 variables.
+* Les trois premières variables s'appellent respectivement <var>id_femme</var>, <var>id_menage</var> et
+  <var>poids</var>. Il est facile de les identifier car leur nom est précédé du symbole `$`. Nous avons 
+  également un aperçu des premières valeurs prises par ces variables, nous indiquant qu'elles sont de 
+  type numérique.
+* Les lignes commençant par `..- attr` correspondent à des <dfn data-index="attribut, objet">attributs</dfn>,
+  c'est-à-dire à des méta-données sur ces variables, en l'occurence les étiquettes de variable.
+* La quatrième et la cinquième variable (respectivement <var>date_entretien</var> et 
+  <var>date_naissance</var>) de type `Date`.
+* etc.
+
+<div class="important">
+La fonction `str`{data-pkg="utils"} est essentielle à connaître et peut s'appliquer à n'importe quel 
+type d'objet. C'est un excellent moyen de connaître en détail la <dfn>structure d'un objet</dfn>.
+Cependant, les résultats peuvent être parfois trop détaillés et on lui priviligiera dans certains
+cas la fonction `describe`{data-pkg="questionr"}, cependant moins générique puisque ne s'appliquant
+qu'à des tableaux de données et à des vecteurs, tandis que `str`{data-pkg="utils"} peut s'appliquer
+à absolument **tout** objet, y compris des fonctions.
+</div>
+
+### La fonction describe
+
+Cette section sera développée ultérieurement, suite aux discussions sur
+<https://github.com/juba/questionr/issues/53>.
+
 ### Accéder aux variables
 
 `d` représente donc l'ensemble de notre tableau de données. Nous avons vu que si l'on saisit simplement
@@ -305,7 +403,7 @@ La réponse est simple : on utilise le nom de l'objet, suivi de l'opérateur
 comme ceci :
 
 ```{r, eval=FALSE}
-d$sexe
+d$age
 ```
 
 Au regard du résultat (non reproduit ici), on constate alors que **R** a bien accédé au contenu 
@@ -317,7 +415,7 @@ permettent d'afficher seulement les premières (respectivement les dernières)
 valeurs prises par la variable. On peut leur passer en argument le nombre d'éléments à afficher :
 
 ```{r}
-head(d$sport)
+head(d$date_naissance)
 tail(d$age, 10)
 ```
 
