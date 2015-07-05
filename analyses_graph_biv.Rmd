@@ -26,6 +26,9 @@ Or, en tentant de reproduire les résultats de Reinhart et Rogoff, les chercheur
 Dans ce chapitre, on va se servir des données (corrigées) de Reinhart et Rogoff pour évaluer, de manière indépendante, la cohérence de leur argument sur le rapport entre endettement et croissance économique. Commençons par récupérer ces données au format CSV sur le site du chercheur américain [Cosma Shalizi](http://www.stat.cmu.edu/~cshalizi/), qui utilise ces données dans [l'un de ses exercices de cours](http://www.stat.cmu.edu/~cshalizi/uADA/) :
 
 ```{r, tidy = FALSE}
+# charger l'extension lisant le format CSV
+library(readr)
+
 # emplacement souhaité pour le jeu de données
 file = "data/debt.csv"
 
@@ -35,8 +38,12 @@ if(!file.exists(file))
                 file, mode = "wb")
 
 # charger les données dans l'objet 'debt'
-debt = read.csv(file)
+debt = read_csv(file)
 ```
+
+<div class="note">		
+Le code ci-dessus utilise la fonction `read_csv`{data-pkg="readr" data-rdoc="read_csv"} de l'extension `readr`{.pkg}, dont on a recommandé l'utilisation dans un [précédent chapitre](https://larmarange.github.io/analyse-R/pem_import_export.html). En l'absence de cette extension, on aurait pu utiliser la fonction de base `read.csv`{data-pkg="utils" data-rdoc="read.csv"}.
+</div>
 
 ### Nettoyage des données
 
@@ -107,7 +114,7 @@ Cherchons désormais à mieux comprendre les variations du taux de croissance du
 
 Dans les graphiques précédents, on voit clairement que ce taux est très variable dans l'immédiat après-guerre, puis qu'il oscille entre environ -5% et +15%, puis qu'il semble chuter dramatiquement à la fin des années 2000, marquées par la crise financière globale. Mais comment visualiser ces variations pour chacun des vingt pays de l'échantillon ?
 
-On va ici utiliser le principe de la visualisation par <q>[petits multiples](http://www.juiceanalytics.com/writing/better-know-visualization-small-multiples/)</q>, c'est-à-dire que l'on va reproduire le même graphique pour chacun des pays, et visualiser l'ensemble de ces graphiques dans une même fenêtre. Concrètement, il va donc s'agir de montrer la croissance annuelle du PIB en faisant apparaître chaque pays dans une <dfn>facette</dfn> différente du graphique.
+On va ici utiliser le principe de la visualisation par <q>[petits multiples](http://www.juiceanalytics.com/writing/better-know-visualization-small-multiples/)</q>, c'est-à-dire que l'on va reproduire le même graphique pour chacun des pays, et visualiser l'ensemble de ces graphiques dans une même fenêtre. Concrètement, il va donc s'agir de montrer la croissance annuelle du PIB en faisant apparaître chaque pays dans une facette différente du graphique.
 
 `ggplot2`{.pkg} permet d'effectuer cette opération en rajoutant au graphique précédent, au moyen de l'opérateur `+`, l'élément `facet_wrap(~ Country)` au graphique, qui utilise la syntaxe <q>équation</q> de **R**, et qui signifie <q>construire le graphique pour chaque valeur différente de la variable <var>Country</var></q>. Par défaut, ces <q>facettes</q> sont classées par ordre alphabétique :
 
