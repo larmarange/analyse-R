@@ -5,14 +5,15 @@ require(devtools)
 
 # 1. Trouver les packages manquants ----------
 
-p = c()
+p <- c()
 for (f in list.files(pattern = "Rmd$")) {
-  t = readLines(f)
-  p = unique(c(p, t[grepl("^(library|require)", t)]))
+  t <- readLines(f)
+  p <- unique(c(p, t[grepl("^(library|require)", t)]))
 
 }
-p = gsub("library|require|\\(|\\)", "", p)
-m = p[!p %in% installed.packages()[, 1]]
+p <- gsub("library|require|\\(|\\)", "", p)
+p <- gsub("\"", "", p)
+m <- p[!p %in% installed.packages()[, 1]]
 
 if (!length(m)) {
   message("Tous les packages requis pour analyse-R sont installés.")
@@ -24,8 +25,8 @@ if (!length(m)) {
 
 # 2. Installer les packages manquants (CRAN ou GitHub) ----------------
 
-thru_github = c("lubridate", "questionr", "JLutils")
-repo_github = c("hadley", "juba", "larmarange")
+thru_github <- c("lubridate", "questionr", "JLutils")
+repo_github <- c("hadley", "juba", "larmarange")
 
 for (i in m[m %in% thru_github])
   install_github(i, username = repo_github[which(thru_github == i)])
@@ -54,22 +55,22 @@ min_r <- function(packages) {
 
   for (p in packages) {
     # get dependencies for the package
-    dep = packageDescription(p, fields = "Depends")
+    dep <- packageDescription(p, fields = "Depends")
 
     if (!is.na(dep)) {
-      dep = unlist(strsplit(dep, ","))
+      dep <- unlist(strsplit(dep, ","))
 
-      r.dep = dep[grep("R \\(", dep)]
+      r.dep <- dep[grep("R \\(", dep)]
 
       if (!length(r.dep))
-        r.dep = NA
+        r.dep <- NA
 
     } else {
-      r.dep = NA
+      r.dep <- NA
     }
 
     if (!is.na(r.dep))
-      req = c(req, r.dep)
+      req <- c(req, r.dep)
 
   }
 
