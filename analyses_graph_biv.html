@@ -209,7 +209,10 @@ Ce chapitre est tiré d’une <a href="https://github.com/briatte/aad/tree/maste
 <p>Cette conclusion, proche du discours porté par des institutions comme le Fonds Monétaire International, a <a href="http://www.economist.com/news/finance-and-economics/21576362-seminal-analysis-relationship-between-debt-and-growth-comes-under">alimenté plusieurs argumentaires politiques</a>. Des parlementaires américains s’en ainsi sont servi pour exiger une diminution du budget fédéral, et surtout, la Commission européenne s’est appuyée sur cet argumentaire pour exiger que des pays comme la Grèce, durement frappés par la crise financière globale de 2008, adoptent des plans d’austérité drastiques.</p>
 <p>Or, en tentant de reproduire les résultats de Reinhart et Rogoff, les chercheurs Thomas Herndon, Michael Ash et Robert Pollin y ont trouvé <a href="http://www.peri.umass.edu/236/hash/31e2ff374b6377b2ddec04deaa6388b1/publication/566/">de nombreuses erreurs</a>, ainsi qu’une <a href="http://www.nextnewdeal.net/rortybomb/researchers-finally-replicated-reinhart-rogoff-and-there-are-serious-problems">bête erreur de calcul</a> due à une utilisation peu attentive du logiciel <strong>Microsoft Excel</strong>. La révélation de ces erreurs donna lieu à un débat très vif entre adversaires et partisans des politiques économiques d’austérité, débat toujours autant d’actualité aujourd’hui.</p>
 <p>Dans ce chapitre, on va se servir des données (corrigées) de Reinhart et Rogoff pour évaluer, de manière indépendante, la cohérence de leur argument sur le rapport entre endettement et croissance économique. Commençons par récupérer ces données au format CSV sur le site du chercheur américain <a href="http://www.stat.cmu.edu/~cshalizi/">Cosma Shalizi</a>, qui utilise ces données dans <a href="http://www.stat.cmu.edu/~cshalizi/uADA/">l’un de ses exercices de cours</a> :</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># emplacement souhaité pour le jeu de données</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># charger l&#39;extension lisant le format CSV</span>
+<span class="kw">library</span>(readr)
+
+<span class="co"># emplacement souhaité pour le jeu de données</span>
 file =<span class="st"> &quot;data/debt.csv&quot;</span>
 
 <span class="co"># télécharger le jeu de données s&#39;il n&#39;existe pas</span>
@@ -218,15 +221,18 @@ if(!<span class="kw">file.exists</span>(file))
                 file, <span class="dt">mode =</span> <span class="st">&quot;wb&quot;</span>)
 
 <span class="co"># charger les données dans l&#39;objet &#39;debt&#39;</span>
-debt =<span class="st"> </span><span class="kw">read.csv</span>(file)</code></pre>
+debt =<span class="st"> </span><span class="kw">read_csv</span>(file)</code></pre>
+<div class="note">
+Le code ci-dessus utilise la fonction <code data-pkg="readr" data-rdoc="read_csv">read_csv</code> de l’extension <code class="pkg">readr</code>, dont on a recommandé l’utilisation dans un <a href="https://larmarange.github.io/analyse-R/pem_import_export.html">précédent chapitre</a>. En l’absence de cette extension, on aurait pu utiliser la fonction de base <code data-pkg="utils" data-rdoc="read.csv">read.csv</code>.
+</div>
 <div id="nettoyage-des-donnees" class="section level3">
 <h3>Nettoyage des données</h3>
 <p>Les données de Reinhart et Rogoff contiennent, pour un échantillon de 20 pays occidentaux membres de la zone <a href="https://fr.wikipedia.org/wiki/Organisation_de_coop%C3%A9ration_et_de_d%C3%A9veloppement_%C3%A9conomiques">OCDE</a>, la croissance de leur <a href="https://fr.wikipedia.org/wiki/Produit_intérieur_brut">produit intérieur brut</a> (PIB)<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>, et le ratio entre leur <a href="https://fr.wikipedia.org/wiki/Dette_publique">dette publique</a> et ce produit, exprimé sous la forme d’un pourcentage <q>Dette / PIB</q>. Les données vont du milieu des années 1940 à la fin des années 2000. La première colonne du jeu de données ne contenant que les numéros des lignes, on va la supprimer d’entrée de jeu :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># inspection du jeu de données</span>
 <span class="kw">str</span>(debt)</code></pre>
-<pre><code>&#39;data.frame&#39;:   1171 obs. of  5 variables:
- $ X      : int  147 148 149 150 151 152 153 154 155 156 ...
- $ Country: Factor w/ 20 levels &quot;Australia&quot;,&quot;Austria&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+<pre><code>Classes &#39;tbl_df&#39;, &#39;tbl&#39; and &#39;data.frame&#39;:   1171 obs. of  5 variables:
+ $ [EMPTY]: int  147 148 149 150 151 152 153 154 155 156 ...
+ $ Country: chr  &quot;Australia&quot; &quot;Australia&quot; &quot;Australia&quot; &quot;Australia&quot; ...
  $ Year   : int  1946 1947 1948 1949 1950 1951 1952 1953 1954 1955 ...
  $ growth : num  -3.56 2.46 6.44 6.61 6.92 ...
  $ ratio  : num  190 177 149 126 110 ...</code></pre>
@@ -249,8 +255,7 @@ Netherlands New Zealand      Norway    Portugal
 <div id="recodage-dune-variable" class="section level3">
 <h3>Recodage d’une variable</h3>
 <p>Dernière manipulation préalable avant l’analyse : on va calculer la décennie de chaque observation, en divisant l’année de mesure par 10, et en multipliant la partie entière de ce résultat par 10. Cette manipulation très simple donne <q>1940</q> pour les mesures des années 1940 à 1949, <q>1950</q> pour les années 1950-1959, et ainsi de suite.</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># decade variable</span>
-debt$Decade =<span class="st"> </span><span class="kw">factor</span>(<span class="dv">10</span> *<span class="st"> </span>debt$Year%/%<span class="dv">10</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">debt$Decade =<span class="st"> </span><span class="kw">factor</span>(<span class="dv">10</span> *<span class="st"> </span>debt$Year%/%<span class="dv">10</span>)</code></pre>
 <p>Voici, pour terminer, les premières lignes du jeu de données sur lequel on travaille :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(debt)</code></pre>
 <pre><code>    Country Year    growth     ratio Decade
@@ -280,7 +285,7 @@ debt$Decade =<span class="st"> </span><span class="kw">factor</span>(<span class
 <h3>Visualisation par <q>petits multiples</q></h3>
 <p>Cherchons désormais à mieux comprendre les variations du taux de croissance du PIB au fil des années.</p>
 <p>Dans les graphiques précédents, on voit clairement que ce taux est très variable dans l’immédiat après-guerre, puis qu’il oscille entre environ -5% et +15%, puis qu’il semble chuter dramatiquement à la fin des années 2000, marquées par la crise financière globale. Mais comment visualiser ces variations pour chacun des vingt pays de l’échantillon ?</p>
-<p>On va ici utiliser le principe de la visualisation par <q><a href="http://www.juiceanalytics.com/writing/better-know-visualization-small-multiples/">petits multiples</a></q>, c’est-à-dire que l’on va reproduire le même graphique pour chacun des pays, et visualiser l’ensemble de ces graphiques dans une même fenêtre. Concrètement, il va donc s’agir de montrer la croissance annuelle du PIB en faisant apparaître chaque pays dans une <dfn>facette</dfn> différente du graphique.</p>
+<p>On va ici utiliser le principe de la visualisation par <q><a href="http://www.juiceanalytics.com/writing/better-know-visualization-small-multiples/">petits multiples</a></q>, c’est-à-dire que l’on va reproduire le même graphique pour chacun des pays, et visualiser l’ensemble de ces graphiques dans une même fenêtre. Concrètement, il va donc s’agir de montrer la croissance annuelle du PIB en faisant apparaître chaque pays dans une facette différente du graphique.</p>
 <p><code class="pkg">ggplot2</code> permet d’effectuer cette opération en rajoutant au graphique précédent, au moyen de l’opérateur <code>+</code>, l’élément <code>facet_wrap(~ Country)</code> au graphique, qui utilise la syntaxe <q>équation</q> de <strong>R</strong>, et qui signifie <q>construire le graphique pour chaque valeur différente de la variable <var>Country</var></q>. Par défaut, ces <q>facettes</q> sont classées par ordre alphabétique :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">qplot</span>(Year, growth, <span class="dt">data =</span> debt) +
 <span class="st">  </span><span class="kw">facet_wrap</span>(~<span class="st"> </span>Country)</code></pre>
