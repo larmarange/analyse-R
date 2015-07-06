@@ -1,0 +1,181 @@
+---
+title: "Sous-ensembles"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+<div class="important">
+Ce chapitre est en cours d'écriture.
+</div>
+
+Dans ce qui suit on travaillera sur le jeu de données tiré de l'enquête *Histoire de vie*, fourni avec
+l'extension `questionr`{.pkg}.
+
+```{r, warning=FALSE}
+library(questionr)
+data(hdv2003)
+d <- hdv2003
+```
+
+
+## Par indexation
+
+La première manière de construire des sous-populations est d'utiliser l'indexation par conditions. On
+peut ainsi facilement sélectionner une partie des observations suivant un ou plusieurs critères et placer le
+résultat dans un nouveau tableau de données.
+
+Par exemple si l'on souhaite isoler les hommes et les femmes :
+
+```{r}
+dh <- d[d$sexe == "Homme", ]
+df <- d[d$sexe == "Femme", ]
+table(d$sexe)
+dim(dh)
+dim(df)
+```
+
+On a à partir de là trois tableaux de données, `d` comportant la population totale, `dh` seulement les
+hommes et `df` seulement les femmes.
+
+On peut évidemment combiner plusieurs critères :
+
+```{r}
+dh.25 <- d[d$sexe == "Homme" & d$age <= 25, ]
+dim(dh.25)
+```
+
+Si on utilise directement l'indexation, il convient cependant d'être extrêmement prudent avec les valeurs
+manquantes. Comme indiqué précédemment, la présence d'une valeur manquante dans une condition
+fait que celle-ci est évaluée en `NA` et qu'au final la ligne correspondante est conservée par l'indexation :
+
+```{r}
+summary(d$trav.satisf)
+d.satisf <- d[d$trav.satisf == "Satisfaction", ]
+dim(d.satisf)
+```
+
+Comme on le voit, ici `d.satisf` contient les individus ayant la modalité *Satisfaction* mais aussi ceux
+ayant une valeur manquante `NA`. C'est pourquoi il faut toujours soit vérifier au préalable qu'on n'a pas
+de valeurs manquantes dans les variables de la condition, soit exclure explicitement les `NA` de la manière
+suivante :
+
+```{r}
+d.satisf <- d[d$trav.satisf == "Satisfaction" & !is.na(d$trav.satisf), ]
+dim(d.satisf)
+```
+
+C'est notamment pour cette raison qu'on préfèrera le plus souvent utiliser la fonction `subset`{data-pkg="base"}.
+
+## Fonction subset {#subset}
+
+La fonction `subset`{data-pkg="base"} permet d'extraire des sous-populations de manière plus simple et un peu plus
+intuitive que l'indexation directe.
+
+Celle-ci prend trois arguments principaux :
+
+* le nom de l'objet de départ ;
+* une condition sur les observations (`subset`) ;
+* éventuellement une condition sur les colonnes (`select`).
+
+Reprenons tout de suite un exemple déjà vu :
+
+```{r}
+dh <- subset(d, sexe == "Homme")
+df <- subset(d, sexe == "Femme")
+```
+
+L'utilisation de `subset`{data-pkg="base"} présente plusieurs avantages. 
+Le premier est d'économiser quelques touches.
+On n'est en effet pas obligé de saisir le nom du tableau de données 
+dans la condition sur les lignes. Ainsi
+les deux commandes suivantes sont équivalentes :
+
+```{r}
+dh <- subset(d, d$sexe == "Homme")
+dh <- subset(d, sexe == "Homme")
+```
+
+Le second avantage est que `subset`{data-pkg="base"} s'occupe du problème 
+des valeurs manquantes évoquées précédemment
+et les exclut de lui-même, contrairement au comportement par défaut :
+
+```{r}
+summary(d$trav.satisf)
+d.satisf <- d[d$trav.satisf == "Satisfaction", ]
+dim(d.satisf)
+d.satisf <- subset(d, trav.satisf == "Satisfaction")
+dim(d.satisf)
+```
+
+Dans le cas présent, l'extraction obtenue avec `subset`{data-pkg="base"} est
+équivalente à :
+
+```{r}
+d.satisf <- d[d$trav.satisf == "Satisfaction" & !is.na(d$trav.satisf), ]
+dim(d.satisf)
+```
+
+
+Enfin, l'utilisation de l'argument `select` est simplifié pour l'expression de condition sur les colonnes.
+On peut ainsi spécifier les noms de variable sans guillemets et leur appliquer directement l'opérateur
+d'exclusion `-` :
+
+```{r}
+d2 <- subset(d, select = c(sexe, sport))
+d2 <- subset(d, age > 25, select = -c(id, age, cinema))
+```
+
+## Fonction tapply {#tapply}
+
+<div class="note">
+Cette section documente une fonction qui peut être très utile, mais pas forcément indispensable au
+départ.
+</div>
+
+La fonction `tapply`{data-pkg="base"} n'est qu'indirectement liée à la notion de sous-population, 
+mais peut permettre d'éviter d'avoir à créer ces sous-populations dans certains cas.
+
+Son fonctionnement est assez simple, mais pas forcément intuitif. La fonction prend trois arguments :
+un vecteur, un facteur et une fonction. Elle applique ensuite la fonction aux éléments du vecteur 
+correspondant à un même niveau du facteur. Vite, un exemple !
+
+```{r}
+tapply(d$age, d$sexe, mean)
+```
+
+Qu'est-ce que ça signifie ? Ici `tapply`{data-pkg="base"} a sélectionné toutes les observations 
+correspondant à « Homme », puis appliqué la fonction `mean`{data-pkg="base"} 
+aux valeurs de *age* correspondantes. Puis elle a fait de même pour les
+observations correspondant à « Femme ». On a donc ici la moyenne d'âge chez les hommes et chez les
+femmes.
+
+On peut fournir à peu près n'importe quelle fonction à `tapply`{data-pkg="base"} :
+
+```{r}
+tapply(d$bricol, d$sexe, freq)
+```
+
+Les arguments supplémentaires fournis à `tapply`{data-pkg="base"} sont en fait fournis 
+directement à la fonction appelée.
+
+```{r}
+tapply(d$bricol, d$sexe, freq, total = TRUE)
+```
+
+<div class="note">
+La fonction `by`{data-pkg="base"} est un équivalent (pour les tableaux de données) de 
+`tapply`{data-pkg="base"}. La présentation des résultats diffère légèrement.
+
+```{r}
+tapply(d$age, d$sexe, mean)
+by(d$age, d$sexe, mean)
+```
+</div>
+
+## Extension dplyr
+
+
+
+## Extension data.table

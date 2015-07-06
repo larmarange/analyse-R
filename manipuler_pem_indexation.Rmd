@@ -1,0 +1,360 @@
+---
+title: "Indexation"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+<div class="important">
+Ce chapitre est en cours d'écriture.
+</div>
+
+<div class="note">
+La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre du support de cours
+[Introduction à R](https://github.com/juba/intro-r).
+</div>
+
+L'<dfn>indexation</dfn> est l'une des fonctionnalités les plus puissantes mais aussi les plus difficiles à maîtriser de
+**R**. Il s'agit d'opérations permettant de sélectionner des sous-ensembles d'observations et/ou de variables
+en fonction de différents critères. L'indexation peut porter sur des vecteurs, des matrices ou des tableaux
+de données.
+
+Le principe est toujours le même : on indique, entre crochets et à la suite du nom de l'objet à indexer,
+une série de conditions indiquant ce que l'on garde ou non. Ces conditions peuvent être de différents
+types.
+
+## Indexation directe
+
+Le mode le plus simple d'indexation consiste à indiquer la position des éléments à conserver. Dans le
+cas d'un vecteur cela permet de sélectionner un ou plusieurs éléments de ce vecteur.
+
+Soit le vecteur suivant :
+
+```{r}
+v <- c("a", "b", "c", "d", "e", "f", "g")
+```
+
+Si on souhaite le premier élément du vecteur, on peut faire :
+
+```{r}
+v[1]
+```
+
+Si on souhaite les trois premiers éléments ou les éléments 2, 6 et 7 :
+
+```{r}
+v[1:3]
+v[c(2, 6, 7)]
+```
+
+Si on veut le dernier élément :
+
+```{r}
+v[length(v)]
+```
+
+Dans le cas de matrices ou de tableaux de données, l'indexation prend deux arguments séparés par une
+virgule : le premier concerne les lignes et le second les colonnes. 
+
+Chargons les données de l'enquête *Histoire de vie* fournies dans l'extension `questionr`.
+
+```{r, warning=FALSE}
+library(questionr)
+data(hdv2003)
+d <- hdv2003
+```
+
+Ainsi, si on veut l'élément correspondant
+à la troisième ligne et à la cinquième colonne du tableau de données `d` :
+
+```{r}
+d[3, 5]
+```
+
+On peut également indiquer des vecteurs :
+
+```{r}
+d[1:3, 1:2]
+```
+
+Si on laisse l'un des deux critères vides, on sélectionne l'intégralité des lignes ou des colonnes. Ainsi
+si l'on veut seulement la cinquième colonne ou les deux premières lignes :
+
+```{r}
+str(d[, 5])
+str(d[1:2, ])
+```
+
+Enfin, si on préfixe les arguments avec le signe <kbd>-</kbd>, ceci signifie « tous les éléments sauf ceux
+indiqués ». Si par exemple on veut tous les éléments de `v` sauf le premier :
+
+```{r}
+v[-1]
+```
+
+Bien sûr, tous ces critères se combinent et on peut stocker le résultat dans un nouvel objet. Dans cet
+exemple `d2` contiendra les trois premières lignes de `d` ainsi que la 50^e^ ligne mais sans les colonnes 2 et 5 à 13.
+
+```{r}
+d2 <- d[c(1:3,50), -c(2, 5:13)]
+str(d2)
+```
+
+## Indexation par nom
+
+Un autre mode d'indexation consiste à fournir non pas un numéro mais un nom sous forme de chaîne
+de caractères. On l'utilise couramment pour sélectionner les variables d'un tableau de données. Ainsi, les
+deux écritures suivantes sont équivalentes^[Une différence entre les deux est que `$` admet une correspondance
+partielle du nom de variable, si celle-ci est unique.
+Ainsi, `d$cls` renverra bien la variable *clso*, tandis que `d$c` renverra `NULL`, 
+du fait que plusieurs variables de *d* commencent par la lettre *c*.] :
+
+```{r, results='hide'}
+d$clso
+d[, "clso"]
+```
+
+Là aussi on peut utiliser un vecteur pour sélectionner plusieurs noms et récupérer un « sous-tableau »
+de données :
+
+```{r, results='hide'}
+d2 <- d[, c("id", "sexe", "age")]
+```
+
+Les noms peuvent également être utilisés pour les observations (lignes) d'un tableau de données si
+celles-ci ont été munies d'un nom avec la fonction `row.names`{data-pkg="base"}. 
+Par défaut les noms de ligne sont leur numéro d'ordre, 
+mais on peut leur assigner comme nom la valeur d'une variable d'identifiant. Ainsi, on
+peut assigner aux lignes du jeu de données `rp99` le nom des communes correspondantes :
+
+```{r, results='hide'}
+data(rp99)
+row.names(rp99) <- rp99$nom
+```
+On peut alors accéder directement aux communes en donnant leur nom :
+
+```{r, results='hide'}
+rp99[c("VILLEURBANNE", "OULLINS"), ]
+```
+
+Par contre il n'est pas possible d'utiliser directement l'opérateur `-` comme pour l'indexation
+directe. Pour exclure une colonne en fonction de son nom, on doit utiliser une autre forme d'indexation,
+l'*indexation par condition*, expliquée dans la section suivante. On peut ainsi faire...
+
+```{r, results='hide'}
+d[, names(d) != "qualif"]
+```
+
+... pour sélectionner toutes les colonnes sauf celle qui s'appelle *qualif*.
+
+## Indexation par condition
+
+### Tests et conditions
+
+Une condition est une expression logique dont le résultat est soit `TRUE` (vrai) soit `FALSE` (faux).
+
+Une condition comprend la plupart du temps un 
+<dfn>opérateur de comparaison</dfn><dfn data-index="comparaison, opérateur"></dfn>. 
+Les plus courants sont les suivants :
+
+Opérateur de comparaison  | Signification
+:-----------|:-------------
+`==` | égal à
+`!=` | différent de
+`>` | strictement supérieur à
+`<` | strictement inférieur à
+`>=` | supérieur ou égal à
+`<=` | inférieur ou égal à
+
+Voyons tout de suite un exemple :
+
+```{r}
+str(d$sexe == "Homme")
+```
+
+Que s'est-il passé ? Nous avons fourni à **R** une condition qui signifie « la valeur de la variable *sexe*
+vaut "Homme" ». Et il nous a renvoyé un vecteur avec autant d'éléments qu'il y'a d'observations dans `d`,
+et dont la valeur est `TRUE` si l'observation correspond à un homme et `FALSE` dans les autres cas.
+
+Prenons un autre exemple. On n'affichera cette fois que les premiers éléments de notre variable d'intérêt
+à l'aide de la fonction `head`{data-pkg="utils"} :
+
+```{r}
+head(d$age)
+head(d$age > 40)
+```
+
+On voit bien ici qu'à chaque élément du vecteur `d$age` dont la valeur est supérieure à 40 correspond
+un élément `TRUE` dans le résultat de la condition.
+
+On peut combiner ou modifier des conditions à l'aide des 
+<dfn data-index="opérateur logique">opérateurs logiques</dfn><dfn data-index="logique, opérateur"></dfn> habituels :
+
+Opérateur logique  |  Signification
+:---------|:---------------
+`&` | et logique
+`|` | ou logique
+`!` | négation logique
+
+Comment les utilise-t-on ? Voyons tout de suite des exemples. Supposons que je veuille déterminer
+quels sont dans mon échantillon les hommes ouvriers spécialisés :
+
+```{r, results='hide'}
+d$sexe == "Homme" & d$qualif == "Ouvrier specialise"
+```
+
+Si je souhaite identifier les personnes qui bricolent ou qui font la cuisine :
+
+```{r, results='hide'}
+d$bricol == "Oui" | d$cuisine == "Oui"
+```
+
+Si je souhaite isoler les femmes qui ont entre 20 et 34 ans :
+
+```{r, results='hide'}
+d$sexe == "Femme" & d$age >= 20 & d$age <= 34
+```
+
+Si je souhaite récupérer les enquêtés qui ne sont pas cadres, on peut utiliser l'une des deux formes
+suivantes :
+
+```{r, results='hide'}
+d$qualif != "Cadre"
+!(d$qualif == "Cadre")
+```
+
+Lorsqu'on mélange « et » et « ou » il est nécessaire d'utiliser des parenthèses pour différencier les
+blocs. La condition suivante identifie les femmes qui sont soit cadre, soit employée :
+
+```{r, results='hide'}
+d$sexe == "Femme" & (d$qualif == "Employe" | d$qualif == "Cadre")
+```
+
+L'opérateur `%in%`{data-pkg="base" data-rdoc="match"} peut être très utile : 
+il teste si une valeur fait partie des éléments d'un vecteur. Ainsi
+on pourrait remplacer la condition précédente par :
+
+```{r, results='hide'}
+d$sexe == "Femme" & d$qualif %in% c("Employe", "Cadre")
+```
+
+Enfin, signalons qu'on peut utiliser les fonctions `table`{data-pkg="base"} ou `summary`{data-pkg="base"}
+pour avoir une idée du résultat de notre condition :
+
+```{r}
+table(d$sexe)
+table(d$sexe == "Homme")
+summary(d$sexe == "Homme")
+```
+
+### Utilisation pour l'indexation
+
+L'utilisation des conditions pour l'indexation est assez simple : si on indexe un vecteur avec un vecteur
+booléen, seuls les éléments correspondant à `TRUE` seront conservés.
+
+Ainsi, si on fait :
+
+```{r}
+dh <- d[d$sexe == "Homme", ]
+```
+
+On obtiendra un nouveau tableau de données comportant l'ensemble des variables de `d`, mais seulement
+les observations pour lesquelles la variable *sexe* vaut « Homme ».
+
+La plupart du temps ce type d'indexation s'applique aux lignes, mais on peut aussi l'utiliser sur
+les colonnes d'un tableau de données. L'exemple suivant, un peu compliqué, sélectionne uniquement les
+variables dont le nom commence par *a* ou *s* :
+
+```{r}
+d2 <- d[, substr(names(d), 0, 1) %in% c("a", "s")]
+```
+
+On peut évidemment combiner les différents type d'indexation. L'exemple suivant sélectionne les
+femmes de plus de 40 ans et ne conserve que les variables *qualif* et *relig*.
+
+```{r}
+d2 <- d[d$sexe == "Femme" & d$age > 40, c("qualif", "relig")]
+```
+
+### Valeurs manquantes dans les conditions
+
+Une remarque importante : quand l'un des termes d'une condition comporte une 
+<dfn>valeur manquante</dfn><dfn data-index="manquante, valeur"></dfn> (`NA`), 
+le résultat de cette condition n'est pas toujours `TRUE` ou `FALSE`, il peut aussi 
+être à son tour une valeur manquante.
+
+```{r}
+v <- c(1:5, NA)
+v
+v > 3
+```
+
+On voit que le test `NA > 3` ne renvoie ni vrai ni faux, mais `NA`.
+
+Le résultat d'une condition peut donc comporter un grand nombre de valeurs manquantes :
+
+```{r}
+summary(d$trav.satisf == "Satisfaction")
+```
+
+Une autre conséquence importante de ce comportement est qu'on ne peut pas utiliser l'opérateur 
+l'expression `== NA` pour tester la présence de valeurs manquantes. 
+On utilisera à la place la fonction *ad hoc* `is.na`{data-pkg="base" data-rdoc="NA"}.
+
+On comprendra mieux le problème avec l'exemple suivant :
+
+```{r}
+v <- c(1, NA)
+v
+v == NA
+is.na(v)
+```
+
+Pour compliquer encore un peu le tout, lorsqu'on utilise une condition pour l'indexation, si la condition
+renvoie `NA`, **R** ne sélectionne pas l'élément mais retourne quand même la valeur `NA`. Ceci aura donc des
+conséquences pour l'extraction de sous-populations (voir la section [sous-population](#sous_populations) 
+ci-après).
+
+## Indexation et assignation
+
+Dans tous les exemples précédents, on a utilisé l'indexation pour extraire une partie d'un vecteur ou
+d'un tableau de données, en plaçant l'opération d'indexation à droite de l'opérateur `<-`.
+
+Mais l'indexation peut également être placée à gauche de cet opérateur d'<dfn>assignation</dfn>. 
+Dans ce cas, les éléments sélectionnés par l'indexation sont alors remplacés par les valeurs indiquées 
+à droite de l'opérateur `<-`.
+
+Prenons donc un exemple simple :
+
+```{r}
+v <- 1:5
+v
+v[1] <- 3
+v
+```
+
+Cette fois, au lieu d'utiliser quelque chose comme `x <- v[1]`, qui aurait placé la valeur du premier
+élément de `v` dans `x`, on a utilisé `v[1] <- 3`, ce qui a mis à jour le premier élément de `v` avec la valeur 3.
+Ceci fonctionne également pour les tableaux de données et pour les différents types d'indexation
+évoqués précédemment :
+
+```{r}
+d[257, "sexe"] <- "Homme"
+```
+
+Enfin on peut modifier plusieurs éléments d'un seul coup soit en fournissant un vecteur, soit en profitant
+du mécanisme de <dfn>recyclage</dfn>. Les deux commandes suivantes sont ainsi rigoureusement équivalentes :
+
+```{r}
+d[c(257, 438, 889), "sexe"] <- c("Homme", "Homme", "Homme")
+d[c(257, 438, 889), "sexe"] <- "Homme"
+```
+
+On commence à voir comment l'utilisation de l'indexation par conditions et de l'assignation va nous
+permettre de faire des recodages.
+
+```{r}
+d$gr.age[d$age >= 20 & d$age <= 30] <- "20-30 ans"
+d$gr.age[is.na(d$age)] <- "Inconnu"
+```

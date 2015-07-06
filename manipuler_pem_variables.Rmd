@@ -1,0 +1,249 @@
+---
+title: "Variables"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+<div class="important">
+Ce chapitre est en cours d'écriture.
+</div>
+
+Le type d'objet utilisé par **R** pour stocker des 
+<dfn data-index="tableau de données">tableaux de données</dfn> s'appelle un 
+<dfn lang="en">data frame</dfn>. Celui-ci comporte des <dfn data-index="observation">observations</dfn>
+en ligne et des <dfn data-index="variable">variables</dfn> en colonnes. 
+On accède aux variables d'un *data frame* avec l'opérateur 
+`$`{data-pkg="base" data-rdoc="Extract"}.
+
+Dans ce qui suit on travaillera sur le jeu de données tiré de l'enquête *Histoire de vie*, fourni avec
+l'extension `questionr`{.pkg}.
+
+```{r, warning=FALSE}
+library(questionr)
+data(hdv2003)
+d <- hdv2003
+```
+
+## Types de variables
+
+On peut considérer qu'il existe quatre types principaux de variables dans **R** :
+
+* les <dfn data-index="variable numérique">variables numériques</dfn><dfn data-index="numérique, variable"></dfn>
+  ou <dfn data-index="variable quantitative">quantitatives</dfn><dfn data-index="quantitative, variable"> ;
+* les <dfn data-index="facteur">facteurs</dfn>, qui prennent leurs valeurs dans un ensemble défini de 
+  <dfn data-index="modalité">modalités</dfn>. Elles correspondent en général aux questions fermées d'un questionnaire ;
+* les <dfn data-index="variable caractères">variables caractères</dfn><dfn data-index="caractère, variable"></dfn>
+  ou <dfn data-index="variable texte">texte</dfn><dfn data-index="texte, variable"></dfn>, 
+  qui contiennent des chaînes de caractères plus ou moins longues. On les utilise pour les questions ouvertes 
+  ou les champs libres ;
+* les <dfn data-index="variable booléenne">variables booléennes</dfn><dfn data-index="booléenne, variable"></dfn>
+  ou <dfn data-index="variable logique">variables logiques</dfn><dfn data-index="logique, variable"></dfn>,
+  qui ne peuvent prendre que la valeur vrai (`TRUE`) ou faux (`FALSE`). On les utilise dans **R** pour 
+  les calculs et les recodages.
+
+Pour connaître le type d'une variable donnée, on peut utiliser la fonction `class`{data-pkg="base"}.
+
+Classe R      | Type de variable
+------------- | -------------
+<dfn lang="en">factor</dfn>    | facteur
+<dfn lang="en">integer</dfn>   | numérique
+<dfn lang="en">double</dfn>    | numérique
+<dfn lang="en">numeric</dfn>   | numérique
+<dfn lang="en">character</dfn> | caractère/texte
+<dfn lang="en">logical</dfn>   | booléenne
+
+
+```{r}
+class(d$age)
+class(d$sexe)
+class(c(TRUE, TRUE, FALSE))
+```
+
+
+La fonction `str`{data-pkg="utils"} permet également d'avoir un listing de toutes les variables 
+d'un tableau de données et indique le type de chacune d'elle.
+
+```{r}
+str(d)
+```
+
+<div class="note">
+Il existe sous **R** un grand nombre d'autres types de variables définis de base ou via des extensions
+pour gérer des informations particulières, telles que des dates par exemple. Nous n'aborderons pas
+ces autres formes de variables dans ce chapitre.
+</div>
+
+## Renommer des variables
+
+Une opération courante lorsqu'on a importé des variables depuis une source de données externe consiste
+à renommer les variables importées. Sous **R** les noms de variables doivent être à la fois courts et explicites.
+
+<div class="important">
+Les noms de variables peuvent contenir des lettres, des chiffres (mais ils ne peuvent pas commencer par un
+chiffre), les symboles `.` et `_` et doivent commencer par une lettre. **R** fait la différence entre les majuscules
+et les minuscules, ce qui signifie que *x* et *X* sont deux noms de variable différents. 
+On évitera également d'utiliser des caractères accentués dans les noms de variable. 
+Comme les espaces ne sont pas autorisés, on pourra les remplacer par un point ou un tiret bas.
+</div>
+
+On peut lister les noms des variables d'un tableau de données (*data.frame*) à l'aide de la fonction `names`{data-pkg="base"} :
+
+```{r}
+names(d)
+```
+
+Cette fonction peut également être utilisée pour renommer l'ensemble des variables. Si par exemple
+on souhaitait passer les noms de toutes les variables en majuscules, on pourrait faire :
+
+```{r}
+d.maj <- d
+names(d.maj) <- c("ID", "AGE", "SEXE", "NIVETUD", "POIDS", "OCCUP", "QUALIF",
+  "FRERES.SOEURS", "CLSO", "RELIG", "TRAV.IMP", "TRAV.SATISF", "HARD.ROCK",
+  "LECTURE.BD", "PECHE.CHASSE", "CUISINE", "BRICOL", "CINEMA", "SPORT", "HEURES.TV")
+summary(d.maj$SEXE)
+```
+
+Ce type de renommage peut être utile lorsqu'on souhaite passer en revue tous les noms de variables
+d'un fichier importé pour les corriger le cas échéant. Pour faciliter un peu ce travail pas forcément
+passionant, on peut utiliser la fonction `dput`{data-pkg="base"} :
+
+```{r}
+dput(names(d))
+```
+
+On obtient en résultat la liste des variables sous forme de vecteur déclaré. On n'a plus alors qu'à
+copier/coller cette chaîne, rajouter `names(d) <-` devant et modifier un à un les noms des variables.
+
+Si on souhaite seulement modifier le nom d'une variable, on peut utiliser la fonction
+`rename.variable`{data-pkg="questionr"} de l'extension `questionr`{.pkg}. 
+Celle-ci prend en argument le tableau de données, le nom actuel de la variable
+et le nouveau nom. Par exemple, si on veut renommer la variable *bricol* du tableau de données `d` en
+*bricolage* :
+
+```{r}
+d <- rename.variable(d, "bricol", "bricolage")
+table(d$bricolage)
+```
+
+## Facteurs
+
+Parmi les différents types de variables, les <dfn data-index="facteur">facteurs</dfn> 
+(<dfn lang="en">factor</dfn>) sont à la fois à part et très utilisés, car
+ils vont correspondre à la plupart des variables issues d'une question fermée dans un questionnaire.
+
+Les facteurs prennent leurs valeurs dans un ensemble de modalités prédéfinies et ne peuvent en prendre
+d'autres. La liste des valeurs possibles est donnée par la fonction `levels`{data-pkg="base"} :
+
+```{r}
+levels(d$sexe)
+```
+
+Si on veut modifier la valeur du sexe du premier individu de notre tableau de données avec une valeur
+non autorisée, on obient un message d'erreur et une valeur manquante est utilisée à la place :
+
+```{r}
+d$sexe[1] <- "Chihuahua"
+d$sexe[1]
+d$sexe[1] <- "Homme"
+d$sexe[1]
+```
+
+On peut très facilement créer un facteur à partir d'une variable de type caractères avec la fonction
+`factor`{data-pkg="base"} :
+
+```{r}
+v <- factor(c("H", "H", "F", "H"))
+v
+```
+
+Par défaut, les niveaux d'un facteur nouvellement créés sont l'ensemble des valeurs de la variable
+caractères, ordonnées par ordre alphabétique. Cette ordre des niveaux est utilisé à chaque fois qu'on
+utilise des fonctions comme `table`{data-pkg="base"}, par exemple :
+
+```{r}
+table(v)
+```
+
+On peut modifier cet ordre au moment de la création du facteur en utilisant l'option `levels` :
+
+```{r}
+v <- factor(c("H", "H", "F", "H"), levels = c("H", "F"))
+table(v)
+```
+
+On peut aussi modifier l'ordre des niveaux d'une variable déjà existante :
+
+```{r}
+d$qualif <- factor(d$qualif, levels = c("Ouvrier specialise", "Ouvrier qualifie",
+  "Employe", "Technicien", "Profession intermediaire", "Cadre", "Autre"))
+table(d$qualif)
+```
+
+<div class="note">
+L'extension `questionr`{.pkg} propose une *interface interactive* pour 
+le réordonnancement des niveaux d'un facteur. Cette fonction, nommée `iorder`{data-pkg="questionr"}, 
+vous permet de réordonner les modalités de manière graphique et de générer le code **R** correspondant.
+
+Dans l'exemple précédant, si vous exécutez :
+
+```{r, eval=FALSE}
+iorder(d, "qualif")
+```
+
+**RStudio** devrait ouvrir une fenêtre semblable à celle de la figure ci-dessous.
+
+![Interface de la commande iorder](images/capture_iorder.png)
+
+Vous pouvez alors déplacer les modalités par glisser-déposer, vérifier le résultat dans l'onglet *Vérification*
+et, une fois le résultat satisfaisant, récupérer le code généré pour l'inclure dans votre script.
+</div>
+
+On peut également modifier les niveaux eux-mêmes. Imaginons que l'on souhaite créer une nouvelle
+variable *qualif.abr* contenant les noms abrégés des catégories socioprofessionnelles de *qualif*. On peut
+alors procéder comme suit :
+
+```{r}
+d$qualif.abr <- factor(d$qualif, levels = c("Ouvrier specialise", "Ouvrier qualifie",
+  "Employe", "Technicien", "Profession intermediaire", "Cadre", "Autre"),
+ labels = c("OS", "OQ", "Empl", "Tech", "Interm", "Cadre", "Autre"))
+table(d$qualif.abr)
+```
+
+Dans ce qui précède, le paramètre `levels` de `factor`{data-pkg="base"} permet de spécifier 
+quels sont les niveaux retenus dans le facteur résultat, ainsi que leur ordre. 
+Le paramètre `labels`, lui, permet de modifier les noms de
+ces niveaux dans le facteur résultat. Il est donc capital d'indiquer les noms de `labels` exactement dans le
+même ordre que les niveaux de `levels`. Pour s'assurer de ne pas avoir commis d'erreur, il est recommandé
+d'effectuer un tableau croisé entre l'ancien et le nouveau facteur :
+
+```{r}
+table(d$qualif, d$qualif.abr)
+```
+
+On a donc ici un premier moyen d'effectuer un recodage des modalités d'une variable de type facteur.
+D'autres méthodes existent, voir la section [Recodages](#recodages) ci-après.
+
+À noter que par défaut, les valeurs manquantes ne sont pas considérées comme un niveau de facteur.
+On peut cependant les transformer en niveau en utilisant la fonction 
+`addNA`{data-pkg="base" data-rdoc="factor"}. 
+Ceci signifie cependant qu'elle ne seront plus considérées comme manquantes par **R** mais
+comme une modalité à part entière :
+
+```{r}
+summary(d$trav.satisf)
+summary(addNA(d$trav.satisf))
+```
+
+La fonction `addNAstr`{data-pkg="questionr"} de l'extension `questionr`{.pkg}
+fait la même chose mais permet de spécifier l'étiquette de la modalité des valeurs manquantes.
+
+```{r}
+library(questionr)
+summary(addNAstr(d$trav.satisf, "Manquant"))
+```
+
+## Variables labellisées
+
+

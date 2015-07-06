@@ -1,0 +1,390 @@
+---
+title: "Recodage"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+<div class="important">
+Ce chapitre est en cours d'écriture.
+</div>
+
+<div class="note">
+La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre du support de cours
+[Introduction à R](https://github.com/juba/intro-r).
+</div>
+
+Le <dfn>recodage de variables</dfn><dfn data-index="variable, recodage"></dfn> est une opération extrêmement 
+fréquente lors du traitement d'enquête. Celui-ci
+utilise soit l'une des formes d'indexation décrites précédemment, soit des fonctions *ad hoc* de **R**.
+
+On passe ici en revue différents types de recodage parmi les plus courants. Les exemples s'appuient,
+comme précédemment, sur l'extrait de l'enquête *Histoire de vie* :
+
+```{r}
+library(questionr)
+data(hdv2003)
+d <- hdv2003
+```
+
+## Convertir une variable
+
+Il peut arriver qu'on veuille transformer une variable d'un type dans un autre.
+
+Par exemple, on peut considérer que la variable numérique *freres.soeurs* est une « fausse » variable
+numérique et qu'une représentation sous forme de facteur serait plus adéquate. Dans ce cas il suffit de
+faire appel à la fonction `factor`{data-pkg="base"} :
+
+```{r}
+d$fs.fac <- factor(d$freres.soeurs)
+levels(d$fs.fac)
+```
+
+La conversion d'une variable caractères en facteur se fait de la même manière.
+
+La conversion d'un facteur ou d'une variable numérique en variable caractères peut se faire à l'aide
+de la fonction `as.character`{data-pkg="base" data-rdoc="character"} :
+
+```{r}
+d$fs.char <- as.character(d$freres.soeurs)
+d$qualif.char <- as.character(d$qualif)
+```
+
+La conversion d'un facteur en caractères est fréquemment utilisé lors des recodages du fait qu'il est
+impossible d'ajouter de nouvelles modalités à un facteur de cette manière. Par exemple, la première des
+commandes suivantes génère un message d'avertissement, tandis que les deux autres fonctionnent :
+
+```{r}
+d.temp <- d
+d.temp$qualif[d.temp$qualif == "Ouvrier specialise"] <- "Ouvrier"
+d$qualif.char <- as.character(d$qualif)
+d$qualif.char[d$qualif.char == "Ouvrier specialise"] <- "Ouvrier"
+```
+
+Dans le premier cas, le message d'avertissement indique que toutes les modalités « Ouvrier specialise »
+de notre variable *qualif* ont été remplacées par des valeurs manquantes `NA`.
+
+Enfin, une variable de type caractères dont les valeurs seraient des nombres peut être convertie en
+variable numérique avec la fonction `as.numeric`{data-pkg="base" data-rdoc="numeric"}. 
+
+```{r}
+v <- c("1","3.1415","4","5.6","1","4")
+v
+as.numeric(v)
+```
+
+<div class="important">
+Lorsque l'on convertit un facteur avec `as.numeric`{data-pkg="base" data-rdoc="numeric"},
+on obtient le numéro de chaque facteur (première modalité, seconde modalité, etc.).
+Si la valeur numérique qui nous intéresse est en fait contenu dans le nom des modalités,
+il faut connvertir au préalable notre facteur en variable textuelle.
+
+```{r}
+vf <- factor(v)
+vf
+as.numeric(vf)
+as.numeric(as.character(vf))
+```
+</div>
+
+## Découper une variable numérique en classes {#decouper_en_classes}
+
+Le premier type de recodage consiste à découper une variable de type numérique en un certain nombre
+de classes. On utilise pour cela la fonction `cut`{data-pkg="base"}.
+
+Celle-ci prend, outre la variable à découper, un certain nombre d'arguments :
+
+* `breaks` indique soit le nombre de classes souhaité, soit, si on lui fournit un vecteur, les limites des
+classes ;
+* `labels` permet de modifier les noms de modalités attribués aux classes ;
+* `include.lowest` et `right` influent sur la manière dont les valeurs situées à la frontière des classes
+seront inclues ou exclues ;
+* `dig.lab` indique le nombre de chiffres après la virgule à conserver dans les noms de modalités.
+
+Prenons tout de suite un exemple et tentons de découper notre variable *age* en cinq classes et de
+placer le résultat dans une nouvelle variable nommée *age5cl* :
+
+```{r}
+d$age5cl <- cut(d$age, 5)
+table(d$age5cl)
+```
+
+Par défaut **R** nous a bien créé cinq classes d'amplitudes égales. La première classe va de 16,9 à 32,2
+ans (en fait de 17 à 32), etc.
+
+Les frontières de classe seraient plus présentables si elles utilisaient des nombres ronds. On va donc
+spécifier manuellement le découpage souhaité, par tranches de 20 ans :
+
+```{r}
+d$age20 <- cut(d$age, c(0, 20, 40, 60, 80, 100))
+table(d$age20)
+```
+
+On aurait pu tenir compte des âges extrêmes pour la première et la dernière valeur :
+
+```{r}
+range(d$age)
+d$age20 <- cut(d$age, c(18, 20, 40, 60, 80, 97))
+table(d$age20)
+```
+
+Les symboles dans les noms attribués aux classes ont leur importance : `(` signifie que la frontière de la
+classe est exclue, tandis que `[` signifie qu'elle est incluse. Ainsi, `(20,40]` signifie « strictement supérieur
+à 20 et inférieur ou égal à 40 ».
+
+On remarque que du coup, dans notre exemple précédent, la valeur minimale, 18, est exclue de notre
+première classe, et qu'une observation est donc absente de ce découpage. Pour résoudre ce problème on
+peut soit faire commencer la première classe à 17, soit utiliser l'option `include.lowest=TRUE` :
+
+```{r}
+d$age20 <- cut(d$age, c(17, 20, 40, 60, 80, 97))
+table(d$age20)
+d$age20 <- cut(d$age, c(18, 20, 40, 60, 80, 97), include.lowest = TRUE)
+table(d$age20)
+```
+
+On peut également modifier le sens des intervalles avec l'option `right=FALSE`, et indiquer manuellement
+les noms des modalités avec `labels` :
+
+```{r}
+d$age20 <- cut(d$age, c(18, 20, 40, 60, 80, 97), right = FALSE, include.lowest = TRUE)
+table(d$age20)
+d$age20 <- cut(d$age, c(18, 20, 40, 60, 80, 97), include.lowest = TRUE, labels = c("<20ans", "21-40 ans", "41-60ans", "61-80ans", ">80ans"))
+table(d$age20)
+```
+
+<div class="note">
+L'extension `questionr`{.pkg} propose une interface interactive à la fonction 
+`cut`{data-pkg="base"}, nommée `icut`{data-pkg="questionr"}. Elle s'utilise de la manière
+suivante :
+
+```{r, eval=FALSE}
+icut(d, age)
+```
+
+**RStudio** devrait ouvrir une fenêtre semblable à l'image ci-dessous.
+
+![Capture d'écran d'icut](images/capture_icut.png)
+
+Vous pouvez alors indiquer les limites de vos classes ainsi que quelques options complémentaires. Ces
+limites sont représentées graphiquement sur l'histogramme de la variable d'origine.
+
+L'onglet *Vérification* affiche un tri à plat et un graphique en barres de la nouvelle variable. Une fois le
+résultat satisfaisant, vous pouvez récupérer le code généré pour l'inclure dans votre script.
+
+L'extension `questionr`{.pkg} propose aussi une fonction 
+`quant.cut`{data-pkg="questionr"} permettant de découper une variable
+numérique en un nombre de classes donné ayant des efffectifs semblables. 
+Il suffit de lui passer le nombre de classes en argument :
+
+```{r}
+d$age6cl <- quant.cut(d$age, 6)
+table(d$age6cl)
+```
+
+`quant.cut`{data-pkg="questionr"} admet les mêmes autres options que 
+`cut`{data-pkg="base"} (`include.lowest`, `right`, `labels`... ).
+</div>
+
+## Regrouper les modalités d'une variable {#regrouper_modalites}
+
+Pour regrouper les modalités d'une variable qualitative (d'un facteur le plus souvent), on peut utiliser
+directement l'indexation.
+
+Ainsi, si on veut recoder la variable *qualif* dans une variable *qualif.reg* plus « compacte », on peut
+utiliser :
+
+```{r}
+table(d$qualif)
+d$qualif.reg[d$qualif == "Ouvrier specialise"] <- "Ouvrier"
+d$qualif.reg[d$qualif == "Ouvrier qualifie"] <- "Ouvrier"
+d$qualif.reg[d$qualif == "Employe"] <- "Employe"
+d$qualif.reg[d$qualif == "Profession intermediaire"] <- "Intermediaire"
+d$qualif.reg[d$qualif == "Technicien"] <- "Intermediaire"
+d$qualif.reg[d$qualif == "Cadre"] <- "Cadre"
+d$qualif.reg[d$qualif == "Autre"] <- "Autre"
+table(d$qualif.reg)
+```
+
+On aurait pu représenter ce recodage de manière plus compacte, notamment en commençant par
+copier le contenu de *qualif* dans *qualif.reg*, ce qui permet de ne pas s'occuper de ce qui ne change pas.
+
+Il est cependant nécessaire de ne pas copier *qualif* sous forme de facteur, sinon on ne pourrait ajouter
+de nouvelles modalités. On copie donc la version caractères de *qualif* grâce à la fonction 
+`as.character`{data-pkg="base" data-rdoc="character"} :
+
+```{r}
+d$qualif.reg <- as.character(d$qualif)
+d$qualif.reg[d$qualif == "Ouvrier specialise"] <- "Ouvrier"
+d$qualif.reg[d$qualif == "Ouvrier qualifie"] <- "Ouvrier"
+d$qualif.reg[d$qualif == "Profession intermediaire"] <- "Intermediaire"
+d$qualif.reg[d$qualif == "Technicien"] <- "Intermediaire"
+table(d$qualif.reg)
+```
+
+On peut faire une version encore plus compacte en utilisant l'opérateur logique *ou* (`|`) :
+
+```{r}
+d$qualif.reg <- as.character(d$qualif)
+d$qualif.reg[d$qualif == "Ouvrier specialise" | d$qualif == "Ouvrier qualifie"] <- "Ouvrier"
+d$qualif.reg[d$qualif == "Profession intermediaire" | d$qualif == "Technicien"] <- "Intermediaire"
+table(d$qualif.reg)
+```
+
+Enfin, pour terminer ce petit tour d'horizon, on peut également remplacer l'opérateur `|` par `%in%`, qui
+peut parfois être plus lisible :
+
+```{r}
+d$qualif.reg <- as.character(d$qualif)
+d$qualif.reg[d$qualif %in% c("Ouvrier specialise", "Ouvrier qualifie")] <- "Ouvrier"
+d$qualif.reg[d$qualif %in% c("Profession intermediaire", "Technicien")] <- "Intermediaire"
+table(d$qualif.reg)
+```
+
+Dans tous les cas le résultat obtenu est une variable de type caractère. On pourra la convertir en
+facteur par un simple :
+
+```{r}
+d$qualif.reg <- factor(d$qualif.reg)
+```
+
+Si on souhaite recoder les valeurs manquantes, il suffit de faire appel à la fonction 
+`is.na`{data-pkg="base" data-rdoc="NA"} :
+
+```{r}
+table(d$trav.satisf)
+d$trav.satisf.reg <- as.character(d$trav.satisf)
+d$trav.satisf.reg[is.na(d$trav.satisf)] <- "Manquant"
+table(d$trav.satisf.reg)
+```
+
+<div class="note">
+`questionr`{.pkg} propose une interface interactive pour le recodage 
+d'une variable qualitative (renommage et regroupement de modalités). 
+Cette fonction, nommée `irec`{data-pkg="questionr"}, s'utilise de la manière suivante :
+
+```{r, eval=FALSE}
+irec(d, qualif)
+```
+
+**RStudio** va alors ouvrir une fenêtre semblable à l'image ci-dessous :
+
+![Capture de irec](images/capture_irec.png)
+
+Vous pouvez alors sélectionner différentes options, et pour chaque ancienne modalité, indiquer la
+nouvelle valeur correspondante. Pour regrouper des modalités, il suffit de leur assigner des nouvelles
+valeurs identiques. Dans tous les cas n'hésitez pas à expérimenter, l'interface se contente de générer du
+code **R** à copier/coller dans votre script mais ne l'exécute pas, et ne modifie donc jamais vos données !
+
+L'onglet *Vérification* affiche un tri croisé de l'ancienne et de la nouvelle variable pour vérifier que le recodage
+est correct. Une fois le résultat satisfaisant, vous pouvez récupérer le code généré dans l'onglet *Code* pour
+l'inclure dans votre script.
+</div>
+
+## Variables calculées
+
+La création d'une variable numérique à partir de calculs sur une ou plusieurs autres variables numériques
+se fait très simplement.
+
+Supposons que l'on souhaite calculer une variable indiquant l'écart entre le nombre d'heures passées
+à regarder la télévision et la moyenne globale de cette variable. On pourrait alors faire :
+
+```{r}
+range(d$heures.tv, na.rm = TRUE)
+mean(d$heures.tv, na.rm = TRUE)
+d$ecart.heures.tv <- d$heures.tv - mean(d$heures.tv, na.rm = TRUE)
+range(d$ecart.heures.tv, na.rm = TRUE)
+mean(d$ecart.heures.tv, na.rm = TRUE)
+```
+
+Autre exemple tiré du jeu de données `rp99` : si on souhaite calculer le pourcentage d'actifs dans chaque
+commune, on peut diviser la population active *pop.act* par la population totale *pop.tot*.
+
+```{r}
+data("rp99")
+rp99$part.actifs <- rp99$pop.act/rp99$pop.tot * 100
+```
+
+## Combiner plusieurs variables
+
+La combinaison de plusieurs variables se fait à l'aide des techniques d'indexation déjà décrites précédemment.
+Le plus compliqué est d'arriver à formuler des conditions parfois complexes de manière
+rigoureuse.
+
+On peut ainsi vouloir combiner plusieurs variables qualitatives en une seule :
+
+```{r}
+d$act.manuelles <- NA
+d$act.manuelles[d$cuisine == "Oui" & d$bricol == "Oui"] <- "Cuisine et Bricolage"
+d$act.manuelles[d$cuisine == "Oui" & d$bricol == "Non"] <- "Cuisine seulement"
+d$act.manuelles[d$cuisine == "Non" & d$bricol == "Oui"] <- "Bricolage seulement"
+d$act.manuelles[d$cuisine == "Non" & d$bricol == "Non"] <- "Ni cuisine ni bricolage"
+table(d$act.manuelles)
+```
+
+On peut également combiner variables qualitatives et variables quantitatives :
+
+```{r}
+d$age.sexe <- NA
+d$age.sexe[d$sexe == "Homme" & d$age < 40] <- "Homme moins de 40 ans"
+d$age.sexe[d$sexe == "Homme" & d$age >= 40] <- "Homme plus de 40 ans"
+d$age.sexe[d$sexe == "Femme" & d$age < 40] <- "Femme moins de 40 ans"
+d$age.sexe[d$sexe == "Femme" & d$age >= 40] <- "Femme plus de 40 ans"
+table(d$age.sexe)
+```
+
+Les combinaisons de variables un peu complexes nécessitent parfois un petit travail de réflexion. En
+particulier, l'ordre des commandes de recodage a parfois une influence dans le résultat final.
+
+## Variables scores
+
+Une variable score est une variable calculée en additionnant des poids accordés aux modalités d'une
+série de variables qualitatives.
+
+Pour prendre un exemple tout à fait arbitraire, imaginons que nous souhaitons calculer un score
+d'activités extérieures. Dans ce score on considère que le fait d'aller au cinéma « pèse » 10, celui de
+pêcher ou chasser vaut 30 et celui de faire du sport vaut 20. On pourrait alors calculer notre score de la
+manière suivante :
+
+```{r}
+d$score.ext <- 0
+d$score.ext[d$cinema == "Oui"] <- d$score.ext[d$cinema == "Oui"] + 10
+d$score.ext[d$peche.chasse == "Oui"] <- d$score.ext[d$peche.chasse == "Oui"] + 30
+d$score.ext[d$sport == "Oui"] <- d$score.ext[d$sport == "Oui"] + 20
+table(d$score.ext)
+```
+
+Cette notation étant un peu lourde, on peut l'alléger un peu en utilisant la fonction `ifelse`{data-pkg="base"}.
+Celle-ci prend en argument une condition et deux valeurs.
+Si la condition est vraie elle retourne la première valeur,
+sinon elle retourne la seconde.
+
+```{r}
+d$score.ext <- 0
+d$score.ext <- ifelse(d$cinema == "Oui", 10, 0) + ifelse(d$peche.chasse == "Oui", 30, 0) + ifelse(d$sport == "Oui", 20, 0)
+table(d$score.ext)
+```
+
+## Vérification des recodages
+
+Il est très important de vérifier, notamment après les recodages les plus complexes, qu'on a bien obtenu
+le résultat escompté. Les deux points les plus sensibles étant les valeurs manquantes et les erreurs dans
+les conditions.
+
+Pour vérifier tout cela, le plus simple est sans doute de faire des tableaux croisés entre la variable
+recodée et celles ayant servi au recodage, à l'aide des fonctions `table`{data-pkg="base"} ou
+`xtabs`{data-pkg="stats"}, et de vérifier le nombre de valeurs manquantes dans la variable recodée 
+avec `summary`{data-pkg="base"}, `freq`{data-pkg="questionr"} ou `table`{data-pkg="base"}.
+
+Par exemple :
+
+```{r}
+d$act.manuelles <- NA
+d$act.manuelles[d$cuisine == "Oui" & d$bricol == "Oui"] <- "Cuisine et Bricolage"
+d$act.manuelles[d$cuisine == "Oui" & d$bricol == "Non"] <- "Cuisine seulement"
+d$act.manuelles[d$cuisine == "Non" & d$bricol == "Oui"] <- "Bricolage seulement"
+d$act.manuelles[d$cuisine == "Non" & d$bricol == "Non"] <- "Ni cuisine ni bricolage"
+table(d$act.manuelles, d$cuisine)
+table(d$act.manuelles, d$bricol)
+```
