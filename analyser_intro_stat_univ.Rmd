@@ -18,8 +18,7 @@ l'étude d'une seule variable, que celle-ci soit quantitative ou qualitative. La
 fait partie de la 
 <dfn>statistique descriptive</dfn><dfn data-index="descriptive, statistique"></dfn>.
 
-Faisant suite au chapitre [Premier travail avec les données](pem_premier_travail.html), 
-nous reprendrons dans ce chapitre les données de l'enquête *Histoire de vie 2003*
+Nous utiliserons dans ce chapitre les données de l'enquête *Histoire de vie 2003*
 fournies avec l'extension `questionr`{.pkg}.
 
 ```{r}
@@ -184,27 +183,6 @@ rug(d$heures.tv, side = 2)
 ```
 <figcaption>Boîte à moustaches avec représentation des valeurs</figcaption>
 </figure>
-
-### Intervalle de confiance
-
-L'<dfn>intervalle de confiance d'une moyenne</dfn><dfn data-index="moyenne, intervalle de confiance"></dfn><dfn data-index="intervalle de confiance"></dfn>
-peut être calculé avec la fonction `t.test`{data-pkg="stats"}
-(fonction qui permet également de réaliser un test *t* de Student comme nous le verrons dans le chapitre
-dédié à la [statistique bivariée](analyses_stat_biv.html#comp_moyennes)) :
-
-```{r}
-t.test(d$heures.tv)
-```
-
-Le niveau de confiance peut être précisé via l'argument `conf.level` :
-
-```{r}
-t.test(d$heures.tv, conf.level = 0.9)
-```
-
-Le nombre d'heures moyennes à regarder la télévision parmi les enquêtés s'avère être de 2,2 heures,
-avec un intervalle de confiance à 95 % de [2,17 - 2,33] et un intervalle de confiance à 90 % de 
-[2,18 - 2,31].
 
 ## Variable qualitative
 
@@ -383,79 +361,5 @@ pchShow(
 ```
 </div>
 
-### Intervalle de confiance{#ic_proportion}
-
-La fonction `prop.test`{data-pkg="stats"} permet de calculer 
-l'<dfn>intervalle de confiance d'une proportion</dfn><dfn data-index="proportion, intervalle de confiance"></dfn><dfn data-index="intervalle de confiance"></dfn>.
-Une première possibilité consiste à lui transmettre une table à une dimension et deux entrées. 
-Par exemple, si l'on s'intéresse à la proportion de personnes ayant pratiqué une activité 
-physique au cours des douze derniers mois :
-
-```{r}
-freq(d$sport)
-prop.test(table(d$sport))
-```
-
-On remarquera que la fonction a calculé l'intervalle de confiance correspondant à la première entrée
-du tableau, autrement dit celui de la proportion d'enquêtés n'ayant pas pratiqué une activité sportive.
-Or, nous sommes intéressé par la proportion complémentaire, à savoir celle d'enquêtés ayant pratiqué
-une activité sportive. On peut dès lors modifier l'ordre de la table en indiquant notre modalité d'intérêt
-avec la fonction `relevel`{data-pkg="stats"} ou bien indiquer à `prop.test`{data-pkg="stats"} 
-d'abord le nombre de succès puis l'effectif total :
-
-```{r}
-prop.test(table(relevel(d$sport, "Oui")))
-prop.test(sum(d$sport == "Oui"), length(d$sport))
-```
-
-Enfin, le niveau de confiance peut être modifié via l'argument `conf.level` :
-
-```{r}
-prop.test(table(relevel(d$sport, "Oui")), conf.level = 0.9)
-```
-
-<div class="note">
-Il existe de nombreuses manières de calculer un intervalle de confiance pour une proportion.
-En l'occurence, l'intervalle calculé par `prop.test`{data-pkg="stats"} correspond dans le
-cas présent à un intervalle bilatéral selon la méthode des scores de Wilson avec correction de continuité.
-Pour plus d'information, on pourra lire <http://joseph.larmarange.net/?Intervalle-de-confiance-bilateral>.
-</div>
-
-<div class="note">
-Pour se simplifier un peu la vie, le package `JLutils`{.pkg} propose
-une fonction `prop.ci`{data-pkg="JLutils"} (et ses deux variantes `prop.ci.lower`{data-pkg="JLutils"}
-et `prop.ci.upper`{data-pkg="JLutils"}) permettant d'appeler plus facilement `prop.test`{data-pkg="stats"}
-et renvoyant directement l'intervalle de confiance. 
-
-
-`JLutils`{.pkg} n'étant disponible que sur
-[GitHub](https://github.com/larmarange/JLutils), on aura recours au package 
-`devtools`{.pkg} et à sa fonction `install_github`{data-pkg="devtools"}
-pour l'installer :
-
-```{r, eval=FALSE}
-library(devtools)
-install_github("larmarange/JLutils")
-```
-
-`prop.ci`{data-pkg="JLutils"} fonction accepte directement un tri à plat 
-obtenu avec `table`{data-pkg="base"}, un vecteur de données, un vecteur logique (issu d'une condition),
-ou bien le nombre de succès et le nombre total d'essais. Voir les exemples ci-après :
-
-```{r}
-library(JLutils)
-freq(d$sport)
-prop.ci(d$sport)
-prop.ci.lower(d$sport)
-prop.ci.upper(d$sport)
-prop.ci(d$sport, conf.level = 0.9)
-prop.ci(table(d$sport))
-prop.ci(d$sport=="Non")
-prop.ci(d$sport=="Oui")
-
-prop.ci.lower(c(1277, 723), n = 2000)
-prop.ci.upper(c(1277, 723), n = 2000)
-```
-</div>
 
 

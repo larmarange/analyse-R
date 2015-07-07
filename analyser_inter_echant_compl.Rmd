@@ -1,0 +1,136 @@
+---
+title: "Définir un plan d'échantillonnage complexe"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+<div class="important">
+Ce chapitre est en cours d'écriture.
+</div>
+
+L'extension `survey`{.pkg} ne permet pas seulement d'indiquer une 
+variable de pondération mais également de prendre les spécificités du plan d'échantillonnage 
+(strates, grappes, ...). Le plan d'échantillonnage ne joue
+pas seulement sur la pondération des données, mais influence le calcul des variances et par ricochet tous
+les tests statistiques. Deux échantillons identiques avec la même variable de pondération mais des designs
+différents produiront les mêmes moyennes et proportions mais des intervalles de confiance différents.
+
+## Différents types d'échantillonnage
+
+L'<dfn>échantillonnage aléatoire simple</dfn><dfn data-index="aléatoire, échantillonnage"></dfn> ou 
+<dfn>échantillonnage équiprobable</dfn><dfn data-index="équiprobable, échantillonnage"></dfn> 
+est une méthode pour laquelle tous
+les échantillons possibles (de même taille) ont la même probabilité d'être choisis et tous les éléments de
+la population ont une chance égale de faire partie de l'échantillon. C'est l'échantillonnage le plus simple :
+chaque individu à la même probabilité d'être sélectionné.
+
+L'<dfn>échantillonnage stratifié</dfn><dfn data-index="stratifié, échantillonnage"></dfn> est une méthode 
+qui consiste d'abord à subdiviser la population en groupes homogènes (<dfn data-index="strate">strates</dfn>)
+pour ensuite extraire un échantillon aléatoire de chaque strate. Cette méthode suppose
+la connaissance de la structure de la population. Pour estimer les paramètres, les résultats doivent
+être pondérés par l'importance relative de chaque strate dans la population.
+
+L'<dfn>échantillonnage par grappes</dfn> est une méthode qui consiste à choisir un échantillon aléatoire d'unités
+qui sont elles-mêmes des sous-ensembles de la population (<dfn data-index="grappe, échantillonnage">grappes</dfn>
+ou <dfn data-index="cluster" lang="en">clusters</dfn> en anglais). 
+Cette méthode suppose que les unités de chaque grappe sont représentatives. 
+Elle possède l'avantage d'être souvent plus économique.
+
+Il est possible de combiner plusieurs de ces approches. Par exemple, les 
+*Enquêtes Démographiques et de Santé*^[Vaste programme
+d'enquêtes réalisées à intervalles réguliers dans les pays du Sud, disponibles sur <http://www.dhsprogram.com/>.] 
+(EDS) sont des enquêtes stratifiées en grappes à deux degrés. 
+Dans un premier temps, la population est divisée en strates par région et milieu de résidence. 
+Dans chaque strate, des zones d'enquêtes, correspondant à des unités de recensement, 
+sont tirées au sort avec une probabilité proportionnelle au nombre de ménages de chaque zone 
+au dernier recensement de population. Enfin, au sein de chaque zone
+d'enquête sélectionnée, un recensement de l'ensemble des ménages est effectué puis un nombre identique
+de ménages par zone d'enquête est tiré au sort de manière alétoire simple.
+
+## Les options de svydesign
+
+La fonction `svydesign`{data-pkg="survey"} accepte plusieurs arguments décrits sur sa page 
+d'aide (obtenue avec la commande `?svydesign`).
+
+L'agument `data` permet de spécifier le tableau de données contenant les observations.
+
+L'argument `ids` est obligatoire et spécifie sous la forme d'une formule les identifiants des différents
+niveaux d'un tirage en grappe. S'il s'agit d'un échantillon aléatoire simple, on entrera `ids=˜1`.
+Autre situation : supposons une étude portant sur la population française. 
+Dans un premier temps, on a tiré au sort
+un certain nombre de départements français. Dans un second temps, on tire au sort dans chaque département
+des communes. Dans chaque commune sélectionnée, on tire au sort des quartiers. Enfin, on interroge
+de manière exhaustive toutes les personnes habitant les quartiers enquêtés. Notre fichier de données devra
+donc comporter pour chaque observation les variables *id_departement*, *id_commune* et *id_quartier*. On
+écrira alors pour l'argument `ids` la valeur suivante :<br />`ids=˜id_departement+id_commune+id_quartier`.
+
+Si l'échantillon est stratifié, on spécifiera les strates à l'aide de l'argument `strata` en spécifiant la
+variable contenant l'identifiant des strates. Par exemple : `strata=˜id_strate`.
+
+Il faut encore spécifier les probabilités de tirage de chaque cluster ou bien la pondération des individus.
+Si l'on dispose de la probabilité de chaque observation d'être sélectionnée, on utilisera l'argument `probs`.
+Si, par contre, on connaît la pondération de chaque observation (qui doit être proportionnelle à l'inverse
+de cette probabilité), on utilisera l'argument `weights`.
+
+Si l'échantillon est stratifié, qu'au sein de chaque strate les individus ont été tirés au sort de manière
+aléatoire et que l'on connaît la taille de chaque strate, il est possible de ne pas avoir à 
+spécifier la probabilité de tirage ou la pondération de chaque observation. 
+Il est préférable de fournir une variable contenant la taille de chaque strate à l'argument `fpc`. 
+De plus, dans ce cas-là, une petite correction sera appliquée au
+modèle pour prendre en compte la taille finie de chaque strate.
+
+## Quelques exemples
+
+```{r, eval=FALSE}
+# Échantillonnage aléatoire simple
+plan <- svydesign(ids = ~1, data = donnees)
+
+# Échantillonnage stratifié à un seul niveau (la taille de chaque strate est connue)
+plan <- svydesign(ids = ~1, data = donnees, fpc = ~taille)
+
+# Échantillonnage en grappes avec tirages à quatre degrés (departement, commune, quartier, individus). La probabilité de tirage de chaque niveau de cluster est connue.
+plan <- svydesign(ids = ~id_departement + id_commune + id_quartier, data = donnees, probs = ~proba_departement + proba_commune + proba_quartier)
+
+# Échantillonnage stratifié avec tirage à deux degrés (clusters et individus). Le poids statistiques de chaque observation est connu.
+plan <- svydesign(ids = ~id_cluster, data = donnees, strata = ~id_strate, weights = ~poids)
+```
+
+Prenons l'exemple d'une *Enquête Démographique et de Santé*. Le nom des différentes variables est
+standardisé et commun quelle que soit l'enquête. Nous supposerons que vous avez importé le fichier
+*individus* dans un tableau de données nommés `eds`. Le poids statistique de chaque individu est fourni
+par la variable *V005* qui doit au préalable être divisée par un million. Les grappes d'échantillonnage au
+premier degré sont fournies par la variable *V021 (primary sample unit)*. 
+Si elle n'est pas renseignée, on pourra utilisier le numéro de grappe *V001*.
+Enfin, le milieu de résidence (urbain / rural) est fourni par *V025* et la région par *V024*. 
+Pour rappel, l'échantillon a été stratifié à la fois par région et par mileu de résidence. Certaines
+enquêtes fournissent directement un numéro de strate via *V022*. Si tel est le cas, on pourra préciser le
+plan d'échantillonnage ainsi :
+
+```{r, eval=FALSE}
+eds$poids <- eds$V005/1000000
+design.eds <- svydesign(ids = ~V021, data = eds, strata = ~V022, weights = ~poids)
+```
+
+Si *V022* n'est pas fourni mais que l'enquête a bien été stratifiée par région et milieu de résidence (vérifiez
+toujours le premier chapitre du rapport d'enquête), on pourra créer une variable strate ainsi^[L'astuce 
+consiste à utiliser `as.integer`{data-pkg="base"} pour obtenir le code des facteurs et non leur valeur textuelle. 
+L'addition des deux valeurs après multiplication du code de la région par 10 permet d'obtenir une valeur
+unique pour chaque combinaison des deux variables. On retransforme le résultat en facteurs puis on modifie les étiquettes des modalités.] :
+
+```{r, eval=FALSE}
+eds$strate <- as.factor(as.integer(eds$V024) * 10 + as.integer(eds$V025))
+levels(eds$strate) <- c(paste(levels(eds$V024), "Urbain"), paste(levels(eds$V024), "Rural"))
+design.eds <- svydesign(ids = ~V021, data = eds, strata = ~strate, weights = ~poids)
+```
+
+## Extraire un sous-échantillon
+
+Si l'on souhaite travailler sur un <dfn>sous-échantillon</dfn> tout en gardant les informations d'échantillonnage,
+on utilisera la fonction `subset`{data-pkg="survey" data-rdoc="subset.survey.design"}
+présentée en détail dans le chapitre [Manipulation de données](pem_manipulation.html#subset).
+
+```{r, eval=FALSE}
+sous <- subset(plan, sexe == "Femme" & age >= 40)
+```
