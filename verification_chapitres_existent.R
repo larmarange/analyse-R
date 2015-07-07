@@ -9,5 +9,9 @@ for (f in list.files(pattern = "Rmd$")) {
 p <- gsub("(.*)\\(([a-z0-9_]+\\.html)\\)(.*)", "\\2", p)
 p <- sort(p[ !file.exists(p) ])
 
-if(length(p))
+if(length(p)) {
+
+  print(p)
   warning(length(p), " liens pointent vers des chapitres inexistants.")
+
+}
