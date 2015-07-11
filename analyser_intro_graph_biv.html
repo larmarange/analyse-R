@@ -118,17 +118,16 @@ img {
                   <li><a href="manipuler_pem_contact.html">Premier contact</a></li>
                   <li><a href="manipuler_pem_travail.html">Premier travail avec des données</a></li>
                   <li><a href="manipuler_pem_organiser.html">Organiser ses fichiers</a></li>
-                  <li><a href="manipuler_pem_import.html">Import / Export de données</a></li>
+                  <li><a href="manipuler_pem_import.html">Import de données</a></li>
                   <li><a href="manipuler_pem_variables.html">Variables</a></li>
                   <li class="dev"><a href="manipuler_pem_indexation.html">Indexation</a></li>
                   <li class="dev"><a href="manipuler_pem_recodage.html">Recodage</a></li>
-                  <li><a href="manipuler_pem_export_graph.html">Exporter des graphiques</a></li>
                   <li><a href="manipuler_pem_aide.html">Où trouver de l'aide ?</a></li>
   	            </ul>
               </div>
               <div class="col-sm-4">
   	            <ul class="multi-column-dropdown">
-  		            <li class="dropdown-header">Manipulation de données (intermédiaire)</li>
+  		            <li class="dropdown-header">Manipulation de données</li>
                   <li class="dev"><a href="manipuler_inter_dplyr.html">Introduction à dplyr</a></li>
                   <li class="dev"><a href="manipuler_inter_data_table.html">Introduction à data.table</a></li>
                   <li class="dev"><a href="manipuler_inter_doublons.html">Doublons</a></li>
@@ -136,14 +135,17 @@ img {
                   <li class="dev"><a href="manipuler_inter_sous_ensembles.html">Sous-ensembles</a></li>
                   <li class="dev"><a href="manipuler_inter_fusion.html">Fusion de tables</a></li>
                   <li class="dev"><a href="manipuler_inter_dates.html">Gestion des dates</a></li>
+                  <li class="dev"><a href="manipuler_avance_aggregation.html">Aggrégation</a></li>
+                  <li class="dev"><a href="manipuler_avance_fenetre.html">Fonctions à fenêtre</a></li>
+                  <li class="dev"><a href="manipuler_avance_restructuration.html">Restructuration de données</a></li>
   	            </ul>
               </div>
               <div class="col-sm-4">
   	            <ul class="multi-column-dropdown">
-                  <li class="dropdown-header">Manipulation de données (avancée)</li>
-                  <li class="dev"><a href="manipuler_avance_aggregation.html">Aggrégation</a></li>
-                  <li class="dev"><a href="manipuler_avance_fenetre.html">Fonctions à fenêtre</a></li>
-                  <li class="dev"><a href="manipuler_avance_restructuration.html">Restructuration de données</a></li>
+                  <li class="dropdown-header">Exporter</li>
+                  <li class="dev"><a href="manipuler_export_donnees.html">Export de données</a></li>
+                  <li><a href="manipuler_export_graph.html">Export de graphiques</a></li>
+                  <li class="dev"><a href="manipuler_export_tableaux.html">Export de tableaux</a></li>
   	            </ul>
               </div>
             </div>
@@ -297,7 +299,7 @@ Ce chapitre est en cours d’écriture.
 <div class="note">
 Ce chapitre est tiré d’une <a href="https://github.com/briatte/aad/tree/master/reinhart-rogoff">séance de cours</a> de François Briatte et destinée à des étudiants de L2 sans aucune connaissance de <strong>R</strong>. Cette séance de cours est elle-même inspirée d’un <a href="http://www.stat.cmu.edu/~cshalizi/uADA/13/hw/11/">exercice</a> tiré d’un cours de <a href="http://www.stat.cmu.edu/~cshalizi/">Cosma Shalizi</a>.
 </div>
-<p>Comme expliqué dans un <a href="pem_graphiques_de_base.html">précédent chapitre</a>, <strong>R</strong> possède un puissant moteur graphique interne, qui permet de <q>dessiner</q> dans un graphique en y rajoutant des segments, des points, du texte, ou toutes sortes d’autres symboles. Toutefois, pour produire un graphique complet avec les fonctions basiques de <strong>R</strong>, il faut un peu bricoler : d’abord, ouvrir une fenêtre ; puis rajouter des points ; puis rajouter des lignes ; tout en configurant les couleurs au fur et à mesure ; puis finir par fermer la fenêtre graphique.</p>
+<p>Comme expliqué dans un <a href="analyser_intro_graph_univ.html">précédent chapitre</a>, <strong>R</strong> possède un puissant moteur graphique interne, qui permet de <q>dessiner</q> dans un graphique en y rajoutant des segments, des points, du texte, ou toutes sortes d’autres symboles. Toutefois, pour produire un graphique complet avec les fonctions basiques de <strong>R</strong>, il faut un peu bricoler : d’abord, ouvrir une fenêtre ; puis rajouter des points ; puis rajouter des lignes ; tout en configurant les couleurs au fur et à mesure ; puis finir par fermer la fenêtre graphique.</p>
 <p><strong>R</strong> est distribué avec une extension qui permet de moins avoir à bricoler les graphiques : <code class="pkg">lattice</code>. Mais surtout, <strong>R</strong> est aussi capable de comprendre la <q>grammaire graphique</q> <a href="https://books.google.fr/books/about/The_Grammar_of_Graphics.html">théorisée par Leland Wilkinson</a>, et traduite pour <strong>R</strong> par Hadley Wickham sous la forme de l’extension <code class="pkg">ggplot2</code><a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>. Ce chapitre présente cette dernière extension à partir d’un exemple simple de visualisation de séries temporelles, puis rentre dans le détail de sa syntaxe<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>.</p>
 <div id="les-donnees-de-lexemple" class="section level2">
 <h2>Les données de l’exemple</h2>
@@ -319,7 +321,7 @@ if(!<span class="kw">file.exists</span>(file))
 <span class="co"># charger les données dans l&#39;objet &#39;debt&#39;</span>
 debt =<span class="st"> </span><span class="kw">read_csv</span>(file)</code></pre>
 <div class="note">
-Le code ci-dessus utilise la fonction <code data-pkg="readr" data-rdoc="read_csv">read_csv</code> de l’extension <code class="pkg">readr</code>, dont on a recommandé l’utilisation dans un <a href="https://larmarange.github.io/analyse-R/pem_import_export.html">précédent chapitre</a>. En l’absence de cette extension, on aurait pu utiliser la fonction de base <code data-pkg="utils" data-rdoc="read.csv">read.csv</code>.
+Le code ci-dessus utilise la fonction <code data-pkg="readr" data-rdoc="read_csv">read_csv</code> de l’extension <code class="pkg">readr</code>, dont on a recommandé l’utilisation dans un <a href="https://larmarange.github.io/analyse-R/manipuler_pem_import.html">précédent chapitre</a>. En l’absence de cette extension, on aurait pu utiliser la fonction de base <code data-pkg="utils" data-rdoc="read.csv">read.csv</code>.
 </div>
 <div id="nettoyage-des-donnees" class="section level3">
 <h3>Nettoyage des données</h3>
@@ -481,7 +483,7 @@ Le paramètre <code data-pkg="ggplot2" data-rdoc="facet_grid">facet_grid</code>,
 </div>
 <div id="export-des-graphiques" class="section level3">
 <h3>Export des graphiques</h3>
-<p>Les graphiques produits par <code class="pkg">ggplot2</code> peuvent être sauvegardés manuellement, comme expliqué dans le chapitre <q><a href="pem_export_graphiques.html">Exporter des graphiques</a></q>, ou programmatiquement. Pour sauvegarder le dernier graphique affiché par <code class="pkg">ggplot2</code> au format PNG, il suffit d’utiliser la fonction <code data-pkg="ggplot2" data-rdoc="ggsave">ggsave</code>, qui permet d’en régler la taille (en pouces) et la résolution (en pixels par pouce ; 72 par défaut) :</p>
+<p>Les graphiques produits par <code class="pkg">ggplot2</code> peuvent être sauvegardés manuellement, comme expliqué dans le chapitre <q><a href="manipuler_pem_export_graph.html">Exporter des graphiques</a></q>, ou programmatiquement. Pour sauvegarder le dernier graphique affiché par <code class="pkg">ggplot2</code> au format PNG, il suffit d’utiliser la fonction <code data-pkg="ggplot2" data-rdoc="ggsave">ggsave</code>, qui permet d’en régler la taille (en pouces) et la résolution (en pixels par pouce ; 72 par défaut) :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggsave</span>(<span class="st">&quot;reinhart-rogoff.png&quot;</span>, <span class="dt">width =</span> <span class="dv">11</span>, <span class="dt">height =</span> <span class="dv">8</span>)</code></pre>
 <p>De la même manière, pour sauvegarder n’importe quel graphique construit avec <code class="pkg">ggplot2</code> et stocké dans un objet, il suffit de préciser le nom de cet objet, comme ci-dessous, où l’on sauvegarde le graphique contenu dans l’objet <code>p</code> au format vectoriel PDF, qui préserve la netteté du texte et des autres éléments du graphique à n’importe quelle résolution d’affichage :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggsave</span>(<span class="st">&quot;reinhart-rogoff.pdf&quot;</span>, <span class="dt">plot =</span> p,
@@ -612,7 +614,7 @@ $(document).ready(function () {
     });
 
     // Colorbox
-    jQuery('div img').colorbox({
+    jQuery('article div img').colorbox({
       maxWidth: '90%',
       maxHeight: '90%',
       rel: 'figures',
@@ -624,7 +626,7 @@ $(document).ready(function () {
         return $(this).attr('alt');
       }
     });
-    jQuery('div img').css('cursor', 'pointer');
+    jQuery('article div img').css('cursor', 'pointer');
     jQuery('figure img').colorbox({
       maxWidth: '90%',
       maxHeight: '90%',
