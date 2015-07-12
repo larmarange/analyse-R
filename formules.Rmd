@@ -1,0 +1,216 @@
+---
+title: "Formules"
+---
+
+```{r options_communes, include = FALSE}
+source("options_communes.R")
+```
+
+Ce chapitre vise à illustrer l'utilisation de la <dfn>notation <q>formule</q></dfn> de **R**, qui désigne l'emploi de cette notation par l'expression `formula`{data-pkg="stats"}. Cette notation est utilisée par de très nombreuses fonctions de **R** : on en a notamment vu plusieurs exemples dans le [chapitre sur les graphiques bivariés](analyser_intro_graph_biv.html), car l'extension `ggplot2`{.pkg} se sert de cette notation dans ses paramètres `facet_wrap`{data-pkg="ggplot2"} et `facet_grid`{data-pkg="ggplot2"}.
+
+Dans ce chapitre, on verra comment se servir de la notation <q>formule</q> dans deux contextes différents. D'une part, on verra que deux fonctions basiques de **R** se servent de cette notation pour produire des tableaux croisés et des statistiques bivariées. D'autre part, on verra que l'extension `lattice`{.pkg} se sert de cette notation pour créer des graphiques <q>panelisés</q>, dits graphiques à <q>petits multiples</q>.
+
+Dans plusieurs autres chapitres, les opérations décrites ci-dessus sont effectuées avec les extensions `dplyr`{.pkg} d'une part, et `ggplot2`{.pkg} d'autre part. On se servira également de ces extensions dans ce chapitre, de manière à mener une comparaison des différentes manières d'effectuer certaines opérations dans **R**, avec ou sans la notation <q>formule</q> :
+
+```{r, message = FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+## Statistiques descriptives
+
+Les premiers exemples de ce chapitre montrent l'utilisation de cette notation pour produire des tableaux croisés et des statistiques descriptives. Le jeu de données utilisé, `hdv2003`{data-pkg="questionr"}, a déjà été utilisé dans plusieurs chapitres, et font partie de l'extension `questionr`{.pkg}. Chargeons cette extension et le jeu de données `hdv2003`{data-pkg="questionr"} :
+
+```{r}
+library(questionr)
+data(hdv2003)
+```
+
+Pour rappel, ce jeu de données contient des individus, leur âge, leur statut professionnel, et le nombre d'heures quotidiennes passées à regarder la télévision.
+
+```{r}
+glimpse(hdv2003, 75)
+```
+
+### Tableaux croisés avec xtabs
+
+Utilisons, pour ce premier exemple, la variable <var>occup</var> du jeu de données `hdv2003`{data-pkg="questionr"}, qui correspond au statut professionnel des individus inclus dans l'échantillon. La fonction de base pour compter les individus par statut est la fonction `table`{data-pkg="base"} :
+
+```{r}
+table(hdv2003$occup)
+```
+
+Avec la fonction `xtabs`{data-pkg="stats"}, le même résultat est produit à partir de la notation suivante :
+
+```{r}
+xtabs(~ occup, data = hdv2003)
+```
+
+Le premier argument est une formule, au sens où **R** entend cette expression. Le second argument, `data`, correspond au jeu de données auquel la formule doit être appliquée. On pourra se passer d'écrire explicitement cet argument dans les exemples suivants.
+
+L'avantage de la fonction `xtabs`{data-pkg="stats"} n'est pas évident dans ce premier exemple. En réalité, cette fonction devient utile lorsque l'on souhaite construire un ou plusieurs tableau(x) croisé(s). Par exemple, pour croiser la variable <var>occup</var> avec la variable <var>sexe</var>, une solution constiste à écrire :
+
+```{r}
+with(hdv2003, table(occup, sexe))
+```
+
+Ou alors, ce qui revient au même :
+
+```{r, eval = FALSE}
+table(hdv2003$occup, hdv2003$sexe)
+```
+
+Avec `xtabs`{data-pkg="stats"}, la même opération s'écrit de la manière suivante :
+
+```{r}
+xtabs(~ occup + sexe, hdv2003)
+```
+
+Cette écriture est plus courte que le code équivalent dans `dplyr`{.pkg} :
+
+```{r, tidy = FALSE}
+group_by(hdv2003, occup) %>%
+  summarise(Homme = sum(sexe == "Homme"),
+            Femme = sum(sexe == "Femme"))
+```
+
+De plus, `xtabs`{data-pkg="stats"} permet de créer plusieurs tableaux croisés en une seule formule :
+
+```{r}
+xtabs(~ occup + sexe + trav.imp, hdv2003)
+```
+
+Cet exemple permet simplement de réaliser que la variable <var>trav.imp</var>, qui contient les réponses à une question portant sur l'importance du travail, n'a été mesurée (c'est-à-dire que la question n'a été posée) qu'aux seuls individus actifs de l'échantillon.
+
+### Statistiques bivariées avec aggregate
+
+```{r}
+aggregate(heures.tv ~ sexe, mean, data = hdv2003)
+```
+
+Ici, le premier argument est à nouveau une formule. Le second argument correspond à la statistique descriptive que l'on souhaite obtenir, et le dernier argument indique le jeu de données auquel appliquer les deux autres arguments. On peut d'ailleurs obtenir le même résultat en respectant de manière plus stricte l'ordre des arguments dans la syntaxe de la fonction `aggregate`{data-pkg="stats"} :
+
+```{r}
+aggregate(heures.tv ~ sexe, hdv2003, mean)
+```
+
+Cette écriture est, à nouveau, plus compacte que le code équivalent dans `dplyr`{.pkg}, qui demande de spécifier le retrait des valeurs manquantes :
+
+```{r, eval = FALSE, tidy = FALSE}
+group_by(hdv2003, sexe) %>%
+  summarise(heures.tv = mean(heures.tv, na.rm = TRUE))
+```
+
+À nouveau, on va pouvoir combiner plusieurs variables dans la formule que l'on passe à `aggregate`{data-pkg="stats"}, ce qui va permettre d'obtenir la moyenne des heures de télévision quotidiennes par sexe et par statut professionnel :
+
+```{r}
+aggregate(heures.tv ~ sexe + occup, hdv2003, mean)
+```
+
+La même opération demanderait toujours un peu plus de code avec `dplyr`{.pkg} :
+
+```{r, eval = FALSE, tidy = FALSE}
+group_by(hdv2003, occup, sexe) %>%
+  summarise(heures.tv = mean(heures.tv, na.rm = TRUE))
+```
+
+La fonction `aggregate`{data-pkg="stats"} permet bien sûr d'utiliser une autre fonction que la moyenne, comme dans cet exemple, suivi de son équivalent avec `dplyr`{.pkg} :
+
+```{r}
+# âge médian par sexe et statut professionnel
+aggregate(age ~ sexe + occup, hdv2003, median)
+```
+```{r, eval = FALSE, tidy = FALSE}
+# code équivalent avec l'extension 'dplyr'
+group_by(hdv2003, occup, sexe) %>%
+  summarise(age = median(age, na.rm = TRUE))
+```
+
+La fonction `aggregate`{data-pkg="stats"} permet, par ailleurs, d'obtenir des résultats à plusieurs colonnes. Dans l'exemple ci-dessus, on illustre ce principe avec la fonction `range`{data-pkg="stats"}, qui renvoie deux résultats (la valeur minimale et la valeur maximale de la variable, qui est toujours la variable <var>age</var>), chacun présentés dans une colonne :
+
+```{r}
+aggregate(age ~ sexe + occup, hdv2003, range)
+```
+
+Cette fonction ne peut pas être facilement écrite dans `dplyr`{.pkg} sans réécrire chacune des colonnes, ce que le bloc de code suivant illustre. On y gagne en lisibilité dans les intitulés de colonnes :
+
+```{r, eval = FALSE, tidy = FALSE}
+group_by(hdv2003, occup, sexe) %>%
+  summarise(min = min(age, na.rm = TRUE),
+            max = max(age, na.rm = TRUE))
+```
+
+## Panels graphiques avec lattice
+
+Les exemples suivants montreront ensuite comment la notation <q>formule</q> peut servir à produire des graphiques par panel avec l'extension `lattice`{.pkg}.
+
+```{r}
+library(lattice)
+```
+
+<div class="note">
+L'extension `lattice`{.pkg} présente l'avantage d'être installée par défaut avec **R**. Il n'est donc pas nécessaire de l'installer préalablement.
+</div>
+
+Chargeons les mêmes données que le [chapitre sur les graphiques bivariés](analyser_intro_graph_biv.html).
+
+```{r, tidy = FALSE}
+# charger l'extension lisant le format CSV
+library(readr)
+
+# emplacement souhaité pour le jeu de données
+file = "data/debt.csv"
+
+# télécharger le jeu de données s'il n'existe pas
+if(!file.exists(file))
+  download.file("http://www.stat.cmu.edu/~cshalizi/uADA/13/hw/11/debt.csv",
+                file, mode = "wb")
+
+# charger les données dans l'objet 'debt'
+debt = read_csv(file)
+```
+
+Rejetons rapidement un coup d'oeil à ces données, qui sont structurées par pays (variable <var>Country</var) et par année (variable <var>Year</var>). On y trouve deux variables, <var>growth</var> (le taux de croissance du produit intérieur brut réel), et <var>ratio</var> (le ratio entre la dette publique et le produit intérieur brut), ainsi qu'une première colonne vide, ne contenant que des numéros lignes, dont on va se débarrasser :
+
+```{r}
+# inspection des données
+glimpse(debt, 75)
+
+# suppression de la première colonne
+debt = debt[, -1 ]
+```
+
+### Visualisation bivariée
+
+Le même graphique s'écrit de la manière suivante avec l'extension `lattice`{.pkg} :
+
+```{r}
+xyplot(growth ~ Year, data = debt)
+```
+
+### Visualisation par <q>petits multiples</q>
+
+Appliquons désormais la même visualisation par <q>petits multiples</q> que vue dans le chapitre :
+
+```{r}
+xyplot(growth ~ Year | Country, data = debt)
+```
+
+Enfin, rajoutons quelques options au graphique, afin de montrer comment l'extension `lattice`{.pkg} fonctionne :
+
+```{r}
+xyplot(growth ~ Year | Country,
+       type = c("o", "l"), 
+       main = "Données Reinhart et Rogoff corrigées, 1946-2009",
+       ylab = "Taux de croissance du PIB",
+       xlab = NULL,
+       data = debt)
+```
+
+## Pour aller plus loin
+
+Comme vient de le voir dans ce chapitre, la notation <q>formule</q> apparaît çà et là dans les différentes fonctions de **R** est de ses extensions. Il est par conséquent utile d'en connaître les rudiments, et en particulier les opérateurs `~` (_tilde_) et `+`, ne serait-ce que pour pouvoir se servir des différentes fonctions présentées sur cette page.
+
+La notation <q>formule</q> devient cruciale dès que l'on souhaite rédiger des modèles : la formule `y ~ x`, par exemple, qui est équivalente à la formule `y ~ 1 + x`, correspond à l'équation mathématique $Y = a + bX$. On trouvera de nombreux exemples d'usage de cette notation dans les chapitres consacrés, notamment, à la régression linéaire ou à la [régression logistique](analyser_inter_reg_log.html).
+
+De la même manière, l'opérateur `|` (_pipe_) utilisé par l'extension `lattice`{.pkg} joue aussi un rôle très important dans la rédaction de modèles multi-niveaux, où il sert à indiquer les variables à pentes ou à coefficients aléatoires. Ces modèles sont présentés dans un [chapitre dédié](analyser_avance_effets_mixtes.html).

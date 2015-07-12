@@ -1,0 +1,698 @@
+---
+title: "Classification ascendante hiérarchique (CAH)"
+output:
+  html_document:
+    mathjax: default
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+<div class="note">
+La version originale de ce chapitre a été écrite par Joseph Larmarange dans le cadre du support de cours
+[Introduction à l'analyse d'enquêtes avec R](https://github.com/larmarange/intro-r/tree/CoursM2).
+</div>
+
+Il existe de nombreuses techniques statistiques visant à partinionner 
+une population en différentes classes ou sous-groupes. 
+La <dfn>classification ascendante hiérarchique</dfn> (<dfn>CAH</dfn>) est l'une d'entre elles. On cherche
+à ce que les individus regroupés au sein d'une même classe (homogénéité intra-classe) soient le plus
+semblables possibles tandis que les classes soient le plus dissemblables (hétérogénéité inter-classe).
+
+Le principe de la CAH est de rassembler des individus selon un critère de ressemblance défini au
+préalable qui s'exprimera sous la forme d'une <dfn>matrice de distances</dfn>, exprimant la distance existant entre
+chaque individu pris deux à deux. Deux observations identiques auront une distance nulle. Plus les deux
+observations seront dissemblables, plus la distance sera importante. La CAH va ensuite rassembler les
+individus de manière itérative afin de produire un <dfn>dendrogramme</dfn> ou 
+<dfn>arbre de classification</dfn><dfn data-index="classification, arbre"></dfn>. La classification
+est *ascendante* car elle part des observations individuelles ; elle est *hiérarchique* car elle produit des
+classes ou groupes de plus en plus vastes, incluant des sous-groupes en leur sein. En découpant cet arbre
+à une certaine hauteur choisie, on produira la <dfn>partition</dfn> désirée.
+
+<div class="note">
+On trouvera également de nombreux supports de cours en français sur la CAH sur le site de François
+Gilles Carpentier : <http://pagesperso.univ-brest.fr/~carpenti/>.
+</div>
+
+## Calculer une matrice des distances
+
+La notion de <dfn>ressemblance</dfn> entre observations est évaluée par une <dfn>distance</dfn> entre individus.
+Plusieurs type de ditances existent selon les données utilisées.
+
+Il existe de nombreuses distances mathématiques pour les variables quantitatives (euclidiennes, Manhattan...)
+que nous n'aborderons pas ici^[Pour une présentation de ces différentes distances, on pourra se référer à
+<http://old.biodiversite.wallonie.be/outils/methodo/similarite_distance.htm> ou encore à ce support de cours 
+par D. Chessel, J. Thioulouse et A.B. Dufour disponible à <http://pbil.univ-lyon1.fr/R/pdf/stage7.pdf>.]. 
+La plupart peuvent être calculées avec la fonction `dist`{data-pkg="stats"}.
+
+Usuellement, pour un ensemble de variables qualitatives, on aura recours à la 
+<dfn data-index="distance du Phi²">distance du &Phi;²</dfn><dfn data-index="Phi², distance"></dfn> qui est
+celle utilisée pour l'analyse des correspondances multiples (voir le [chapitre dédié]()).
+Avec l'extension `ade4`{.pkg}, la distance du &Phi;² s'obtient avec la fonction 
+`dist.dudi`{data-pkg="ade4"}^[Cette même fonction peut aussi être utilisée pour calculer une distance 
+après une analyse en composantes principales ou une analyse mixte de Hill et Smith.].
+Le cas particulier de la CAH avec l'extension `FactoMineR`{.pkg} sera abordée dans 
+une section spécifique ci-après. Nous évoquerons également la 
+<dfn>distance de Gower</dfn><dfn data-index="Gower, distance"></dfn> qui peut s'appliquer à
+un ensemble de variables à la fois qualitatives et quantitatives et qui se calcule avec la fonction 
+`daisy`{data-pkg="cluster"} de l'extension `cluster`{.pkg}. Enfin, dans le 
+chapitre sur l'[analyse de séquences](analyser_avance_seq.html), nous verrons également la fonction 
+`seqdist`{data-pkg="TraMineR"} (extension `TraMineR`{.pkg}) permettant de
+calculer une distance entre séquences.
+
+### Distance de Gower
+
+En 1971, Gower a proposé un <dfn>indice de similarité</dfn><dfn data-index="similarité, indice"></dfn>
+qui porte son nom. L'objectif de cet indice consiste à mesurer dans quelle mesure deux individus sont semblables.
+L'indice de Gower varie entre 0 et 1. Si l'indice vaut 1, les deux individus sont identiques. 
+À l'opposé, s'il vaut 0, les deux individus considérés n'ont pas de point commun. 
+Si l'on note *S~g~* l'<dfn>indice de similarité de Gower</dfn><dfn data-index="Gower, indice de similarité"></dfn>,
+la distance de Gower *D~g~* s'obtient simplement de la manière suivante :
+*D~g~* = 1 - *S~g~*. Ainsi, la distance sera nulle entre deux individus
+identiques et elle sera égale à 1 entre deux individus totalement différents. Cette distance s'obtient sous
+**R** avec la fonction `daisy`{data-pkg="cluster"} du package `cluster`{.pkg}.
+
+L'indice de similarité de Gower entre deux individus *x~1~* et *x~2~* se calcule de la manière suivante :
+
+<!-- 
+$$ S_{g}(x_{1},x_{2})=\frac{1}{p}\sum_{j=1}^{p}s_{12j} $$
+converted on http://www2.ph.ed.ac.uk/snuggletex/MathInputDemo
+-->
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <semantics>
+    <mrow>
+      <msub>
+        <mi>S</mi>
+        <mi>g</mi>
+      </msub>
+      <mfenced close=")" open="(">
+        <msub>
+          <mi>x</mi>
+          <mn>1</mn>
+        </msub>
+        <msub>
+          <mi>x</mi>
+          <mn>2</mn>
+        </msub>
+      </mfenced>
+      <mo>=</mo>
+      <mfrac>
+        <mn>1</mn>
+        <mi>p</mi>
+      </mfrac>
+      <munderover>
+        <mo>&Sum;</mo>
+        <mrow>
+          <mi>j</mi>
+          <mo>=</mo>
+          <mn>1</mn>
+        </mrow>
+        <mi>p</mi>
+      </munderover>
+      <msub>
+        <mi>s</mi>
+        <mrow>
+          <mn>12</mn>
+          <mi>j</mi>
+        </mrow>
+      </msub>
+    </mrow>
+  </semantics>
+</math>
+
+*p* représente le nombre total de caractères (ou de variables) descriptifs utilisés pour comparer les deux
+individus. *s*~12*j*~ représente la similarité partielle entre les individus 1 et 2 concernant le descripteur *j*.
+Cette similarité partielle se calcule différemment s'il s'agit d'une 
+<dfn>variable qualitative</dfn><dfn data-index="qualitative, variable"></dfn> ou 
+<dfn data-index="variable quantitative">quantitative</dfn><dfn data-index="quantitative, variable"></dfn> :
+
+* **variable qualitative :** *s*~12*j*~ vaut 1 si la variable *j* prend la même valeur pour les individus 1 et 2,
+  et vaut 0 sinon. Par exemple, si 1 et 2 sont tous les deux « grand », alors *s*~12*j*~ vaudra 1. 
+  Si 1 est « grand » et 2 « petit », *s*~12*j*~ vaudra 0.
+* **variable quantitative :** la différence absolue entre les valeurs des deux variables est tout d'abord
+  calculée, soit |*y*~1*j*~ − *y*~2*j*~|. Puis l'écart maximum observé sur l'ensemble du fichier est déterminé et
+  noté *R*~*j*~. Dès lors, la similarité partielle vaut *S*~12*j*~ = |*y*~1*j*~ − *y*~2*j*~| / *R*~*j*~.
+
+Dans le cas où l'on n'a que des variables qualitatives, la valeur de l'indice de Gower correspond à la
+proportion de caractères en commun. Supposons des individus 1 et 2 décris ainsi :
+
+1. homme / grand / blond / étudiant / urbain
+2. femme / grande / brune / étudiante / rurale
+
+Sur les 5 variables utilisées pour les décrire, 1 et 2 ont deux caractéristiques communes : ils sont grand(e)s
+et étudiant(e)s. Dès lors, l'indice de similarité de Gower entre 1 et 2 vaut 2/5 = 0,4 (soit une distance de
+1 − 0,4 = 0,6).
+
+Plusieurs approches peuvent être retenues pour traiter les valeurs manquantes :
+
+* supprimer tout individu n'étant pas renseigné pour toutes les variables de l'analyse ;
+* considérer les valeurs manquantes comme une modalité en tant que telle ;
+* garder les valeurs manquantes en tant que valeurs manquantes.
+
+Le choix retenu modifiera les distances de Gower calculées. Supposons que l'on ait :
+
+1. homme / grand / blond / étudiant / urbain
+2. femme / grande / brune / étudiante / manquant
+
+Si l'on supprime les individus ayant des 
+<dfn data-index="valeur manquante">valeurs manquantes</dfn><dfn data-index="manquante, valeur"></dfn>,
+2 est retirée du fichier d'observations et aucune distance n'est calculée. 
+
+Si l'on traite les valeurs manquantes comme une modalité particulière, 1 et 2
+partagent alors 2 caractères sur les 5 analysés, la distance de Gower entre eux est alors de 
+1 − 2/5 =1 − 0,4 = 0,6.
+
+Si on garde les valeurs manquantes, l'indice de Gower est dès lors calculé sur les seuls
+descripteurs renseignés à la fois pour 1 et 2. La distance de Gower sera calculée dans le cas présent
+uniquement sur les 4 caractères renseignés et vaudra 1 − 2/4 = 0,5.
+
+### Distance du &Phi;²
+
+Il s'agit de la distance utilisée dans les analyses de correspondance multiples (ACM). C'est une variante
+de la <dfn data-index="distance du Chi²">distance du &chi;²</dfn><dfn data-index="Chi², distance"></dfn>.
+Nous considérons ici que nous avons *Q* questions (soit *Q* variables initiales de type
+facteur). À chaque individu est associé un <dfn>patron</dfn> c'est-à-dire une certaine combinaison de réponses aux
+*Q* questions. La distance entre deux individus correspond à la distance entre leurs deux patrons. Si les
+deux individus présentent le même patron, leur distance sera nulle. La distance du &Phi;² peut s'exprimer
+ainsi :
+
+<!-- 
+$$ d_{\Phi^2}^2(L_i,L_j)=\frac{1}{Q}\sum_{k}\frac{(\delta_{ik}-\delta_{jk})^2}{f_k} $$ 
+converted on http://www2.ph.ed.ac.uk/snuggletex/MathInputDemo
+-->
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <semantics>
+    <mrow>
+      <msubsup>
+        <mi>d</mi>
+        <msup>
+          <mi>&Phi;</mi>
+          <mn>2</mn>
+        </msup>
+        <mn>2</mn>
+      </msubsup>
+      <mfenced close=")" open="(">
+        <msub>
+          <mi>L</mi>
+          <mi>i</mi>
+        </msub>
+        <msub>
+          <mi>L</mi>
+          <mi>j</mi>
+        </msub>
+      </mfenced>
+      <mo>=</mo>
+      <mfrac>
+        <mn>1</mn>
+        <mi>Q</mi>
+      </mfrac>
+      <munder>
+        <mo>&Sum;</mo>
+        <mi>k</mi>
+      </munder>
+      <mfrac>
+        <msup>
+          <mfenced close=")" open="(">
+            <mrow>
+              <msub>
+                <mi>&delta;</mi>
+                <mrow>
+                  <mi>i</mi>
+                  <mi>k</mi>
+                </mrow>
+              </msub>
+              <mo>-</mo>
+              <msub>
+                <mi>&delta;</mi>
+                <mrow>
+                  <mi>j</mi>
+                  <mi>k</mi>
+                </mrow>
+              </msub>
+            </mrow>
+          </mfenced>
+          <mn>2</mn>
+        </msup>
+        <msub>
+          <mi>f</mi>
+          <mi>k</mi>
+        </msub>
+      </mfrac>
+    </mrow>
+  </semantics>
+</math>
+
+où *L~i~* et *L~j~* sont deux patrons, *Q* le nombre total de questions. *&delta;~ik~* vaut 1 si la 
+modalité *k* est présente dans le patron *L~i~*, 0 sinon. *f~k~* est la fréquence de la modalité *k* 
+dans l'ensemble de la population.
+
+Exprimé plus simplement, on fait la somme de l'inverse des modalités non communes aux deux patrons,
+puis on divise par le nombre total de question. Si nous reprenons notre exemple précédent :
+
+1. homme / grand / blond / étudiant / urbain
+2. femme / grande / brune / étudiante / rurale
+
+Pour calculer la distance entre 1 et 2, il nous faut connaître la proportion des différentes modalités dans
+l'ensemble de la population étudiée. En l'occurrence :
+
+* hommes : 52 % / femmes : 48 %
+* grand : 30 % / moyen : 45 % / petit : 25 %
+* blond : 15 % / châtain : 45 % / brun : 30 % / blanc : 10 %
+* étudiant : 20 % / salariés : 65 % / retraités : 15 %
+* urbain : 80 % / rural : 20 %
+
+Les modalités non communes entre les profils de 1 et 2 sont : homme, femme, blond, brun, urbain et
+rural. La distance du &Phi;² entre 1 et 2 est donc la suivante :
+
+<!-- 
+$$ d_{\Phi^2}^2(L_1,L_2)=\frac{1}{5}(\frac{1}{0,52}+\frac{1}{0,48}+\frac{1}{0,15}+\frac{1}{0,30}+\frac{1}{0,80}+\frac{1}{0,20})=4,05 $$
+converted on http://www2.ph.ed.ac.uk/snuggletex/MathInputDemo
+-->
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <semantics>
+    <mrow>
+      <msubsup>
+        <mi>d</mi>
+        <msup>
+          <mi>&Phi;</mi>
+          <mn>2</mn>
+        </msup>
+        <mn>2</mn>
+      </msubsup>
+      <mfenced close=")" open="(">
+        <msub>
+          <mi>L</mi>
+          <mn>1</mn>
+        </msub>
+        <msub>
+          <mi>L</mi>
+          <mn>2</mn>
+        </msub>
+      </mfenced>
+      <mo>=</mo>
+      <mfrac>
+        <mn>1</mn>
+        <mn>5</mn>
+      </mfrac>
+      <mfenced close=")" open="(">
+        <mrow>
+          <mfrac>
+            <mn>1</mn>
+            <mrow>
+              <mn>0</mn>
+              <mo>,</mo>
+              <mn>52</mn>
+            </mrow>
+          </mfrac>
+          <mo>+</mo>
+          <mfrac>
+            <mn>1</mn>
+            <mrow>
+              <mn>0</mn>
+              <mo>,</mo>
+              <mn>48</mn>
+            </mrow>
+          </mfrac>
+          <mo>+</mo>
+          <mfrac>
+            <mn>1</mn>
+            <mrow>
+              <mn>0</mn>
+              <mo>,</mo>
+              <mn>15</mn>
+            </mrow>
+          </mfrac>
+          <mo>+</mo>
+          <mfrac>
+            <mn>1</mn>
+            <mrow>
+              <mn>0</mn>
+              <mo>,</mo>
+              <mn>30</mn>
+            </mrow>
+          </mfrac>
+          <mo>+</mo>
+          <mfrac>
+            <mn>1</mn>
+            <mrow>
+              <mn>0</mn>
+              <mo>,</mo>
+              <mn>80</mn>
+            </mrow>
+          </mfrac>
+          <mo>+</mo>
+          <mfrac>
+            <mn>1</mn>
+            <mrow>
+              <mn>0</mn>
+              <mo>,</mo>
+              <mn>20</mn>
+            </mrow>
+          </mfrac>
+        </mrow>
+      </mfenced>
+      <mo>=</mo>
+      <mn>4</mn>
+      <mo>,</mo>
+      <mn>05</mn>
+    </mrow>
+  </semantics>
+</math>
+
+Cette distance, bien que moins intuitive que la distance de Gower évoquée précédemment, est la plus
+employée pour l'analyse d'enquêtes en sciences sociales. Il faut retenir que la distance entre deux profils
+est dépendante de la distribution globale de chaque modalité dans la population étudiée. Ainsi, si l'on
+recalcule les distances entre individus à partir d'un sous-échantillon, le résultat obtenu sera différent. De
+manière générale, les individus présentant des caractéristiques rares dans la population vont se retrouver
+éloignés des individus présentant des caractéristiques fortement représentées.
+
+### Exemple
+
+Nous allons reprendre l'ACM calculée avec `dudi.acm`{data-pkg="ade4"} (`ade4`{.pkg})
+dans le [chapitre consacré à l'ACM]() :
+
+```{r}
+library(questionr)
+data(hdv2003)
+d <- hdv2003
+d$grpage <- cut(d$age, c(16, 25, 45, 65, 93), right = FALSE, include.lowest = TRUE)
+d$etud <- d$nivetud
+levels(d$etud) <- c("Primaire", "Primaire", "Primaire", "Secondaire", "Secondaire", 
+                    "Technique/Professionnel", "Technique/Professionnel", "Supérieur" )
+d2 <- d[, c("grpage", "sexe", "etud", "peche.chasse", "cinema", "cuisine", "bricol", "sport", "lecture.bd")]
+library(ade4)
+acm <- dudi.acm(d2, scannf = FALSE, nf = 5)
+```
+
+La matrice des distances s'obtient dès lors avec la fonction `dist.dudi`{data-pkg="ade4"} :
+
+```{r}
+md <- dist.dudi(acm)
+```
+
+## Calcul du dendrogramme
+
+Il faut ensuite choisir une méthode d'<dfn>agrégation</dfn> pour construire le dendrogramme. De nombreuses
+solutions existent (saut minimum, distance maximum, moyenne, Ward...). Chacune d'elle produira un
+dendrogramme différent. Nous ne détaillerons pas ici ces différentes techniques^[On pourra consulter 
+le cours de FG Carpentier déjà cité ou bien des ouvrages d'analyse statistique.]. Cependant, à l'usage,
+on privilégiera le plus souvent la <dfn>méthode de Ward</dfn><dfn data-index="Ward, méthode"></dfn>.
+Cette méthode se distingue de toutes les autres en
+ce sens qu'elle utilise une analyse de la variance approchée afin d'évaluer les distances entre groupes. La
+méthode de Ward se justifie bien lorsque lorsque l'on utilise le carré de la distance. Choisir de regrouper
+les deux individus les plus proches revient alors à choisir la paire de points dont l'agrégation entraîne
+la diminution minimale de l'inertie du nuage. En résumé, cette méthode cherche à minimiser l'inertie
+intra-classe et à maximiser l'inertie inter-classe afin d'obtenir des classes les plus homogènes possibles.
+
+En raison de la variété des distances possibles et de la variété des techniques d'agrégation, on pourra
+être amené à réaliser plusieurs dendrogrammes différents sur un même jeu de données jusqu'à obtenir une
+classification qui fait « sens ».
+
+La fonction de base pour le calcul d'un dendrogramme est `hclust`{data-pkg="stats"} en précisant 
+le critère d'aggrégation avec `method`. Dans notre cas, nous allons opter pour la méthode de Ward 
+appliquée au carré des distances (ce qu'on indique avec `method = "ward.D2"`^[Depuis la version
+3.1 de **R**.], l'option `method = "ward.D"` correspondant à la version « classique ») :
+
+```{r}
+arbre <- hclust(md, method = "ward.D2")
+```
+
+<div class="note">
+Le temps de calcul d'un dendrogramme peut être particulièrement important sur un gros fichier de données.
+L'extension `fastcluster`{.pkg} permet de réduire significativement le temps de calcul.
+Il suffit d'installer puis d'appeler cette extension. La fonction 
+`hclust`{data-pkg="fastcluster"} sera automatiquement remplacée par cette 
+version optimisée. Elle prends les mêmes paramètres :
+
+```{r, eval=FALSE}
+library(fastcluster)
+arbre <- hclust(md, method = "ward.D2")
+```
+</div>
+
+Le dendrogramme obtenu peut être affiché simplement avec `plot`{data-pkg="stats" data-rdoc="hclust"}.
+Lorsque le nombre d'individus est important, il peut être utile de ne pas afficher les étiquettes des individus 
+avec `labels=FALSE`.
+
+<figure>
+```{r}
+plot(arbre, labels = FALSE, main = "Dendrogramme")
+```
+<figcaption>Dendrogramme obtenu avec hclust</figcaption>
+</figure>
+
+La fonction `agnes`{data-pkg="cluster"} de l'extension `cluster`{.pkg} peut également 
+être utilisée pour calculer le dendrogramme. Cependant, à l'usage, elle semble être un peu plus lente que 
+`hclust`{data-pkg="stats"}.
+
+```{r, eval=FALSE}
+library(cluster)
+arbre2 <- agnes(md, method = "ward")
+```
+
+ATTENTION : la méthode implémentée dans la fonction `agnes`{data-pkg="cluster"} correspond à l'option
+`method = "ward.D2"` de `hclust`{data-pkg="stats"}.
+
+Le résultat obtenu n'est pas au même format que celui de `hclust`{data-pkg="stats"}. Il est possible de 
+transformer un objet `agnes`{data-pkg="cluster" data-rdoc="agnes.object"} au format 
+`hclust`{data-pkg="stats"} avec `as.hclust`{data-pkg="cluster" data-rdoc="agnes.object"}.
+
+```{r, eval=FALSE}
+as.hclust(arbre2)
+```
+
+## Découper le dendrogramme
+
+Pour obtenir une <dfn>partition</dfn> de la population, il suffit de découper le dendrogramme obtenu à une
+certaine hauteur. En premier lieu, une analyse de la forme du dendrogramme pourra nous donner une indication
+sur le nombre de classes à retenir. Dans notre exemple, deux branches bien distinctes apparaissent
+sur l'arbre.
+
+Pour nous aider, nous pouvons représenter les 
+<dfn data-index="saut d'inertie">sauts d'inertie</dfn><dfn data-index="inertie, saut"></dfn>
+du dendrogramme selon le nombre de classes retenues.
+
+<figure>
+```{r}
+inertie <- sort(arbre$height, decreasing = TRUE)
+plot(inertie[1:20], type = "s", xlab = "Nombre de classes", ylab = "Inertie")
+```
+<figcaption>Inertie du dendrogramme</figcaption>
+</figure>
+
+On voit trois sauts assez nets à 2, 5 et 8 classes, que nous avons représentés ci-dessous 
+respectivement en vert, en rouge et en bleu.
+
+<figure>
+```{r}
+plot(inertie[1:20], type = "s", xlab = "Nombre de classes", ylab = "Inertie")
+points(c(2, 5, 8), inertie[c(2, 5, 8)], col = c("green3", "red3", "blue3"), cex = 2, lwd = 3)
+```
+<figcaption>Sauts d'inertie du dendrogramme</figcaption>
+</figure>
+
+La fonction `rect.hclust`{data-pkg="stats"} permet de visualiser les différentes partitions 
+directement sur le dendrogramme.
+
+<figure>
+```{r}
+plot(arbre, labels = FALSE, main = "Partition en 2, 5 ou 8 classes", xlab = "", ylab = "", sub = "", axes = FALSE, hang = -1)
+rect.hclust(arbre, 2, border = "green3")
+rect.hclust(arbre, 5, border = "red3")
+rect.hclust(arbre, 8, border = "blue3")
+```
+<figcaption>Différentes partitions du dendrogramme</figcaption>
+</figure>
+
+L'extension `FactoMineR`{.pkg} (que nous aborderons 
+[dans une section dédiée ci-après](#factominer)) suggère d'utiliser la partition 
+ayant la plus grande <dfn>perte relative d'inertie</dfn><dfn data-index="indertie, perte relative"></dfn>. 
+
+L'extension `JLutils`{.pkg} 
+(disponible sur [GitHub](https://github.com/larmarange/JLutils)) propose une fonction 
+`best.cutree`{data-pkg="JLutils"} qui permet de calculer cette indicateur à partir de n'importe 
+quel dendrogramme calculé avec `hclust`{data-pkg="stats"} ou `agnes`{data-pkg="cluster"}.
+
+Pour installer `JLutils`{.pkg}, on aura recours au package 
+`devtools`{.pkg} et à sa fonction `install_github`{data-pkg="devtools"} :
+
+```{r, eval=FALSE}
+library(devtools)
+install_github("larmarange/JLutils")
+```
+
+Par défaut, `best.cutree`{data-pkg="JLutils"} regarde quelle serait la meilleure partition entre 3 
+et 20 classes.
+
+```{r}
+library(JLutils)
+best.cutree(arbre)
+```
+
+En l'occurence il s'agirait d'une partition en 5 classes. Il est possible de modifier le minimum et le maximum 
+des partitions recherchées avec `min` et `max`.
+
+```{r}
+best.cutree(arbre, min = 2)
+```
+
+On peut également représenter le graphique des pertes relatives d'inertie avec `graph=TRUE`. La meilleure 
+partition selon ce critère est représentée par un point noir et la seconde par un point gris. 
+
+<figure>
+```{r}
+best.cutree(arbre, min = 2, graph = TRUE, xlab = "Nombre de classes", ylab = "Inertie relative")
+```
+<figcaption>Perte relative d'inertie selon le nombre de classes</figcaption>
+</figure>
+
+Un découpage en deux classes minimise ce critère. Cependant, si l'on souhaite réaliser
+une analyse un peu plus fine, un nombre de classes plus élevé serait pertinent. Nous allons donc retenir
+un découpage en cinq classes. Le découpage s'effectue avec la fonction `cutree`{data-pkg="stats"}.
+
+```{r}
+typo <- cutree(arbre, 5)
+freq(typo)
+```
+
+La typologie obtenue peut être représentée dans le plan factoriel avec `s.class`{data-pkg="ade4"}.
+
+<figure>
+```{r}
+par(mfrow = c(1, 2))
+library(RColorBrewer)
+s.class(acm$li, as.factor(typo), col = brewer.pal(5, "Set1"), sub = "Axes 1 et 2")
+s.class(acm$li, as.factor(typo), 3, 4, col = brewer.pal(5, "Set1"), sub = "Axes 3 et 4")
+par(mfrow = c(1, 1))
+```
+<figcaption>Projection de la typologie obtenue par CAH selon les 4 premiers axes</figcaption>
+</figure>
+
+<div class="note">
+De nombreuses possibilités graphiques sont possibles avec les dendrogrammes. Des exemples documentés
+sont disponibles à cette adresse : <http://rpubs.com/gaston/dendrograms>.
+
+Romain François a developpé une fonction `A2Rplot`{data-pkg="JLutils"} permettant de réaliser 
+facilement un dendrogramme avec les branches colorées^[Voir
+<http://addicted2or.free.fr/packages/A2R/lastVersion/R/code.R>.]. 
+Par commodité, cette fonction est disponible directement au sein de l'extension 
+`JLutils`{.pkg}.
+
+Pour réaliser le graphique, on indiquera le nombre de classes et les couleurs à utiliser pour chaque
+branche de l'arbre :
+
+```{r}
+A2Rplot(arbre, k = 5, boxes = FALSE, col.up = "gray50", col.down = brewer.pal(5, "Dark2"), show.labels = FALSE)
+```
+
+On pourra aussi noter l'extension `ggdendro`{.pkg} pour représenter
+des dendrogrammes avec `ggplot2`{.pkg} ou encore l'extension
+`dendextend`{.pkg} qui permet de manipuler, représenter et
+comparer des dendrogrammes^[Pour une présentation succincte, voir par exemple 
+<http://www.r-bloggers.com/dendextend-version-1-0-1-user2015-presentation/> (en anglais).].
+</div>
+
+## CAH avec l'extension FactoMineR{#factominer}
+
+L'extension `FactoMineR`{.pkg} fournit une fonction `HCPC`{data-pkg="FactoMineR"}
+permettant de réaliser une classification hiérarchique à partir du résultats d'une analyse factorielle réalisée 
+avec la même extension (voir la [section dédiée du chapitre sur l'ACM](#factominer)).
+
+`HCPC`{data-pkg="FactoMineR"} réalise à la fois le calcul de la matrice des distances, 
+du dendrogramme et le partitionnement de la population en classes. 
+Par défaut, `HCPC`{data-pkg="FactoMineR"} calcule le dendrogramme à partir du carré des distances du &Phi;² 
+et avec la méthode de Ward. 
+
+Par défaut, l'arbre est affiché à l'écran et l'arbre sera coupé selon la partition ayant la plus
+grande perte relative d'inertie (comme avec `best.cutree`{data-pkg="JLutils"}). Utilisez `graph=FALSE`
+pour ne pas afficher le graphique et l'argument `nb.clust` pour indiquer le nombre de classes
+désirées.
+
+<figure>
+```{r, message=FALSE, warning=FALSE}
+library(FactoMineR)
+acm2 <- MCA(d2[complete.cases(d2), ], ncp = 5, graph = FALSE)
+cah <- HCPC(acm2)
+```
+<figcaption>Graphique produit par HCPC</figcaption>
+</figure>
+
+On pourra représenter le dendrogramme avec `plot`{data-pkg="FactoMineR" data-rdoc="plot.HCPC"}
+et l'argument `choice="tree"`.
+
+<figure>
+```{r, message=FALSE, warning=FALSE}
+plot(cah, choice = "tree")
+```
+<figcaption>Dendrogramme obtenu avec HCPC (5 axes)</figcaption>
+</figure>
+
+Il apparait que le dendrogramme obtenu avec `HCPC`{data-pacakge="FactoMineR"} diffère 
+de celui que nous avons calculé précédemment en utilisant la matrice des distances fournies
+par `dist.dudi`{data-pkg="ade4"}. Cela est dû au fait que `HCPC`{data-pkg="FactoMineR"}
+procède différement pour calculer la matrice des distances en ne prenant en compte que les axes
+retenus dans le cadre de l'ACM. Pour rappel, nous avions retenu que 5 axes dans le cadre de notre ACM :
+
+```{r}
+acm2 <- MCA(d2[complete.cases(d2), ], ncp = 5, graph = FALSE)
+```
+
+`HCPC`{data-pkg="FactoMineR"} n'a donc pris en compte que ces 5 premiers axes pour calculer les 
+distances entre les individus, considérant que les autres axes n'apportent que du « bruit » rendant 
+la classification instable. Cependant, comme le montre `summary(acm2)`, nos cinq premiers axes n'expliquent 
+que 54 % de la variance. Il usuellement préférable de garder un plus grande nombre d'axes afin de couvrir
+au moins 80 à 90 % de la variance^[Voir 
+<http://factominer.free.fr/classical-methods/classification-hierarchique-sur-composantes-principales.html>]. 
+De son côté, `dist.dudi`{data-pkg="ade4"} prends en compte l'ensemble des axes pour calculer la matrice 
+des distances. On peut reproduire cela avec `FactoMineR`{.pkg} en indiquant 
+`ncp=Inf` lors du calcul de l'ACM.
+
+```{r}
+acm2 <- MCA(d2[complete.cases(d2), ], ncp = Inf, graph = FALSE)
+cah <- HCPC(acm2, nb.clust = -1, graph = FALSE)
+```
+
+On obtient bien cette fois-ci le même résultat.
+
+<figure>
+```{r, message=FALSE, warning=FALSE}
+plot(cah, choice = "tree")
+```
+<figcaption>Dendrogramme obtenu avec HCPC (tous les axes)</figcaption>
+</figure>
+
+D'autres graphiques sont disponibles, en faisant varier la valeur de l'argument `choice` :
+
+<figure>
+```{r, message=FALSE, warning=FALSE}
+plot(cah, choice = "3D.map")
+```
+<figcaption>Représentation en 3 dimensions du dendrogramme</figcaption>
+</figure>
+
+<figure>
+```{r, message=FALSE, warning=FALSE}
+plot(cah, choice = "bar")
+```
+<figcaption>Gains d'inertie</figcaption>
+</figure>
+
+<figure>
+```{r, message=FALSE, warning=FALSE}
+plot(cah, choice = "map")
+```
+<figcaption>Projection des catégories sur le plan factoriel</figcaption>
+</figure>
+
+L'objet renvoyé par `HCPC`{data-pkg="FactoMineR"} contient de nombreuses informations. 
+La partition peut notamment être récupérée avec `cah$data.clust$clust`. 
+Il y a également diverses statistiques pour décrire les catégories.
+
+```{r}
+cah
+freq(cah$data.clust$clust)
+```
