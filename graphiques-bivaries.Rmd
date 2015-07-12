@@ -34,7 +34,7 @@ Dans ce chapitre, on va se servir des données (corrigées) de Reinhart et Rogof
 library(readr)
 
 # emplacement souhaité pour le jeu de données
-file = "data/debt.csv"
+file <- "data/debt.csv"
 
 # télécharger le jeu de données s'il n'existe pas
 if(!file.exists(file))
@@ -42,7 +42,7 @@ if(!file.exists(file))
                 file, mode = "wb")
 
 # charger les données dans l'objet 'debt'
-debt = read_csv(file)
+debt <- read_csv(file)
 ```
 
 <div class="note">		
@@ -58,7 +58,7 @@ Les données de Reinhart et Rogoff contiennent, pour un échantillon de 20 pays 
 str(debt)
 
 # suppression de la première colonne
-debt = debt[, -1]
+debt <- debt[, -1]
 ```
 
 Il faut aussi noter d'emblée que certaines mesures sont manquantes : pour certains pays, on ne dispose pas d'une mesure fiable du PIB et/ou de la dette publique. En conséquence, le nombre d'observations par pays est différent, et va de 40 observations <q>pays-année</q> pour la Grèce à 64 observations <q>pays-année</q> pour plusieurs pays comme l'Australie ou les États-Unis :
@@ -72,7 +72,7 @@ table(debt$Country)
 Dernière manipulation préalable avant l'analyse : on va calculer la décennie de chaque observation, en divisant l'année de mesure par 10, et en multipliant la partie entière de ce résultat par 10. Cette manipulation très simple donne <q>1940</q> pour les mesures des années 1940 à 1949, <q>1950</q> pour les années 1950-1959, et ainsi de suite.
 
 ```{r}
-debt$Decade = factor(10 * debt$Year %/% 10)
+debt$Decade <- factor(10 * debt$Year %/% 10)
 ```
 
 Voici, pour terminer, les premières lignes du jeu de données sur lequel on travaille :
@@ -167,7 +167,7 @@ La section précédente a montré comment utiliser la fonction `qplot`{data-pkg=
 Commençons par créer un <q>treillis de base</q> au graphique :
 
 ```{r}
-p = ggplot(data = debt, aes(y = growth, x = ratio))
+p <- ggplot(data = debt, aes(y = growth, x = ratio))
 ```
 
 Aucun graphique ne s'affiche ici : en effet, ce que l'on a stocké, dans l'objet `p`, n'est pas un graphique complet, mais une base de travail. Cette base définit les coordonnées `x` et `y` du graphique dans l'argument `aes`{data-pkg="ggplot2" data-rdoc="aes"} ("_aesthetics_"). Ici, on a choisi de mettre la variable dépendante de Reinhart et Rogoff, <var>growth</var> (le taux de croissance du PIB), sur l'axe `y`, et la variable indépendante <var>ratio</var> (le ratio <q>Dette publique / PIB</q>) sur l'axe `x`.
@@ -194,7 +194,7 @@ p + geom_point() +
 Ces réglages nous conviennent : on va donc les sauvegarder dans l'objet `p`, de manière à continuer de construire notre graphique en incluant ces différents éléments.
 
 ```{r, tidy = FALSE}
-p = p + geom_point() +
+p <- p + geom_point() +
   facet_grid(. ~ Decade) +
   scale_x_continuous(breaks = seq(0, 200, by = 100))
 ```
@@ -221,7 +221,7 @@ Que peut-on dire, à ce stade, du seuil <q>fatidique</q> de Reinhart et Rogoff 
 Envisageons une nouvelle modification des paramètres graphiques. La légende du graphique, qui affiche `FALSE` et `TRUE` en fonction de l'inégalité `ratio < 90`, peut être déroutante. Clarifions un peu cette légende en supprimant son titre et en remplaçant les libellés ("_labels_") `FALSE` et `TRUE` par leur signification :
 
 ```{r, tidy = FALSE}
-p = p + aes(color = ratio < 90) +
+p <- p + aes(color = ratio < 90) +
   scale_color_brewer("", palette = "Set1",
                      labels = c("ratio > 90", "ratio < 90"))
 ```
