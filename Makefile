@@ -16,7 +16,7 @@ clean:
 
 
 clean_dir: clean
-	rm images/manipuler -r -f; rm images/analyser -r -f; rm images/approfondir -r -f
+	rm graphs -r -f
 
 
 check: clean_dir
