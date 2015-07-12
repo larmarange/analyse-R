@@ -14,4 +14,6 @@ if(length(p)) {
   print(p)
   warning(length(p), " liens pointent vers des chapitres inexistants.")
 
+} else {
+  message("Liens OK")
 }
