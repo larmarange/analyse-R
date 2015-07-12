@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Classification ascendante hiérarchique (CAH)</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/flatly.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<meta name="robots" content="index, follow">
+<link rel="stylesheet" href="./include/analyse-R.css" />
+<script type="text/javascript" src="./libs/zeroclipboard-2.2.0/ZeroClipboard.js"></script>
+<link rel="stylesheet" href="./libs/colorbox-1.6.1/colorbox.css" />
+<script type="text/javascript" src="./libs/colorbox-1.6.1/jquery.colorbox-min.js"></script>
+<!--- favicon --->
+<link rel="apple-touch-icon" sizes="57x57" href="./images/favicon/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="./images/favicon/apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="./images/favicon/apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="./images/favicon/apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="./images/favicon/apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="./images/favicon/apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="./images/favicon/apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="./images/favicon/apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./images/favicon/apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192"  href="./images/favicon/android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="./images/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="./images/favicon/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./images/favicon/favicon-16x16.png">
+<link rel="manifest" href="./images/favicon/manifest.json">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="./images/favicon/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+<nav>
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href=".">analyse-R</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="manipuler" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Manipuler <span class="caret"></span></a>
+          <ul class="dropdown-menu multi-column columns-3" role="menu" id="menu_manipuler">
+            <div class="row">
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+  		            <li class="dropdown-header">Prise en main</li>
+                  <li><a href="presentation-et-philosophie.html">Présentation et Philosophie</a></li>
+                  <li><a href="installation-de-R-et-RStudio.html">Installation de R et RStudio</a></li>
+                  <li><a href="extensions.html">Extensions</a></li>
+                  <li><a href="premier-contact.html">Premier contact</a></li>
+                  <li><a href="premier-travail-avec-les-donnees.html">Premier travail avec des données</a></li>
+                  <li><a href="organiser-ses-fichiers.html">Organiser ses fichiers</a></li>
+                  <li><a href="import-de-donnees.html">Import de données</a></li>
+                  <li class="dev"><a href="variables.html">Variables</a></li>
+                  <li class="dev"><a href="indexation.html">Indexation</a></li>
+                  <li class="dev"><a href="recodage.html">Recodage</a></li>
+                  <li><a href="ou-trouver-de-l-aide.html">Où trouver de l'aide ?</a></li>
+  	            </ul>
+              </div>
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+  		            <li class="dropdown-header">Manipulation de données</li>
+                  <li class="dev"><a href="introduction-a-dplyr.html">Introduction à dplyr</a></li>
+                  <li class="dev"><a href="introduction-a-data-table.html">Introduction à data.table</a></li>
+                  <li class="dev"><a href="doublons.html">Doublons</a></li>
+                  <li class="dev"><a href="tris.html">Tris</a></li>
+                  <li class="dev"><a href="sous-ensembles.html">Sous-ensembles</a></li>
+                  <li class="dev"><a href="fusion-de-tables.html">Fusion de tables</a></li>
+                  <li class="dev"><a href="gestion-des-dates.html">Gestion des dates</a></li>
+                  <li class="dev"><a href="aggregation.html">Aggrégation</a></li>
+                  <li class="dev"><a href="fonctions-a-fenetre.html">Fonctions à fenêtre</a></li>
+                  <li class="dev"><a href="restructuration-de-donnees.html">Restructuration de données</a></li>
+  	            </ul>
+              </div>
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+                  <li class="dropdown-header">Exporter</li>
+                  <li class="dev"><a href="export-de-donnees.html">Export de données</a></li>
+                  <li><a href="export-de-graphiques.html">Export de graphiques</a></li>
+                  <li class="dev"><a href="export-de-tableaux.html">Export de tableaux</a></li>
+  	            </ul>
+              </div>
+            </div>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="analyser" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Analyser <span class="caret"></span></a>
+          <ul class="dropdown-menu multi-column columns-3" role="menu" id="menu_analyser">
+            <div class="row">
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+  		            <li class="dropdown-header">Statistiques introductives</li>
+                  <li><a href="statistique-univariee.html">Statistique univariée</a></li>
+                  <li class="dev"><a href="graphiques-univaries.html">Graphiques univariés</a></li>
+                  <li><a href="statistique-bivariee.html">Statistique bivariée</a></li>
+                  <li class="dev"><a href="graphiques-bivaries.html">Graphiques bivariés</a></li>
+                  <li><a href="donnees-ponderees.html">Données pondérées</a></li>
+                  <li class="dev"><a href="graphiques-de-donnees-ponderees.html">Graphiques de données pondérées</a></li>
+  	            </ul>
+              </div>
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+  		            <li class="dropdown-header">Statistiques intermédiaires</li>
+  		            <li class="dev"><a href="intervalles-de-confiance.html">Intervalles de confiance</a></li>
+                  <li class="dev"><a href="comparaisons-moyennes-et-proportions.html">Comparaisons (moyennes et proportions)</a></li>
+                  <li><a href="definir-un-plan-d-echantillonnage-complexe.html">Définir un plan d'échantillonnage complexe</a></li>
+                  <li class="dev"><a href="regression-lineaire.html">Régression linéaire</a></li>
+                  <li><a href="regression-logistique.html">Régression logistique</a></li>
+                  <li class="dev"><a href="analyse-en-composantes-principales.html">Analyse en composantes principales (ACP)</a></li>
+                  <li><a href="analyse-des-correspondances-multiples.html">Analyse des correspondances multiples (ACM)</a></li>
+                  <li><a href="classification-ascendante-hierarchique.html">Classification ascendante hiérarchique (CAH)</a></li>
+  	            </ul>
+              </div>
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+                  <li class="dropdown-header">Statistiques avancées</li>
+                  <li class="dev"><a href="modeles-lineaires-a-effets-mixtes.html">Modèles linéaires à effets mixtes</a></li>
+                  <li class="dev"><a href="modeles-gee.html">Modèles GEE</a></li>
+                  <li class="dev"><a href="series-temporelles.html">Séries temporelles</a></li>
+                  <li class="dev"><a href="modeles-a-temps-discret.html">Modèles à temps discret</a></li>
+                  <li class="dev"><a href="analyse-de-survie.html">Analyse de survie</a></li>
+                  <li><a href="analyse-de-sequences.html">Analyse de séquences</a></li>
+                  <li class="dev"><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
+                  <li class="dev"><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+  	            </ul>
+              </div>
+            </div>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="approfondir" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Approfondir <span class="caret"></span></a>
+          <ul class="dropdown-menu multi-column columns-3" role="menu" id="menu_approfondir">
+            <div class="row">
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+  		            <li class="dropdown-header">Graphiques</li>
+                  <li class="dev"><a href="ggplot2-la-grammaire-des-graphiques.html">ggplot2 : la grammaire des graphiques</a></li>
+                  <li class="dev"><a href="etendre-ggplot2.html">Étendre ggplot2</a></li>
+                  <li class="dev"><a href="lattice-graphiques-et-formules.html">lattice : graphiques et formules</a></li>
+                  <li class="dev"><a href="diagrammes.html">Diagrammes</a></li>
+                  <li class="dev"><a href="representer-des-flux.html">Représenter des flux</a></li>
+                  <li class="dev"><a href="reseaux-dynamiques.html">Réseaux dynamiques</a></li>
+                  <li class="dev"><a href="ggvis-les-graphiques-interactifs.html">ggvis : les graphiques interactifs</a></li>
+                  <li class="dev"><a href="htmlwidgets-la-puissance-du-javascript.html">htmlwidgets : la puissance de javascript</a></li>
+                  <li class="dev"><a href="cartes.html">Cartes</a></li>
+  	            </ul>
+              </div>
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+  		            <li class="dropdown-header">Programmation</li>
+                  <li class="dev"><a href="formules.html">Formules</a></li>
+                  <li class="dev"><a href="structures-conditionnelles.html">Structures conditionnelles</a></li>
+                  <li class="dev"><a href="expressions-regulieres.html">Expressions régulières</a></li>
+                  <li class="dev"><a href="ecrire-ses-propres-fonctions.html">Écrire ses propres fonctions</a></li>
+                  <li class="dev"><a href="rmarkdown-les-rapports-automatises.html">R Markdown : les rapports automatisés</a></li>
+                  <li class="dev"><a href="shiny-les-interfaces-interactives.html">Shiny : les interfaces interactives</a></li>
+                  <li class="dev"><a href="git.html">Git</a></li>
+                  <li class="dev"><a href="developper-un-package.html">Développer un package</a></li>
+  	            </ul>
+              </div>
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+                  <li class="dropdown-header">Divers</li>
+                  <li><a href="calculer-un-age.html">Calculer un âge</a></li>
+                  <li class="dev"><a href="prevR-cartes-de-prevalence.html">prevR : cartes de prévalence à partir des EDS</a></li>
+  	            </ul>
+              </div>
+            </div>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="index" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Index <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu" id="menu_naviguer">
+            <li><a href="index-des-concepts.html">Index des concepts</a></li>
+            <li><a href="index-des-fonctions.html">Index des fonctions</a></li>
+            <li><a href="index-des-extensions.html">Index des extensions</a></li>
+          </ul>
+        </li>
+        <li><a href="analyse-R.pdf">PDF</a></li>
+      </ul>
+    <form id="rechercher" class="navbar-form navbar-right" role="search" style="padding-top: 5px;" method="get" action="https://tontonroger.org/">
+      <div class="form-group">
+        <input name="q" type="text" class="form-control input-sm" placeholder="Rechercher">
+      </div>
+      <button type="submit" class="btn btn-default btn-sm" name="Rechercher">
+        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+      </button>
+    </form>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+</nav>
+
+<div class="row">
+
+<a href="https://github.com/larmarange/analyse-R"><img style="position: absolute; top: 60px; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Contribuer sur GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
+
+<div class="col-sm-9" role="main">
+<article>
+
+<div id="header">
+<h1 class="title">Classification ascendante hiérarchique (CAH)</h1>
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#calculer-une-matrice-des-distances">Calculer une matrice des distances</a><ul>
+<li><a href="#distance-de-gower">Distance de Gower</a></li>
+<li><a href="#distance-du-">Distance du Φ²</a></li>
+<li><a href="#exemple">Exemple</a></li>
+</ul></li>
+<li><a href="#calcul-du-dendrogramme">Calcul du dendrogramme</a></li>
+<li><a href="#decouper-le-dendrogramme">Découper le dendrogramme</a></li>
+<li><a href="#factominer">CAH avec l’extension FactoMineR</a></li>
+</ul>
+</div>
+
+<div class="note">
+La version originale de ce chapitre a été écrite par Joseph Larmarange dans le cadre du support de cours <a href="https://github.com/larmarange/intro-r/tree/CoursM2">Introduction à l’analyse d’enquêtes avec R</a>.
+</div>
+<p>Il existe de nombreuses techniques statistiques visant à partinionner une population en différentes classes ou sous-groupes. La <dfn>classification ascendante hiérarchique</dfn> (<dfn>CAH</dfn>) est l’une d’entre elles. On cherche à ce que les individus regroupés au sein d’une même classe (homogénéité intra-classe) soient le plus semblables possibles tandis que les classes soient le plus dissemblables (hétérogénéité inter-classe).</p>
+<p>Le principe de la CAH est de rassembler des individus selon un critère de ressemblance défini au préalable qui s’exprimera sous la forme d’une <dfn>matrice de distances</dfn>, exprimant la distance existant entre chaque individu pris deux à deux. Deux observations identiques auront une distance nulle. Plus les deux observations seront dissemblables, plus la distance sera importante. La CAH va ensuite rassembler les individus de manière itérative afin de produire un <dfn>dendrogramme</dfn> ou <dfn>arbre de classification</dfn><dfn data-index="classification, arbre"></dfn>. La classification est <em>ascendante</em> car elle part des observations individuelles ; elle est <em>hiérarchique</em> car elle produit des classes ou groupes de plus en plus vastes, incluant des sous-groupes en leur sein. En découpant cet arbre à une certaine hauteur choisie, on produira la <dfn>partition</dfn> désirée.</p>
+<div class="note">
+On trouvera également de nombreux supports de cours en français sur la CAH sur le site de François Gilles Carpentier : <a href="http://pagesperso.univ-brest.fr/~carpenti/" class="uri">http://pagesperso.univ-brest.fr/~carpenti/</a>.
+</div>
+<div id="calculer-une-matrice-des-distances" class="section level2">
+<h2>Calculer une matrice des distances</h2>
+<p>La notion de <dfn>ressemblance</dfn> entre observations est évaluée par une <dfn>distance</dfn> entre individus. Plusieurs type de ditances existent selon les données utilisées.</p>
+<p>Il existe de nombreuses distances mathématiques pour les variables quantitatives (euclidiennes, Manhattan…) que nous n’aborderons pas ici<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>. La plupart peuvent être calculées avec la fonction <code data-pkg="stats">dist</code>.</p>
+<p>Usuellement, pour un ensemble de variables qualitatives, on aura recours à la <dfn data-index="distance du Phi²">distance du Φ²</dfn><dfn data-index="Phi², distance"></dfn> qui est celle utilisée pour l’analyse des correspondances multiples (voir le <a href="">chapitre dédié</a>). Avec l’extension <code class="pkg">ade4</code>, la distance du Φ² s’obtient avec la fonction <code data-pkg="ade4">dist.dudi</code><a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>. Le cas particulier de la CAH avec l’extension <code class="pkg">FactoMineR</code> sera abordée dans une section spécifique ci-après. Nous évoquerons également la <dfn>distance de Gower</dfn><dfn data-index="Gower, distance"></dfn> qui peut s’appliquer à un ensemble de variables à la fois qualitatives et quantitatives et qui se calcule avec la fonction <code data-pkg="cluster">daisy</code> de l’extension <code class="pkg">cluster</code>. Enfin, dans le chapitre sur l’<a href="analyse-de-sequences.html">analyse de séquences</a>, nous verrons également la fonction <code data-pkg="TraMineR">seqdist</code> (extension <code class="pkg">TraMineR</code>) permettant de calculer une distance entre séquences.</p>
+<div id="distance-de-gower" class="section level3">
+<h3>Distance de Gower</h3>
+<p>En 1971, Gower a proposé un <dfn>indice de similarité</dfn><dfn data-index="similarité, indice"></dfn> qui porte son nom. L’objectif de cet indice consiste à mesurer dans quelle mesure deux individus sont semblables. L’indice de Gower varie entre 0 et 1. Si l’indice vaut 1, les deux individus sont identiques. À l’opposé, s’il vaut 0, les deux individus considérés n’ont pas de point commun. Si l’on note <em>S<sub>g</sub></em> l’<dfn>indice de similarité de Gower</dfn><dfn data-index="Gower, indice de similarité"></dfn>, la distance de Gower <em>D<sub>g</sub></em> s’obtient simplement de la manière suivante : <em>D<sub>g</sub></em> = 1 - <em>S<sub>g</sub></em>. Ainsi, la distance sera nulle entre deux individus identiques et elle sera égale à 1 entre deux individus totalement différents. Cette distance s’obtient sous <strong>R</strong> avec la fonction <code data-pkg="cluster">daisy</code> du package <code class="pkg">cluster</code>.</p>
+<p>L’indice de similarité de Gower entre deux individus <em>x<sub>1</sub></em> et <em>x<sub>2</sub></em> se calcule de la manière suivante :</p>
+<!-- 
+$$ S_{g}(x_{1},x_{2})=\frac{1}{p}\sum_{j=1}^{p}s_{12j} $$
+converted on http://www2.ph.ed.ac.uk/snuggletex/MathInputDemo
+-->
+<p><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"> <semantics> <mrow> <msub> <mi>S</mi> <mi>g</mi> </msub> <mfenced close=")" open="("> <msub> <mi>x</mi> <mn>1</mn> </msub> <msub> <mi>x</mi> <mn>2</mn> </msub> </mfenced> <mo>=</mo> <mfrac> <mn>1</mn> <mi>p</mi> </mfrac> <munderover> <mo>∑</mo> <mrow> <mi>j</mi> <mo>=</mo> <mn>1</mn> </mrow> <mi>p</mi> </munderover> <msub> <mi>s</mi> <mrow> <mn>12</mn> <mi>j</mi> </mrow> </msub> </mrow> </semantics> </math></p>
+<p><em>p</em> représente le nombre total de caractères (ou de variables) descriptifs utilisés pour comparer les deux individus. <em>s</em><sub>12<em>j</em></sub> représente la similarité partielle entre les individus 1 et 2 concernant le descripteur <em>j</em>. Cette similarité partielle se calcule différemment s’il s’agit d’une <dfn>variable qualitative</dfn><dfn data-index="qualitative, variable"></dfn> ou <dfn data-index="variable quantitative">quantitative</dfn><dfn data-index="quantitative, variable"></dfn> :</p>
+<ul>
+<li><strong>variable qualitative :</strong> <em>s</em><sub>12<em>j</em></sub> vaut 1 si la variable <em>j</em> prend la même valeur pour les individus 1 et 2, et vaut 0 sinon. Par exemple, si 1 et 2 sont tous les deux « grand », alors <em>s</em><sub>12<em>j</em></sub> vaudra 1. Si 1 est « grand » et 2 « petit », <em>s</em><sub>12<em>j</em></sub> vaudra 0.</li>
+<li><strong>variable quantitative :</strong> la différence absolue entre les valeurs des deux variables est tout d’abord calculée, soit |<em>y</em><sub>1<em>j</em></sub> - <em>y</em><sub>2<em>j</em></sub>|. Puis l’écart maximum observé sur l’ensemble du fichier est déterminé et noté <em>R</em><sub><em>j</em></sub>. Dès lors, la similarité partielle vaut <em>S</em><sub>12<em>j</em></sub> = |<em>y</em><sub>1<em>j</em></sub> - <em>y</em><sub>2<em>j</em></sub>| / <em>R</em><sub><em>j</em></sub>.</li>
+</ul>
+<p>Dans le cas où l’on n’a que des variables qualitatives, la valeur de l’indice de Gower correspond à la proportion de caractères en commun. Supposons des individus 1 et 2 décris ainsi :</p>
+<ol style="list-style-type: decimal">
+<li>homme / grand / blond / étudiant / urbain</li>
+<li>femme / grande / brune / étudiante / rurale</li>
+</ol>
+<p>Sur les 5 variables utilisées pour les décrire, 1 et 2 ont deux caractéristiques communes : ils sont grand(e)s et étudiant(e)s. Dès lors, l’indice de similarité de Gower entre 1 et 2 vaut 2/5 = 0,4 (soit une distance de 1 - 0,4 = 0,6).</p>
+<p>Plusieurs approches peuvent être retenues pour traiter les valeurs manquantes :</p>
+<ul>
+<li>supprimer tout individu n’étant pas renseigné pour toutes les variables de l’analyse ;</li>
+<li>considérer les valeurs manquantes comme une modalité en tant que telle ;</li>
+<li>garder les valeurs manquantes en tant que valeurs manquantes.</li>
+</ul>
+<p>Le choix retenu modifiera les distances de Gower calculées. Supposons que l’on ait :</p>
+<ol style="list-style-type: decimal">
+<li>homme / grand / blond / étudiant / urbain</li>
+<li>femme / grande / brune / étudiante / manquant</li>
+</ol>
+<p>Si l’on supprime les individus ayant des <dfn data-index="valeur manquante">valeurs manquantes</dfn><dfn data-index="manquante, valeur"></dfn>, 2 est retirée du fichier d’observations et aucune distance n’est calculée.</p>
+<p>Si l’on traite les valeurs manquantes comme une modalité particulière, 1 et 2 partagent alors 2 caractères sur les 5 analysés, la distance de Gower entre eux est alors de 1 - 2/5 =1 - 0,4 = 0,6.</p>
+<p>Si on garde les valeurs manquantes, l’indice de Gower est dès lors calculé sur les seuls descripteurs renseignés à la fois pour 1 et 2. La distance de Gower sera calculée dans le cas présent uniquement sur les 4 caractères renseignés et vaudra 1 - 2/4 = 0,5.</p>
+</div>
+<div id="distance-du-" class="section level3">
+<h3>Distance du Φ²</h3>
+<p>Il s’agit de la distance utilisée dans les analyses de correspondance multiples (ACM). C’est une variante de la <dfn data-index="distance du Chi²">distance du χ²</dfn><dfn data-index="Chi², distance"></dfn>. Nous considérons ici que nous avons <em>Q</em> questions (soit <em>Q</em> variables initiales de type facteur). À chaque individu est associé un <dfn>patron</dfn> c’est-à-dire une certaine combinaison de réponses aux <em>Q</em> questions. La distance entre deux individus correspond à la distance entre leurs deux patrons. Si les deux individus présentent le même patron, leur distance sera nulle. La distance du Φ² peut s’exprimer ainsi :</p>
+<!-- 
+$$ d_{\Phi^2}^2(L_i,L_j)=\frac{1}{Q}\sum_{k}\frac{(\delta_{ik}-\delta_{jk})^2}{f_k} $$ 
+converted on http://www2.ph.ed.ac.uk/snuggletex/MathInputDemo
+-->
+<p><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"> <semantics> <mrow> <msubsup> <mi>d</mi> <msup> <mi>Φ</mi> <mn>2</mn> </msup> <mn>2</mn> </msubsup> <mfenced close=")" open="("> <msub> <mi>L</mi> <mi>i</mi> </msub> <msub> <mi>L</mi> <mi>j</mi> </msub> </mfenced> <mo>=</mo> <mfrac> <mn>1</mn> <mi>Q</mi> </mfrac> <munder> <mo>∑</mo> <mi>k</mi> </munder> <mfrac> <msup> <mfenced close=")" open="("> <mrow> <msub> <mi>δ</mi> <mrow> <mi>i</mi> <mi>k</mi> </mrow> </msub> <mo>-</mo> <msub> <mi>δ</mi> <mrow> <mi>j</mi> <mi>k</mi> </mrow> </msub> </mrow> </mfenced> <mn>2</mn> </msup> <msub> <mi>f</mi> <mi>k</mi> </msub> </mfrac> </mrow> </semantics> </math></p>
+<p>où <em>L<sub>i</sub></em> et <em>L<sub>j</sub></em> sont deux patrons, <em>Q</em> le nombre total de questions. <em>δ<sub>ik</sub></em> vaut 1 si la modalité <em>k</em> est présente dans le patron <em>L<sub>i</sub></em>, 0 sinon. <em>f<sub>k</sub></em> est la fréquence de la modalité <em>k</em> dans l’ensemble de la population.</p>
+<p>Exprimé plus simplement, on fait la somme de l’inverse des modalités non communes aux deux patrons, puis on divise par le nombre total de question. Si nous reprenons notre exemple précédent :</p>
+<ol style="list-style-type: decimal">
+<li>homme / grand / blond / étudiant / urbain</li>
+<li>femme / grande / brune / étudiante / rurale</li>
+</ol>
+<p>Pour calculer la distance entre 1 et 2, il nous faut connaître la proportion des différentes modalités dans l’ensemble de la population étudiée. En l’occurrence :</p>
+<ul>
+<li>hommes : 52 % / femmes : 48 %</li>
+<li>grand : 30 % / moyen : 45 % / petit : 25 %</li>
+<li>blond : 15 % / châtain : 45 % / brun : 30 % / blanc : 10 %</li>
+<li>étudiant : 20 % / salariés : 65 % / retraités : 15 %</li>
+<li>urbain : 80 % / rural : 20 %</li>
+</ul>
+<p>Les modalités non communes entre les profils de 1 et 2 sont : homme, femme, blond, brun, urbain et rural. La distance du Φ² entre 1 et 2 est donc la suivante :</p>
+<!-- 
+$$ d_{\Phi^2}^2(L_1,L_2)=\frac{1}{5}(\frac{1}{0,52}+\frac{1}{0,48}+\frac{1}{0,15}+\frac{1}{0,30}+\frac{1}{0,80}+\frac{1}{0,20})=4,05 $$
+converted on http://www2.ph.ed.ac.uk/snuggletex/MathInputDemo
+-->
+<p><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"> <semantics> <mrow> <msubsup> <mi>d</mi> <msup> <mi>Φ</mi> <mn>2</mn> </msup> <mn>2</mn> </msubsup> <mfenced close=")" open="("> <msub> <mi>L</mi> <mn>1</mn> </msub> <msub> <mi>L</mi> <mn>2</mn> </msub> </mfenced> <mo>=</mo> <mfrac> <mn>1</mn> <mn>5</mn> </mfrac> <mfenced close=")" open="("> <mrow> <mfrac> <mn>1</mn> <mrow> <mn>0</mn> <mo>,</mo> <mn>52</mn> </mrow> </mfrac> <mo>+</mo> <mfrac> <mn>1</mn> <mrow> <mn>0</mn> <mo>,</mo> <mn>48</mn> </mrow> </mfrac> <mo>+</mo> <mfrac> <mn>1</mn> <mrow> <mn>0</mn> <mo>,</mo> <mn>15</mn> </mrow> </mfrac> <mo>+</mo> <mfrac> <mn>1</mn> <mrow> <mn>0</mn> <mo>,</mo> <mn>30</mn> </mrow> </mfrac> <mo>+</mo> <mfrac> <mn>1</mn> <mrow> <mn>0</mn> <mo>,</mo> <mn>80</mn> </mrow> </mfrac> <mo>+</mo> <mfrac> <mn>1</mn> <mrow> <mn>0</mn> <mo>,</mo> <mn>20</mn> </mrow> </mfrac> </mrow> </mfenced> <mo>=</mo> <mn>4</mn> <mo>,</mo> <mn>05</mn> </mrow> </semantics> </math></p>
+<p>Cette distance, bien que moins intuitive que la distance de Gower évoquée précédemment, est la plus employée pour l’analyse d’enquêtes en sciences sociales. Il faut retenir que la distance entre deux profils est dépendante de la distribution globale de chaque modalité dans la population étudiée. Ainsi, si l’on recalcule les distances entre individus à partir d’un sous-échantillon, le résultat obtenu sera différent. De manière générale, les individus présentant des caractéristiques rares dans la population vont se retrouver éloignés des individus présentant des caractéristiques fortement représentées.</p>
+</div>
+<div id="exemple" class="section level3">
+<h3>Exemple</h3>
+<p>Nous allons reprendre l’ACM calculée avec <code data-pkg="ade4">dudi.acm</code> (<code class="pkg">ade4</code>) dans le <a href="">chapitre consacré à l’ACM</a> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
+<span class="kw">data</span>(hdv2003)
+d &lt;-<span class="st"> </span>hdv2003
+d$grpage &lt;-<span class="st"> </span><span class="kw">cut</span>(d$age, <span class="kw">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">93</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, 
+  <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)
+d$etud &lt;-<span class="st"> </span>d$nivetud
+<span class="kw">levels</span>(d$etud) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, 
+  <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, 
+  <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Supérieur&quot;</span>)
+d2 &lt;-<span class="st"> </span>d[, <span class="kw">c</span>(<span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;peche.chasse&quot;</span>, 
+  <span class="st">&quot;cinema&quot;</span>, <span class="st">&quot;cuisine&quot;</span>, <span class="st">&quot;bricol&quot;</span>, <span class="st">&quot;sport&quot;</span>, <span class="st">&quot;lecture.bd&quot;</span>)]
+<span class="kw">library</span>(ade4)
+acm &lt;-<span class="st"> </span><span class="kw">dudi.acm</span>(d2, <span class="dt">scannf =</span> <span class="ot">FALSE</span>, <span class="dt">nf =</span> <span class="dv">5</span>)</code></pre>
+<p>La matrice des distances s’obtient dès lors avec la fonction <code data-pkg="ade4">dist.dudi</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r">md &lt;-<span class="st"> </span><span class="kw">dist.dudi</span>(acm)</code></pre>
+</div>
+</div>
+<div id="calcul-du-dendrogramme" class="section level2">
+<h2>Calcul du dendrogramme</h2>
+<p>Il faut ensuite choisir une méthode d’<dfn>agrégation</dfn> pour construire le dendrogramme. De nombreuses solutions existent (saut minimum, distance maximum, moyenne, Ward…). Chacune d’elle produira un dendrogramme différent. Nous ne détaillerons pas ici ces différentes techniques<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. Cependant, à l’usage, on privilégiera le plus souvent la <dfn>méthode de Ward</dfn><dfn data-index="Ward, méthode"></dfn>. Cette méthode se distingue de toutes les autres en ce sens qu’elle utilise une analyse de la variance approchée afin d’évaluer les distances entre groupes. La méthode de Ward se justifie bien lorsque lorsque l’on utilise le carré de la distance. Choisir de regrouper les deux individus les plus proches revient alors à choisir la paire de points dont l’agrégation entraîne la diminution minimale de l’inertie du nuage. En résumé, cette méthode cherche à minimiser l’inertie intra-classe et à maximiser l’inertie inter-classe afin d’obtenir des classes les plus homogènes possibles.</p>
+<p>En raison de la variété des distances possibles et de la variété des techniques d’agrégation, on pourra être amené à réaliser plusieurs dendrogrammes différents sur un même jeu de données jusqu’à obtenir une classification qui fait « sens ».</p>
+<p>La fonction de base pour le calcul d’un dendrogramme est <code data-pkg="stats">hclust</code> en précisant le critère d’aggrégation avec <code>method</code>. Dans notre cas, nous allons opter pour la méthode de Ward appliquée au carré des distances (ce qu’on indique avec <code>method = &quot;ward.D2&quot;</code><a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>, l’option <code>method = &quot;ward.D&quot;</code> correspondant à la version « classique ») :</p>
+<pre class="sourceCode r"><code class="sourceCode r">arbre &lt;-<span class="st"> </span><span class="kw">hclust</span>(md, <span class="dt">method =</span> <span class="st">&quot;ward.D2&quot;</span>)</code></pre>
+<div class="note">
+<p>Le temps de calcul d’un dendrogramme peut être particulièrement important sur un gros fichier de données. L’extension <code class="pkg">fastcluster</code> permet de réduire significativement le temps de calcul. Il suffit d’installer puis d’appeler cette extension. La fonction <code data-pkg="fastcluster">hclust</code> sera automatiquement remplacée par cette version optimisée. Elle prends les mêmes paramètres :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fastcluster)
+arbre &lt;-<span class="st"> </span><span class="kw">hclust</span>(md, <span class="dt">method =</span> <span class="st">&quot;ward.D2&quot;</span>)</code></pre>
+</div>
+<p>Le dendrogramme obtenu peut être affiché simplement avec <code data-pkg="stats" data-rdoc="hclust">plot</code>. Lorsque le nombre d’individus est important, il peut être utile de ne pas afficher les étiquettes des individus avec <code>labels=FALSE</code>.</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(arbre, <span class="dt">labels =</span> <span class="ot">FALSE</span>, <span class="dt">main =</span> <span class="st">&quot;Dendrogramme&quot;</span>)</code></pre>
+<img src="graphs/classification-ascendante-hierarchique/unnamed-chunk-5-1.png" title="" alt="" width="1050" />
+<figcaption>
+Dendrogramme obtenu avec hclust
+</figcaption>
+</figure>
+<p>La fonction <code data-pkg="cluster">agnes</code> de l’extension <code class="pkg">cluster</code> peut également être utilisée pour calculer le dendrogramme. Cependant, à l’usage, elle semble être un peu plus lente que <code data-pkg="stats">hclust</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(cluster)
+arbre2 &lt;-<span class="st"> </span><span class="kw">agnes</span>(md, <span class="dt">method =</span> <span class="st">&quot;ward&quot;</span>)</code></pre>
+<p>ATTENTION : la méthode implémentée dans la fonction <code data-pkg="cluster">agnes</code> correspond à l’option <code>method = &quot;ward.D2&quot;</code> de <code data-pkg="stats">hclust</code>.</p>
+<p>Le résultat obtenu n’est pas au même format que celui de <code data-pkg="stats">hclust</code>. Il est possible de transformer un objet <code data-pkg="cluster" data-rdoc="agnes.object">agnes</code> au format <code data-pkg="stats">hclust</code> avec <code data-pkg="cluster" data-rdoc="agnes.object">as.hclust</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">as.hclust</span>(arbre2)</code></pre>
+</div>
+<div id="decouper-le-dendrogramme" class="section level2">
+<h2>Découper le dendrogramme</h2>
+<p>Pour obtenir une <dfn>partition</dfn> de la population, il suffit de découper le dendrogramme obtenu à une certaine hauteur. En premier lieu, une analyse de la forme du dendrogramme pourra nous donner une indication sur le nombre de classes à retenir. Dans notre exemple, deux branches bien distinctes apparaissent sur l’arbre.</p>
+<p>Pour nous aider, nous pouvons représenter les <dfn data-index="saut d'inertie">sauts d’inertie</dfn><dfn data-index="inertie, saut"></dfn> du dendrogramme selon le nombre de classes retenues.</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r">inertie &lt;-<span class="st"> </span><span class="kw">sort</span>(arbre$height, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)
+<span class="kw">plot</span>(inertie[<span class="dv">1</span>:<span class="dv">20</span>], <span class="dt">type =</span> <span class="st">&quot;s&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Nombre de classes&quot;</span>, 
+  <span class="dt">ylab =</span> <span class="st">&quot;Inertie&quot;</span>)</code></pre>
+<img src="graphs/classification-ascendante-hierarchique/unnamed-chunk-8-1.png" title="" alt="" width="1050" />
+<figcaption>
+Inertie du dendrogramme
+</figcaption>
+</figure>
+<p>On voit trois sauts assez nets à 2, 5 et 8 classes, que nous avons représentés ci-dessous respectivement en vert, en rouge et en bleu.</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(inertie[<span class="dv">1</span>:<span class="dv">20</span>], <span class="dt">type =</span> <span class="st">&quot;s&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Nombre de classes&quot;</span>, 
+  <span class="dt">ylab =</span> <span class="st">&quot;Inertie&quot;</span>)
+<span class="kw">points</span>(<span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">8</span>), inertie[<span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">8</span>)], <span class="dt">col =</span> <span class="kw">c</span>(<span class="st">&quot;green3&quot;</span>, 
+  <span class="st">&quot;red3&quot;</span>, <span class="st">&quot;blue3&quot;</span>), <span class="dt">cex =</span> <span class="dv">2</span>, <span class="dt">lwd =</span> <span class="dv">3</span>)</code></pre>
+<img src="graphs/classification-ascendante-hierarchique/unnamed-chunk-9-1.png" title="" alt="" width="1050" />
+<figcaption>
+Sauts d’inertie du dendrogramme
+</figcaption>
+</figure>
+<p>La fonction <code data-pkg="stats">rect.hclust</code> permet de visualiser les différentes partitions directement sur le dendrogramme.</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(arbre, <span class="dt">labels =</span> <span class="ot">FALSE</span>, <span class="dt">main =</span> <span class="st">&quot;Partition en 2, 5 ou 8 classes&quot;</span>, 
+  <span class="dt">xlab =</span> <span class="st">&quot;&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;&quot;</span>, <span class="dt">sub =</span> <span class="st">&quot;&quot;</span>, <span class="dt">axes =</span> <span class="ot">FALSE</span>, <span class="dt">hang =</span> -<span class="dv">1</span>)
+<span class="kw">rect.hclust</span>(arbre, <span class="dv">2</span>, <span class="dt">border =</span> <span class="st">&quot;green3&quot;</span>)
+<span class="kw">rect.hclust</span>(arbre, <span class="dv">5</span>, <span class="dt">border =</span> <span class="st">&quot;red3&quot;</span>)
+<span class="kw">rect.hclust</span>(arbre, <span class="dv">8</span>, <span class="dt">border =</span> <span class="st">&quot;blue3&quot;</span>)</code></pre>
+<img src="graphs/classification-ascendante-hierarchique/unnamed-chunk-10-1.png" title="" alt="" width="1050" />
+<figcaption>
+Différentes partitions du dendrogramme
+</figcaption>
+</figure>
+<p>L’extension <code class="pkg">FactoMineR</code> (que nous aborderons <a href="#factominer">dans une section dédiée ci-après</a>) suggère d’utiliser la partition ayant la plus grande <dfn>perte relative d’inertie</dfn><dfn data-index="indertie, perte relative"></dfn>.</p>
+<p>L’extension <code class="pkg">JLutils</code> (disponible sur <a href="https://github.com/larmarange/JLutils">GitHub</a>) propose une fonction <code data-pkg="JLutils">best.cutree</code> qui permet de calculer cette indicateur à partir de n’importe quel dendrogramme calculé avec <code data-pkg="stats">hclust</code> ou <code data-pkg="cluster">agnes</code>.</p>
+<p>Pour installer <code class="pkg">JLutils</code>, on aura recours au package <code class="pkg">devtools</code> et à sa fonction <code data-pkg="devtools">install_github</code> :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(devtools)
+<span class="kw">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</code></pre>
+<p>Par défaut, <code data-pkg="JLutils">best.cutree</code> regarde quelle serait la meilleure partition entre 3 et 20 classes.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(JLutils)</code></pre>
+<pre><code>
+Attaching package: &#39;JLutils&#39;
+
+The following object is masked from &#39;package:questionr&#39;:
+
+    ltabs</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">best.cutree</span>(arbre)</code></pre>
+<pre><code>[1] 5</code></pre>
+<p>En l’occurence il s’agirait d’une partition en 5 classes. Il est possible de modifier le minimum et le maximum des partitions recherchées avec <code>min</code> et <code>max</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">best.cutree</span>(arbre, <span class="dt">min =</span> <span class="dv">2</span>)</code></pre>
+<pre><code>[1] 2</code></pre>
+<p>On peut également représenter le graphique des pertes relatives d’inertie avec <code>graph=TRUE</code>. La meilleure partition selon ce critère est représentée par un point noir et la seconde par un point gris.</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">best.cutree</span>(arbre, <span class="dt">min =</span> <span class="dv">2</span>, <span class="dt">graph =</span> <span class="ot">TRUE</span>, <span class="dt">xlab =</span> <span class="st">&quot;Nombre de classes&quot;</span>, 
+  <span class="dt">ylab =</span> <span class="st">&quot;Inertie relative&quot;</span>)</code></pre>
+<p><img src="graphs/classification-ascendante-hierarchique/unnamed-chunk-14-1.png" title="" alt="" width="1050" /></p>
+<pre><code>[1] 2</code></pre>
+<figcaption>
+Perte relative d’inertie selon le nombre de classes
+</figcaption>
+</figure>
+<p>Un découpage en deux classes minimise ce critère. Cependant, si l’on souhaite réaliser une analyse un peu plus fine, un nombre de classes plus élevé serait pertinent. Nous allons donc retenir un découpage en cinq classes. Le découpage s’effectue avec la fonction <code data-pkg="stats">cutree</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r">typo &lt;-<span class="st"> </span><span class="kw">cutree</span>(arbre, <span class="dv">5</span>)
+<span class="kw">freq</span>(typo)</code></pre>
+<pre><code>         n    % val%
+[1] 1 1031 51.5 51.5
+[2] 2  164  8.2  8.2
+[3] 3  553 27.7 27.7
+[4] 4  205 10.2 10.2
+[5] 5   47  2.4  2.4
+NA       0  0.0   NA</code></pre>
+<p>La typologie obtenue peut être représentée dans le plan factoriel avec <code data-pkg="ade4">s.class</code>.</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))
+<span class="kw">library</span>(RColorBrewer)
+<span class="kw">s.class</span>(acm$li, <span class="kw">as.factor</span>(typo), <span class="dt">col =</span> <span class="kw">brewer.pal</span>(<span class="dv">5</span>, 
+  <span class="st">&quot;Set1&quot;</span>), <span class="dt">sub =</span> <span class="st">&quot;Axes 1 et 2&quot;</span>)
+<span class="kw">s.class</span>(acm$li, <span class="kw">as.factor</span>(typo), <span class="dv">3</span>, <span class="dv">4</span>, <span class="dt">col =</span> <span class="kw">brewer.pal</span>(<span class="dv">5</span>, 
+  <span class="st">&quot;Set1&quot;</span>), <span class="dt">sub =</span> <span class="st">&quot;Axes 3 et 4&quot;</span>)</code></pre>
+<p><img src="graphs/classification-ascendante-hierarchique/unnamed-chunk-16-1.png" title="" alt="" width="1050" /></p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</code></pre>
+<figcaption>
+Projection de la typologie obtenue par CAH selon les 4 premiers axes
+</figcaption>
+</figure>
+<div class="note">
+<p>De nombreuses possibilités graphiques sont possibles avec les dendrogrammes. Des exemples documentés sont disponibles à cette adresse : <a href="http://rpubs.com/gaston/dendrograms" class="uri">http://rpubs.com/gaston/dendrograms</a>.</p>
+<p>Romain François a developpé une fonction <code data-pkg="JLutils">A2Rplot</code> permettant de réaliser facilement un dendrogramme avec les branches colorées<a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a>. Par commodité, cette fonction est disponible directement au sein de l’extension <code class="pkg">JLutils</code>.</p>
+<p>Pour réaliser le graphique, on indiquera le nombre de classes et les couleurs à utiliser pour chaque branche de l’arbre :</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">A2Rplot</span>(arbre, <span class="dt">k =</span> <span class="dv">5</span>, <span class="dt">boxes =</span> <span class="ot">FALSE</span>, <span class="dt">col.up =</span> <span class="st">&quot;gray50&quot;</span>, 
+  <span class="dt">col.down =</span> <span class="kw">brewer.pal</span>(<span class="dv">5</span>, <span class="st">&quot;Dark2&quot;</span>), <span class="dt">show.labels =</span> <span class="ot">FALSE</span>)</code></pre>
+<p><img src="graphs/classification-ascendante-hierarchique/unnamed-chunk-17-1.png" title="" alt="" width="1050" /></p>
+On pourra aussi noter l’extension <code class="pkg">ggdendro</code> pour représenter des dendrogrammes avec <code class="pkg">ggplot2</code> ou encore l’extension <code class="pkg">dendextend</code> qui permet de manipuler, représenter et comparer des dendrogrammes<a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a>.
+</div>
+</div>
+<div id="factominer" class="section level2">
+<h2>CAH avec l’extension FactoMineR</h2>
+<p>L’extension <code class="pkg">FactoMineR</code> fournit une fonction <code data-pkg="FactoMineR">HCPC</code> permettant de réaliser une classification hiérarchique à partir du résultats d’une analyse factorielle réalisée avec la même extension (voir la <a href="#factominer">section dédiée du chapitre sur l’ACM</a>).</p>
+<p><code data-pkg="FactoMineR">HCPC</code> réalise à la fois le calcul de la matrice des distances, du dendrogramme et le partitionnement de la population en classes. Par défaut, <code data-pkg="FactoMineR">HCPC</code> calcule le dendrogramme à partir du carré des distances du Φ² et avec la méthode de Ward.</p>
+<p>Par défaut, l’arbre est affiché à l’écran et l’arbre sera coupé selon la partition ayant la plus grande perte relative d’inertie (comme avec <code data-pkg="JLutils">best.cutree</code>). Utilisez <code>graph=FALSE</code> pour ne pas afficher le graphique et l’argument <code>nb.clust</code> pour indiquer le nombre de classes désirées.</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(FactoMineR)
+acm2 &lt;-<span class="st"> </span><span class="kw">MCA</span>(d2[<span class="kw">complete.cases</span>(d2), ], <span class="dt">ncp =</span> <span class="dv">5</span>, <span class="dt">graph =</span> <span class="ot">FALSE</span>)
+cah &lt;-<span class="st"> </span><span class="kw">HCPC</span>(acm2)</code></pre>
+<img src="graphs/classification-ascendante-hierarchique/unnamed-chunk-18-1.png" title="" alt="" width="1050" />
+<figcaption>
+Graphique produit par HCPC
+</figcaption>
+</figure>
+<p>On pourra représenter le dendrogramme avec <code data-pkg="FactoMineR" data-rdoc="plot.HCPC">plot</code> et l’argument <code>choice=&quot;tree&quot;</code>.</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(cah, <span class="dt">choice =</span> <span class="st">&quot;tree&quot;</span>)</code></pre>
+<img src="graphs/classification-ascendante-hierarchique/unnamed-chunk-19-1.png" title="" alt="" width="1050" />
+<figcaption>
+Dendrogramme obtenu avec HCPC (5 axes)
+</figcaption>
+</figure>
+<p>Il apparait que le dendrogramme obtenu avec <code data-pacakge="FactoMineR">HCPC</code> diffère de celui que nous avons calculé précédemment en utilisant la matrice des distances fournies par <code data-pkg="ade4">dist.dudi</code>. Cela est dû au fait que <code data-pkg="FactoMineR">HCPC</code> procède différement pour calculer la matrice des distances en ne prenant en compte que les axes retenus dans le cadre de l’ACM. Pour rappel, nous avions retenu que 5 axes dans le cadre de notre ACM :</p>
+<pre class="sourceCode r"><code class="sourceCode r">acm2 &lt;-<span class="st"> </span><span class="kw">MCA</span>(d2[<span class="kw">complete.cases</span>(d2), ], <span class="dt">ncp =</span> <span class="dv">5</span>, <span class="dt">graph =</span> <span class="ot">FALSE</span>)</code></pre>
+<p><code data-pkg="FactoMineR">HCPC</code> n’a donc pris en compte que ces 5 premiers axes pour calculer les distances entre les individus, considérant que les autres axes n’apportent que du « bruit » rendant la classification instable. Cependant, comme le montre <code>summary(acm2)</code>, nos cinq premiers axes n’expliquent que 54 % de la variance. Il usuellement préférable de garder un plus grande nombre d’axes afin de couvrir au moins 80 à 90 % de la variance<a href="#fn7" class="footnoteRef" id="fnref7"><sup>7</sup></a>. De son côté, <code data-pkg="ade4">dist.dudi</code> prends en compte l’ensemble des axes pour calculer la matrice des distances. On peut reproduire cela avec <code class="pkg">FactoMineR</code> en indiquant <code>ncp=Inf</code> lors du calcul de l’ACM.</p>
+<pre class="sourceCode r"><code class="sourceCode r">acm2 &lt;-<span class="st"> </span><span class="kw">MCA</span>(d2[<span class="kw">complete.cases</span>(d2), ], <span class="dt">ncp =</span> <span class="ot">Inf</span>, <span class="dt">graph =</span> <span class="ot">FALSE</span>)
+cah &lt;-<span class="st"> </span><span class="kw">HCPC</span>(acm2, <span class="dt">nb.clust =</span> -<span class="dv">1</span>, <span class="dt">graph =</span> <span class="ot">FALSE</span>)</code></pre>
+<p>On obtient bien cette fois-ci le même résultat.</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(cah, <span class="dt">choice =</span> <span class="st">&quot;tree&quot;</span>)</code></pre>
+<img src="graphs/classification-ascendante-hierarchique/unnamed-chunk-22-1.png" title="" alt="" width="1050" />
+<figcaption>
+Dendrogramme obtenu avec HCPC (tous les axes)
+</figcaption>
+</figure>
+<p>D’autres graphiques sont disponibles, en faisant varier la valeur de l’argument <code>choice</code> :</p>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(cah, <span class="dt">choice =</span> <span class="st">&quot;3D.map&quot;</span>)</code></pre>
+<img src="graphs/classification-ascendante-hierarchique/unnamed-chunk-23-1.png" title="" alt="" width="1050" />
+<figcaption>
+Représentation en 3 dimensions du dendrogramme
+</figcaption>
+</figure>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(cah, <span class="dt">choice =</span> <span class="st">&quot;bar&quot;</span>)</code></pre>
+<img src="graphs/classification-ascendante-hierarchique/unnamed-chunk-24-1.png" title="" alt="" width="1050" />
+<figcaption>
+Gains d’inertie
+</figcaption>
+</figure>
+<figure>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(cah, <span class="dt">choice =</span> <span class="st">&quot;map&quot;</span>)</code></pre>
+<img src="graphs/classification-ascendante-hierarchique/unnamed-chunk-25-1.png" title="" alt="" width="1050" />
+<figcaption>
+Projection des catégories sur le plan factoriel
+</figcaption>
+</figure>
+<p>L’objet renvoyé par <code data-pkg="FactoMineR">HCPC</code> contient de nombreuses informations. La partition peut notamment être récupérée avec <code>cah$data.clust$clust</code>. Il y a également diverses statistiques pour décrire les catégories.</p>
+<pre class="sourceCode r"><code class="sourceCode r">cah</code></pre>
+<pre><code>**Results for the Hierarchical Clustering on Principal Components**
+   name                   
+1  &quot;$data.clust&quot;          
+2  &quot;$desc.var&quot;            
+3  &quot;$desc.var$test.chi2&quot;  
+4  &quot;$desc.axes$category&quot;  
+5  &quot;$desc.axes&quot;           
+6  &quot;$desc.axes$quanti.var&quot;
+7  &quot;$desc.axes$quanti&quot;    
+8  &quot;$desc.ind&quot;            
+9  &quot;$desc.ind$para&quot;       
+10 &quot;$desc.ind$dist&quot;       
+11 &quot;$call&quot;                
+12 &quot;$call$t&quot;              
+   description                                              
+1  &quot;dataset with the cluster of the individuals&quot;            
+2  &quot;description of the clusters by the variables&quot;           
+3  &quot;description of the cluster var. by the categorical var.&quot;
+4  &quot;description of the clusters by the categories.&quot;         
+5  &quot;description of the clusters by the dimensions&quot;          
+6  &quot;description of the cluster var. by the axes&quot;            
+7  &quot;description of the clusters by the axes&quot;                
+8  &quot;description of the clusters by the individuals&quot;         
+9  &quot;parangons of each clusters&quot;                             
+10 &quot;specific individuals&quot;                                   
+11 &quot;summary statistics&quot;                                     
+12 &quot;description of the tree&quot;                                </code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(cah$data.clust$clust)</code></pre>
+<pre><code>      n    % val%
+1   513 27.2 27.2
+2   201 10.7 10.7
+3  1051 55.7 55.7
+4    78  4.1  4.1
+5    43  2.3  2.3
+NA    0  0.0   NA</code></pre>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Pour une présentation de ces différentes distances, on pourra se référer à <a href="http://old.biodiversite.wallonie.be/outils/methodo/similarite_distance.htm" class="uri">http://old.biodiversite.wallonie.be/outils/methodo/similarite_distance.htm</a> ou encore à ce support de cours par D. Chessel, J. Thioulouse et A.B. Dufour disponible à <a href="http://pbil.univ-lyon1.fr/R/pdf/stage7.pdf" class="uri">http://pbil.univ-lyon1.fr/R/pdf/stage7.pdf</a>.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>Cette même fonction peut aussi être utilisée pour calculer une distance après une analyse en composantes principales ou une analyse mixte de Hill et Smith.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>On pourra consulter le cours de FG Carpentier déjà cité ou bien des ouvrages d’analyse statistique.<a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>Depuis la version 3.1 de <strong>R</strong>.<a href="#fnref4">↩</a></p></li>
+<li id="fn5"><p>Voir <a href="http://addicted2or.free.fr/packages/A2R/lastVersion/R/code.R" class="uri">http://addicted2or.free.fr/packages/A2R/lastVersion/R/code.R</a>.<a href="#fnref5">↩</a></p></li>
+<li id="fn6"><p>Pour une présentation succincte, voir par exemple <a href="http://www.r-bloggers.com/dendextend-version-1-0-1-user2015-presentation/" class="uri">http://www.r-bloggers.com/dendextend-version-1-0-1-user2015-presentation/</a> (en anglais).<a href="#fnref6">↩</a></p></li>
+<li id="fn7"><p>Voir <a href="http://factominer.free.fr/classical-methods/classification-hierarchique-sur-composantes-principales.html" class="uri">http://factominer.free.fr/classical-methods/classification-hierarchique-sur-composantes-principales.html</a><a href="#fnref7">↩</a></p></li>
+</ol>
+</div>
+
+</article>
+</div>
+
+<div class="col-sm-3" role="complementary">
+<nav class="hidden-print hidden-xs" id="nav_sidebar">
+</nav>
+</div>
+
+</div>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+
+    // active menu
+    href = window.location.pathname;
+    href = href.substr(href.lastIndexOf('/') + 1);
+    if (href=='') href = 'index.html';
+    $('a[href="' + href + '"]').parent().addClass('active');
+    $('a[href="' + href + '"]').parent().parents('li').addClass('active');
+
+    // élargir la page d'accueil
+    if (href=='index.html') $('.col-sm-9').attr('class','col-sm-12');
+
+    // rechercher
+    $("#rechercher").submit(function(event) {
+      $('input[name="q"]').val($('input[name="q"]').val() + ' site:larmarange.github.io/analyse-R');
+    });
+
+    // sidebar
+    $("#nav_sidebar").append($("#TOC").html());
+    $("#nav_sidebar ul").addClass("nav nav-stacked");
+    $("#TOC").addClass("visible-xs-block");
+    $('body').scrollspy({
+      target: '#nav_sidebar',
+      offset: 40
+    });
+
+    // Identifier les <pre> fermant
+    $('pre').next("*:not(pre)").prev().addClass('last'); // Dernier <pre> de chaque groupe contigu de <pre>
+    $('pre').parent().each(function (){
+      $(this).children('pre').last().addClass('last');
+    }); // Si <pre> est le dernier enfant de son parent
+
+    // Ajout liens rdocumentation et tooltip
+    $("code[data-pkg]").each(function( index ) {
+      pkg = $(this).attr('data-pkg');
+      if ($(this).attr('data-rdoc') !== undefined) {
+        rdocumentation = $(this).attr('data-rdoc');
+      } else {
+        rdocumentation = $(this).text();
+      }
+      fonction = $(this).text();
+      $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+pkg+'/functions/'+rdocumentation+'">');
+      $(this).attr('data-toggle','tooltip');
+      $(this).attr('data-placement','top');
+      $(this).attr('title','package : ' + pkg);
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+
+    $("code.pkg").each(function( index ) {
+      $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+$(this).text()+'">');
+    });
+
+    // Figures
+    $("figure").each(function( index ) {
+      if ($(this).children("figcaption").length > 0)
+        $(this).children("figcaption:first").prepend('<span class="figure-number">Figure '+(index+1)+'.</span> ');
+      else
+        $(this).append($("<figcaption>").append('<span class="figure-number">Figure '+(index+1)+'</span>'));
+    });
+
+    // Colorbox
+    jQuery('article div img').colorbox({
+      maxWidth: '90%',
+      maxHeight: '90%',
+      rel: 'figures',
+      current: "",
+      href: function(){
+        return $(this).attr('src');
+      },
+      title: function(){
+        return $(this).attr('alt');
+      }
+    });
+    jQuery('article div img').css('cursor', 'pointer');
+    jQuery('figure img').colorbox({
+      maxWidth: '90%',
+      maxHeight: '90%',
+      rel: 'figures',
+      current: "",
+      href: function(){
+        return $(this).attr('src');
+      },
+      title: function(){
+        return $(this).parent().children("figcaption").text();
+      }
+    });
+    jQuery('figure img').css('cursor', 'pointer');
+
+    // ZeroClipboard
+    $('pre.r').parent().each(function(){
+      $(this).children('pre.r').first().before('<div class="zero-clipboard hidden-print hidden-xs"><button class="btn-clipboard">Copier</button></div>');
+    }); // Il peut arriver que le pre ne soit pas précédé (cf. figures)
+    $('*:not(pre):not(.zero-clipboard) + pre.r').before('<div class="zero-clipboard hidden-print hidden-xs"><button class="btn-clipboard">Copier</button></div>');
+    $('pre.last').after(function() {
+      if ($(this).hasClass("r")) res = $(this).text(); else res = "";
+      $(this).prevUntil('*:not(pre)','pre.r').each(function() {
+        res = $(this).text() + '\n' + res;
+      });
+      return '<div class="clipboard">' + res + '</div>';
+    });
+    $('.zero-clipboard').each(function(index){
+      $(this).children('.btn-clipboard').attr('data-clipboard-target','clipboard_'+index);
+      $(this).nextAll("div.clipboard").first().attr('id','clipboard_'+index);
+    });
+    var client = new ZeroClipboard( $(".btn-clipboard") );
+    client.on( "ready", function( readyEvent ) {
+      // alert( "ZeroClipboard SWF is ready!" );
+      client.on( "aftercopy", function( event ) {
+        // `this` === `client`
+        // `event.target` === the element that was clicked
+        //event.target.style.display = "none";
+        $(event.target).parent().before('<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>Le code <strong>R</strong> de l’exemple a été copié dans le presse-papier.</div>');
+      } );
+    } );
+
+});
+</script>
+
+<!-- disqus -->
+<div class="row">
+  <div id="disqus_thread" class="col-sm-9" role="complementary"></div>
+</div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'analyse-r'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Veuillez activer JavaScript pour voir les <a href="http://disqus.com/?ref_noscript">les commentaires gérés avec Disqus.</a></noscript>
+    <!--<a href="http://disqus.com" class="dsq-brlink">Les commentaires sont hébergés par <span class="logo-disqus">Disqus</span>.</a>-->
+
+<footer>
+  <div class="row">
+    <div class="col-lg-12">
+      <p>Contenus sous licence <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/" rel="nofollow">Creative Commons Attribution - Pas d’utilisation commerciale - Partage dans les mêmes conditions</a>.<br />
+      Propulsé par <a href="http://www.r-project.org/" rel="nofollow">R</a>, </a><a href="http://www.rstudio.com/" rel="nofollow">RStudio</a>, <a href="http://rmarkdown.rstudio.com/" rel="nofollow">R Markdown</a>, <a href="http://yihui.name/knitr/" rel="nofollow">knitr</a>, <a href="http://pandoc.org/" rel="nofollow">pandoc</a> et <a href="http://www.princexml.com/" rel="nofollow">Prince XML</a>. Hébergé par <a href="https://github.com/" rel="nofollow">GitHub</a>.</p>
+    </div>
+  </div>
+</footer>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
