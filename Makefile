@@ -1,7 +1,7 @@
 
 HTML_FILES := $(patsubst %.Rmd, %.html ,$(wildcard *.Rmd))
 
-all: clean clean_dir check html pdf
+all: clean check html pdf
 
 
 html: $(HTML_FILES)
@@ -15,11 +15,7 @@ clean:
 	$(RM) $(HTML_FILES)
 
 
-clean_dir: clean
-	rm graphs -r -f
-
-
-check: clean_dir
+check: clean
 	R --slave < verification_installation_dependances.R
 
 
