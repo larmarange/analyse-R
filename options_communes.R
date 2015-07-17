@@ -11,6 +11,7 @@ knitr::opts_chunk$set(
   dev.args = list(bg = 'white'),
   dpi = 150,
   tidy = TRUE,
-  fig.path = paste0("graphs/", filename, "/")
+  fig.path = paste0("graphs/", filename, "/"),
+  cache.path = paste0("cache/", filename, "/")
 )
 
