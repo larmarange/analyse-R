@@ -136,7 +136,6 @@ fichier.
 
 ## Tableaux de données
 
-
 Dans cette partie nous allons utiliser un jeu de données inclus dans l'extension 
 `questionr`{.pkg}. L'installation d'extension est décrite dans
 le chapitre [Extensions](extensions.html).
@@ -203,6 +202,7 @@ library(questionr)
 data(hdv2003)
 d <- hdv2003
 ```
+
 ## Inspection visuelle des données{#inspecter}
 
 La particularité de **R** par rapport à d'autres logiciels comme **Modalisa** ou **SPSS** est de 
@@ -264,24 +264,6 @@ les noms des variables :
 ```{r}
 names(d)
 ```
-
-L'extension `questionr`{.pkg} propose également une fonction `lookfor`{data-pkg="questionr"}
-qui permet de lister les différentes variables d'un fichier de données :
-
-```{r}
-lookfor(d)
-```
-
-Lorsque l'on a un gros tableau de données avec de nombreuses variables, il peut être difficile
-de retrouver la ou les variables d'intérêt. Il est possible d'indiquer à `lookfor`{data-pkg="questionr"}
-un mot-clé pour limiter la recherche. Par exemple :
-
-```{r}
-lookfor(d, "trav")
-```
-
-Il est à noter que si la recherche n'est pas sensible à la casse (i.e. aux majuscules et aux minuscules), 
-elle est sensible aux accents.
 
 ## Accéder aux variables
 
@@ -350,44 +332,66 @@ qu'à des tableaux de données et à des vecteurs, tandis que `str`{data-pkg="ut
 à absolument **tout** objet, y compris des fonctions.
 </div>
 
-## La fonction describe
+## Quelques calculs simples
 
-L'extension `questionr`{.pkg} fournit également une fonction bien pratique pour décrire les
-différentes variables d'un tableau de données. Il s'agit de `describe`{data-pkg="questionr"}.
-Faisons de suite un essai :
-
-```{r}
-describe(d)
-```
-
-Comme on le voit sur cet exemple, `describe`{data-pkg="questionr"} nous affiche, le cas échéant,
-les étiquettes des différentes variables, leur type, les premières valeurs de chacune, le nombre
-de valeurs manquantes, le nombre de valeurs différentes (uniques) ainsi que quelques autres informations
-suivant le type de variables.
-
-Il est possible de restreindre l'affichage à seulement quelques variables en indiquant le nom de ces dernières.
+Maintenant que nous savons accéder aux variables, effectuons quelques calculs simples comme la
+moyenne, la médiane, le minimum et le maximum, à l'aide des fonctions `mean`{data-pkg="base"}, 
+`median`{data-pkg="stats"}, `min`{data-pkg="base" data-rdoc="Extrems"} et 
+`max`{data-pkg="base" data-rdoc="Extrems"}.
 
 ```{r}
-describe(d, "age", "trav.satisf")
-```
-
-On peut également transmettre juste une variable :
-
-```{r}
-describe(d$sexe)
+mean(d$age)
+median(d$age)
+min(d$age)
+max(d$age)
 ```
 
 <div class="note">
-L'extension `dplyr`{.pkg}, que nous n'aborderons en détails que plus tard, propose une fonction
-`glimpse`{data-pkg="dplyr"} (ce qui signifie "aperçu" en anglais) qui
-permet de visualiser rapidement et de manière condensée le contenu d'un
-tableau de données.
-
-```{r, message=FALSE}
-library(dplyr)
-```
-```{r}
-glimpse(d)
-```
+Au sens strict, il ne s'agit pas d'un véritable âge moyen puisqu'il faudrait ajouter 0,5 à cette
+valeur calculée, un âge moyen se calculant à partir d'âges exacts et non à partir d'âges révolus. 
+Voir le chapitre [Calculer un âge](calculer-un-age.html).
 </div>
 
+On peut aussi très facilement obtenir un tri à plat à l'aide la fonction `table`{data-pkg="base"} :
+
+```{r}
+table(d$qualif)
+```
+
+La fonction `summary`{data-pkg="base"}, bien pratique, permet d'avoir une vue résumée d'une 
+variable. Elle s'applique à tout type d'objets (y compris un tableau de données entier) et 
+s'adapte à celui-ci.
+
+```{r}
+summary(d$age)
+summary(d$qualif)
+summary(d)
+```
+
+## Nos premiers graphiques
+
+**R** est très puissant en termes de représentations graphiques, notamment grâce à des extensions
+dédiées. Pour l'heure contentons-nous d'un premier essai à l'aide de la fonction générique 
+`plot`{data-pkg="graphics"}.
+
+<figure>
+```{r}
+plot(d$sexe)
+```
+<figcaption>Nombre d'observations par sexe</figcaption>
+</figure>
+
+Essayons avec deux variables :
+
+<figure>
+```{r}
+plot(d$hard.rock, d$age)
+```
+<figcaption>Âge des enquêtés selon qu'ils écoutent ou non du hard rock</figcaption>
+</figure>
+
+Il semblerait bien que les amateurs de hard rock soient plus jeunes.
+
+## Et ensuite ?
+
+Nous n'avons qu'entr'aperçu les possibilités de **R**. Avant de pouvoir nous lancer dans des analyses statisques, il est préférable de revenir un peu aux fondamentaux de **R** (les types d'objets, la syntaxe, le recodage de variables...) mais aussi comment installer des extensions, importer des données, etc. Nous vous conseillons donc de poursuivre la lecture de la section _Prise en main_ puis de vous lancer à l'assault de la section _Statistique introductive_.
