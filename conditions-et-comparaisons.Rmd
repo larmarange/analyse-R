@@ -1,0 +1,112 @@
+---
+title: "Conditions et comparaisons"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+<div class="important">
+Ce chapitre est en cours d'écriture.
+</div>
+
+
+
+Une condition est une expression logique dont le résultat est soit `TRUE` (vrai) soit `FALSE` (faux).
+
+Une condition comprend la plupart du temps un 
+<dfn>opérateur de comparaison</dfn><dfn data-index="comparaison, opérateur"></dfn>. 
+Les plus courants sont les suivants :
+
+Opérateur de comparaison  | Signification
+:-----------|:-------------
+`==` | égal à
+`!=` | différent de
+`>` | strictement supérieur à
+`<` | strictement inférieur à
+`>=` | supérieur ou égal à
+`<=` | inférieur ou égal à
+
+Voyons tout de suite un exemple :
+
+```{r}
+library(questionr)
+data(hdv2003)
+d <- hdv2003
+str(d$sexe == "Homme")
+```
+
+Que s'est-il passé ? Nous avons fourni à **R** une condition qui signifie « la valeur de la variable *sexe*
+vaut "Homme" ». Et il nous a renvoyé un vecteur avec autant d'éléments qu'il y'a d'observations dans `d`,
+et dont la valeur est `TRUE` si l'observation correspond à un homme et `FALSE` dans les autres cas.
+
+Prenons un autre exemple. On n'affichera cette fois que les premiers éléments de notre variable d'intérêt
+à l'aide de la fonction `head`{data-pkg="utils"} :
+
+```{r}
+head(d$age)
+head(d$age > 40)
+```
+
+On voit bien ici qu'à chaque élément du vecteur `d$age` dont la valeur est supérieure à 40 correspond
+un élément `TRUE` dans le résultat de la condition.
+
+On peut combiner ou modifier des conditions à l'aide des 
+<dfn data-index="opérateur logique">opérateurs logiques</dfn><dfn data-index="logique, opérateur"></dfn> habituels :
+
+Opérateur logique  |  Signification
+:---------|:---------------
+`&` | et logique
+`|` | ou logique
+`!` | négation logique
+
+Comment les utilise-t-on ? Voyons tout de suite des exemples. Supposons que je veuille déterminer
+quels sont dans mon échantillon les hommes ouvriers spécialisés :
+
+```{r, results='hide'}
+d$sexe == "Homme" & d$qualif == "Ouvrier specialise"
+```
+
+Si je souhaite identifier les personnes qui bricolent ou qui font la cuisine :
+
+```{r, results='hide'}
+d$bricol == "Oui" | d$cuisine == "Oui"
+```
+
+Si je souhaite isoler les femmes qui ont entre 20 et 34 ans :
+
+```{r, results='hide'}
+d$sexe == "Femme" & d$age >= 20 & d$age <= 34
+```
+
+Si je souhaite récupérer les enquêtés qui ne sont pas cadres, on peut utiliser l'une des deux formes
+suivantes :
+
+```{r, results='hide'}
+d$qualif != "Cadre"
+!(d$qualif == "Cadre")
+```
+
+Lorsqu'on mélange « et » et « ou » il est nécessaire d'utiliser des parenthèses pour différencier les
+blocs. La condition suivante identifie les femmes qui sont soit cadre, soit employée :
+
+```{r, results='hide'}
+d$sexe == "Femme" & (d$qualif == "Employe" | d$qualif == "Cadre")
+```
+
+L'opérateur `%in%`{data-pkg="base" data-rdoc="match"} peut être très utile : 
+il teste si une valeur fait partie des éléments d'un vecteur. Ainsi
+on pourrait remplacer la condition précédente par :
+
+```{r, results='hide'}
+d$sexe == "Femme" & d$qualif %in% c("Employe", "Cadre")
+```
+
+Enfin, signalons qu'on peut utiliser les fonctions `table`{data-pkg="base"} ou `summary`{data-pkg="base"}
+pour avoir une idée du résultat de notre condition :
+
+```{r}
+table(d$sexe)
+table(d$sexe == "Homme")
+summary(d$sexe == "Homme")
+```

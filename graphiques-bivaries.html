@@ -114,13 +114,14 @@ img {
   		            <li class="dropdown-header">Prise en main</li>
                   <li><a href="presentation-et-philosophie.html">Présentation et Philosophie</a></li>
                   <li><a href="installation-de-R-et-RStudio.html">Installation de R et RStudio</a></li>
-                  <li><a href="extensions.html">Extensions</a></li>
                   <li><a href="premier-contact.html">Premier contact</a></li>
                   <li><a href="premier-travail-avec-les-donnees.html">Premier travail avec des données</a></li>
+                  <li><a href="extensions.html">Extensions</a></li>
+                  <li><a href="vecteurs-indexation-et-assignation.html">Vecteurs, indexation et assignation</a></li>
+                  <li><a href="listes-et-tableaux-de-donnes.html">Listes et Tableaux de données</a></li>
+                  <li><a href="facteurs-et-vecteurs-labellises.html">Facteurs et vecteurs labellisés</a></li>
                   <li><a href="organiser-ses-fichiers.html">Organiser ses fichiers</a></li>
                   <li><a href="import-de-donnees.html">Import de données</a></li>
-                  <li class="dev"><a href="variables.html">Variables</a></li>
-                  <li class="dev"><a href="indexation.html">Indexation</a></li>
                   <li class="dev"><a href="recodage.html">Recodage</a></li>
                   <li><a href="ou-trouver-de-l-aide.html">Où trouver de l'aide ?</a></li>
   	            </ul>
@@ -138,6 +139,7 @@ img {
                   <li class="dev"><a href="aggregation.html">Aggrégation</a></li>
                   <li class="dev"><a href="fonctions-a-fenetre.html">Fonctions à fenêtre</a></li>
                   <li class="dev"><a href="restructuration-de-donnees.html">Restructuration de données</a></li>
+                  <li class="dev"><a href="manipuler-du-texte.html">Manipuler du texte</a></li>
   	            </ul>
               </div>
               <div class="col-sm-4">
@@ -311,7 +313,7 @@ Ce chapitre est tiré d’une <a href="https://github.com/briatte/aad/tree/maste
 <span class="kw">library</span>(readr)
 
 <span class="co"># emplacement souhaité pour le jeu de données</span>
-file =<span class="st"> &quot;data/debt.csv&quot;</span>
+file &lt;-<span class="st"> &quot;data/debt.csv&quot;</span>
 
 <span class="co"># télécharger le jeu de données s&#39;il n&#39;existe pas</span>
 if(!<span class="kw">file.exists</span>(file))
@@ -319,7 +321,7 @@ if(!<span class="kw">file.exists</span>(file))
                 file, <span class="dt">mode =</span> <span class="st">&quot;wb&quot;</span>)
 
 <span class="co"># charger les données dans l&#39;objet &#39;debt&#39;</span>
-debt =<span class="st"> </span><span class="kw">read_csv</span>(file)</code></pre>
+debt &lt;-<span class="st"> </span><span class="kw">read_csv</span>(file)</code></pre>
 <div class="note">
 Le code ci-dessus utilise la fonction <code data-pkg="readr" data-rdoc="read_csv">read_csv</code> de l’extension <code class="pkg">readr</code>, dont on a recommandé l’utilisation dans un <a href="import-de-donnees.html">précédent chapitre</a>. En l’absence de cette extension, on aurait pu utiliser la fonction de base <code data-pkg="utils" data-rdoc="read.csv">read.csv</code>.
 </div>
@@ -335,7 +337,7 @@ Le code ci-dessus utilise la fonction <code data-pkg="readr" data-rdoc="read_csv
  $ growth : num  -3.56 2.46 6.44 6.61 6.92 ...
  $ ratio  : num  190 177 149 126 110 ...</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># suppression de la première colonne</span>
-debt =<span class="st"> </span>debt[, -<span class="dv">1</span>]</code></pre>
+debt &lt;-<span class="st"> </span>debt[, -<span class="dv">1</span>]</code></pre>
 <p>Il faut aussi noter d’emblée que certaines mesures sont manquantes : pour certains pays, on ne dispose pas d’une mesure fiable du PIB et/ou de la dette publique. En conséquence, le nombre d’observations par pays est différent, et va de 40 observations <q>pays-année</q> pour la Grèce à 64 observations <q>pays-année</q> pour plusieurs pays comme l’Australie ou les États-Unis :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(debt$Country)</code></pre>
 <pre><code>
@@ -353,7 +355,7 @@ Netherlands New Zealand      Norway    Portugal
 <div id="recodage-dune-variable" class="section level3">
 <h3>Recodage d’une variable</h3>
 <p>Dernière manipulation préalable avant l’analyse : on va calculer la décennie de chaque observation, en divisant l’année de mesure par 10, et en multipliant la partie entière de ce résultat par 10. Cette manipulation très simple donne <q>1940</q> pour les mesures des années 1940 à 1949, <q>1950</q> pour les années 1950-1959, et ainsi de suite.</p>
-<pre class="sourceCode r"><code class="sourceCode r">debt$Decade =<span class="st"> </span><span class="kw">factor</span>(<span class="dv">10</span> *<span class="st"> </span>debt$Year%/%<span class="dv">10</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">debt$Decade &lt;-<span class="st"> </span><span class="kw">factor</span>(<span class="dv">10</span> *<span class="st"> </span>debt$Year%/%<span class="dv">10</span>)</code></pre>
 <p>Voici, pour terminer, les premières lignes du jeu de données sur lequel on travaille :</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(debt)</code></pre>
 <pre><code>    Country Year    growth     ratio Decade
@@ -418,7 +420,7 @@ Aussi élégants que soient vos graphiques, il ne vous dispense évidemment pas 
 <h2>Composition graphique avec ggplot2</h2>
 <p>La section précédente a montré comment utiliser la fonction <code data-pkg="ggplot2" data-rdoc="qplot">qplot</code> (<q><em>quick plot</em></q>). La syntaxe complète de l’extension <code class="pkg">ggplot2</code> passe par une autre fonction, <code data-pkg="ggplot2" data-rdoc="ggplot">ggplot</code>, qui permet de mieux comprendre les différents éléments de sa grammaire graphique. Dans cette section, on va détailler cette syntaxe pour en tirer un graphique plus complexe que les précédents.</p>
 <p>Commençons par créer un <q>treillis de base</q> au graphique :</p>
-<pre class="sourceCode r"><code class="sourceCode r">p =<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> debt, <span class="kw">aes</span>(<span class="dt">y =</span> growth, <span class="dt">x =</span> ratio))</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">p &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> debt, <span class="kw">aes</span>(<span class="dt">y =</span> growth, <span class="dt">x =</span> ratio))</code></pre>
 <p>Aucun graphique ne s’affiche ici : en effet, ce que l’on a stocké, dans l’objet <code>p</code>, n’est pas un graphique complet, mais une base de travail. Cette base définit les coordonnées <code>x</code> et <code>y</code> du graphique dans l’argument <code data-pkg="ggplot2" data-rdoc="aes">aes</code> (“<em>aesthetics</em>”). Ici, on a choisi de mettre la variable dépendante de Reinhart et Rogoff, <var>growth</var> (le taux de croissance du PIB), sur l’axe <code>y</code>, et la variable indépendante <var>ratio</var> (le ratio <q>Dette publique / PIB</q>) sur l’axe <code>x</code>.</p>
 <p>Rajoutons désormais un objet géométrique, <code data-pkg="ggplot2" data-rdoc="geom_point">geom_point</code>, qui va projeter, sur le graphique, des points aux coordonnées précédemment définies, et divisons le graphique par un <q>petit multiple</q>, en projetant les points de chaque décennie dans une facette différente du graphique. Ce graphique propose une décomposition temporelle de la relation étudiée par Reinhart et Rogoff :</p>
 <pre class="sourceCode r"><code class="sourceCode r">p +<span class="st"> </span><span class="kw">geom_point</span>() +
@@ -433,7 +435,7 @@ Le paramètre <code data-pkg="ggplot2" data-rdoc="facet_grid">facet_grid</code>,
 <span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">200</span>, <span class="dt">by =</span> <span class="dv">100</span>))</code></pre>
 <p><img src="graphs/graphiques-bivaries/unnamed-chunk-15-1.png" title="" alt="" width="1050" /></p>
 <p>Ces réglages nous conviennent : on va donc les sauvegarder dans l’objet <code>p</code>, de manière à continuer de construire notre graphique en incluant ces différents éléments.</p>
-<pre class="sourceCode r"><code class="sourceCode r">p =<span class="st"> </span>p +<span class="st"> </span><span class="kw">geom_point</span>() +
+<pre class="sourceCode r"><code class="sourceCode r">p &lt;-<span class="st"> </span>p +<span class="st"> </span><span class="kw">geom_point</span>() +
 <span class="st">  </span><span class="kw">facet_grid</span>(. ~<span class="st"> </span>Decade) +
 <span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">200</span>, <span class="dt">by =</span> <span class="dv">100</span>))</code></pre>
 <div id="couleurs-et-echelles" class="section level3">
@@ -447,7 +449,7 @@ Le paramètre <code data-pkg="ggplot2" data-rdoc="facet_grid">facet_grid</code>,
 <p>Ici, on a fait appel à la palette de couleur <code>Set1</code> de l’éventail de couleurs <a href="http://colorbrewer2.org/">ColorBrewer</a>, qui est automatiquement disponible dans <code class="pkg">ggplot2</code>, et qui est contenu dans l’extension <code class="pkg">RColorBrewer</code>. La palette de couleurs que l’on a choisie affiche les points situés au-dessus du seuil <q>fatidique</q> de Reinhart et Rogoff en rouge, les autres en bleu.</p>
 <p>Que peut-on dire, à ce stade, du seuil <q>fatidique</q> de Reinhart et Rogoff ? On peut observer qu’après la Seconde guerre mondiale, de nombreux pays sont <em>déjà</em> endettés au-delà de ce seuil, et dégagent <em>déjà</em> moins de croissance que les autres. Sur la base de cette trajectoire, de nombreux critiques de Reinhart et Rogoff ont fait remarquer que le raisonnement de Reinhart et Rogoff pose en réalité un sérieux problème d’<a href="http://www.nextnewdeal.net/rortybomb/guest-post-reinhartrogoff-and-growth-time-debt">inversion du rapport causal</a> entre endettement et croissance au cours du temps.</p>
 <p>Envisageons une nouvelle modification des paramètres graphiques. La légende du graphique, qui affiche <code>FALSE</code> et <code>TRUE</code> en fonction de l’inégalité <code>ratio &lt; 90</code>, peut être déroutante. Clarifions un peu cette légende en supprimant son titre et en remplaçant les libellés (“<em>labels</em>”) <code>FALSE</code> et <code>TRUE</code> par leur signification :</p>
-<pre class="sourceCode r"><code class="sourceCode r">p =<span class="st"> </span>p +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">color =</span> ratio &lt;<span class="st"> </span><span class="dv">90</span>) +
+<pre class="sourceCode r"><code class="sourceCode r">p &lt;-<span class="st"> </span>p +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">color =</span> ratio &lt;<span class="st"> </span><span class="dv">90</span>) +
 <span class="st">  </span><span class="kw">scale_color_brewer</span>(<span class="st">&quot;&quot;</span>, <span class="dt">palette =</span> <span class="st">&quot;Set1&quot;</span>,
                      <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;ratio &gt; 90&quot;</span>, <span class="st">&quot;ratio &lt; 90&quot;</span>))</code></pre>
 <p>Dans le bloc de code ci-dessus, on a stocké l’ensemble de nos modifications dans l’objet <code>p</code>, sans l’afficher ; en effet, on souhaite encore procéder à une dernière modification, en rajoutant une <a href="https://fr.wikipedia.org/wiki/Régression_locale">régression locale</a> à travers les points de chaque facette<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>. Après consultation de la documentation de <code class="pkg">ggplot2</code> <a href="http://docs.ggplot2.org/current/geom_smooth.html">ici</a> et <a href="http://docs.ggplot2.org/current/stat_smooth.html">là</a>, on en arrive au code ci-dessous, où <code>p</code> produit le graphique précédent et <code data-pkg="ggplot2" data-rdoc="geom_smooth">geom_smooth</code> produit la régression locale :</p>
