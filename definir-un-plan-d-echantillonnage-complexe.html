@@ -7,17 +7,18 @@
 <meta charset="utf-8">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 
 
 <title>Définir un plan d’échantillonnage complexe</title>
 
-<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<script src="libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="libs/bootstrap-3.3.1/css/flatly.min.css" rel="stylesheet" />
-<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
-<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
-<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<link href="libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script type="text/javascript" src="./libs/zeroclipboard-2.2.0/ZeroClipboard.js"></script>
@@ -45,23 +46,41 @@
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
+div.sourceCode { overflow-x: auto; }
 table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
   margin: 0; padding: 0; vertical-align: baseline; border: none; }
 table.sourceCode { width: 100%; line-height: 100%; }
 td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
 td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; }
-code > span.dt { color: #902000; }
-code > span.dv { color: #40a070; }
-code > span.bn { color: #40a070; }
-code > span.fl { color: #40a070; }
-code > span.ch { color: #4070a0; }
-code > span.st { color: #4070a0; }
-code > span.co { color: #60a0b0; font-style: italic; }
-code > span.ot { color: #007020; }
-code > span.al { color: #ff0000; font-weight: bold; }
-code > span.fu { color: #06287e; }
-code > span.er { color: #ff0000; font-weight: bold; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 </style>
 <style type="text/css">
   pre:not([class]) {
@@ -85,12 +104,55 @@ code {
   color: inherit;
   background-color: rgba(0, 0, 0, 0.04);
 }
-img { 
-  max-width:100%; 
-  height: auto; 
+img {
+  max-width:100%;
+  height: auto;
+}
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
 }
 </style>
+
+
 <div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script src="libs/navigation-1.0/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
 
 <nav>
 <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -268,8 +330,11 @@ img {
 <div class="col-sm-9" role="main">
 <article>
 
-<div id="header">
+<div class="fluid-row" id="header">
+
+
 <h1 class="title">Définir un plan d’échantillonnage complexe</h1>
+
 </div>
 
 <div id="TOC">
@@ -282,7 +347,7 @@ img {
 </div>
 
 <div class="important">
-Ce chapitre est en cours d’écriture.
+<p>Ce chapitre est en cours d’écriture.</p>
 </div>
 <p>L’extension <code class="pkg">survey</code> ne permet pas seulement d’indiquer une variable de pondération mais également de prendre les spécificités du plan d’échantillonnage (strates, grappes, …). Le plan d’échantillonnage ne joue pas seulement sur la pondération des données, mais influence le calcul des variances et par ricochet tous les tests statistiques. Deux échantillons identiques avec la même variable de pondération mais des designs différents produiront les mêmes moyennes et proportions mais des intervalles de confiance différents.</p>
 <div id="differents-types-dechantillonnage" class="section level2">
@@ -303,7 +368,7 @@ Ce chapitre est en cours d’écriture.
 </div>
 <div id="quelques-exemples" class="section level2">
 <h2>Quelques exemples</h2>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Échantillonnage aléatoire simple</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Échantillonnage aléatoire simple</span>
 plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~<span class="dv">1</span>, <span class="dt">data =</span> donnees)
 
 <span class="co"># Échantillonnage stratifié à un seul niveau (la</span>
@@ -322,23 +387,23 @@ plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class
 <span class="co"># degrés (clusters et individus). Le poids</span>
 <span class="co"># statistiques de chaque observation est connu.</span>
 plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~id_cluster, <span class="dt">data =</span> donnees, 
-  <span class="dt">strata =</span> ~id_strate, <span class="dt">weights =</span> ~poids)</code></pre>
+  <span class="dt">strata =</span> ~id_strate, <span class="dt">weights =</span> ~poids)</code></pre></div>
 <p>Prenons l’exemple d’une <em>Enquête Démographique et de Santé</em>. Le nom des différentes variables est standardisé et commun quelle que soit l’enquête. Nous supposerons que vous avez importé le fichier <em>individus</em> dans un tableau de données nommés <code>eds</code>. Le poids statistique de chaque individu est fourni par la variable <em>V005</em> qui doit au préalable être divisée par un million. Les grappes d’échantillonnage au premier degré sont fournies par la variable <em>V021 (primary sample unit)</em>. Si elle n’est pas renseignée, on pourra utilisier le numéro de grappe <em>V001</em>. Enfin, le milieu de résidence (urbain / rural) est fourni par <em>V025</em> et la région par <em>V024</em>. Pour rappel, l’échantillon a été stratifié à la fois par région et par mileu de résidence. Certaines enquêtes fournissent directement un numéro de strate via <em>V022</em>. Si tel est le cas, on pourra préciser le plan d’échantillonnage ainsi :</p>
-<pre class="sourceCode r"><code class="sourceCode r">eds$poids &lt;-<span class="st"> </span>eds$V005/<span class="fl">1e+06</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eds$poids &lt;-<span class="st"> </span>eds$V005/<span class="fl">1e+06</span>
 design.eds &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~V021, <span class="dt">data =</span> eds, <span class="dt">strata =</span> ~V022, 
-  <span class="dt">weights =</span> ~poids)</code></pre>
+  <span class="dt">weights =</span> ~poids)</code></pre></div>
 <p>Si <em>V022</em> n’est pas fourni mais que l’enquête a bien été stratifiée par région et milieu de résidence (vérifiez toujours le premier chapitre du rapport d’enquête), on pourra créer une variable strate ainsi<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> :</p>
-<pre class="sourceCode r"><code class="sourceCode r">eds$strate &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">as.integer</span>(eds$V024) *<span class="st"> </span><span class="dv">10</span> +<span class="st"> </span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eds$strate &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">as.integer</span>(eds$V024) *<span class="st"> </span><span class="dv">10</span> +<span class="st"> </span>
 <span class="st">  </span><span class="kw">as.integer</span>(eds$V025))
 <span class="kw">levels</span>(eds$strate) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">paste</span>(<span class="kw">levels</span>(eds$V024), <span class="st">&quot;Urbain&quot;</span>), 
   <span class="kw">paste</span>(<span class="kw">levels</span>(eds$V024), <span class="st">&quot;Rural&quot;</span>))
 design.eds &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~V021, <span class="dt">data =</span> eds, <span class="dt">strata =</span> ~strate, 
-  <span class="dt">weights =</span> ~poids)</code></pre>
+  <span class="dt">weights =</span> ~poids)</code></pre></div>
 </div>
 <div id="extraire-un-sous-echantillon" class="section level2">
 <h2>Extraire un sous-échantillon</h2>
 <p>Si l’on souhaite travailler sur un <dfn>sous-échantillon</dfn> tout en gardant les informations d’échantillonnage, on utilisera la fonction <code data-pkg="survey" data-rdoc="subset.survey.design">subset</code> présentée en détail dans le chapitre <a href="pem_manipulation.html#subset">Manipulation de données</a>.</p>
-<pre class="sourceCode r"><code class="sourceCode r">sous &lt;-<span class="st"> </span><span class="kw">subset</span>(plan, sexe ==<span class="st"> &quot;Femme&quot;</span> &amp;<span class="st"> </span>age &gt;=<span class="st"> </span><span class="dv">40</span>)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sous &lt;-<span class="st"> </span><span class="kw">subset</span>(plan, sexe ==<span class="st"> &quot;Femme&quot;</span> &amp;<span class="st"> </span>age &gt;=<span class="st"> </span><span class="dv">40</span>)</code></pre></div>
 </div>
 <div class="footnotes">
 <hr />
@@ -504,6 +569,8 @@ $(document).ready(function () {
     </div>
   </div>
 </footer>
+
+
 
 </div>
 
