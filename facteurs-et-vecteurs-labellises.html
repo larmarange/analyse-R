@@ -198,6 +198,7 @@ $(document).ready(function () {
                   <li class="dev"><a href="sous-ensembles.html">Sous-ensembles</a></li>
                   <li class="dev"><a href="fusion-de-tables.html">Fusion de tables</a></li>
                   <li class="dev"><a href="gestion-des-dates.html">Gestion des dates</a></li>
+                  <li class="dev"><a href="conditions-et-comparaisons.html">Conditions et comparaisons</a></li>
                   <li class="dev"><a href="aggregation.html">Aggrégation</a></li>
                   <li class="dev"><a href="fonctions-a-fenetre.html">Fonctions à fenêtre</a></li>
                   <li class="dev"><a href="restructuration-de-donnees.html">Restructuration de données</a></li>
@@ -341,7 +342,7 @@ $(document).ready(function () {
 <ul>
 <li><a href="#facteurs">Facteurs</a></li>
 <li><a href="#labelled">Vecteurs labellisés</a><ul>
-<li><a href="#les-etiquettes-de-variables">Les étiquettes de variables</a></li>
+<li><a href="#les-etiquettes-de-variable">Les étiquettes de variable</a></li>
 <li><a href="#les-etiquettes-de-valeur">Les étiquettes de valeur</a></li>
 <li><a href="#assignation-et-condition">Assignation et condition</a></li>
 <li><a href="#definir-des-valeurs-manquantes">Définir des valeurs manquantes</a></li>
@@ -352,14 +353,14 @@ $(document).ready(function () {
 
 <p>Dans le chapire sur les <a href="vecteurs-indexation-et-assignation.html">vecteurs</a>, nous avons abordé les types fondementaux de vecteurs (numériques, textuels, logiques). Mais il existe de nombreux autres classes de vecteurs afin de représenter des données diverses (comme les dates). Dans ce chapitre, nous nous intéressons plus particulièrement aux <dfn data-index="variable catégorielle">variables catégorielles</dfn><dfn data-index="catégorielle, variable"></dfn>.</p>
 <p>Les <dfn data-index="facteur">facteurs</dfn> (ou <dfn data-index="factor" lang="en">factors</dfn> an anglais) sont un type de vecteur géré nativement par <strong>R</strong> et utilisés dans de nombreux domaines (modèles statistiques, représentations graphiques, …).</p>
-<p>Les facteurs sont souvent mis en regard des <dfn data-index="donnée labelissée">données labellisées</dfn><dfn data-index="labellisée, donnée"></dfn><dfn data-index="labelled data"></dfn> telles qu’elles sont utilisées dans d’autres logiciels comme <strong>SPSS</strong> ou <strong>Stata</strong>. Or, les limites propres aux facteurs font qu’ils ne sont pas adpatés pour rendre compte des différents usages qui sont fait des données labellisées. Plusieurs extensions (telles que <code class="pkg">memisc</code> ou <code class="pkg">Hmisc</code>) ont proposé leur propre solution qui, bien qu’elles apportaient un plus pour la gestion des données labellisées, ne permettaient que celles-ci soient utilisées en dehors de ces extensions ou des extensions compatibles. Nous aborderons ici une nouvelle classe de vecteurs, la classe <code data-pkg="labelled">labelled</code>, introduite par l’extension <code class="pkg">haven</code> (que nous aborderons dans le cadre de l’<a href="import-de-donnees.html">import de données</a>) et qui peut être manipulée avec l’extension homonyme <code class="pkg">labelled</code>.</p>
+<p>Les facteurs sont souvent mis en regard des <dfn data-index="donnée labelissée">données labellisées</dfn><dfn data-index="labellisée, donnée"></dfn><dfn data-index="labelled data"></dfn> telles qu’elles sont utilisées dans d’autres logiciels comme <strong>SPSS</strong> ou <strong>Stata</strong>. Or, les limites propres aux facteurs font qu’ils ne sont pas adpatés pour rendre compte des différents usages qui sont fait des données labellisées. Plusieurs extensions (telles que <code class="pkg">memisc</code> ou <code class="pkg">Hmisc</code>) ont proposé leur propre solution qui, bien qu’elles apportaient un plus pour la gestion des données labellisées, ne permettaient pas que celles-ci soient utilisées en dehors de ces extensions ou des extensions compatibles. Nous aborderons ici une nouvelle classe de vecteurs, la classe <code data-pkg="labelled">labelled</code>, introduite par l’extension <code class="pkg">haven</code> (que nous aborderons dans le cadre de l’<a href="import-de-donnees.html">import de données</a>) et qui peut être manipulée avec l’extension homonyme <code class="pkg">labelled</code>.</p>
 <div id="facteurs" class="section level2">
 <h2>Facteurs</h2>
 <p>Dans ce qui suit on travaillera sur le jeu de données tiré de l’enquête <em>Histoire de vie</em>, fourni avec l’extension <code class="pkg">questionr</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
 <span class="kw">data</span>(hdv2003)
 d &lt;-<span class="st"> </span>hdv2003</code></pre></div>
-<p>Jetons un œil à la liste des variables de <code>d</code> :</p>
+<p>Jetons un il à la liste des variables de <code>d</code> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(d)</code></pre></div>
 <pre><code>&#39;data.frame&#39;:   2000 obs. of  20 variables:
  $ id           : int  1 2 3 4 5 6 7 8 9 10 ...
@@ -494,110 +495,26 @@ Profession intermediaire                    Cadre
 <span class="kw">data</span>(fecondite)</code></pre></div>
 <p>Pour ailleurs, nous allons avoir besoin de l’extension <code class="pkg">labelled</code> qui permet de manipuler ces données labellisées.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(labelled)</code></pre></div>
-<div id="les-etiquettes-de-variables" class="section level3">
-<h3>Les étiquettes de variables</h3>
-<p>Les <dfn data-index="étiquette de variable">étiquettes de variables</dfn><dfn data-index="variable, étiquette"></dfn> permettent de donner un nom long, plus explicite, aux différentes colonnes d’un tableau de données (ou encore directement à un vecteur autonome).</p>
-<p>La visonneuse de données de <strong>RStudio</strong> sait reconnaître et afficher ces étiquettes de variables lorsqu’elles existent. Essayez par exemple la commande suivante :</p>
+<div id="les-etiquettes-de-variable" class="section level3">
+<h3>Les étiquettes de variable</h3>
+<p>Les <dfn data-index="étiquette de variable">étiquettes de variable</dfn><dfn data-index="variable, étiquette"></dfn> permettent de donner un nom long, plus explicite, aux différentes colonnes d’un tableau de données (ou encore directement à un vecteur autonome).</p>
+<p>La visonneuse de données de <strong>RStudio</strong> sait reconnaître et afficher ces étiquettes de variable lorsqu’elles existent. Essayez par exemple la commande suivante :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">View</span>(femmes)</code></pre></div>
 <p>Les fonctions <code data-pkg="questionr">lookfor</code> et <code data-pkg="questionr">describe</code> de l’extension <code class="pkg">questionr</code> affichent également les étiquettes de variables lorsqu’elles existent.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">lookfor</span>(femmes)</code></pre></div>
-<pre><code>         variable
-1        id_femme
-2       id_menage
-3           poids
-4  date_entretien
-5  date_naissance
-6             age
-7          milieu
-8          region
-9            educ
-10        travail
-11          matri
-12       religion
-13        journal
-14          radio
-15             tv
-16   nb_enf_ideal
-17           test
-                                                            label
-1                                       Identifiant de l&#39;enquêtée
-2                                           Identifiant du ménage
-3                                               Poids statistique
-4                              Date de passation du questionnaire
-5                                               Date de naissance
-6  Âge révolu (en années) à la date de passation du questionnaire
-7                                             Milieu de résidence
-8                                             Région de résidence
-9                                              Niveau d&#39;éducation
-10                                                  A un emploi ?
-11                                             Statut matrimonial
-12                                                       Religion
-13                                                Lit la presse ?
-14                                              Ecoute la radio ?
-15                                        Regarde la télévision ?
-16                                         Nombre idéal d&#39;enfants
-17                      A déjà fait un test de dépistage du VIH ?</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">lookfor</span>(femmes, <span class="st">&quot;rés&quot;</span>)</code></pre></div>
+<pre><code>  variable               label
+7   milieu Milieu de résidence
+8   region Région de résidence</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">describe</span>(femmes$id_femme)</code></pre></div>
 <pre><code>[2000 obs.] Identifiant de l&#39;enquêtée
 integer: 391 1643 85 881 1981 ...
 min: 1 - max: 2000 - NAs: 0 (0%) - 2000 unique values</code></pre>
 <p>Pour manipuler les étiquettes de variable, il suffit d’utiliser la fonction <code data-pkg="labelled">var_label</code> de l’extension <code class="pkg">labelled</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">var_label</span>(femmes)</code></pre></div>
-<pre><code>$id_femme
-[1] &quot;Identifiant de l&#39;enquêtée&quot;
-
-$id_menage
-[1] &quot;Identifiant du ménage&quot;
-
-$poids
-[1] &quot;Poids statistique&quot;
-
-$date_entretien
-[1] &quot;Date de passation du questionnaire&quot;
-
-$date_naissance
-[1] &quot;Date de naissance&quot;
-
-$age
-[1] &quot;Âge révolu (en années) à la date de passation du questionnaire&quot;
-
-$milieu
-[1] &quot;Milieu de résidence&quot;
-
-$region
-[1] &quot;Région de résidence&quot;
-
-$educ
-[1] &quot;Niveau d&#39;éducation&quot;
-
-$travail
-[1] &quot;A un emploi ?&quot;
-
-$matri
-[1] &quot;Statut matrimonial&quot;
-
-$religion
-[1] &quot;Religion&quot;
-
-$journal
-[1] &quot;Lit la presse ?&quot;
-
-$radio
-[1] &quot;Ecoute la radio ?&quot;
-
-$tv
-[1] &quot;Regarde la télévision ?&quot;
-
-$nb_enf_ideal
-[1] &quot;Nombre idéal d&#39;enfants&quot;
-
-$test
-[1] &quot;A déjà fait un test de dépistage du VIH ?&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">var_label</span>(femmes$id_menage)</code></pre></div>
 <pre><code>[1] &quot;Identifiant du ménage&quot;</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">var_label</span>(femmes$id_menage) &lt;-<span class="st"> &quot;ID du ménage à laquelle est appartient&quot;</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">var_label</span>(femmes$id_menage) &lt;-<span class="st"> &quot;ID du ménage auquel elle appartient&quot;</span>
 <span class="kw">var_label</span>(femmes$id_menage)</code></pre></div>
-<pre><code>[1] &quot;ID du ménage à laquelle est appartient&quot;</code></pre>
+<pre><code>[1] &quot;ID du ménage auquel elle appartient&quot;</code></pre>
 <p>On utilisera la valeur <code>NULL</code> pour supprimer une étiquette :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">v &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">1</span>)
 <span class="kw">var_label</span>(v)</code></pre></div>
@@ -616,12 +533,12 @@ $test
 <pre><code> atomic [1:5] 1 5 2 4 1
  - attr(*, &quot;label&quot;)= chr &quot;Une autre étiquette&quot;</code></pre>
 <p>Que voit-on ? Notre vecteur possède maintenant ce qu’on appelle un <dfn>attribut</dfn>, c’est-à-dire une information supplémentaire qui lui est attachée. Un objet peut avoir plusieurs attributs. Ici, notre étiquette de variable est strocké dans un attribut nommé <code>&quot;label&quot;</code>. Cela ne modifie en rien sa nature. Il ne s’agit que d’information en plus. Toutes les fonctions ne tiennent pas compte des étiquettes de variable. Peu importe ! La présence d’un attribut ne les empêchera de fonctionner. De même, même si l’extension <code class="pkg">labelled</code> n’est pas installée sur votre machine, vous pourrez toujours manipuler vos données comme si de rien n’était.</p>
-<p>On peut associer une étiquette à n’importe quel type de variable, qu’elle soit numérique, textuelle, un facteur ou encore des dates.</p>
+<p>On peut associer une étiquette de variable à n’importe quel type de variable, qu’elle soit numérique, textuelle, un facteur ou encore des dates.</p>
 </div>
 <div id="les-etiquettes-de-valeur" class="section level3">
 <h3>Les étiquettes de valeur</h3>
 <p>Les <dfn data-index="étiquette de valeur">étiquettes de valeur</dfn><dfn data-index="valeur, étiquette"></dfn> consistent à attribuer une étiquette textuelle à certaines valeurs d’un vecteur. Elles ne peuvent s’appliquer qu’aux vecteurs numériques ou textuels.</p>
-<p>Lorsqu’un vecteur possède des étiquettes de valeur, sa classe change et devient <code data-pkg="labelled">labelled</code>. Regardons déjà quelques exemples. Tout d’abord, jetons un apercu contenu de l’objet <code>femmes</code> grace à la fonction <code data-pkg="dplyr">glimpse</code> de l’extension <code class="pkg">dplyr</code>.</p>
+<p>Lorsqu’un vecteur possède des étiquettes de valeur, sa classe change et devient <code data-pkg="labelled">labelled</code>. Regardons déjà quelques exemples. Tout d’abord, jetons un apercu au contenu de l’objet <code>femmes</code> grace à la fonction <code data-pkg="dplyr">glimpse</code> de l’extension <code class="pkg">dplyr</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)
 <span class="kw">glimpse</span>(femmes)</code></pre></div>
 <pre><code>Observations: 2,000
@@ -743,23 +660,6 @@ v</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">class</span>(v)</code></pre></div>
 <pre><code>[1] &quot;character&quot;</code></pre>
 <p>Si l’on supprime toutes les étiquettes de valeur, alors notre vecteur retrouve sa classe initiale.</p>
-<p>Les étiquettes de valeur sont plus souples que les facteurs, en ce sens qu’il n’est pas obligatoire d’indiquer une étiquette pour chaque valeur prise par une variable. Alors qu’il n’est pas possible avec un facteur d’assigner une valeur qui n’a pas été préalablement définie comme une des modalités possibles du facteur, nous n’avons pas cette limite avec les vecteurs labellisés.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">femmes$milieu[<span class="dv">3</span>] &lt;-<span class="st"> </span><span class="dv">5</span></code></pre></div>
-<p>Important : quand on assigne une valeur à un facteur, on doit transmettre le texte correspondant à la modalité, alors que pour un vecteur labellisé on transmettra le code sous-jacent (pour rappel, les étiquettes de valeur ne sont qu’une information additionnelle).</p>
-<p>De plus, nous avons vu que les données initiales n’étaient pas modifiées par l’ajout ou la suppression d’étiquettes de valeur, alors que pour les facteurs ce n’est pas vrai. Pour mieux comprendre, essayons la commande suivante :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">unclass</span>(<span class="kw">factor</span>(v))</code></pre></div>
-<pre><code>[1] 1 1 2 1 2
-attr(,&quot;levels&quot;)
-[1] &quot;f&quot; &quot;h&quot;</code></pre>
-<p>Un facteur stocke de manière interne les valeurs sous la forme d’une suite d’entiers, démarrant toujours par 1 et forcéments consécutifs, et dont les valeurs dépendent de l’ordre des facteurs. Pour s’en rendre compte :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">unclass</span>(<span class="kw">factor</span>(v, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;h&quot;</span>, <span class="st">&quot;f&quot;</span>)))</code></pre></div>
-<pre><code>[1] 2 2 1 2 1
-attr(,&quot;levels&quot;)
-[1] &quot;h&quot; &quot;f&quot;</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">unclass</span>(<span class="kw">factor</span>(v, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;f&quot;</span>, <span class="st">&quot;h&quot;</span>)))</code></pre></div>
-<pre><code>[1] 1 1 2 1 2
-attr(,&quot;levels&quot;)
-[1] &quot;f&quot; &quot;h&quot;</code></pre>
 </div>
 <div id="assignation-et-condition" class="section level3">
 <h3>Assignation et condition</h3>
@@ -771,7 +671,7 @@ attr(,&quot;levels&quot;)
 <pre><code>[1] 1 1 2 1 2
 attr(,&quot;levels&quot;)
 [1] &quot;f&quot; &quot;h&quot;</code></pre>
-<p>Un facteur stocke de manière interne les valeurs sous la forme d’une suite d’entiers, démarrant toujours par 1 et forcéments consécutifs, et dont les valeurs dépendent de l’ordre des facteurs. Pour s’en rendre compte :</p>
+<p>Un facteur stocke de manière interne les valeurs sous la forme d’une suite d’entiers, démarrant toujours par 1, forcément consécutifs, et dont les valeurs dépendent de l’ordre des facteurs. Pour s’en rendre compte :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">unclass</span>(<span class="kw">factor</span>(v, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;h&quot;</span>, <span class="st">&quot;f&quot;</span>)))</code></pre></div>
 <pre><code>[1] 2 2 1 2 1
 attr(,&quot;levels&quot;)
@@ -799,8 +699,8 @@ FALSE
 <p>Et avec un vecteur labellisé ?</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">describe</span>(femmes$milieu)</code></pre></div>
 <pre><code>[2000 obs.] Milieu de résidence
-labelled numeric: 2 2 5 2 2 ...
-min: 1 - max: 5 - NAs: 0 (0%) - 3 unique values
+labelled numeric: 2 2 2 2 2 ...
+min: 1 - max: 2 - NAs: 0 (0%) - 2 unique values
 2 value labels: [1] urbain [2] rural</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(femmes$milieu ==<span class="st"> &quot;urbain&quot;</span>)</code></pre></div>
 <pre><code>
@@ -814,7 +714,7 @@ FALSE  TRUE
 </div>
 <div id="definir-des-valeurs-manquantes" class="section level3">
 <h3>Définir des valeurs manquantes</h3>
-<p>Nous avons que sous <strong>R</strong> nous pouvions indiquer des valeurs manquantes avec <code>NA</code>. Or, dans le domaine des enquêtes, il arrive fréquemment que l’on ait besoin de pouvoir spécifier plusieurs types de valeurs manquantes. En effet, le fait que l’enquêté ne sache pas quoi répondre à une question n’est pas la même chose qu’un refus de répondre ou encore qu’un oubli de répondre (i.e. aucune case n’a été cochée sur le questionnaire papier). Il est alors fréquent dans ces enquêtes d’utiliser différents codes pour indiquer ces cas de figure. Les habitués de <strong>SPSS</strong> savent qu’il est possible dans ce logiciel d’indiquer quelles valeurs spécifiques doivent être considérées comme manquantes.</p>
+<p>Nous savons que sous <strong>R</strong> nous pouvons indiquer des valeurs manquantes avec <code>NA</code>. Or, dans le domaine des enquêtes, il arrive fréquemment que l’on ait besoin de pouvoir spécifier plusieurs types de valeurs manquantes. En effet, le fait que l’enquêté ne sache pas quoi répondre à une question n’est pas la même chose qu’un refus de répondre ou encore qu’un oubli de répondre (i.e. aucune case n’a été cochée sur le questionnaire papier). Il est alors fréquent dans ces enquêtes d’utiliser différents codes pour indiquer ces cas de figure. Les habitués de <strong>SPSS</strong> savent qu’il est possible dans ce logiciel d’indiquer quelles valeurs spécifiques doivent être considérées comme manquantes.</p>
 <p>La fonction <code data-pkg="labelled">missing_val</code> de l’extension <code class="pkg">labelled</code> permet de spécifier quelles valeurs doivent être considérées comme manquantes. Prenons un exemple :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">v &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">8</span>, <span class="dv">3</span>, <span class="dv">9</span>)
 <span class="kw">val_labels</span>(v) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">oui =</span> <span class="dv">1</span>, <span class="st">`</span><span class="dt">peut-être</span><span class="st">`</span> =<span class="st"> </span><span class="dv">2</span>, <span class="dt">non =</span> <span class="dv">3</span>, 
@@ -846,7 +746,7 @@ Labels:
 <p>Nous avons maintenant indiqué que 8 et 9 doivent être considérées comme manquantes. La classe <code data-pkg="labelled">labelled</code> impose qu’une valeur manquante ait une étiquette de valeur. Si l’on essaie d’attribuer une valeur manquante qui n’a pas d’étiquette, on obtient un message d’erreur.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">missing_val</span>(v) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>)</code></pre></div>
 <pre><code>Error: no value label found for 7, please specify `force`</code></pre>
-<p>On peut indiquer avec l’argument <code>force</code> ce que l’on souhaite faire dans ces cas-là : <code>FALSE</code> si l’on souhaite ne pas tenir compte des valeurs manquantes qui n’ont pas d’étiquette (et ne seront donc pas considérées comme maquantes) ou <code>TRUE</code> pour créer automatiquement une étiquette à ces valeurs qui n’en ont pas encore une.</p>
+<p>On peut indiquer avec l’argument <code>force</code> ce que l’on souhaite faire dans ces cas-là : <code>FALSE</code> si l’on souhaite ne pas tenir compte des valeurs manquantes qui n’ont pas d’étiquette (et ne seront donc pas considérées comme manquantes) ou <code>TRUE</code> pour créer automatiquement une étiquette à ces valeurs qui n’en ont pas encore une.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">missing_val</span>(v, <span class="dt">force =</span> <span class="ot">FALSE</span>) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>)
 v</code></pre></div>
 <pre><code>&lt;Labelled double&gt; 
@@ -872,7 +772,7 @@ Labels:
      8 ne sait pas  TRUE
      9       refus  TRUE
      7           7  TRUE</code></pre>
-<p>À cette étape, nous n’avons fait qu’indiquer que ces valeurs devraient être considérées comme manquantes. Pour autant, elles sont toujours présentes dans notre vecteur et considérées comme des valeurs valides par les fonctions statistiques de <strong>R</strong>.</p>
+<p>À cette étape, nous n’avons fait qu’indiquer que ces valeurs peuvent être considérées sémantiquement comme manquantes. Pour autant, elles sont toujours présentes dans notre vecteur et considérées statistiquement comme des valeurs valides par les fonctions de <strong>R</strong>.</p>
 <p>Prenons un nouvel exemple :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">notes &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">12</span>, <span class="dv">16</span>, <span class="dv">99</span>, <span class="dv">14</span>, <span class="dv">17</span>)
 <span class="kw">val_label</span>(notes, <span class="dv">99</span>) &lt;-<span class="st"> &quot;absent le jour de l&#39;examen&quot;</span>
@@ -908,7 +808,7 @@ specified</code></pre>
 <li><code data-pkg="labelled">sort_val_labels</code> pour trier l’ordre des étiquettes de valeurs.</li>
 </ul>
 <p>On pourra se réferrer à l’aide de chacune de ces fonctions.</p>
-<p>L’<a href="import-de-donnees.html">import de données labellisées</a> et le <a href="recodage.html">recodage de variables</a> (dont la conversion d’un vecteur labellisé en facteur) seront quant à eux abordés dans de prochains chapitres.</p>
+<p>L’<a href="import-de-donnees.html">import de données labellisées</a> et le <a href="recodage.html">recodage de variables</a> (dont la conversion d’un vecteur labellisé en facteur) seront quant à eux abordés dans les prochains chapitres.</p>
 </div>
 </div>
 
