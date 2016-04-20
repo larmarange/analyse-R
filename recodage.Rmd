@@ -6,10 +6,6 @@ title: "Recodage"
 source("options_communes.R")
 ```
 
-<div class="important">
-Ce chapitre est en cours d'écriture.
-</div>
-
 <div class="note">
 La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre du support de cours
 [Introduction à R](https://github.com/juba/intro-r).
@@ -36,7 +32,7 @@ Une opération courante lorsqu'on a importé des variables depuis une source de 
 <div class="important">
 Les noms de variables peuvent contenir des lettres, des chiffres (mais ils ne peuvent pas commencer par un
 chiffre), les symboles `.` et `_` et doivent commencer par une lettre. **R** fait la différence entre les majuscules
-et les minuscules, ce qui signifie que *x* et *X* sont deux noms de variable différents. 
+et les minuscules, ce qui signifie que <var>x</var> et <var>X</var> sont deux noms de variable différents. 
 On évitera également d'utiliser des caractères accentués dans les noms de variable. 
 Comme les espaces ne sont pas autorisés, on pourra les remplacer par un point ou un tiret bas.
 </div>
@@ -60,7 +56,7 @@ summary(d.maj$SEXE)
 
 Ce type de renommage peut être utile lorsqu'on souhaite passer en revue tous les noms de variables
 d'un fichier importé pour les corriger le cas échéant. Pour faciliter un peu ce travail pas forcément
-passionant, on peut utiliser la fonction `dput`{data-pkg="base"} :
+passionnant, on peut utiliser la fonction `dput`{data-pkg="base"} :
 
 ```{r}
 dput(names(d))
@@ -72,8 +68,8 @@ copier/coller cette chaîne, rajouter `names(d) <-` devant et modifier un à un 
 Si on souhaite seulement modifier le nom d'une variable, on peut utiliser la fonction
 `rename.variable`{data-pkg="questionr"} de l'extension `questionr`{.pkg}. 
 Celle-ci prend en argument le tableau de données, le nom actuel de la variable
-et le nouveau nom. Par exemple, si on veut renommer la variable *bricol* du tableau de données `d` en
-*bricolage* :
+et le nouveau nom. Par exemple, si on veut renommer la variable <var>bricol</var> du tableau de données `d` en
+<var>bricolage</var> :
 
 ```{r}
 d <- rename.variable(d, "bricol", "bricolage")
@@ -85,7 +81,9 @@ table(d$bricolage)
 
 Il peut arriver qu'on veuille transformer une variable d'un type dans un autre.
 
-Par exemple, on peut considérer que la variable numérique *freres.soeurs* est une « fausse » variable
+### Variable numérique ou textuelle en facteur
+
+Par exemple, on peut considérer que la variable numérique <var>freres.soeurs</var> est une « fausse » variable
 numérique et qu'une représentation sous forme de facteur serait plus adéquate. Dans ce cas il suffit de
 faire appel à la fonction `factor`{data-pkg="base"} :
 
@@ -104,6 +102,8 @@ d$fs.char <- as.character(d$freres.soeurs)
 d$qualif.char <- as.character(d$qualif)
 ```
 
+### Conversion d'un facteur
+
 La conversion d'un facteur en caractères est fréquemment utilisé lors des recodages du fait qu'il est
 impossible d'ajouter de nouvelles modalités à un facteur de cette manière. Par exemple, la première des
 commandes suivantes génère un message d'avertissement, tandis que les deux autres fonctionnent :
@@ -116,7 +116,7 @@ d$qualif.char[d$qualif.char == "Ouvrier specialise"] <- "Ouvrier"
 ```
 
 Dans le premier cas, le message d'avertissement indique que toutes les modalités « Ouvrier specialise »
-de notre variable *qualif* ont été remplacées par des valeurs manquantes `NA`.
+de notre variable <var>qualif</var> ont été remplacées par des valeurs manquantes `NA`.
 
 Enfin, une variable de type caractères dont les valeurs seraient des nombres peut être convertie en
 variable numérique avec la fonction `as.numeric`{data-pkg="base" data-rdoc="numeric"}. 
@@ -131,7 +131,7 @@ as.numeric(v)
 Lorsque l'on convertit un facteur avec `as.numeric`{data-pkg="base" data-rdoc="numeric"},
 on obtient le numéro de chaque facteur (première modalité, seconde modalité, etc.).
 Si la valeur numérique qui nous intéresse est en fait contenu dans le nom des modalités,
-il faut connvertir au préalable notre facteur en variable textuelle.
+il faut convertir au préalable notre facteur en variable textuelle.
 
 ```{r}
 vf <- factor(v)
@@ -139,7 +139,45 @@ vf
 as.numeric(vf)
 as.numeric(as.character(vf))
 ```
+
+ATTENTION : la valeur numérique associée à chaque étiquette d'un facteur change lorsque l'on modifie l'ordre des étiquettes d'un facteur. Dès lors, il est **fortement déconseillé** de convertir un facteur en variable numérique.
 </div>
+
+### Conversion d'un vecteur labellisé
+
+Nous avons abordé dans un [chapitre précédent](facteurs-et-vecteurs-labellises.html#labelled) la gestion de données labellisées à l'aide de l'extension `labelled`{.pkg}. Les vecteurs labellisés sont beaucoup plus souples que les facteurs lors de la préparation des données, puisque la liste des modalités autorisées n'est pas fixée à l'avance. De plus, cela permet également de documenter au-fur-et-à-mesure les nouvelles variables que l'on créé.
+
+Nous verrons dans les chapitres d'analyse, notamment quand il s'agit de calculer des modèles, qu'il est nécessaire de coder les variables catégorielles sous forme de facteurs. Il est très facile de convertir ubn vecteur labellisé en facteur à l'aide la fonction `to_factor`{data-pkg="labelled"} de l'extension `labelled`{.pkg}^[On priviligiera la fonction `to_factor`{data-pkg="labelled"} à la fonction `as_factor`{data-pkg="haven" data-rdoc="labelled"} de l'extension `haven`{.pkg}, la première ayant plus de possibilités et un comportement plus consistent.].
+
+```{r, warning=FALSE}
+library(labelled)
+v <- labelled(c(1,2,9,3,3,2,NA), c(oui = 1, "peut-être" = 2, non = 3, "ne sait pas" = 9), c(FALSE, FALSE, FALSE, TRUE))
+v
+to_factor(v)
+```
+
+Il possible d'indiquer si l'on souhaite, comme étiquettes du facteur, utiliser les étiquettes de valeur (par défaut), les valeurs elles-mêmes, ou bien les étiquettes de valeurs préfixées par la valeur d'origine indiquée entre crochets. 
+
+```{r}
+to_factor(v, 'l')
+to_factor(v, 'v')
+to_factor(v, 'p')
+```
+
+Par défaut, les étiquettes du facteur seront triés selon l'ordre des étiquettes de valeur. Mais cela peut être modifié avec l'argument `sort_levels` si l'on préfère trier selon les valeurs ou selon l'ordre alphabétique des étiquettes.
+
+```{r}
+to_factor(v, sort_levels = 'v')
+to_factor(v, sort_levels = 'l')
+```
+
+L'argument `missing_to_na` permets d'indiquer si les valeurs définies comme manquantes doivent être converties en `NA`.
+
+```{r}
+to_factor(v, missing_to_na = TRUE)
+```
+
+D'autres options sont disponibles. On se réferra à la documentation complète de la fonction.
 
 ## Découper une variable numérique en classes {#decouper_en_classes}
 
@@ -155,8 +193,8 @@ classes ;
 seront inclues ou exclues ;
 * `dig.lab` indique le nombre de chiffres après la virgule à conserver dans les noms de modalités.
 
-Prenons tout de suite un exemple et tentons de découper notre variable *age* en cinq classes et de
-placer le résultat dans une nouvelle variable nommée *age5cl* :
+Prenons tout de suite un exemple et tentons de découper notre variable <var>age</var> en cinq classes et de
+placer le résultat dans une nouvelle variable nommée <var>age5cl</var> :
 
 ```{r}
 d$age5cl <- cut(d$age, 5)
@@ -183,8 +221,7 @@ table(d$age20)
 ```
 
 Les symboles dans les noms attribués aux classes ont leur importance : `(` signifie que la frontière de la
-classe est exclue, tandis que `[` signifie qu'elle est incluse. Ainsi, `(20,40]` signifie « strictement supérieur
-à 20 et inférieur ou égal à 40 ».
+classe est exclue, tandis que `[` signifie qu'elle est incluse. Ainsi, `(20,40]` signifie « strictement supérieur à 20 et inférieur ou égal à 40 ».
 
 On remarque que du coup, dans notre exemple précédent, la valeur minimale, 18, est exclue de notre
 première classe, et qu'une observation est donc absente de ce découpage. Pour résoudre ce problème on
@@ -245,8 +282,7 @@ table(d$age6cl)
 Pour regrouper les modalités d'une variable qualitative (d'un facteur le plus souvent), on peut utiliser
 directement l'indexation.
 
-Ainsi, si on veut recoder la variable *qualif* dans une variable *qualif.reg* plus « compacte », on peut
-utiliser :
+Ainsi, si on veut recoder la variable <var>qualif</var> dans une variable <var>qualif.reg</var> plus « compacte », on peut utiliser :
 
 ```{r}
 table(d$qualif)
@@ -261,10 +297,9 @@ table(d$qualif.reg)
 ```
 
 On aurait pu représenter ce recodage de manière plus compacte, notamment en commençant par
-copier le contenu de *qualif* dans *qualif.reg*, ce qui permet de ne pas s'occuper de ce qui ne change pas.
+copier le contenu de <var>qualif</var> dans <var>qualif.reg</var>, ce qui permet de ne pas s'occuper de ce qui ne change pas.
 
-Il est cependant nécessaire de ne pas copier *qualif* sous forme de facteur, sinon on ne pourrait ajouter
-de nouvelles modalités. On copie donc la version caractères de *qualif* grâce à la fonction 
+Il est cependant nécessaire de ne pas copier <var>qualif</var> sous forme de facteur, sinon on ne pourrait ajouter de nouvelles modalités. On copie donc la version caractères de <var>qualif</var> grâce à la fonction 
 `as.character`{data-pkg="base" data-rdoc="character"} :
 
 ```{r}
@@ -335,6 +370,22 @@ est correct. Une fois le résultat satisfaisant, vous pouvez récupérer le code
 l'inclure dans votre script.
 </div>
 
+<div class="note">
+Les exemples précédents montrent bien qu'il est parfois malaisé d'utiliser des facteurs lorsque l'on recode des variables. Les vecteurs labellisés sont, quant à eux, plus souples. **Attention :** avec des vecteurs labellisés, on utilisera les valeurs sous-jacentes et non les étiquettes pour écrire des conditions.
+
+```{r}
+data(fecondite)
+library(labelled)
+describe(femmes$educ)
+femmes$educ2 <- 0
+femmes$educ2[femmes$educ >= 2] <- 1
+var_label(femmes$educ2) <- "A atteint un niveau secondaire ou supérieur ?"
+val_labels(femmes$educ2) <- c(non = 0, oui = 1)
+describe(femmes$educ2)
+```
+
+</div>
+
 ## Variables calculées
 
 La création d'une variable numérique à partir de calculs sur une ou plusieurs autres variables numériques
@@ -352,7 +403,7 @@ mean(d$ecart.heures.tv, na.rm = TRUE)
 ```
 
 Autre exemple tiré du jeu de données `rp99` : si on souhaite calculer le pourcentage d'actifs dans chaque
-commune, on peut diviser la population active *pop.act* par la population totale *pop.tot*.
+commune, on peut diviser la population active <var>pop.act</var> par la population totale <var>pop.tot</var>.
 
 ```{r}
 data("rp99")
@@ -441,3 +492,25 @@ d$act.manuelles[d$cuisine == "Non" & d$bricol == "Non"] <- "Ni cuisine ni bricol
 table(d$act.manuelles, d$cuisine)
 table(d$act.manuelles, d$bricol)
 ```
+
+## Recodage et data.table
+
+Nous aborderons dans un [prochain chapitre](introduction-a-data-table.html) l'extension `data.table`{.pkg} qui étend les tableaux de données et modifie complètement la syntaxe utilisée entre les crochets. Elle nécessite un petit temps d'adaptation mais, une fois maîtrisée, elle facile le quotidien lorsqu'il s'agit de manipuler et recoder les données. Ci-dessous, un petit avant-goût, reprenons quelques exemples précédents. La syntaxe de `data.table`{.pkg} sera explicitée en détail dans le [chapitre dédié](introduction-a-data-table.html).
+
+```{r, message=FALSE, tidy=FALSE}
+library(data.table)
+dt <- data.table(hdv2003)
+
+dt[, score.ext := 0]
+dt[cinema == "Oui", score.ext := score.ext + 10]
+dt[peche.chasse == "Oui", score.ext := score.ext + 30]
+dt[sport == "Oui", score.ext := score.ext + 20]
+table(dt$score.ext)
+
+dt[cuisine == "Oui" & bricol == "Oui", act.manuelles := "Cuisine et Bricolage"]
+dt[cuisine == "Oui" & bricol == "Non", act.manuelles := "Cuisine seulement"]
+dt[cuisine == "Non" & bricol == "Oui", act.manuelles := "Bricolage seulement"]
+dt[cuisine == "Non" & bricol == "Non", act.manuelles := "Ni cuisine ni bricolage"]
+table(dt$act.manuelles)
+```
+
