@@ -184,7 +184,7 @@ $(document).ready(function () {
                   <li><a href="facteurs-et-vecteurs-labellises.html">Facteurs et vecteurs labellisés</a></li>
                   <li><a href="organiser-ses-fichiers.html">Organiser ses fichiers</a></li>
                   <li><a href="import-de-donnees.html">Import de données</a></li>
-                  <li class="dev"><a href="recodage.html">Recodage</a></li>
+                  <li><a href="recodage.html">Recodage</a></li>
                   <li><a href="ou-trouver-de-l-aide.html">Où trouver de l'aide ?</a></li>
   	            </ul>
               </div>
@@ -198,7 +198,6 @@ $(document).ready(function () {
                   <li class="dev"><a href="sous-ensembles.html">Sous-ensembles</a></li>
                   <li class="dev"><a href="fusion-de-tables.html">Fusion de tables</a></li>
                   <li class="dev"><a href="gestion-des-dates.html">Gestion des dates</a></li>
-                  <li class="dev"><a href="conditions-et-comparaisons.html">Conditions et comparaisons</a></li>
                   <li class="dev"><a href="aggregation.html">Aggrégation</a></li>
                   <li class="dev"><a href="fonctions-a-fenetre.html">Fonctions à fenêtre</a></li>
                   <li class="dev"><a href="restructuration-de-donnees.html">Restructuration de données</a></li>
@@ -281,6 +280,7 @@ $(document).ready(function () {
               <div class="col-sm-4">
   	            <ul class="multi-column-dropdown">
   		            <li class="dropdown-header">Programmation</li>
+  		            <li class="dev"><a href="conditions-et-comparaisons.html">Conditions et comparaisons</a></li>
                   <li class="dev"><a href="formules.html">Formules</a></li>
                   <li class="dev"><a href="structures-conditionnelles.html">Structures conditionnelles</a></li>
                   <li class="dev"><a href="expressions-regulieres.html">Expressions régulières</a></li>
@@ -341,19 +341,21 @@ $(document).ready(function () {
 <div id="TOC">
 <ul>
 <li><a href="#renommer-des-variables">Renommer des variables</a></li>
-<li><a href="#convertir-une-variable">Convertir une variable</a></li>
+<li><a href="#convertir-une-variable">Convertir une variable</a><ul>
+<li><a href="#variable-numerique-ou-textuelle-en-facteur">Variable numérique ou textuelle en facteur</a></li>
+<li><a href="#conversion-dun-facteur">Conversion d’un facteur</a></li>
+<li><a href="#conversion-dun-vecteur-labellise">Conversion d’un vecteur labellisé</a></li>
+</ul></li>
 <li><a href="#decouper_en_classes">Découper une variable numérique en classes</a></li>
 <li><a href="#regrouper_modalites">Regrouper les modalités d’une variable</a></li>
 <li><a href="#variables-calculees">Variables calculées</a></li>
 <li><a href="#combiner-plusieurs-variables">Combiner plusieurs variables</a></li>
 <li><a href="#variables-scores">Variables scores</a></li>
 <li><a href="#verification-des-recodages">Vérification des recodages</a></li>
+<li><a href="#recodage-et-data.table">Recodage et data.table</a></li>
 </ul>
 </div>
 
-<div class="important">
-<p>Ce chapitre est en cours d’écriture.</p>
-</div>
 <div class="note">
 <p>La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre du support de cours <a href="https://github.com/juba/intro-r">Introduction à R</a>.</p>
 </div>
@@ -366,7 +368,7 @@ d &lt;-<span class="st"> </span>hdv2003</code></pre></div>
 <h2>Renommer des variables</h2>
 <p>Une opération courante lorsqu’on a importé des variables depuis une source de données externe consiste à renommer les variables importées. Sous <strong>R</strong> les noms de variables doivent être à la fois courts et explicites.</p>
 <div class="important">
-<p>Les noms de variables peuvent contenir des lettres, des chiffres (mais ils ne peuvent pas commencer par un chiffre), les symboles <code>.</code> et <code>_</code> et doivent commencer par une lettre. <strong>R</strong> fait la différence entre les majuscules et les minuscules, ce qui signifie que <em>x</em> et <em>X</em> sont deux noms de variable différents. On évitera également d’utiliser des caractères accentués dans les noms de variable. Comme les espaces ne sont pas autorisés, on pourra les remplacer par un point ou un tiret bas.</p>
+<p>Les noms de variables peuvent contenir des lettres, des chiffres (mais ils ne peuvent pas commencer par un chiffre), les symboles <code>.</code> et <code>_</code> et doivent commencer par une lettre. <strong>R</strong> fait la différence entre les majuscules et les minuscules, ce qui signifie que <var>x</var> et <var>X</var> sont deux noms de variable différents. On évitera également d’utiliser des caractères accentués dans les noms de variable. Comme les espaces ne sont pas autorisés, on pourra les remplacer par un point ou un tiret bas.</p>
 </div>
 <p>On peut lister les noms des variables d’un tableau de données (<em>data.frame</em>) à l’aide de la fonction <code data-pkg="base">names</code> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">names</span>(d)</code></pre></div>
@@ -390,14 +392,14 @@ d &lt;-<span class="st"> </span>hdv2003</code></pre></div>
 <span class="kw">summary</span>(d.maj$SEXE)</code></pre></div>
 <pre><code>Homme Femme 
   899  1101 </code></pre>
-<p>Ce type de renommage peut être utile lorsqu’on souhaite passer en revue tous les noms de variables d’un fichier importé pour les corriger le cas échéant. Pour faciliter un peu ce travail pas forcément passionant, on peut utiliser la fonction <code data-pkg="base">dput</code> :</p>
+<p>Ce type de renommage peut être utile lorsqu’on souhaite passer en revue tous les noms de variables d’un fichier importé pour les corriger le cas échéant. Pour faciliter un peu ce travail pas forcément passionnant, on peut utiliser la fonction <code data-pkg="base">dput</code> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dput</span>(<span class="kw">names</span>(d))</code></pre></div>
 <pre><code>c(&quot;id&quot;, &quot;age&quot;, &quot;sexe&quot;, &quot;nivetud&quot;, &quot;poids&quot;, &quot;occup&quot;, &quot;qualif&quot;, 
 &quot;freres.soeurs&quot;, &quot;clso&quot;, &quot;relig&quot;, &quot;trav.imp&quot;, &quot;trav.satisf&quot;, 
 &quot;hard.rock&quot;, &quot;lecture.bd&quot;, &quot;peche.chasse&quot;, &quot;cuisine&quot;, &quot;bricol&quot;, 
 &quot;cinema&quot;, &quot;sport&quot;, &quot;heures.tv&quot;)</code></pre>
 <p>On obtient en résultat la liste des variables sous forme de vecteur déclaré. On n’a plus alors qu’à copier/coller cette chaîne, rajouter <code>names(d) &lt;-</code> devant et modifier un à un les noms des variables.</p>
-<p>Si on souhaite seulement modifier le nom d’une variable, on peut utiliser la fonction <code data-pkg="questionr">rename.variable</code> de l’extension <code class="pkg">questionr</code>. Celle-ci prend en argument le tableau de données, le nom actuel de la variable et le nouveau nom. Par exemple, si on veut renommer la variable <em>bricol</em> du tableau de données <code>d</code> en <em>bricolage</em> :</p>
+<p>Si on souhaite seulement modifier le nom d’une variable, on peut utiliser la fonction <code data-pkg="questionr">rename.variable</code> de l’extension <code class="pkg">questionr</code>. Celle-ci prend en argument le tableau de données, le nom actuel de la variable et le nouveau nom. Par exemple, si on veut renommer la variable <var>bricol</var> du tableau de données <code>d</code> en <var>bricolage</var> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d &lt;-<span class="st"> </span><span class="kw">rename.variable</span>(d, <span class="st">&quot;bricol&quot;</span>, <span class="st">&quot;bricolage&quot;</span>)
 <span class="kw">table</span>(d$bricolage)</code></pre></div>
 <pre><code>
@@ -407,7 +409,9 @@ d &lt;-<span class="st"> </span>hdv2003</code></pre></div>
 <div id="convertir-une-variable" class="section level2">
 <h2>Convertir une variable</h2>
 <p>Il peut arriver qu’on veuille transformer une variable d’un type dans un autre.</p>
-<p>Par exemple, on peut considérer que la variable numérique <em>freres.soeurs</em> est une « fausse » variable numérique et qu’une représentation sous forme de facteur serait plus adéquate. Dans ce cas il suffit de faire appel à la fonction <code data-pkg="base">factor</code> :</p>
+<div id="variable-numerique-ou-textuelle-en-facteur" class="section level3">
+<h3>Variable numérique ou textuelle en facteur</h3>
+<p>Par exemple, on peut considérer que la variable numérique <var>freres.soeurs</var> est une « fausse » variable numérique et qu’une représentation sous forme de facteur serait plus adéquate. Dans ce cas il suffit de faire appel à la fonction <code data-pkg="base">factor</code> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d$fs.fac &lt;-<span class="st"> </span><span class="kw">factor</span>(d$freres.soeurs)
 <span class="kw">levels</span>(d$fs.fac)</code></pre></div>
 <pre><code> [1] &quot;0&quot;  &quot;1&quot;  &quot;2&quot;  &quot;3&quot;  &quot;4&quot;  &quot;5&quot;  &quot;6&quot;  &quot;7&quot;  &quot;8&quot; 
@@ -417,6 +421,9 @@ d &lt;-<span class="st"> </span>hdv2003</code></pre></div>
 <p>La conversion d’un facteur ou d’une variable numérique en variable caractères peut se faire à l’aide de la fonction <code data-pkg="base" data-rdoc="character">as.character</code> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d$fs.char &lt;-<span class="st"> </span><span class="kw">as.character</span>(d$freres.soeurs)
 d$qualif.char &lt;-<span class="st"> </span><span class="kw">as.character</span>(d$qualif)</code></pre></div>
+</div>
+<div id="conversion-dun-facteur" class="section level3">
+<h3>Conversion d’un facteur</h3>
 <p>La conversion d’un facteur en caractères est fréquemment utilisé lors des recodages du fait qu’il est impossible d’ajouter de nouvelles modalités à un facteur de cette manière. Par exemple, la première des commandes suivantes génère un message d’avertissement, tandis que les deux autres fonctionnent :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d.temp &lt;-<span class="st"> </span>d
 d.temp$qualif[d.temp$qualif ==<span class="st"> &quot;Ouvrier specialise&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></code></pre></div>
@@ -425,7 +432,7 @@ d.temp$qualif[d.temp$qualif ==<span class="st"> &quot;Ouvrier specialise&quot;</
 generated</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d$qualif.char &lt;-<span class="st"> </span><span class="kw">as.character</span>(d$qualif)
 d$qualif.char[d$qualif.char ==<span class="st"> &quot;Ouvrier specialise&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></code></pre></div>
-<p>Dans le premier cas, le message d’avertissement indique que toutes les modalités « Ouvrier specialise » de notre variable <em>qualif</em> ont été remplacées par des valeurs manquantes <code>NA</code>.</p>
+<p>Dans le premier cas, le message d’avertissement indique que toutes les modalités « Ouvrier specialise » de notre variable <var>qualif</var> ont été remplacées par des valeurs manquantes <code>NA</code>.</p>
 <p>Enfin, une variable de type caractères dont les valeurs seraient des nombres peut être convertie en variable numérique avec la fonction <code data-pkg="base" data-rdoc="numeric">as.numeric</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">v &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;1&quot;</span>, <span class="st">&quot;3.1415&quot;</span>, <span class="st">&quot;4&quot;</span>, <span class="st">&quot;5.6&quot;</span>, <span class="st">&quot;1&quot;</span>, <span class="st">&quot;4&quot;</span>)
 v</code></pre></div>
@@ -434,7 +441,7 @@ v</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">as.numeric</span>(v)</code></pre></div>
 <pre><code>[1] 1.0000 3.1415 4.0000 5.6000 1.0000 4.0000</code></pre>
 <div class="important">
-<p>Lorsque l’on convertit un facteur avec <code data-pkg="base" data-rdoc="numeric">as.numeric</code>, on obtient le numéro de chaque facteur (première modalité, seconde modalité, etc.). Si la valeur numérique qui nous intéresse est en fait contenu dans le nom des modalités, il faut connvertir au préalable notre facteur en variable textuelle.</p>
+<p>Lorsque l’on convertit un facteur avec <code data-pkg="base" data-rdoc="numeric">as.numeric</code>, on obtient le numéro de chaque facteur (première modalité, seconde modalité, etc.). Si la valeur numérique qui nous intéresse est en fait contenu dans le nom des modalités, il faut convertir au préalable notre facteur en variable textuelle.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">vf &lt;-<span class="st"> </span><span class="kw">factor</span>(v)
 vf</code></pre></div>
 <pre><code>[1] 1      3.1415 4      5.6    1      4     
@@ -443,6 +450,64 @@ Levels: 1 3.1415 4 5.6</code></pre>
 <pre><code>[1] 1 2 3 4 1 3</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">as.numeric</span>(<span class="kw">as.character</span>(vf))</code></pre></div>
 <pre><code>[1] 1.0000 3.1415 4.0000 5.6000 1.0000 4.0000</code></pre>
+<p>ATTENTION : la valeur numérique associée à chaque étiquette d’un facteur change lorsque l’on modifie l’ordre des étiquettes d’un facteur. Dès lors, il est <strong>fortement déconseillé</strong> de convertir un facteur en variable numérique.</p>
+</div>
+</div>
+<div id="conversion-dun-vecteur-labellise" class="section level3">
+<h3>Conversion d’un vecteur labellisé</h3>
+<p>Nous avons abordé dans un <a href="facteurs-et-vecteurs-labellises.html#labelled">chapitre précédent</a> la gestion de données labellisées à l’aide de l’extension <code class="pkg">labelled</code>. Les vecteurs labellisés sont beaucoup plus souples que les facteurs lors de la préparation des données, puisque la liste des modalités autorisées n’est pas fixée à l’avance. De plus, cela permet également de documenter au-fur-et-à-mesure les nouvelles variables que l’on créé.</p>
+<p>Nous verrons dans les chapitres d’analyse, notamment quand il s’agit de calculer des modèles, qu’il est nécessaire de coder les variables catégorielles sous forme de facteurs. Il est très facile de convertir ubn vecteur labellisé en facteur à l’aide la fonction <code data-pkg="labelled">to_factor</code> de l’extension <code class="pkg">labelled</code><a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(labelled)
+v &lt;-<span class="st"> </span><span class="kw">labelled</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">9</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="ot">NA</span>), <span class="kw">c</span>(<span class="dt">oui =</span> <span class="dv">1</span>, <span class="st">`</span><span class="dt">peut-être</span><span class="st">`</span> =<span class="st"> </span><span class="dv">2</span>, 
+  <span class="dt">non =</span> <span class="dv">3</span>, <span class="st">`</span><span class="dt">ne sait pas</span><span class="st">`</span> =<span class="st"> </span><span class="dv">9</span>), <span class="kw">c</span>(<span class="ot">FALSE</span>, <span class="ot">FALSE</span>, <span class="ot">FALSE</span>, 
+  <span class="ot">TRUE</span>))
+v</code></pre></div>
+<pre><code>&lt;Labelled double&gt; 
+[1]  1  2  9  3  3  2 NA
+
+Labels:
+ value       label is_na
+     1         oui FALSE
+     2   peut-être FALSE
+     3         non FALSE
+     9 ne sait pas  TRUE</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">to_factor</span>(v)</code></pre></div>
+<pre><code>[1] oui         peut-être   ne sait pas
+[4] non         non         peut-être  
+[7] &lt;NA&gt;       
+Levels: oui peut-être non ne sait pas</code></pre>
+<p>Il possible d’indiquer si l’on souhaite, comme étiquettes du facteur, utiliser les étiquettes de valeur (par défaut), les valeurs elles-mêmes, ou bien les étiquettes de valeurs préfixées par la valeur d’origine indiquée entre crochets.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">to_factor</span>(v, <span class="st">&quot;l&quot;</span>)</code></pre></div>
+<pre><code>[1] oui         peut-être   ne sait pas
+[4] non         non         peut-être  
+[7] &lt;NA&gt;       
+Levels: oui peut-être non ne sait pas</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">to_factor</span>(v, <span class="st">&quot;v&quot;</span>)</code></pre></div>
+<pre><code>[1] 1    2    9    3    3    2    &lt;NA&gt;
+Levels: 1 2 3 9</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">to_factor</span>(v, <span class="st">&quot;p&quot;</span>)</code></pre></div>
+<pre><code>[1] [1] oui         [2] peut-être  
+[3] [9] ne sait pas [3] non        
+[5] [3] non         [2] peut-être  
+[7] &lt;NA&gt;           
+4 Levels: [1] oui [2] peut-être ... [9] ne sait pas</code></pre>
+<p>Par défaut, les étiquettes du facteur seront triés selon l’ordre des étiquettes de valeur. Mais cela peut être modifié avec l’argument <code>sort_levels</code> si l’on préfère trier selon les valeurs ou selon l’ordre alphabétique des étiquettes.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">to_factor</span>(v, <span class="dt">sort_levels =</span> <span class="st">&quot;v&quot;</span>)</code></pre></div>
+<pre><code>[1] oui         peut-être   ne sait pas
+[4] non         non         peut-être  
+[7] &lt;NA&gt;       
+Levels: oui peut-être non ne sait pas</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">to_factor</span>(v, <span class="dt">sort_levels =</span> <span class="st">&quot;l&quot;</span>)</code></pre></div>
+<pre><code>[1] oui         peut-être   ne sait pas
+[4] non         non         peut-être  
+[7] &lt;NA&gt;       
+Levels: ne sait pas non oui peut-être</code></pre>
+<p>L’argument <code>missing_to_na</code> permets d’indiquer si les valeurs définies comme manquantes doivent être converties en <code>NA</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">to_factor</span>(v, <span class="dt">missing_to_na =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre><code>[1] oui       peut-être &lt;NA&gt;      non      
+[5] non       peut-être &lt;NA&gt;     
+Levels: oui peut-être non</code></pre>
+<p>D’autres options sont disponibles. On se réferra à la documentation complète de la fonction.</p>
 </div>
 </div>
 <div id="decouper_en_classes" class="section level2">
@@ -455,7 +520,7 @@ Levels: 1 3.1415 4 5.6</code></pre>
 <li><code>include.lowest</code> et <code>right</code> influent sur la manière dont les valeurs situées à la frontière des classes seront inclues ou exclues ;</li>
 <li><code>dig.lab</code> indique le nombre de chiffres après la virgule à conserver dans les noms de modalités.</li>
 </ul>
-<p>Prenons tout de suite un exemple et tentons de découper notre variable <em>age</em> en cinq classes et de placer le résultat dans une nouvelle variable nommée <em>age5cl</em> :</p>
+<p>Prenons tout de suite un exemple et tentons de découper notre variable <var>age</var> en cinq classes et de placer le résultat dans une nouvelle variable nommée <var>age5cl</var> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d$age5cl &lt;-<span class="st"> </span><span class="kw">cut</span>(d$age, <span class="dv">5</span>)
 <span class="kw">table</span>(d$age5cl)</code></pre></div>
 <pre><code>
@@ -525,7 +590,7 @@ Levels: 1 3.1415 4 5.6</code></pre>
 <div id="regrouper_modalites" class="section level2">
 <h2>Regrouper les modalités d’une variable</h2>
 <p>Pour regrouper les modalités d’une variable qualitative (d’un facteur le plus souvent), on peut utiliser directement l’indexation.</p>
-<p>Ainsi, si on veut recoder la variable <em>qualif</em> dans une variable <em>qualif.reg</em> plus « compacte », on peut utiliser :</p>
+<p>Ainsi, si on veut recoder la variable <var>qualif</var> dans une variable <var>qualif.reg</var> plus « compacte », on peut utiliser :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(d$qualif)</code></pre></div>
 <pre><code>
       Ouvrier specialise         Ouvrier qualifie 
@@ -549,8 +614,8 @@ d$qualif.reg[d$qualif ==<span class="st"> &quot;Autre&quot;</span>] &lt;-<span c
            58           260           594 
 Intermediaire       Ouvrier 
           246           495 </code></pre>
-<p>On aurait pu représenter ce recodage de manière plus compacte, notamment en commençant par copier le contenu de <em>qualif</em> dans <em>qualif.reg</em>, ce qui permet de ne pas s’occuper de ce qui ne change pas.</p>
-<p>Il est cependant nécessaire de ne pas copier <em>qualif</em> sous forme de facteur, sinon on ne pourrait ajouter de nouvelles modalités. On copie donc la version caractères de <em>qualif</em> grâce à la fonction <code data-pkg="base" data-rdoc="character">as.character</code> :</p>
+<p>On aurait pu représenter ce recodage de manière plus compacte, notamment en commençant par copier le contenu de <var>qualif</var> dans <var>qualif.reg</var>, ce qui permet de ne pas s’occuper de ce qui ne change pas.</p>
+<p>Il est cependant nécessaire de ne pas copier <var>qualif</var> sous forme de facteur, sinon on ne pourrait ajouter de nouvelles modalités. On copie donc la version caractères de <var>qualif</var> grâce à la fonction <code data-pkg="base" data-rdoc="character">as.character</code> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d$qualif.reg &lt;-<span class="st"> </span><span class="kw">as.character</span>(d$qualif)
 d$qualif.reg[d$qualif ==<span class="st"> &quot;Ouvrier specialise&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span>
 d$qualif.reg[d$qualif ==<span class="st"> &quot;Ouvrier qualifie&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span>
@@ -609,6 +674,25 @@ d$trav.satisf.reg[<span class="kw">is.na</span>(d$trav.satisf)] &lt;-<span class
 <p>Vous pouvez alors sélectionner différentes options, et pour chaque ancienne modalité, indiquer la nouvelle valeur correspondante. Pour regrouper des modalités, il suffit de leur assigner des nouvelles valeurs identiques. Dans tous les cas n’hésitez pas à expérimenter, l’interface se contente de générer du code <strong>R</strong> à copier/coller dans votre script mais ne l’exécute pas, et ne modifie donc jamais vos données !</p>
 <p>L’onglet <em>Vérification</em> affiche un tri croisé de l’ancienne et de la nouvelle variable pour vérifier que le recodage est correct. Une fois le résultat satisfaisant, vous pouvez récupérer le code généré dans l’onglet <em>Code</em> pour l’inclure dans votre script.</p>
 </div>
+<div class="note">
+<p>Les exemples précédents montrent bien qu’il est parfois malaisé d’utiliser des facteurs lorsque l’on recode des variables. Les vecteurs labellisés sont, quant à eux, plus souples. <strong>Attention :</strong> avec des vecteurs labellisés, on utilisera les valeurs sous-jacentes et non les étiquettes pour écrire des conditions.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(fecondite)
+<span class="kw">library</span>(labelled)
+<span class="kw">describe</span>(femmes$educ)</code></pre></div>
+<pre><code>[2000 obs.] Niveau d&#39;éducation
+labelled numeric: 0 0 0 0 1 ...
+min: 0 - max: 3 - NAs: 0 (0%) - 4 unique values
+4 value labels: [0] aucun [1] primaire [2] secondaire [3] supérieur</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">femmes$educ2 &lt;-<span class="st"> </span><span class="dv">0</span>
+femmes$educ2[femmes$educ &gt;=<span class="st"> </span><span class="dv">2</span>] &lt;-<span class="st"> </span><span class="dv">1</span>
+<span class="kw">var_label</span>(femmes$educ2) &lt;-<span class="st"> &quot;A atteint un niveau secondaire ou supérieur ?&quot;</span>
+<span class="kw">val_labels</span>(femmes$educ2) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">non =</span> <span class="dv">0</span>, <span class="dt">oui =</span> <span class="dv">1</span>)
+<span class="kw">describe</span>(femmes$educ2)</code></pre></div>
+<pre><code>[2000 obs.] A atteint un niveau secondaire ou supérieur ?
+labelled numeric: 0 0 0 0 0 ...
+min: 0 - max: 1 - NAs: 0 (0%) - 2 unique values
+2 value labels: [0] non [1] oui</code></pre>
+</div>
 </div>
 <div id="variables-calculees" class="section level2">
 <h2>Variables calculées</h2>
@@ -624,7 +708,7 @@ d$trav.satisf.reg[<span class="kw">is.na</span>(d$trav.satisf)] &lt;-<span class
 <pre><code>[1] -2.246566  9.753434</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>(d$ecart.heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>[1] 4.714578e-17</code></pre>
-<p>Autre exemple tiré du jeu de données <code>rp99</code> : si on souhaite calculer le pourcentage d’actifs dans chaque commune, on peut diviser la population active <em>pop.act</em> par la population totale <em>pop.tot</em>.</p>
+<p>Autre exemple tiré du jeu de données <code>rp99</code> : si on souhaite calculer le pourcentage d’actifs dans chaque commune, on peut diviser la population active <var>pop.act</var> par la population totale <var>pop.tot</var>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;rp99&quot;</span>)
 rp99$part.actifs &lt;-<span class="st"> </span>rp99$pop.act/rp99$pop.tot *<span class="st"> </span><span class="dv">100</span></code></pre></div>
 </div>
@@ -705,6 +789,37 @@ d$act.manuelles[d$cuisine ==<span class="st"> &quot;Non&quot;</span> &amp;<span 
   Cuisine et Bricolage      0 416
   Cuisine seulement       465   0
   Ni cuisine ni bricolage 682   0</code></pre>
+</div>
+<div id="recodage-et-data.table" class="section level2">
+<h2>Recodage et data.table</h2>
+<p>Nous aborderons dans un <a href="introduction-a-data-table.html">prochain chapitre</a> l’extension <code class="pkg">data.table</code> qui étend les tableaux de données et modifie complètement la syntaxe utilisée entre les crochets. Elle nécessite un petit temps d’adaptation mais, une fois maîtrisée, elle facile le quotidien lorsqu’il s’agit de manipuler et recoder les données. Ci-dessous, un petit avant-goût, reprenons quelques exemples précédents. La syntaxe de <code class="pkg">data.table</code> sera explicitée en détail dans le <a href="introduction-a-data-table.html">chapitre dédié</a>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(data.table)
+dt &lt;-<span class="st"> </span><span class="kw">data.table</span>(hdv2003)
+
+dt[, score.ext :<span class="er">=</span><span class="st"> </span><span class="dv">0</span>]
+dt[cinema ==<span class="st"> &quot;Oui&quot;</span>, score.ext :<span class="er">=</span><span class="st"> </span>score.ext +<span class="st"> </span><span class="dv">10</span>]
+dt[peche.chasse ==<span class="st"> &quot;Oui&quot;</span>, score.ext :<span class="er">=</span><span class="st"> </span>score.ext +<span class="st"> </span><span class="dv">30</span>]
+dt[sport ==<span class="st"> &quot;Oui&quot;</span>, score.ext :<span class="er">=</span><span class="st"> </span>score.ext +<span class="st"> </span><span class="dv">20</span>]
+<span class="kw">table</span>(dt$score.ext)</code></pre></div>
+<pre><code>
+  0  10  20  30  40  50  60 
+800 342 229 509  31  41  48 </code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dt[cuisine ==<span class="st"> &quot;Oui&quot;</span> &amp;<span class="st"> </span>bricol ==<span class="st"> &quot;Oui&quot;</span>, act.manuelles :<span class="er">=</span><span class="st"> &quot;Cuisine et Bricolage&quot;</span>]
+dt[cuisine ==<span class="st"> &quot;Oui&quot;</span> &amp;<span class="st"> </span>bricol ==<span class="st"> &quot;Non&quot;</span>, act.manuelles :<span class="er">=</span><span class="st"> &quot;Cuisine seulement&quot;</span>]
+dt[cuisine ==<span class="st"> &quot;Non&quot;</span> &amp;<span class="st"> </span>bricol ==<span class="st"> &quot;Oui&quot;</span>, act.manuelles :<span class="er">=</span><span class="st"> &quot;Bricolage seulement&quot;</span>]
+dt[cuisine ==<span class="st"> &quot;Non&quot;</span> &amp;<span class="st"> </span>bricol ==<span class="st"> &quot;Non&quot;</span>, act.manuelles :<span class="er">=</span><span class="st"> &quot;Ni cuisine ni bricolage&quot;</span>]
+<span class="kw">table</span>(dt$act.manuelles)</code></pre></div>
+<pre><code>
+    Bricolage seulement    Cuisine et Bricolage 
+                    437                     416 
+      Cuisine seulement Ni cuisine ni bricolage 
+                    465                     682 </code></pre>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>On priviligiera la fonction <code data-pkg="labelled">to_factor</code> à la fonction <code data-pkg="haven" data-rdoc="labelled">as_factor</code> de l’extension <code class="pkg">haven</code>, la première ayant plus de possibilités et un comportement plus consistent.<a href="#fnref1">↩</a></p></li>
+</ol>
 </div>
 
 </article>
