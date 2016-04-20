@@ -223,9 +223,9 @@ $(document).ready(function () {
   	            <ul class="multi-column-dropdown">
   		            <li class="dropdown-header">Statistiques introductives</li>
                   <li><a href="statistique-univariee.html">Statistique univariée</a></li>
-                  <li class="dev"><a href="graphiques-univaries.html">Graphiques univariés</a></li>
                   <li><a href="statistique-bivariee.html">Statistique bivariée</a></li>
-                  <li class="dev"><a href="graphiques-bivaries.html">Graphiques bivariés</a></li>
+                  <li><a href="intro-ggplot2.html">Introduction à ggplot2</a></li>
+                  <li class="dev"><a href="graphiques-bivaries-ggplot2.html">Graphiques univariés et bivariés avec ggplot2</a></li>
                   <li><a href="donnees-ponderees.html">Données pondérées</a></li>
                   <li class="dev"><a href="graphiques-de-donnees-ponderees.html">Graphiques de données pondérées</a></li>
   	            </ul>
@@ -343,12 +343,14 @@ $(document).ready(function () {
 <li><a href="#variable-quantitative">Variable quantitative</a><ul>
 <li><a href="#principaux-indicateurs">Principaux indicateurs</a></li>
 <li><a href="#histogramme">Histogramme</a></li>
+<li><a href="#densite-et-repartition-cumulee">Densité et répartition cumulée</a></li>
 <li><a href="#boites-a-moustaches">Boîtes à moustaches</a></li>
 </ul></li>
 <li><a href="#variable-qualitative">Variable qualitative</a><ul>
 <li><a href="#tris-a-plat">Tris à plat</a></li>
 <li><a href="#representation-graphique">Représentation graphique</a></li>
 </ul></li>
+<li><a href="#exporter-les-graphiques-obtenus">Exporter les graphiques obtenus</a></li>
 </ul>
 </div>
 
@@ -429,18 +431,38 @@ Encore un autre exemple d’histogramme
 </figcaption>
 </figure>
 </div>
+<div id="densite-et-repartition-cumulee" class="section level3">
+<h3>Densité et répartition cumulée</h3>
+<p>La fonction <code data-pkg="stats">density</code> permet d’obtenir une <dfn>estimation par noyau</dfn><dfn data-index="noyau, estimation"></dfn><a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> de la distribution du nombre d’heures consacrées à regarder la télévision. Le paramètre <code>na.rm = TRUE</code> indique que l’on souhaite retirer les valeurs manquantes avant de calculer cette courbe de densité.</p>
+<p>Le résultat de cette estimation est ensuite représenté graphiquement à l’aide de <code data-pkg="stats" data-rdoc="plot.density">plot</code>. L’argument <code>main</code> permet de spécifier le titre du graphique.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">density</span>(d$heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="dt">main =</span> <span class="st">&quot;Heures consacrées à la télévision&quot;</span>)</code></pre></div>
+<img src="graphs/statistique-univariee/unnamed-chunk-7-1.png" title="" alt="" width="1050" />
+<figcaption>
+Courbe de densité
+</figcaption>
+</figure>
+<p>De manière similaire, on peut calculer la <dfn>fonction de répartition empirique</dfn><dfn data-index="répartition empirique, fonction"></dfn> ou <dfn lang="en">empirical cumulative distribution function</dfn> en anglais avec la fonction <code class="pkg">ecdf</code>. Le résultat obtenu peut, une fois encore, être représenté sur un graphique à l’aide de la fonction <code data-pkg="stats" data-rdoc="ecdf">plot</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">ecdf</span>(d$heures.tv))</code></pre></div>
+<img src="graphs/statistique-univariee/unnamed-chunk-8-1.png" title="" alt="" width="1050" />
+<figcaption>
+Fonction de répartition empirique cumulée
+</figcaption>
+</figure>
+</div>
 <div id="boites-a-moustaches" class="section level3">
 <h3>Boîtes à moustaches</h3>
 <p>Les <dfn data-index="boîte à moustaches">boîtes à moustaches</dfn><dfn data-index="moustaches, boîte"></dfn>, ou <dfn data-index="boxplot" lang="en">boxplots</dfn> en anglais, sont une autre représentation graphique de la répartition des valeurs d’une variable quantitative. Elles sont particulièrement utiles pour comparer les distributions de plusieurs variables ou d’une même variable entre différents groupes, mais peuvent aussi être utilisées pour représenter la dispersion d’une unique variable. La fonction qui produit ces graphiques est la fonction <code data-pkg="graphics">boxplot</code>.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">boxplot</span>(d$heures.tv, <span class="dt">main =</span> <span class="st">&quot;Nombre d&#39;heures passées devant la télé par jour&quot;</span>, 
   <span class="dt">ylab =</span> <span class="st">&quot;Heures&quot;</span>)</code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-7-1.png" title="" alt="" width="1050" />
+<img src="graphs/statistique-univariee/unnamed-chunk-9-1.png" title="" alt="" width="1050" />
 <figcaption>
 Exemple de boîte à moustaches
 </figcaption>
 </figure>
-<p>Comment interpréter ce graphique ? On le comprendra mieux à partir de la figure ci-après<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>.</p>
+<p>Comment interpréter ce graphique ? On le comprendra mieux à partir de la figure ci-après<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">boxplot</span>(d$heures.tv, <span class="dt">col =</span> <span class="kw">grey</span>(<span class="fl">0.8</span>), <span class="dt">main =</span> <span class="st">&quot;Nombre d&#39;heures passées devant la télé par jour&quot;</span>, 
   <span class="dt">ylab =</span> <span class="st">&quot;Heures&quot;</span>)
@@ -468,7 +490,7 @@ Q3 &lt;-<span class="st"> </span><span class="kw">quantile</span>(d$heures.tv, <
 <span class="kw">abline</span>(<span class="dt">h =</span> Q3 +<span class="st"> </span><span class="fl">1.5</span> *<span class="st"> </span>(Q3 -<span class="st"> </span>Q1), <span class="dt">col =</span> <span class="st">&quot;darkgreen&quot;</span>)
 <span class="kw">text</span>(<span class="fl">1.35</span>, Q3 +<span class="st"> </span><span class="fl">1.5</span> *<span class="st"> </span>(Q3 -<span class="st"> </span>Q1) +<span class="st"> </span><span class="fl">0.15</span>, <span class="st">&quot;Q3 +1.5 h&quot;</span>, 
   <span class="dt">col =</span> <span class="st">&quot;darkgreen&quot;</span>, <span class="dt">lty =</span> <span class="dv">2</span>)</code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-8-1.png" title="" alt="" width="1050" />
+<img src="graphs/statistique-univariee/unnamed-chunk-10-1.png" title="" alt="" width="1050" />
 <figcaption>
 Interprétation d’une boîte à moustaches
 </figcaption>
@@ -479,7 +501,7 @@ Interprétation d’une boîte à moustaches
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">boxplot</span>(d$heures.tv, <span class="dt">main =</span> <span class="st">&quot;Nombre d&#39;heures passées devant la télé par</span><span class="ch">\n</span><span class="st">jour&quot;</span>, 
   <span class="dt">ylab =</span> <span class="st">&quot;Heures&quot;</span>)
 <span class="kw">rug</span>(d$heures.tv, <span class="dt">side =</span> <span class="dv">2</span>)</code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-9-1.png" title="" alt="" width="1050" />
+<img src="graphs/statistique-univariee/unnamed-chunk-11-1.png" title="" alt="" width="1050" />
 <figcaption>
 Boîte à moustaches avec représentation des valeurs
 </figcaption>
@@ -546,7 +568,7 @@ Exerce une profession              Retraite
            480            117            451 
           NA&#39;s 
            952 </code></pre>
-<p>Pour obtenir un tableau avec la répartition en pourcentages, on peut utiliser la fonction <code data-pkg="questionr">freq</code> de l’extension <code class="pkg">questionr</code><a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>.</p>
+<p>Pour obtenir un tableau avec la répartition en pourcentages, on peut utiliser la fonction <code data-pkg="questionr">freq</code> de l’extension <code class="pkg">questionr</code><a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$qualif)</code></pre></div>
 <pre><code>                           n    % val%
 Ouvrier specialise       203 10.2 12.3
@@ -574,22 +596,22 @@ Total                    1653 100.00 100.00</code></pre>
 </div>
 <div id="representation-graphique" class="section level3">
 <h3>Représentation graphique</h3>
-<p>Pour représenter la répartition des effectifs parmi les modalités d’une variable qualitative, on a souvent tendance à utiliser des <dfn data-index="diagramme en secteur">diagrammes en secteurs</dfn><dfn data-index="secteur, diagramme"></dfn> (<dfn data-index="camembert, graphique">camemberts</dfn>). Ceci est possible sous <strong>R</strong> avec la fonction <code data-pkg="graphics">pie</code>, mais la page d’aide de la dite fonction nous le déconseille assez vivement : les diagrammes en secteur sont en effet une mauvaise manière de présenter ce type d’information, car l’oeil humain préfère comparer des longueurs plutôt que des surfaces<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>.</p>
+<p>Pour représenter la répartition des effectifs parmi les modalités d’une variable qualitative, on a souvent tendance à utiliser des <dfn data-index="diagramme en secteur">diagrammes en secteurs</dfn><dfn data-index="secteur, diagramme"></dfn> (<dfn data-index="camembert, graphique">camemberts</dfn>). Ceci est possible sous <strong>R</strong> avec la fonction <code data-pkg="graphics">pie</code>, mais la page d’aide de la dite fonction nous le déconseille assez vivement : les diagrammes en secteur sont en effet une mauvaise manière de présenter ce type d’information, car l’oeil humain préfère comparer des longueurs plutôt que des surfaces<a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a>.</p>
 <p>On privilégiera donc d’autres formes de représentations, à savoir les <dfn data-index="diagramme en bâtons">diagrammes en bâtons</dfn><dfn data-index="bâton, diagramme"></dfn> et les <dfn data-index="diagramme de Cleveland">diagrammes de Cleveland</dfn><dfn data-index="Cleveland, diagramme"></dfn>.</p>
 <p>Les diagrammes en bâtons sont utilisés automatiquement par <strong>R</strong> lorsqu’on applique la fonction générique <code data-pkg="graphics" data-rdoc="plot.table">plot</code> à un tri à plat obtenu avec <code data-pkg="base">table</code>. On privilégiera cependant ce type de représentations pour les variables de type numérique comportant un nombre fini de valeurs. Le nombre de frères, soeurs, demi-frères et demi-soeurs est un bon exemple :</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">table</span>(d$freres.soeurs), <span class="dt">main =</span> <span class="st">&quot;Nombre de frères, soeurs, demi-frères et demi-soeurs&quot;</span>, 
   <span class="dt">ylab =</span> <span class="st">&quot;Effectif&quot;</span>)</code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-16-1.png" title="" alt="" width="1050" />
+<img src="graphs/statistique-univariee/unnamed-chunk-18-1.png" title="" alt="" width="1050" />
 <figcaption>
 Exemple de diagramme en bâtons
 </figcaption>
 </figure>
-<p>Pour les autres types de variables qualitatives, on privilégiera les diagrammes de Cleveland, obtenus avec la fonction <code data-pkg="graphics">dotchart</code>. On doit appliquer cette fonction au tri à plat de la variable, obtenu avec <code data-pkg="base">table</code><a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a> :</p>
+<p>Pour les autres types de variables qualitatives, on privilégiera les diagrammes de Cleveland, obtenus avec la fonction <code data-pkg="graphics">dotchart</code>. On doit appliquer cette fonction au tri à plat de la variable, obtenu avec <code data-pkg="base">table</code><a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a> :</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">table</span>(d$clso))[, <span class="dv">1</span>], <span class="dt">main =</span> <span class="st">&quot;Sentiment d&#39;appartenance à une classe sociale&quot;</span>, 
   <span class="dt">pch =</span> <span class="dv">19</span>)</code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-17-1.png" title="" alt="" width="1050" />
+<img src="graphs/statistique-univariee/unnamed-chunk-19-1.png" title="" alt="" width="1050" />
 <figcaption>
 Exemple de diagramme de Cleveland
 </figcaption>
@@ -599,34 +621,45 @@ Exemple de diagramme de Cleveland
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">table</span>(d$clso))</code></pre></div>
 <p><strong>R</strong> produira bien le diagramme de Cleveland désiré mais affichera un message d’avertissement (<em>Warning</em>) car pour des raisons liées au fonctionnement interne de la fonction <code data-pkg="graphics">dotchart</code>, il est attendu une matrice ou un vecteur, non un objet de type table. Pour éviter cet avertissement, il est nécessaire de faire appel à la fonction <code data-pkg="base" data-rdoc="matrix">as.matrix</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">table</span>(d$clso)))</code></pre></div>
-<p><img src="graphs/statistique-univariee/unnamed-chunk-19-1.png" title="" alt="" width="1050" /></p>
+<p><img src="graphs/statistique-univariee/unnamed-chunk-21-1.png" title="" alt="" width="1050" /></p>
 <p>Dans le cas présent, on voit apparaître un chiffre 1 au-dessus des modalités. En fait, <code data-pkg="graphics">dotchart</code> peut être appliqué au résultat d’un tableau croisé à deux entrées, auquel cas il présentera les résultats pour chaque colonne. Comme dans l’exemple ci-après.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">table</span>(d$clso, d$sexe)))</code></pre></div>
-<p><img src="graphs/statistique-univariee/unnamed-chunk-20-1.png" title="" alt="" width="1050" /></p>
+<p><img src="graphs/statistique-univariee/unnamed-chunk-22-1.png" title="" alt="" width="1050" /></p>
 <p>Cela ne résoud pas le problème pour notre diagramme de Cleveland issu d’un tri à plat simple. Pour bien comprendre, la fonction <code data-pkg="base" data-rdoc="matrix">as.matrix</code> a produit un objet à deux dimensions ayant une colonne et plusieurs lignes. On indiquera à <strong>R</strong> que l’on ne souhaite extraire la première colonne avec <code>[, 1]</code> (juste après l’appel à <code data-pkg="base" data-rdoc="matrix">as.matrix</code>). C’est ce qu’on appelle l’<em>indexation</em> que l’on abordera plus en détails dans le chapite <a href="pem_manipulation.html#indexation">Manipulation de données</a>.</p>
 </div>
 <p>Quand la variable comprend un grand nombre de modalités, il est préférable d’<dfn>ordonner le tri à plat</dfn><dfn data-index="tri à plat, ordonner"></dfn> obtenu à l’aide de la fonction <code data-pkg="base">sort</code> :</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">sort</span>(<span class="kw">table</span>(d$qualif)))[, <span class="dv">1</span>], <span class="dt">main =</span> <span class="st">&quot;Niveau de qualification&quot;</span>)</code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-21-1.png" title="" alt="" width="1050" />
+<img src="graphs/statistique-univariee/unnamed-chunk-23-1.png" title="" alt="" width="1050" />
 <figcaption>
 Exemple de diagramme de Cleveland ordonné
 </figcaption>
 </figure>
 <div class="note">
 <p>L’agument <code>pch</code>, qui est utilisé par la plupart des graphiques de type points, permet de spécifier le symbole à utiliser. Il peut prendre soit un nombre entier compris entre 0 et 25, soit un charactère textuel (voir ci-dessous).</p>
-<p><img src="graphs/statistique-univariee/unnamed-chunk-22-1.png" title="" alt="" width="1050" /></p>
+<p><img src="graphs/statistique-univariee/unnamed-chunk-24-1.png" title="" alt="" width="1050" /></p>
 </div>
 </div>
+</div>
+<div id="exporter-les-graphiques-obtenus" class="section level2">
+<h2>Exporter les graphiques obtenus</h2>
+<p>L’<dfn>export de graphiques</dfn><dfn data-index="graphique, export"></dfn> est très facile avec <strong>RStudio</strong>. Lorsque l’on créé un graphique, ce dernier est affiché sous l’onglet <em>Plots</em> dans le quadrant inférieur droit. Il suffit de cliquer sur <em>Export</em> pour avoir accès à trois options différentes :</p>
+<ul>
+<li><em>Save as image</em> pour sauvegarder le graphique en tant que fichier image ;</li>
+<li><em>Save as PDF</em> pour sauvegarder le graphique dans un fichier <strong>PDF</strong> ;</li>
+<li><em>Copy to Clipboard</em> pour copier le graphique dans le presse-papier (et pouvoir ainsi le coller ensuite dans un document <strong>Word</strong> par exemple).</li>
+</ul>
+<p>Pour une présentation détaillée de l’export de graphiques avec <strong>RStudio</strong>, ainsi que pour connaître les commandes <strong>R</strong> permettant d’exporter des graphiques via un script, on pourra se référer au <a href="export-de-graphiques.html">chapitre dédié</a>.</p>
 </div>
 <div class="footnotes">
 <hr />
 <ol>
 <li id="fn1"><p>Il existe un grand nombre de couleurs prédéfinies dans <strong>R</strong>. On peut récupérer leur liste en utilisant la fonction <code data-pkg="grDevices">colors</code> en tapant simplement <code>colors()</code> dans la console, ou en consultant le document suivant : <a href="http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf" class="uri">http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf</a>.<a href="#fnref1">↩</a></p></li>
-<li id="fn2"><p>Le code ayant servi à générer cette figure est une copie quasi conforme de celui présenté dans l’excellent document de Jean Lobry sur les graphiques de base avec <strong>R</strong>, téléchargeable sur le site du Pôle bioinformatique lyonnais : <a href="http://pbil.univ-lyon1.fr/R/pdf/lang04.pdf" class="uri">http://pbil.univ-lyon1.fr/R/pdf/lang04.pdf</a>.<a href="#fnref2">↩</a></p></li>
-<li id="fn3"><p>En l’absence de l’extension <code class="pkg">questionr</code>, on pourra se rabattre sur la fonction <code data-pkg="base">prop.table</code> avec la commande suivante : <code>prop.table(table(d$qualif))</code>.<a href="#fnref3">↩</a></p></li>
-<li id="fn4"><p>On trouvera des exemples illustrant cette idée dans le document de Jean Lobry cité précédemment.<a href="#fnref4">↩</a></p></li>
-<li id="fn5"><p>Pour des raisons liées au fonctionnement interne de la fonction <code data-pkg="graphics">dotchart</code>, on doit transformer le tri à plat en matrice, d’où l’appel à la fonction <code data-pkg="base" data-rdoc="matrix">as.matrix</code>.<a href="#fnref5">↩</a></p></li>
+<li id="fn2"><p>Voir <a href="https://fr.wikipedia.org/wiki/Estimation_par_noyau" class="uri">https://fr.wikipedia.org/wiki/Estimation_par_noyau</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>Le code ayant servi à générer cette figure est une copie quasi conforme de celui présenté dans l’excellent document de Jean Lobry sur les graphiques de base avec <strong>R</strong>, téléchargeable sur le site du Pôle bioinformatique lyonnais : <a href="http://pbil.univ-lyon1.fr/R/pdf/lang04.pdf" class="uri">http://pbil.univ-lyon1.fr/R/pdf/lang04.pdf</a>.<a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>En l’absence de l’extension <code class="pkg">questionr</code>, on pourra se rabattre sur la fonction <code data-pkg="base">prop.table</code> avec la commande suivante : <code>prop.table(table(d$qualif))</code>.<a href="#fnref4">↩</a></p></li>
+<li id="fn5"><p>On trouvera des exemples illustrant cette idée dans le document de Jean Lobry cité précédemment.<a href="#fnref5">↩</a></p></li>
+<li id="fn6"><p>Pour des raisons liées au fonctionnement interne de la fonction <code data-pkg="graphics">dotchart</code>, on doit transformer le tri à plat en matrice, d’où l’appel à la fonction <code data-pkg="base" data-rdoc="matrix">as.matrix</code>.<a href="#fnref6">↩</a></p></li>
 </ol>
 </div>
 
