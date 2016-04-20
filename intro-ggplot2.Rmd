@@ -1,27 +1,24 @@
 ---
-title: "Graphiques bivariés"
+title: "Introduction à ggplot2"
 ---
 
 ```{r options_communes, include = FALSE}
 source("options_communes.R")
 ```
 
-<div class="important">
-Ce chapitre est en cours d'écriture.
-</div>
-
-
 <div class="note">
 Ce chapitre est tiré d'une [séance de cours](https://github.com/briatte/aad/tree/master/reinhart-rogoff) de François Briatte et destinée à des étudiants de L2 sans aucune connaissance de **R**. Cette séance de cours est elle-même inspirée d'un [exercice](http://www.stat.cmu.edu/~cshalizi/uADA/13/hw/11/) tiré d'un cours de [Cosma Shalizi](http://www.stat.cmu.edu/~cshalizi/).
 </div>
 
-Comme expliqué dans un [précédent chapitre](graphiques-univaries.html), **R** possède un puissant moteur graphique interne, qui permet de <q>dessiner</q> dans un graphique en y rajoutant des segments, des points, du texte, ou toutes sortes d'autres symboles. Toutefois, pour produire un graphique complet avec les fonctions basiques de **R**, il faut un peu bricoler : d'abord, ouvrir une fenêtre ; puis rajouter des points ; puis rajouter des lignes ; tout en configurant les couleurs au fur et à mesure ; puis finir par fermer la fenêtre graphique.
+**R** possède un puissant moteur graphique interne, qui permet de <q>dessiner</q> dans un graphique en y rajoutant des segments, des points, du texte, ou toutes sortes d'autres symboles. Toutefois, pour produire un graphique complet avec les fonctions basiques de **R**, il faut un peu bricoler : d'abord, ouvrir une fenêtre ; puis rajouter des points ; puis rajouter des lignes ; tout en configurant les couleurs au fur-et-à-mesure ; puis finir par fermer la fenêtre graphique.
 
-**R** est distribué avec une extension qui permet de moins avoir à bricoler les graphiques : `lattice`{.pkg}. Mais surtout, **R** est aussi capable de comprendre la <q>grammaire graphique</q> [théorisée par Leland Wilkinson](https://books.google.fr/books/about/The_Grammar_of_Graphics.html), et traduite pour **R** par Hadley Wickham sous la forme de l'extension `ggplot2`{.pkg}^[Voir l'excellente [documentation de l'extension](http://ggplot2.org/) et les autres ressources citées en fin de texte.]. Ce chapitre présente cette dernière extension à partir d'un exemple simple de visualisation de séries temporelles, puis rentre dans le détail de sa syntaxe^[Bien que l'on ait fait le choix de présenter l'extension `ggplot2`{.pkg} plutôt que l'extension `lattice`{.pkg}, celle-ci reste un excellent choix pour la visualisation, notamment, de [panels](http://www.magesblog.com/2013/09/using-planelgroups-in-lattice.html) et de [séries temporelles](http://www.fromthebottomoftheheap.net/2013/10/23/time-series-plots-with-lattice-and-ggplot/). On trouve de [très beaux exemples](https://procomun.wordpress.com/2015/04/14/mapping-flows-in-r-with-data-table-and-lattice/) d'utilisation de `lattice`{.pkg} en ligne, mais un peu moins de documentation, et beaucoup moins d'extensions, que pour `ggplot2`{.pkg}.].
+L'extension `ggplot2`{.pkg}^[Voir l'excellente [documentation de l'extension](http://ggplot2.org/) et les autres ressources citées en fin de chapitre.], développée par Hadley Wickham et mettant en œuvre la <q>grammaire graphique</q> [théorisée par Leland Wilkinson](https://books.google.fr/books/about/The_Grammar_of_Graphics.html), devient vite indispensable lorsque l'on souhaite réaliser des graphiques plus complexes^[Bien que l'on ait fait le choix de présenter l'extension `ggplot2`{.pkg} plutôt que l'extension `lattice`{.pkg}, celle-ci reste un excellent choix pour la visualisation, notamment, de [panels](http://www.magesblog.com/2013/09/using-planelgroups-in-lattice.html) et de [séries temporelles](http://www.fromthebottomoftheheap.net/2013/10/23/time-series-plots-with-lattice-and-ggplot/). On trouve de [très beaux exemples](https://procomun.wordpress.com/2015/04/14/mapping-flows-in-r-with-data-table-and-lattice/) d'utilisation de `lattice`{.pkg} en ligne, mais un peu moins de documentation, et beaucoup moins d'extensions, que pour `ggplot2`{.pkg}.].
+
+Ce chapitre, articulé autour d'une étude de cas, présente `ggplot2`{.pkg} à partir d'un exemple simple de visualisation de séries temporelles, puis rentre dans le détail de sa syntaxe. Pour une présentation plus formelle, on pourra se référer au [chapitre dédié](ggplot2-la-grammaire-des-graphiques.html) de la section *Approfondir*.
 
 ## Les données de l'exemple
 
-Il y a quelques années, les chercheurs Carmen M. Reinhart et Kenneth S. Rogoff publiaient un article intitulé <cite>[Growth in a Time of Debt](http://scholar.harvard.edu/files/rogoff/files/growth_in_time_debt_aer.pdf)</cite>, dans lequel ils faisaient la démonstration qu'un niveau élevé de dette publique nuisait à la croissance économique. Plus exactement, les deux chercheurs y défendaient l'idée que, lorsque la dette publique dépasse 90% du produit intérieur brut, ce produit cesse de croître.
+Il y a quelques années, les chercheurs Carmen M. Reinhart et Kenneth S. Rogoff publiaient un article intitulé <cite>[Growth in a Time of Debt](http://scholar.harvard.edu/files/rogoff/files/growth_in_time_debt_aer.pdf)</cite>, dans lequel ils faisaient la démonstration qu'un niveau élevé de dette publique nuisait à la croissance économique. Plus exactement, les deux chercheurs y défendaient l'idée que, lorsque la dette publique dépasse 90 % du produit intérieur brut, ce produit cesse de croître.
 
 Cette conclusion, proche du discours porté par des institutions comme le Fonds Monétaire International, a [alimenté plusieurs argumentaires politiques](http://www.economist.com/news/finance-and-economics/21576362-seminal-analysis-relationship-between-debt-and-growth-comes-under). Des parlementaires américains s'en ainsi sont servi pour exiger une diminution du budget fédéral, et surtout, la Commission européenne s'est appuyée sur cet argumentaire pour exiger que des pays comme la Grèce, durement frappés par la crise financière globale de 2008, adoptent des plans d'austérité drastiques.
 
@@ -83,7 +80,7 @@ head(debt)
 
 ## Visualisation des données
 
-Chargeons à présent l'extension graphique `ggplot2`{.pkg} dont nous allons nous servir dans ce chapitre, et dans de nombreux chapitres suivants :
+Chargeons à présent l'extension graphique `ggplot2`{.pkg} :
 
 ```{r}
 library(ggplot2)
@@ -95,7 +92,7 @@ Procédons désormais à quelques visualisations très simples de ces données. 
 with(debt, plot(Year, growth))
 ```
 
-Le code de la visualisation est très simple et se lit : <q>avec l'objet `debt`, construire le graphique montrant l'année d'observation <var>Year</var> en abcisse et le taux de croissance du PIB <var>growth</var> en ordonnée</q>. Le code est compris de cette manière par **R** car la fonction `plot` comprend le premier argument comme étant la variable à représenter sur l'axe horizontal `x`, et le second comme la variable à représenter sur l'axe vertical `y`.
+Le code de la visualisation est très simple et se lit : <q>avec l'objet `debt`, construire le graphique montrant l'année d'observation <var>Year</var> en abcisse et le taux de croissance du PIB <var>growth</var> en ordonnée</q>. Le code est compris de cette manière par **R** car la fonction `plot`{data-pkg="graphics"} comprend le premier argument comme étant la variable à représenter sur l'axe horizontal `x`, et le second comme la variable à représenter sur l'axe vertical `y`.
 
 Le même graphique s'écrit de la manière suivante avec l'extension `ggplot2`{.pkg} :
 
@@ -105,7 +102,7 @@ with(debt, qplot(Year, growth))
 
 Comme on peut le voir, le code est très proche du code utilisé dans <q>**R** base</q>, la syntaxe signifiant toujours : <q>avec le jeu de données `debt`, visualiser les variables <var>Year</var> sur l'axe `x` et <var>growth</var> sur l'axe `y`</q>. Le résultat est similaire, bien que plusieurs paramètres graphiques aient changé : le fond gris clair, en particulier, est caractéristique du thème graphique par défaut de `ggplot2`{.pkg}, que l'on apprendra à modifier plus loin.
 
-Par ailleurs, dans les deux exemples précédents, on a écrit `with(debt, ...)` pour indiquer que l'on travaillait avec l'objet `debt`. Lorsque l'on travaille avec l'extension `ggplot2`{.pkg}, il est toutefois plus commun d'utiliser l'argument `data` pour indiquer ce choix :
+Par ailleurs, dans les deux exemples précédents, on a écrit `with(debt, ...)` pour indiquer que l'on travaillait avec l'objet `debt`. Lorsque l'on travaille avec l'extension `ggplot2`{.pkg}, il est toutefois plus commun d'utiliser l'argument `data` dans l'appel de `qplot`{data-pkg="ggplot2"} pour indiquer ce choix :
 
 ```{r, eval = FALSE}
 qplot(Year, growth, data = debt)
@@ -115,11 +112,11 @@ qplot(Year, growth, data = debt)
 
 Cherchons désormais à mieux comprendre les variations du taux de croissance du PIB au fil des années.
 
-Dans les graphiques précédents, on voit clairement que ce taux est très variable dans l'immédiat après-guerre, puis qu'il oscille entre environ -5% et +15%, puis qu'il semble chuter dramatiquement à la fin des années 2000, marquées par la crise financière globale. Mais comment visualiser ces variations pour chacun des vingt pays de l'échantillon ?
+Dans les graphiques précédents, on voit clairement que ce taux est très variable dans l'immédiat après-guerre, puis qu'il oscille entre environ -5 % et +15 %, puis qu'il semble chuter dramatiquement à la fin des années 2000, marquées par la crise financière globale. Mais comment visualiser ces variations pour chacun des vingt pays de l'échantillon ?
 
 On va ici utiliser le principe de la visualisation par <q>[petits multiples](http://www.juiceanalytics.com/writing/better-know-visualization-small-multiples/)</q>, c'est-à-dire que l'on va reproduire le même graphique pour chacun des pays, et visualiser l'ensemble de ces graphiques dans une même fenêtre. Concrètement, il va donc s'agir de montrer la croissance annuelle du PIB en faisant apparaître chaque pays dans une facette différente du graphique.
 
-`ggplot2`{.pkg} permet d'effectuer cette opération en rajoutant au graphique précédent, au moyen de l'opérateur `+`, l'élément `facet_wrap(~ Country)` au graphique, qui utilise la syntaxe <q>équation</q> de **R**, et qui signifie <q>construire le graphique pour chaque valeur différente de la variable <var>Country</var></q>. Par défaut, ces <q>facettes</q> sont classées par ordre alphabétique :
+`ggplot2`{.pkg} permet d'effectuer cette opération en rajoutant au graphique précédent, au moyen de l'opérateur `+`, l'élément `facet_wrap(~ Country)` au graphique et qui signifie <q>construire le graphique pour chaque valeur différente de la variable <var>Country</var></q>. On notera que la fonction `facet_wrap`{data-pkg="ggplot2"} utilise la syntaxe [équation](formules.html) de **R**. Par défaut, ces <q>facettes</q> sont classées par ordre alphabétique :
 
 ```{r, tidy = FALSE}
 qplot(Year, growth, data = debt) +
@@ -152,7 +149,7 @@ qplot(data = debt, y = ratio, x = Year, geom = c("line", "point")) +
        y = "Ratio dette publique / produit intérieur brut (%)\n")
 ```
 
-Dans ce graphique, on a combiné deux <q>objets géométriques</q> (`geom`) pour afficher à la fois des points et des lignes. On a ensuite défini les titres des axes, en supprimant celui de l'axe `x`, et en rajoutant un peu d'espace entre le titre de l'axe `y` et l'axe lui-même grâce à la chaîne de caractères finale `\n`, qui rajoute une ligne vide entre ces deux éléments.
+Dans ce graphique, on a combiné deux <q>objets géométriques</q> (`geom`) pour afficher à la fois des points et des lignes. On a ensuite défini les titres des axes, en supprimant celui de l'axe `x`, et en rajoutant un peu d'espace entre le titre de l'axe `y` et l'axe lui-même grâce à la chaîne de caractères finale `\n`, qui rajoute une ligne vide entre ces deux éléments^[Plus précisément, cela introduit un retour à la ligne dans le titre de l'axe.].
  
 Les différents exemples vus dans cette section montrent qu'il va falloir apprendre un minimum de syntaxe graphique pour parvenir à produire des graphiques avec `ggplot2`{.pkg}. Ce petit investissement permet de savoir très vite produire de très nombreux types de graphiques, assez élégants de surcroît, et très facilement modifiables à l'aide de toutes sortes de paramètres optionnels.
 
@@ -162,7 +159,7 @@ Aussi élégants que soient vos graphiques, il ne vous dispense évidemment pas 
 
 ## Composition graphique avec ggplot2
 
-La section précédente a montré comment utiliser la fonction `qplot`{data-pkg="ggplot2" data-rdoc="qplot"} (<q>_quick plot_</q>). La syntaxe complète de l'extension `ggplot2`{.pkg} passe par une autre fonction, `ggplot`{data-pkg="ggplot2" data-rdoc="ggplot"}, qui permet de mieux comprendre les différents éléments de sa grammaire graphique. Dans cette section, on va détailler cette syntaxe pour en tirer un graphique plus complexe que les précédents.
+La section précédente a montré comment utiliser la fonction `qplot`{data-pkg="ggplot2"} (_quick plot_). La syntaxe complète de l'extension `ggplot2`{.pkg} passe par une autre fonction, `ggplot`{data-pkg="ggplot2"}, qui permet de mieux comprendre les différents éléments de sa grammaire graphique. Dans cette section, on va détailler cette syntaxe pour en tirer un graphique plus complexe que les précédents.
 
 Commençons par créer un <q>treillis de base</q> au graphique :
 
@@ -170,9 +167,9 @@ Commençons par créer un <q>treillis de base</q> au graphique :
 p <- ggplot(data = debt, aes(y = growth, x = ratio))
 ```
 
-Aucun graphique ne s'affiche ici : en effet, ce que l'on a stocké, dans l'objet `p`, n'est pas un graphique complet, mais une base de travail. Cette base définit les coordonnées `x` et `y` du graphique dans l'argument `aes`{data-pkg="ggplot2" data-rdoc="aes"} ("_aesthetics_"). Ici, on a choisi de mettre la variable dépendante de Reinhart et Rogoff, <var>growth</var> (le taux de croissance du PIB), sur l'axe `y`, et la variable indépendante <var>ratio</var> (le ratio <q>Dette publique / PIB</q>) sur l'axe `x`.
+Aucun graphique ne s'affiche ici : en effet, ce que l'on a stocké, dans l'objet `p`, n'est pas un graphique complet, mais une base de travail. Cette base définit les coordonnées `x` et `y` du graphique dans l'argument `aes`{data-pkg="ggplot2"} (_aesthetics_). Ici, on a choisi de mettre la variable dépendante de Reinhart et Rogoff, <var>growth</var> (le taux de croissance du PIB), sur l'axe `y`, et la variable indépendante <var>ratio</var> (le ratio <q>Dette publique / PIB</q>) sur l'axe `x`.
 
-Rajoutons désormais un objet géométrique, `geom_point`{data-pkg="ggplot2" data-rdoc="geom_point"}, qui va projeter, sur le graphique, des points aux coordonnées précédemment définies, et divisons le graphique par un <q>petit multiple</q>, en projetant les points de chaque décennie dans une facette différente du graphique. Ce graphique propose une décomposition temporelle de la relation étudiée par Reinhart et Rogoff :
+Rajoutons désormais un objet géométrique, `geom_point`{data-pkg="ggplot2"}, qui va projeter, sur le graphique, des points aux coordonnées précédemment définies, et divisons le graphique par un <q>petit multiple</q>, en projetant les points de chaque décennie dans une facette différente du graphique. Ce graphique propose une décomposition temporelle de la relation étudiée par Reinhart et Rogoff :
 
 ```{r, tidy = FALSE}
 p + geom_point() +
@@ -180,10 +177,10 @@ p + geom_point() +
 ```
 
 <div class="note">
-Le paramètre `facet_grid`{data-pkg="ggplot2" data-rdoc="facet_grid"}, qui utilise aussi la syntaxe <q>équation</q>, permet de créer des facettes plus compliquées que celles créées par le paramètre `facet_wrap`{data-pkg="ggplot2" data-rdoc="facet_wrap"}, même si, dans nos exemples, on aurait pu utiliser aussi bien l'un que l'autre.
+Le paramètre `facet_grid`{data-pkg="ggplot2"}, qui utilise aussi la syntaxe <q>[équation](formules.html)</q>, permet de créer des facettes plus compliquées que celles créées par le paramètre `facet_wrap`{data-pkg="ggplot2"}, même si, dans nos exemples, on aurait pu utiliser aussi bien l'un que l'autre.
 </div>
 
-Le graphique ci-dessus présente un problème fréquent : l'axe horizontal du graphique, très important puisque Reinhart et Rogoff évoquent un seuil <q>fatidique</q>, pour la croissance, de 90% du PIB, est illisible. Grâce à l'argument `scale_x_continuous`{data-pkg="ggplot2" data-rdoc="continuous_scale"}, on va pouvoir clarifier cet axe en n'y faisant figurer que certaines valeurs :
+Le graphique ci-dessus présente un problème fréquent : l'axe horizontal du graphique, très important puisque Reinhart et Rogoff évoquent un seuil <q>fatidique</q>, pour la croissance, de 90% du PIB, est illisible. Grâce à l'argument `scale_x_continuous`{data-pkg="ggplot2" data-rdoc="continuous_scale"}, on va pouvoir clarifier cet axe en n'y faisant figurer que certaines valeurs :
 
 ```{r, tidy = FALSE}
 p + geom_point() +
@@ -207,18 +204,18 @@ Abordons désormais un élément-clé de `ggplot2`{.pkg} : la manipulation des p
 p + aes(color = ratio < 90)
 ```
 
-Qu'a-t-on fait ici ? On a rajouté, au graphique stocké dans `p`, un paramètre esthétique qui détermine la couleur de ses points en fonction d'une inégalité, `ratio < 90`, qui est vraie quand le ratio <q>Dette publique / PIB</q> est inférieur au seuil <q>fatidique</q> de Reinhart et Rogoff, et fausse quand ce ratio dépasse ce seuil. Les couleurs des points correspondent aux couleurs par défaut de `ggplot2`{.pkg}, que l'on peut très facilement modifier avec une autre [variante](http://docs.ggplot2.org/current/scale_brewer.html) du paramètre `scale`{data-pkg="ggplot2" data-rdoc="scale_brewer"} :
+Qu'a-t-on fait ici ? On a rajouté, au graphique stocké dans `p`, un paramètre esthétique qui détermine la couleur de ses points en fonction d'une inégalité, `ratio < 90`, qui est vraie quand le ratio <q>Dette publique / PIB</q> est inférieur au seuil <q>fatidique</q> de Reinhart et Rogoff, et fausse quand ce ratio dépasse ce seuil. Les couleurs des points correspondent aux couleurs par défaut de `ggplot2`{.pkg}, que l'on peut très facilement modifier avec `scale_colour_brewer`{data-pkg="ggplot2"} :
 
 ```{r}
 p + aes(color = ratio < 90) +
-  scale_color_brewer(palette = "Set1")
+  scale_colour_brewer(palette = "Set1")
 ```
 
 Ici, on a fait appel à la palette de couleur `Set1` de l'éventail de couleurs [ColorBrewer](http://colorbrewer2.org/), qui est automatiquement disponible dans `ggplot2`{.pkg}, et qui est contenu dans l'extension `RColorBrewer`{.pkg}. La palette de couleurs que l'on a choisie affiche les points situés au-dessus du seuil <q>fatidique</q> de Reinhart et Rogoff en rouge, les autres en bleu.
 
 Que peut-on dire, à ce stade, du seuil <q>fatidique</q> de Reinhart et Rogoff ? On peut observer qu'après la Seconde guerre mondiale, de nombreux pays sont _déjà_ endettés au-delà de ce seuil, et dégagent _déjà_ moins de croissance que les autres. Sur la base de cette trajectoire, de nombreux critiques de Reinhart et Rogoff ont fait remarquer que le raisonnement de Reinhart et Rogoff pose en réalité un sérieux problème d'[inversion du rapport causal](http://www.nextnewdeal.net/rortybomb/guest-post-reinhartrogoff-and-growth-time-debt) entre endettement et croissance au cours du temps.
 
-Envisageons une nouvelle modification des paramètres graphiques. La légende du graphique, qui affiche `FALSE` et `TRUE` en fonction de l'inégalité `ratio < 90`, peut être déroutante. Clarifions un peu cette légende en supprimant son titre et en remplaçant les libellés ("_labels_") `FALSE` et `TRUE` par leur signification :
+Envisageons une nouvelle modification des paramètres graphiques. La légende du graphique, qui affiche `FALSE` et `TRUE` en fonction de l'inégalité `ratio < 90`, peut être déroutante. Clarifions un peu cette légende en supprimant son titre et en remplaçant les libellés (_labels_) `FALSE` et `TRUE` par leur signification :
 
 ```{r, tidy = FALSE}
 p <- p + aes(color = ratio < 90) +
@@ -237,7 +234,7 @@ Le graphique permet d'évaluer de manière encore un peu plus précise l'argumen
 
 ### Utilisation des thèmes
 
-Reprenons notre graphique de départ. On va, pour terminer cette démonstration, en construire une version imprimable en noir et blanc, ce qui signifie qu'au lieu d'utiliser des couleurs pour distinguer les points en-deçà et au-delà du seuil <q>fatidique</q> de Reinhart et Rogoff, on va utiliser une ligne verticale, produite par `geom_vline`{data-pkg="ggplot2" data-rdoc="geom_vline"} et affichée en pointillés par le paramètre `lty` ("_linetype_") :
+Reprenons notre graphique de départ. On va, pour terminer cette démonstration, en construire une version imprimable en noir et blanc, ce qui signifie qu'au lieu d'utiliser des couleurs pour distinguer les points en-deçà et au-delà du seuil <q>fatidique</q> de Reinhart et Rogoff, on va utiliser une ligne verticale, produite par `geom_vline`{data-pkg="ggplot2" data-rdoc="geom_vline"} et affichée en pointillés par le paramètre `lty` (_linetype_) :
 
 ```{r, tidy = FALSE}
 ggplot(data = debt, aes(y = growth, x = ratio)) + 
@@ -303,6 +300,8 @@ Pour tout ce qui concerne l'utilisation de `ggplot2`{.pkg}, [l'ouvrage de Wickha
 
 On trouve aussi très facilement, ailleurs sur Internet, des dizaines de _tutorials_ et autres _cheatsheets_ pour `ggplot2`{.pkg}, [ici](http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/) ou [là](http://www.rstudio.com/wp-content/uploads/2015/04/ggplot2-cheatsheet.pdf) par exemple.
 
+On pourra aussi se référer au chapitre [ggplot2 : la grammaire des graphiques](ggplot2-la-grammaire-des-graphiques.html).
+
 ### Extensions de ggplot2
 
 Il faut signaler, pour terminer, quelques-unes des différentes extensions inspirées de `ggplot2`{.pkg}, dont la plupart sont encore en cours de développement, mais qui permettent d'ores et déjà de produire des centaines de types de graphiques différents, à partir d'une syntaxe graphique proche de celle présentée dans ce chapitre :
@@ -312,4 +311,4 @@ Il faut signaler, pour terminer, quelques-unes des différentes extensions inspi
 - l'extension `GGally`{.pkg} rajoute quelques types de graphiques à ceux que `ggplot2`{.pkg} peut produire par défaut ;
 - et des extensions comme `ggvis`{.pkg} permettent de [produire des graphiques interactifs](http://ggvis.rstudio.com/) en utilisant la syntaxe de base de `ggplot2`{.pkg}.
 
-On reviendra sur ces extensions dans un chapitre plus avancé. Pour l'instant, on se contentera des éléments de syntaxe présentés dans ce chapitre, qui seront très souvent mobilisés dans les chapitres suivants, de manière à pleinement illustrer la richesse et la flexibilité de `ggplot2`{.pkg}.
+On reviendra sur ces extensions dans un [chapitre plus avancé](etendre-ggplot2.html). Pour l'instant, on se contentera des éléments de syntaxe présentés dans ce chapitre, qui seront très souvent mobilisés dans les chapitres suivants, de manière à pleinement illustrer la richesse et la flexibilité de `ggplot2`{.pkg}.
