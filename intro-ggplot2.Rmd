@@ -88,17 +88,21 @@ library(ggplot2)
 
 Procédons désormais à quelques visualisations très simples de ces données. On dispose de trois variables continues : l'année, le taux de croissance du PIB, et le ratio <q>Dette publique / PIB</q>. Si l'on souhaite visualiser la croissance du PIB au cours du temps, la solution basique dans **R** s'écrit de la manière suivante :
 
+<figure>
 ```{r}
 with(debt, plot(Year, growth))
 ```
+</figure>
 
 Le code de la visualisation est très simple et se lit : <q>avec l'objet `debt`, construire le graphique montrant l'année d'observation <var>Year</var> en abcisse et le taux de croissance du PIB <var>growth</var> en ordonnée</q>. Le code est compris de cette manière par **R** car la fonction `plot`{data-pkg="graphics"} comprend le premier argument comme étant la variable à représenter sur l'axe horizontal `x`, et le second comme la variable à représenter sur l'axe vertical `y`.
 
 Le même graphique s'écrit de la manière suivante avec l'extension `ggplot2`{.pkg} :
 
+<figure>
 ```{r}
 with(debt, qplot(Year, growth))
 ```
+</figure>
 
 Comme on peut le voir, le code est très proche du code utilisé dans <q>**R** base</q>, la syntaxe signifiant toujours : <q>avec le jeu de données `debt`, visualiser les variables <var>Year</var> sur l'axe `x` et <var>growth</var> sur l'axe `y`</q>. Le résultat est similaire, bien que plusieurs paramètres graphiques aient changé : le fond gris clair, en particulier, est caractéristique du thème graphique par défaut de `ggplot2`{.pkg}, que l'on apprendra à modifier plus loin.
 
@@ -118,10 +122,12 @@ On va ici utiliser le principe de la visualisation par <q>[petits multiples](htt
 
 `ggplot2`{.pkg} permet d'effectuer cette opération en rajoutant au graphique précédent, au moyen de l'opérateur `+`, l'élément `facet_wrap(~ Country)` au graphique et qui signifie <q>construire le graphique pour chaque valeur différente de la variable <var>Country</var></q>. On notera que la fonction `facet_wrap`{data-pkg="ggplot2"} utilise la syntaxe [équation](formules.html) de **R**. Par défaut, ces <q>facettes</q> sont classées par ordre alphabétique :
 
+<figure>
 ```{r, tidy = FALSE}
 qplot(Year, growth, data = debt) +
   facet_wrap(~ Country)
 ```
+</figure>
 
 Voilà qui est beaucoup plus clair ! On aperçoit bien, dans ce graphique, les variations très importantes de croissance du PIB dans un pays comme l'Autriche, ruinée après la Seconde guerre mondiale, ou l'Irlande, très durement frappée par la crise financière globale en 2008 et 2009. On aperçoit aussi où se trouvent les données manquantes : voir le graphique de l'Espagne, par exemple.
 
@@ -131,10 +137,12 @@ Il faut noter ici un élément essentiel de la grammaire graphique de `ggplot2`{
 
 Enfin, pour produire le même graphique que ci-dessus en utilisant des lignes plutôt que des points, il suffit d'utiliser l'argument `geom = "line"`, ce qui peut être considéré comme une meilleure manière de visualiser des séries temporelles, mais qui tend aussi à rendre plus difficile la détection des périodes pour lesquelles il manque des données (voir, à nouveau, le graphique pour l'Espagne) :
 
+<figure>
 ```{r, tidy = FALSE}
 qplot(data = debt, y = growth, x = Year, geom = "line") + 
   facet_wrap(~ Country)
 ```
+</figure>
 
 Dans ce dernier exemple, on a défini l'axe `y` avant de définir l'axe `x`, en écrivant ces arguments de manière explicite ; de même, on a commencé par spécifier l'argument `data`, et l'on a terminé par l'argument `geom`. Cet ordre d'écriture permet de conserver une forme de cohérence dans l'écriture des fonctions graphiques.
 
@@ -142,12 +150,14 @@ Dans ce dernier exemple, on a défini l'axe `y` avant de définir l'axe `x`, en 
 
 On n'a pas encore visualisé le ratio <q>Dette publique / PIB</q>, l'autre variable du raisonnement de Reinhart et Rogoff. C'est l'occasion de voir comment rajouter des titres aux axes des graphiques, et d'utiliser les lignes en même temps que des points, toujours grâce à l'argument `geom`, qui peut prendre plusieurs valeurs (ici, `"point"` produit les points et `"line"` produit les lignes) :
 
+<figure>
 ```{r, tidy = FALSE}
 qplot(data = debt, y = ratio, x = Year, geom = c("line", "point")) + 
   facet_wrap(~ Country) +
   labs(x = NULL,
        y = "Ratio dette publique / produit intérieur brut (%)\n")
 ```
+</figure>
 
 Dans ce graphique, on a combiné deux <q>objets géométriques</q> (`geom`) pour afficher à la fois des points et des lignes. On a ensuite défini les titres des axes, en supprimant celui de l'axe `x`, et en rajoutant un peu d'espace entre le titre de l'axe `y` et l'axe lui-même grâce à la chaîne de caractères finale `\n`, qui rajoute une ligne vide entre ces deux éléments^[Plus précisément, cela introduit un retour à la ligne dans le titre de l'axe.].
  
@@ -171,10 +181,12 @@ Aucun graphique ne s'affiche ici : en effet, ce que l'on a stocké, dans l'obje
 
 Rajoutons désormais un objet géométrique, `geom_point`{data-pkg="ggplot2"}, qui va projeter, sur le graphique, des points aux coordonnées précédemment définies, et divisons le graphique par un <q>petit multiple</q>, en projetant les points de chaque décennie dans une facette différente du graphique. Ce graphique propose une décomposition temporelle de la relation étudiée par Reinhart et Rogoff :
 
+<figure>
 ```{r, tidy = FALSE}
 p + geom_point() +
   facet_grid(. ~ Decade)
 ```
+</figure>
 
 <div class="note">
 Le paramètre `facet_grid`{data-pkg="ggplot2"}, qui utilise aussi la syntaxe <q>[équation](formules.html)</q>, permet de créer des facettes plus compliquées que celles créées par le paramètre `facet_wrap`{data-pkg="ggplot2"}, même si, dans nos exemples, on aurait pu utiliser aussi bien l'un que l'autre.
@@ -182,11 +194,13 @@ Le paramètre `facet_grid`{data-pkg="ggplot2"}, qui utilise aussi la syntaxe <q>
 
 Le graphique ci-dessus présente un problème fréquent : l'axe horizontal du graphique, très important puisque Reinhart et Rogoff évoquent un seuil <q>fatidique</q>, pour la croissance, de 90% du PIB, est illisible. Grâce à l'argument `scale_x_continuous`{data-pkg="ggplot2" data-rdoc="continuous_scale"}, on va pouvoir clarifier cet axe en n'y faisant figurer que certaines valeurs :
 
+<figure>
 ```{r, tidy = FALSE}
 p + geom_point() +
   facet_grid(. ~ Decade) +
   scale_x_continuous(breaks = seq(0, 200, by = 100))
 ```
+</figure>
 
 Ces réglages nous conviennent : on va donc les sauvegarder dans l'objet `p`, de manière à continuer de construire notre graphique en incluant ces différents éléments.
 
@@ -200,16 +214,20 @@ p <- p + geom_point() +
 
 Abordons désormais un élément-clé de `ggplot2`{.pkg} : la manipulation des paramètres esthétiques. Précédemment, on n'a montré que deux de ces paramètres : `x` et `y`, les coordonnées du graphique. Mais ces paramètres peuvent aussi influencer la couleur des points de notre graphique comme le montre l'exemple suivant :
 
+<figure>
 ```{r}
 p + aes(color = ratio < 90)
 ```
+</figure>
 
 Qu'a-t-on fait ici ? On a rajouté, au graphique stocké dans `p`, un paramètre esthétique qui détermine la couleur de ses points en fonction d'une inégalité, `ratio < 90`, qui est vraie quand le ratio <q>Dette publique / PIB</q> est inférieur au seuil <q>fatidique</q> de Reinhart et Rogoff, et fausse quand ce ratio dépasse ce seuil. Les couleurs des points correspondent aux couleurs par défaut de `ggplot2`{.pkg}, que l'on peut très facilement modifier avec `scale_colour_brewer`{data-pkg="ggplot2"} :
 
+<figure>
 ```{r}
 p + aes(color = ratio < 90) +
   scale_colour_brewer(palette = "Set1")
 ```
+</figure>
 
 Ici, on a fait appel à la palette de couleur `Set1` de l'éventail de couleurs [ColorBrewer](http://colorbrewer2.org/), qui est automatiquement disponible dans `ggplot2`{.pkg}, et qui est contenu dans l'extension `RColorBrewer`{.pkg}. La palette de couleurs que l'on a choisie affiche les points situés au-dessus du seuil <q>fatidique</q> de Reinhart et Rogoff en rouge, les autres en bleu.
 
@@ -225,10 +243,12 @@ p <- p + aes(color = ratio < 90) +
 
 Dans le bloc de code ci-dessus, on a stocké l'ensemble de nos modifications dans l'objet `p`, sans l'afficher ; en effet, on souhaite encore procéder à une dernière modification, en rajoutant une [régression locale](https://fr.wikipedia.org/wiki/Régression_locale) à travers les points de chaque facette^[La régression locale est une variante du calcul de la [moyenne glissante](https://fr.wikipedia.org/wiki/Moyenne_glissante) (ou <q>moyenne mobile</q>) d'une courbe.]. Après consultation de la documentation de `ggplot2`{.pkg} [ici](http://docs.ggplot2.org/current/geom_smooth.html) et [là](http://docs.ggplot2.org/current/stat_smooth.html), on en arrive au code ci-dessous, où `p` produit le graphique précédent et `geom_smooth`{data-pkg="ggplot2" data-rdoc="geom_smooth"} produit la régression locale :
 
+<figure>
 ```{r, tidy = FALSE}
 p + geom_smooth(method = "loess", se = FALSE,
                 size = 1, color = "black")
 ```
+</figure>
 
 Le graphique permet d'évaluer de manière encore un peu plus précise l'argument de Reinhart et Rogoff, et en particulier la nature pas si <q>fatidique</q> du seuil de 90% du ratio "Dette publique / PIB", qui sans être une bonne nouvelle pour l'économie, ne détermine pas <q>fatidiquement</q> la direction du taux de croissance : si c'était le cas, toutes les courbes du graphique ressembleraient à celles des années 2000. Autrement dit, l'argumentaire de Reinhart et Rogoff laisse clairement à désirer.
 
@@ -236,6 +256,7 @@ Le graphique permet d'évaluer de manière encore un peu plus précise l'argumen
 
 Reprenons notre graphique de départ. On va, pour terminer cette démonstration, en construire une version imprimable en noir et blanc, ce qui signifie qu'au lieu d'utiliser des couleurs pour distinguer les points en-deçà et au-delà du seuil <q>fatidique</q> de Reinhart et Rogoff, on va utiliser une ligne verticale, produite par `geom_vline`{data-pkg="ggplot2" data-rdoc="geom_vline"} et affichée en pointillés par le paramètre `lty` (_linetype_) :
 
+<figure>
 ```{r, tidy = FALSE}
 ggplot(data = debt, aes(y = growth, x = ratio)) + 
   geom_point(color = "grey50") +
@@ -251,6 +272,7 @@ ggplot(data = debt, aes(y = growth, x = ratio)) +
         strip.text = element_text(size = rel(1)),
         panel.grid = element_blank())
 ```
+</figure>
 
 Ce graphique utilise tous les éléments présentés dans ce chapitre, ainsi qu'une dernière nouveauté : l'utilisation d'un thème graphique différent du thème par défaut de `ggplot2`{.pkg}. Le thème par défaut, qui s'appelle `theme_grey`, est ici remplacé par un thème moins chargé, `theme_bw` ("_black and white_"), que l'on a modifié en y rajoutant [quelques paramètres supplémentaires](http://docs.ggplot2.org/current/theme.html) :
 
@@ -279,6 +301,7 @@ ggsave("reinhart-rogoff.pdf", plot = p,
 
 Ce chapitre n'a pu faire la démonstration que d'une infime partie des manières d'utiliser `ggplot2`{.pkg}. En voici une dernière illustration, qui donne une idée des différents types de graphiques que l'extension permet de produire dès que l'on connaît les principaux éléments de sa syntaxe :
 
+<figure>
 ```{r, tidy = FALSE}
 ggplot(data = debt, aes(x = ratio > 90, y = growth)) +
   geom_boxplot() +
@@ -291,6 +314,7 @@ ggplot(data = debt, aes(x = ratio > 90, y = growth)) +
   theme(strip.text = element_text(size = rel(1)),
         panel.grid = element_blank())
 ```
+</figure>
 
 Le code ci-dessus est somme toute très proche du code présenté dans le reste du texte, et en même temps, on a basculé de la visualisation sous forme de série temporelles à une visualisation par _boxplots_. Ces basculements sont très faciles à envisager dès que l'on maîtrise les principaux éléments de `ggplot2`{.pkg}, `geom`, `scale` et `facet`, et les paramètres `labs` et `theme` pour effectuer les finitions.
 
