@@ -19,7 +19,7 @@ data("hdv2003")
 d <- hdv2003
 ```
 
-### Intervalle de confiance d'une moyenne{#ic_moyenne}
+## Intervalle de confiance d'une moyenne{#ic_moyenne}
 
 L'<dfn>intervalle de confiance d'une moyenne</dfn><dfn data-index="moyenne, intervalle de confiance"></dfn><dfn data-index="intervalle de confiance"></dfn>
 peut être calculé avec la fonction `t.test`{data-pkg="stats"}
@@ -40,7 +40,7 @@ Le nombre d'heures moyennes à regarder la télévision parmi les enquêtés s'a
 avec un intervalle de confiance à 95 % de [2,17 - 2,33] et un intervalle de confiance à 90 % de 
 [2,18 - 2,31].
 
-### Intervalle de confiance d'une proportion{#ic_proportion}
+## Intervalle de confiance d'une proportion{#ic_proportion}
 
 La fonction `prop.test`{data-pkg="stats"} permet de calculer 
 l'<dfn>intervalle de confiance d'une proportion</dfn><dfn data-index="proportion, intervalle de confiance"></dfn><dfn data-index="intervalle de confiance"></dfn>.
@@ -114,3 +114,22 @@ prop.ci.lower(c(1277, 723), n = 2000)
 prop.ci.upper(c(1277, 723), n = 2000)
 ```
 </div>
+
+## Données pondérées et l'extension survey{#survey}
+
+Lorsque l'on utilise des données pondérées définies à l'aide de l'extension `survey`{.pkg}^[Voir le chapitre dédié aux [données pondérées](donnees-ponderees.html#survey).], l'<dfn>intervalle de confiance d'une moyenne</dfn><dfn data-index="moyenne, intervalle de confiance"></dfn>
+s'obtient avec `confint`{data-pkg="survey" data-rdoc="surveysummary"}
+et celui d'une <dfn data-index="intervalle de confiance d'une proportion">proportion</dfn><dfn data-index="proportion, intervalle de confiance"></dfn> avec `svyciprop`{data-pkg="survey"}.
+
+Quelques exemples :
+
+```{r, message=FALSE}
+library(survey)
+dw <- svydesign(ids = ~1, data = d, weights = ~poids)
+svymean(~age, dw)
+confint(svymean(~age, dw)) # Intervalle de confiance d'une moyenne
+confint(svyby(~age, ~sexe, dw, svymean)) # Intervalles de confiance pour chaque sexe
+freq(svytable(~sexe, dw))
+svyciprop(~sexe, dw) # Intervalle de confiance d'une proportion
+```
+

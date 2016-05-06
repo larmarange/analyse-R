@@ -37,10 +37,12 @@ range(d$poids)
 
 Tout d'abord, certaines fonctions de **R** acceptent en argument un vecteur permettant de pondérer les
 observations (l'option est en général nommée `weights` ou `row.w`). C'est le cas par exemple des méthodes
-d'estimation de modèles linéaires (`lm`{data-pkg="stats"}) ou de modèles linéaires généralisés 
+d'estimation de modèles linéaires^[Voir le chapitre [régression linéaire](regression-lineaire.html).]
+(`lm`{data-pkg="stats"}) ou de modèles linéaires généralisés ^[Voir le chapitre sur la 
+[régression logistique](regression-logistique.html).]
 (`glm`{data-pkg="stats"}) ou dans les analyses de correspondances^[Voir le chapitre dédié à 
-l'[analyse des correspondances]().] des extensions `ade4`{.pkg}
-ou `FactoMineR`{.pkg}.
+l'[analyse des correspondances](analyse-des-correspondances-multiples.html).] 
+des extensions `ade4`{.pkg} ou `FactoMineR`{.pkg}.
 
 Par contre cette option n'est pas présente dans les fonctions de base comme `mean`{data-pkg="base"},
 `var`{data-pkg="base" data-rdoc="cor"}, `table`{data-pkg="base"} ou
@@ -93,7 +95,7 @@ des tableaux croisés (les fonctions `lprop`{data-pkg="questionr" data-rdoc="rpr
 d'un `wtd.table`{data-pkg="questionr"}) mais restent limitées en termes de tests statistiques 
 ou de graphiques...
 
-## Données pondérées avec l'extension survey
+## Données pondérées avec l'extension survey{#survey}
 
 L'extension `survey`{.pkg} est spécialement dédiée au traitement d'enquêtes 
 ayant des techniques d'échantillonnage et de pondération potentiellement très complexes.
@@ -111,8 +113,10 @@ Pour utiliser les fonctionnalités de l'extension, on doit d'abord définir le <
 ou <dfn lang="en">design</dfn> de notre enquête, c'est-à-dire indiquer quel type de 
 pondération nous souhaitons lui appliquer. 
 
-Dans un premier temps, nous utiliserons le plan d'échantillonnage le plus simple, avec une variable de pondération 
-déjà calculée. Ceci se fait à l'aide de la fonction `svydesign`{data-pkg="survey"} :
+Dans un premier temps, nous utiliserons le plan d'échantillonnage le plus simple, 
+avec une variable de pondération déjà calculée^[Pour d'autres types de plan d'échantillonnage, voir
+la chapitre sur les [plans d'échantillonnage complexes](definir-un-plan-d-echantillonnage-complexe.html).]. 
+Ceci se fait à l'aide de la fonction `svydesign`{data-pkg="survey"} :
 
 ```{r, message=FALSE}
 library(survey)
@@ -145,6 +149,7 @@ diverses opérations statistiques en tenant compte de la pondération. On citera
 * `svyby`{data-pkg="survey"} : statistiques selon un facteur
 * `svyttest`{data-pkg="survey"} : <dfn>test t de Student</dfn><dfn data-index="Student, test-t"></dfn>
   de <dfn>comparaison de moyennes</dfn><dfn data-index="moyenne, comparaison"></dfn>
+* `svyciprop`{data-pkg="survey"} : <dfn>intervalle de confiance d'une proportion</dfn><dfn data-index="proportion, intervalle de confiance"></dfn>
 * `svyglm`{data-pkg="survey"} : <dfn data-index="modèle linéaire généralisé">modèles linéaires généralisés</dfn>
   (dont <dfn>régression logistique</dfn><dfn data-index="logistique, régression"></dfn>)
 * `svyplot`{data-pkg="survey"}, 
@@ -154,29 +159,20 @@ diverses opérations statistiques en tenant compte de la pondération. On citera
 D'autres fonctions sont disponibles, comme `svyratio`{data-pkg="survey"}, 
 mais elles ne seront pas abordées ici.
 
-Pour ne rien arranger, ces fonctions prennent leurs arguments sous forme de formules, c'est-à-dire pas
-de la manière habituelle. En général l'appel de fonction se fait en spécifiant d'abord les variables d'intérêt
+Pour ne rien arranger, ces fonctions prennent leurs arguments sous forme de 
+formules^[Pour plus de détails sur les formules, voir le [chapitre dédié](formules.html).], 
+c'est-à-dire pas de la manière habituelle. 
+En général l'appel de fonction se fait en spécifiant d'abord les variables d'intérêt
 sous forme de formule, puis l'objet *survey.design*.
 
-L'<dfn>intervalle de confiance d'une moyenne</dfn><dfn data-index="moyenne, intervalle de confiance"></dfn>
-s'obtient avec `confint`{data-pkg="survey" data-rdoc="surveysummary"}
-et celui d'une <dfn data-index="intervalle de confiance d'une proportion">proportion</dfn><dfn data-index="proportion, intervalle de confiance"></dfn>
-avec `svyciprop`{data-pkg="survey"}.
 
 Voyons tout de suite quelques exemples^[Pour d'autres exemples, 
 voir <http://www.ats.ucla.edu/stat/r/faq/svy_r_oscluster.htm> (en anglais).] :
 
 ```{r}
 svymean(~age, dw)
-confint(svymean(~age, dw)) # Intervalle de confiance
 svyquantile(~age, dw, quantile = c(0.25, 0.5, 0.75), ci = TRUE)
 svyvar(~heures.tv, dw, na.rm = TRUE)
-```
-
-Pour comparer deux moyennes à l'aide d'un test *t* on aura recours à `svyttest`{data-pkg="survey"} :
-
-```{r}
-svyttest(age~sexe, dw)
 ```
 
 Les tris à plat se déclarent en passant comme argument le nom de la variable précédé
@@ -185,12 +181,19 @@ séparés par un signe plus (`+`) et précédés par un tilde (`~`).
 
 ```{r}
 svytable(~sexe, dw)
-svyciprop(~sexe, dw) # Intervalle de confiance
 svytable(~sexe + clso, dw)
 ```
 
+La fonction `freq`{data-pkg="questionr"} peut être utilisée si on lui passe 
+en argument non pas la variable elle-même, mais son tri à plat obtenu avec 
+`svytable`{data-pkg="survey"} :
+ 
+```{r}
+tab <- svytable(~peche.chasse, dw)
+freq(tab, total = TRUE)
+```
 
-On peut récupérer le tableau issu de `svytable`{data-pkg="survey"} dans un objet et 
+On peut également récupérer le tableau issu de `svytable`{data-pkg="survey"} dans un objet et 
 le réutiliser ensuite comme n'importe quel tableau croisé :
 
 ```{r}
@@ -206,25 +209,6 @@ tout à fait compatibles avec l'utilisation de `survey`{.pkg}.
 lprop(tab)
 ```
 
-La fonction `freq`{data-pkg="questionr"} peut également être utilisée si on lui passe 
-en argument non pas la variable elle-même, mais son tri à plat obtenu avec 
-`svytable`{data-pkg="survey"} :
- 
-```{r}
-tab <- svytable(~peche.chasse, dw)
-freq(tab, total = TRUE)
-```
-
-Par contre, il ne faut pas utiliser `chisq.test`{data-pkg="stats"} sur un tableau généré 
-par `svytable`{data-pkg="survey"}. Les effectifs étant extrapolés à partir de la pondération, 
-les résultats du test seraient complètement faussés. Si on veut faire
-un test du &chi;² sur un tableau croisé pondéré, il faut utiliser 
-`svychisq`{data-pkg="survey" data-rdoc="svytable"} :
-
-```{r}
-svychisq(~sexe + clso, dw)
-```
-
 Le principe de la fonction `svyby`{data-pkg="survey"} est similaire à celui de 
 `tapply`{data-pkg="base"}^[La fonction `tapply`{data-pkg="base"} est présentée plus en 
 détails dans le chapitre [Manipulation de données](pem_manipulation.html#tapply).]. Elle
@@ -233,7 +217,6 @@ Par exemple :
 
 ```{r}
 svyby(~age, ~sexe, dw, svymean)
-confint(svyby(~age, ~sexe, dw, svymean)) # Intervalles de confiance
 ```
 
 `survey`{.pkg} est également capable de produire des graphiques à partir 
@@ -250,42 +233,11 @@ svyboxplot(age ~ sexe, dw, main = "Boxplot double", ylab = "Âge", xlab = "Sexe"
 <figcaption>Fonctions graphiques de l'extension survey</figcaption>
 </figure>
 
-Enfin, `survey`{.pkg} fournit une fonction `svyglm`{data-pkg="survey"}
-permettant de calculer un modèle statistique tout en prenant
-en compte le plan d'échantillonnage spécifié. La syntaxe de `svyglm`{data-pkg="survey"} est proche
-de celle de `glm`{data-pkg="stats"}. Cependant, le cadre d'une régression logistique,
-il est nécessaire d'utiliser `family = quasibinomial()` afin d'éviter un message d'erreur
-indiquant un nombre non entier de succès :
-
-```{r}
-reg <- svyglm(sport ~ sexe + age + relig + heures.tv, dw, family = binomial())
-reg <- svyglm(sport ~ sexe + age + relig + heures.tv, dw, family = quasibinomial())
-reg
-```
-Le résultat obtenu est similaire à celui de `glm`{data-pkg="stats"} et l'on peut utiliser 
-sans problème les fonctions `coef`{data-pkg="survey" data-rdoc="svyglm"},
-`confint`{data-pkg="survey" data-rdoc="confint.glm"}, 
-`odds.ratio`{data-pkg="questionr"} ou `predict`{data-pkg="survey" data-rdoc="svyglm"}
-abordées dans le chapitre sur la [régression logistique](regression-logistique.html).
-
-```{r}
-odds.ratio(reg)
-```
-
-Dans ses dernières versions, `survey`{.pkg} fournit une méthode 
-`AIC.svyglm`{data-pkg="survey" data-rdoc="anova.svyglm"} permettant d'estimer un <dfn>AIC</dfn>
-sur un modèle calculé avec `svyglm`{data-pkg="survey"}. Il est dès lors possible d'utiliser 
-la fonction `step`{data-pkg="stats"} pour réaliser une 
-<dfn>sélection descendante pas à pas</dfn><dfn data-index="pas à pas, sélection descendante"></dfn>.
-
-L'extension `effects`{.pkg} n'est quant à elle pas compatible avec
-`svyglm`{data-pkg="survey"}^[Compatibilité qui pourra éventuellement être introduite dans une future version de l'extension.].
-
-## Extraire un sous-échantillon
+### Extraire un sous-échantillon
 
 Si l'on souhaite travailler sur un <dfn>sous-échantillon</dfn> tout en gardant les informations d'échantillonnage,
 on utilisera la fonction `subset`{data-pkg="survey" data-rdoc="subset.survey.design"}
-présentée en détail dans le chapitre [Manipulation de données](pem_manipulation.html#subset).
+présentée en détail dans le chapitre [Sous-ensembles](sous-ensembles.html).
 
 ```{r}
 sous <- subset(dw, sexe == "Femme" & age >= 40)

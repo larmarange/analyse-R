@@ -227,3 +227,37 @@ fisher.test(table(d$sexe, d$cuisine))
 ```
 </div>
 
+## Données pondérées et l'extension survey{#survey}
+
+Lorsque l'on utilise des données pondérées, on aura recours à l'extension `survey`{.pkg}^[Voir le chapitre dédié aux [données pondérées](donnees-ponderees.html#survey).].
+
+Préparons des données d'exemple :
+
+```{r, message=FALSE}
+library(survey)
+dw <- svydesign(ids = ~1, data = d, weights = ~poids)
+```
+
+Pour comparer deux moyennes à l'aide d'un test *t* on aura recours à `svyttest`{data-pkg="survey"} :
+
+```{r}
+svyttest(age~sexe, dw)
+```
+
+On ne peut pas utiliser `chisq.test`{data-pkg="stats"} directement sur un tableau généré 
+par `svytable`{data-pkg="survey"}. Les effectifs étant extrapolés à partir de la pondération, 
+les résultats du test seraient complètement faussés. Si on veut faire
+un test du &chi;² sur un tableau croisé pondéré, il faut utiliser 
+`svychisq`{data-pkg="survey" data-rdoc="svytable"} :
+
+```{r}
+rprop(svytable(~sexe + clso, dw))
+svychisq(~sexe + clso, dw)
+```
+
+L'extension `survey`{.pkg} ne propose pas de version adaptée du test exact de Fisher. Pour comparer deux proportions, on aura donc recours au test du &chi;² :
+
+```{r}
+rprop(svytable(~lecture.bd + sport, dw))
+svychisq(~lecture.bd + sport, dw)
+```

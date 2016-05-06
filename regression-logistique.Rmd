@@ -375,3 +375,46 @@ De même, il est possible de calculer la matrice de confusion :
 ```{r}
 table(predict(regm2, newdata = d), d$trav.satisf)
 ```
+
+## Données pondérées et l'extension survey{#survey}
+
+Lorsque l'on utilise des données pondérées, on aura recours à l'extension `survey`{.pkg}^[Voir le chapitre dédié aux [données pondérées](donnees-ponderees.html#survey).].
+
+Préparons des données d'exemple :
+
+```{r, message=FALSE}
+library(survey)
+dw <- svydesign(ids = ~1, data = d, weights = ~poids)
+```
+
+L'extension `survey`{.pkg} fournit une fonction `svyglm`{data-pkg="survey"}
+permettant de calculer un modèle statistique tout en prenant
+en compte le plan d'échantillonnage spécifié. La syntaxe de `svyglm`{data-pkg="survey"} est proche
+de celle de `glm`{data-pkg="stats"}. Cependant, le cadre d'une régression logistique,
+il est nécessaire d'utiliser `family = quasibinomial()` afin d'éviter un message d'erreur
+indiquant un nombre non entier de succès :
+
+```{r}
+reg <- svyglm(sport ~ sexe + age + relig + heures.tv, dw, family = binomial())
+reg <- svyglm(sport ~ sexe + age + relig + heures.tv, dw, family = quasibinomial())
+reg
+```
+
+Le résultat obtenu est similaire à celui de `glm`{data-pkg="stats"} et l'on peut utiliser 
+sans problème les fonctions `coef`{data-pkg="survey" data-rdoc="svyglm"},
+`confint`{data-pkg="survey" data-rdoc="confint.glm"}, 
+`odds.ratio`{data-pkg="questionr"} ou `predict`{data-pkg="survey" data-rdoc="svyglm"}.
+
+```{r}
+odds.ratio(reg)
+```
+
+Dans ses dernières versions, `survey`{.pkg} fournit une méthode 
+`AIC.svyglm`{data-pkg="survey" data-rdoc="anova.svyglm"} permettant d'estimer un <dfn>AIC</dfn>
+sur un modèle calculé avec `svyglm`{data-pkg="survey"}. Il est dès lors possible d'utiliser 
+la fonction `step`{data-pkg="stats"} pour réaliser une 
+<dfn>sélection descendante pas à pas</dfn><dfn data-index="pas à pas, sélection descendante"></dfn>.
+
+L'extension `effects`{.pkg} n'est quant à elle pas compatible avec
+`svyglm`{data-pkg="survey"}^[Compatibilité qui pourra éventuellement être introduite dans une future version de l'extension.].
+
