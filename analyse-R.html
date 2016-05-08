@@ -205,7 +205,7 @@ pre:not([class]) {
 Introduction <br/>à l’analyse d’enquêtes <br/>avec R et RStudio
 </h1>
 <p>
-Dernière mise à jour : 20 avril 2016
+Dernière mise à jour : 8 mai 2016
 </p>
 </div>
 <div id="contributeurs" class="section level2">
@@ -6231,6 +6231,34 @@ Ouvrier qualifie          292  17.66  64.07
 Employe                   594  35.93 100.00
 Total                    1653 100.00 100.00</code></pre>
 <p>La colonne <code>%cum</code> indique ici le pourcentage cumulé, ce qui est ici une très mauvaise idée puisque pour ce type de variable cela n’a aucun sens. Les lignes du tableau résultat ont été triés par effectifs croissants, les totaux ont été ajoutés, les non-réponses exclues et les pourcentages arrondis à deux décimales.</p>
+<p>La fonction <code data-pkg="questionr">freq</code> est également en mesure de tenir compte des étiquettes de valeurs lorsqu’on utilise des <a href="#facteurs-et-vecteurs-labellises">données labellisées</a>. Ainsi :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(fecondite)
+<span class="kw">describe</span>(femmes$region)</code></pre></div>
+<pre><code>[2000 obs.] Région de résidence
+labelled numeric: 4 4 4 4 4 ...
+min: 1 - max: 4 - NAs: 0 (0%) - 4 unique values
+4 value labels: [1] Nord [2] Est [3] Sud [4] Ouest</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(femmes$region)</code></pre></div>
+<pre><code>            n    % val%
+[1] Nord  707 35.4 35.4
+[2] Est   324 16.2 16.2
+[3] Sud   407 20.3 20.3
+[4] Ouest 562 28.1 28.1
+NA          0  0.0   NA</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(femmes$region, <span class="dt">levels =</span> <span class="st">"labels"</span>)</code></pre></div>
+<pre><code>        n    % val%
+Nord  707 35.4 35.4
+Est   324 16.2 16.2
+Sud   407 20.3 20.3
+Ouest 562 28.1 28.1
+NA      0  0.0   NA</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(femmes$region, <span class="dt">levels =</span> <span class="st">"values"</span>)</code></pre></div>
+<pre><code>     n    % val%
+1  707 35.4 35.4
+2  324 16.2 16.2
+3  407 20.3 20.3
+4  562 28.1 28.1
+NA   0  0.0   NA</code></pre>
 <p>Pour plus d’informations sur la fonction <code data-pkg="questionr">freq</code>, consultez sa page d’aide en ligne avec <code>?freq</code> ou <code>help("freq")</code>.</p>
 </div>
 <div id="statistique-univariee_representation-graphique" class="section level3">
@@ -6241,7 +6269,7 @@ Total                    1653 100.00 100.00</code></pre>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">table</span>(d$freres.soeurs), <span class="dt">main =</span> <span class="st">"Nombre de frères, soeurs, demi-frères et demi-soeurs"</span>, 
   <span class="dt">ylab =</span> <span class="st">"Effectif"</span>)</code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-18-1.png" title="" alt="" width="1050"/>
+<img src="graphs/statistique-univariee/unnamed-chunk-19-1.png" title="" alt="" width="1050"/>
 <figcaption>
 Exemple de diagramme en bâtons
 </figcaption>
@@ -6250,7 +6278,7 @@ Exemple de diagramme en bâtons
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">table</span>(d$clso))[, <span class="dv">1</span>], <span class="dt">main =</span> <span class="st">"Sentiment d'appartenance à une classe sociale"</span>, 
   <span class="dt">pch =</span> <span class="dv">19</span>)</code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-19-1.png" title="" alt="" width="1050"/>
+<img src="graphs/statistique-univariee/unnamed-chunk-20-1.png" title="" alt="" width="1050"/>
 <figcaption>
 Exemple de diagramme de Cleveland
 </figcaption>
@@ -6260,23 +6288,23 @@ Exemple de diagramme de Cleveland
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">table</span>(d$clso))</code></pre></div>
 <p><strong>R</strong> produira bien le diagramme de Cleveland désiré mais affichera un message d’avertissement (<em>Warning</em>) car pour des raisons liées au fonctionnement interne de la fonction <code data-pkg="graphics">dotchart</code>, il est attendu une matrice ou un vecteur, non un objet de type table. Pour éviter cet avertissement, il est nécessaire de faire appel à la fonction <code data-pkg="base" data-rdoc="matrix">as.matrix</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">table</span>(d$clso)))</code></pre></div>
-<p><img src="graphs/statistique-univariee/unnamed-chunk-21-1.png" title="" alt="" width="1050"/></p>
+<p><img src="graphs/statistique-univariee/unnamed-chunk-22-1.png" title="" alt="" width="1050"/></p>
 <p>Dans le cas présent, on voit apparaître un chiffre 1 au-dessus des modalités. En fait, <code data-pkg="graphics">dotchart</code> peut être appliqué au résultat d’un tableau croisé à deux entrées, auquel cas il présentera les résultats pour chaque colonne. Comme dans l’exemple ci-après.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">table</span>(d$clso, d$sexe)))</code></pre></div>
-<p><img src="graphs/statistique-univariee/unnamed-chunk-22-1.png" title="" alt="" width="1050"/></p>
-<p>Cela ne résoud pas le problème pour notre diagramme de Cleveland issu d’un tri à plat simple. Pour bien comprendre, la fonction <code data-pkg="base" data-rdoc="matrix">as.matrix</code> a produit un objet à deux dimensions ayant une colonne et plusieurs lignes. On indiquera à <strong>R</strong> que l’on ne souhaite extraire la première colonne avec <code>[, 1]</code> (juste après l’appel à <code data-pkg="base" data-rdoc="matrix">as.matrix</code>). C’est ce qu’on appelle l’<em>indexation</em> que l’on abordera plus en détails dans le chapite <a href="pem_manipulation.html#indexation">Manipulation de données</a>.</p>
+<p><img src="graphs/statistique-univariee/unnamed-chunk-23-1.png" title="" alt="" width="1050"/></p>
+<p>Cela ne résoud pas le problème pour notre diagramme de Cleveland issu d’un tri à plat simple. Pour bien comprendre, la fonction <code data-pkg="base" data-rdoc="matrix">as.matrix</code> a produit un objet à deux dimensions ayant une colonne et plusieurs lignes. On indiquera à <strong>R</strong> que l’on ne souhaite extraire la première colonne avec <code>[, 1]</code> (juste après l’appel à <code data-pkg="base" data-rdoc="matrix">as.matrix</code>). C’est ce qu’on appelle l’<em>indexation</em>, abordée plus en détail dans le chapitre <a href="#listes-et-tableaux-de-donnes">Listes et tableaux de données</a>.</p>
 </div>
 <p>Quand la variable comprend un grand nombre de modalités, il est préférable d’<dfn>ordonner le tri à plat</dfn><dfn data-index="tri à plat, ordonner"/> obtenu à l’aide de la fonction <code data-pkg="base">sort</code> :</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dotchart</span>(<span class="kw">as.matrix</span>(<span class="kw">sort</span>(<span class="kw">table</span>(d$qualif)))[, <span class="dv">1</span>], <span class="dt">main =</span> <span class="st">"Niveau de qualification"</span>)</code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-23-1.png" title="" alt="" width="1050"/>
+<img src="graphs/statistique-univariee/unnamed-chunk-24-1.png" title="" alt="" width="1050"/>
 <figcaption>
 Exemple de diagramme de Cleveland ordonné
 </figcaption>
 </figure>
 <div class="note">
 <p>L’agument <code>pch</code>, qui est utilisé par la plupart des graphiques de type points, permet de spécifier le symbole à utiliser. Il peut prendre soit un nombre entier compris entre 0 et 25, soit un charactère textuel (voir ci-dessous).</p>
-<p><img src="graphs/statistique-univariee/unnamed-chunk-24-1.png" title="" alt="" width="1050"/></p>
+<p><img src="graphs/statistique-univariee/unnamed-chunk-25-1.png" title="" alt="" width="1050"/></p>
 </div>
 </div>
 </div>
@@ -6322,6 +6350,7 @@ Exemple de diagramme de Cleveland ordonné
 </ul></li>
 <li><a href="#statistique-bivariee_deux-variables-qualitatives">Deux variables qualitatives</a><ul>
 <li><a href="#statistique-bivariee_tableau-croise">Tableau croisé</a></li>
+<li><a href="#statistique-bivariee_pourcentages-en-ligne-et-en-colonne">Pourcentages en ligne et en colonne</a></li>
 <li><a href="#statistique-bivariee_representation-graphique">Représentation graphique</a></li>
 </ul></li>
 </ul>
@@ -6545,6 +6574,32 @@ sport Non Oui
   Non 358 389
   Oui 132 222</code></pre>
 <p>On remarquera que le rendu par défaut est en général plus lisible car le nom des variables est indiqué, permettant de savoir quelle variable est affichée en colonnes et laquelle en lignes.</p>
+<p>Si l’on utilise des <a href="#facteurs-et-vecteurs-labellises">données labellisées</a>, la fonction <code data-pkg="stats">xtabs</code> ne prendra pas en compte les étiquettes de valeur.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(fecondite)
+<span class="kw">xtabs</span>(~educ +<span class="st"> </span>region, femmes)</code></pre></div>
+<pre><code>    region
+educ   1   2   3   4
+   0 387 213 282 256
+   1 179  53  86 142
+   2 123  57  37 131
+   3  18   1   2  33</code></pre>
+<p>On pourra alors utiliser la fonction <code data-pkg="questionr">ltabs</code> de l’extension <code class="pkg">question</code>, qui fonctionne exactement comme <code data-pkg="stats">xtabs</code>, à ceci près qu’elle prendra en compte les étiquettes de variable et de valeur quand elles existent.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ltabs</span>(~educ +<span class="st"> </span>region, femmes)</code></pre></div>
+<pre><code>                        region: Région de résidence
+educ: Niveau d'éducation [1] Nord [2] Est [3] Sud
+          [0] aucun           387     213     282
+          [1] primaire        179      53      86
+          [2] secondaire      123      57      37
+          [3] supérieur        18       1       2
+                        region: Région de résidence
+educ: Niveau d'éducation [4] Ouest
+          [0] aucun            256
+          [1] primaire         142
+          [2] secondaire       131
+          [3] supérieur         33</code></pre>
+</div>
+<div id="statistique-bivariee_pourcentages-en-ligne-et-en-colonne" class="section level3">
+<h3>Pourcentages en ligne et en colonne</h3>
 <p>On n’a cependant que les effectifs, ce qui rend difficile les comparaisons. L’extension <code class="pkg">questionr</code> fournit des fonctions permettant de calculer facilement les pourcentages lignes, colonnes et totaux d’un tableau croisé.</p>
 <p>Les pourcentages lignes s’obtiennent avec la fonction <code data-pkg="questionr" data-rdoc="rprop">lprop</code><a href="#statistique-bivariee_fn2" class="footnoteRef" id="statistique-bivariee_fnref2"><sup>2</sup></a>. Celle-ci s’applique au tableau croisé généré par <code data-pkg="base">table</code> ou <code data-pkg="stats">xtabs</code>  :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">table</span>(d$sport, d$qualreg)
@@ -6629,7 +6684,7 @@ sport   Ouvrier Ensemble
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mosaicplot</span>(qualreg ~<span class="st"> </span>sport, <span class="dt">data =</span> d, <span class="dt">shade =</span> <span class="ot">TRUE</span>, 
   <span class="dt">main =</span> <span class="st">"Graphe en mosaïque"</span>)</code></pre></div>
-<img src="graphs/statistique-bivariee/unnamed-chunk-24-1.png" title="" alt="" width="1050"/>
+<img src="graphs/statistique-bivariee/unnamed-chunk-26-1.png" title="" alt="" width="1050"/>
 <figcaption>
 Exemple de graphe en mosaïque
 </figcaption>
@@ -6641,12 +6696,12 @@ Exemple de graphe en mosaïque
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(vcd)
 <span class="kw">mosaic</span>(~sport +<span class="st"> </span>cuisine +<span class="st"> </span>sexe, d, <span class="dt">highlighting =</span> <span class="st">"sexe"</span>, 
   <span class="dt">main =</span> <span class="st">"Exemple de graphique en mosaïque à 3 dimensions"</span>)</code></pre></div>
-<p><img src="graphs/statistique-bivariee/unnamed-chunk-25-1.png" title="" alt="" width="1050"/></p>
+<p><img src="graphs/statistique-bivariee/unnamed-chunk-27-1.png" title="" alt="" width="1050"/></p>
 </div>
 <p>Lorsque l’on s’intéresse principalement aux variations d’une variable selon une autre, par exemple ici à la pratique du sport selon le niveau de qualification, il peut être intéressant de présenter les pourcentages en colonne sous la forme de <dfn data-index="barres cumulées, graphique">barres cumulées</dfn>.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">barplot</span>(<span class="kw">cprop</span>(tab, <span class="dt">total =</span> <span class="ot">FALSE</span>), <span class="dt">main =</span> <span class="st">"Pratique du sport selon le niveau de qualification"</span>)</code></pre></div>
-<img src="graphs/statistique-bivariee/unnamed-chunk-26-1.png" title="" alt="" width="1050"/>
+<img src="graphs/statistique-bivariee/unnamed-chunk-28-1.png" title="" alt="" width="1050"/>
 <figcaption>
 Exemple de barres cumulées
 </figcaption>
@@ -6770,12 +6825,16 @@ Netherlands New Zealand      Norway    Portugal
 <p>Chargeons à présent l’extension graphique <code class="pkg">ggplot2</code> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)</code></pre></div>
 <p>Procédons désormais à quelques visualisations très simples de ces données. On dispose de trois variables continues : l’année, le taux de croissance du PIB, et le ratio <q>Dette publique / PIB</q>. Si l’on souhaite visualiser la croissance du PIB au cours du temps, la solution basique dans <strong>R</strong> s’écrit de la manière suivante :</p>
+<figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">with</span>(debt, <span class="kw">plot</span>(Year, growth))</code></pre></div>
-<p><img src="graphs/intro-ggplot2/unnamed-chunk-7-1.png" title="" alt="" width="1050"/></p>
+<img src="graphs/intro-ggplot2/unnamed-chunk-7-1.png" title="" alt="" width="1050"/>
+</figure>
 <p>Le code de la visualisation est très simple et se lit : <q>avec l’objet <code>debt</code>, construire le graphique montrant l’année d’observation <var>Year</var> en abcisse et le taux de croissance du PIB <var>growth</var> en ordonnée</q>. Le code est compris de cette manière par <strong>R</strong> car la fonction <code data-pkg="graphics">plot</code> comprend le premier argument comme étant la variable à représenter sur l’axe horizontal <code>x</code>, et le second comme la variable à représenter sur l’axe vertical <code>y</code>.</p>
 <p>Le même graphique s’écrit de la manière suivante avec l’extension <code class="pkg">ggplot2</code> :</p>
+<figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">with</span>(debt, <span class="kw">qplot</span>(Year, growth))</code></pre></div>
-<p><img src="graphs/intro-ggplot2/unnamed-chunk-8-1.png" title="" alt="" width="1050"/></p>
+<img src="graphs/intro-ggplot2/unnamed-chunk-8-1.png" title="" alt="" width="1050"/>
+</figure>
 <p>Comme on peut le voir, le code est très proche du code utilisé dans <q><strong>R</strong> base</q>, la syntaxe signifiant toujours : <q>avec le jeu de données <code>debt</code>, visualiser les variables <var>Year</var> sur l’axe <code>x</code> et <var>growth</var> sur l’axe <code>y</code></q>. Le résultat est similaire, bien que plusieurs paramètres graphiques aient changé : le fond gris clair, en particulier, est caractéristique du thème graphique par défaut de <code class="pkg">ggplot2</code>, que l’on apprendra à modifier plus loin.</p>
 <p>Par ailleurs, dans les deux exemples précédents, on a écrit <code>with(debt, ...)</code> pour indiquer que l’on travaillait avec l’objet <code>debt</code>. Lorsque l’on travaille avec l’extension <code class="pkg">ggplot2</code>, il est toutefois plus commun d’utiliser l’argument <code>data</code> dans l’appel de <code data-pkg="ggplot2">qplot</code> pour indiquer ce choix :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">qplot</span>(Year, growth, <span class="dt">data =</span> debt)</code></pre></div>
@@ -6785,28 +6844,34 @@ Netherlands New Zealand      Norway    Portugal
 <p>Dans les graphiques précédents, on voit clairement que ce taux est très variable dans l’immédiat après-guerre, puis qu’il oscille entre environ -5 % et +15 %, puis qu’il semble chuter dramatiquement à la fin des années 2000, marquées par la crise financière globale. Mais comment visualiser ces variations pour chacun des vingt pays de l’échantillon ?</p>
 <p>On va ici utiliser le principe de la visualisation par <q><a href="http://www.juiceanalytics.com/writing/better-know-visualization-small-multiples/">petits multiples</a></q>, c’est-à-dire que l’on va reproduire le même graphique pour chacun des pays, et visualiser l’ensemble de ces graphiques dans une même fenêtre. Concrètement, il va donc s’agir de montrer la croissance annuelle du PIB en faisant apparaître chaque pays dans une facette différente du graphique.</p>
 <p><code class="pkg">ggplot2</code> permet d’effectuer cette opération en rajoutant au graphique précédent, au moyen de l’opérateur <code>+</code>, l’élément <code>facet_wrap(~ Country)</code> au graphique et qui signifie <q>construire le graphique pour chaque valeur différente de la variable <var>Country</var></q>. On notera que la fonction <code data-pkg="ggplot2">facet_wrap</code> utilise la syntaxe <a href="#formules">équation</a> de <strong>R</strong>. Par défaut, ces <q>facettes</q> sont classées par ordre alphabétique :</p>
+<figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">qplot</span>(Year, growth, <span class="dt">data =</span> debt) +
 <span class="st">  </span><span class="kw">facet_wrap</span>(~<span class="st"> </span>Country)</code></pre></div>
-<p><img src="graphs/intro-ggplot2/unnamed-chunk-10-1.png" title="" alt="" width="1050"/></p>
+<img src="graphs/intro-ggplot2/unnamed-chunk-10-1.png" title="" alt="" width="1050"/>
+</figure>
 <p>Voilà qui est beaucoup plus clair ! On aperçoit bien, dans ce graphique, les variations très importantes de croissance du PIB dans un pays comme l’Autriche, ruinée après la Seconde guerre mondiale, ou l’Irlande, très durement frappée par la crise financière globale en 2008 et 2009. On aperçoit aussi où se trouvent les données manquantes : voir le graphique de l’Espagne, par exemple.</p>
 <p>Il faut noter ici un élément essentiel de la grammaire graphique de <code class="pkg">ggplot2</code>, qui utilise une syntaxe additive, où différents éléments et paramètres graphiques peuvent être combinés en les additionnant, ce qui permet de construire et de modifier des graphiques de manière cumulative, pas à pas. Cette caractéristique permet de tâtonner, et de construire progressivement des graphiques très complets.</p>
 </div>
 <div id="intro-ggplot2_visualisation-en-series-temporelles" class="section level3">
 <h3>Visualisation en séries temporelles</h3>
 <p>Enfin, pour produire le même graphique que ci-dessus en utilisant des lignes plutôt que des points, il suffit d’utiliser l’argument <code>geom = "line"</code>, ce qui peut être considéré comme une meilleure manière de visualiser des séries temporelles, mais qui tend aussi à rendre plus difficile la détection des périodes pour lesquelles il manque des données (voir, à nouveau, le graphique pour l’Espagne) :</p>
+<figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">qplot</span>(<span class="dt">data =</span> debt, <span class="dt">y =</span> growth, <span class="dt">x =</span> Year, <span class="dt">geom =</span> <span class="st">"line"</span>) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">facet_wrap</span>(~<span class="st"> </span>Country)</code></pre></div>
-<p><img src="graphs/intro-ggplot2/unnamed-chunk-11-1.png" title="" alt="" width="1050"/></p>
+<img src="graphs/intro-ggplot2/unnamed-chunk-11-1.png" title="" alt="" width="1050"/>
+</figure>
 <p>Dans ce dernier exemple, on a défini l’axe <code>y</code> avant de définir l’axe <code>x</code>, en écrivant ces arguments de manière explicite ; de même, on a commencé par spécifier l’argument <code>data</code>, et l’on a terminé par l’argument <code>geom</code>. Cet ordre d’écriture permet de conserver une forme de cohérence dans l’écriture des fonctions graphiques.</p>
 </div>
 <div id="intro-ggplot2_combinaisons-delements-graphiques" class="section level3">
 <h3>Combinaisons d’éléments graphiques</h3>
 <p>On n’a pas encore visualisé le ratio <q>Dette publique / PIB</q>, l’autre variable du raisonnement de Reinhart et Rogoff. C’est l’occasion de voir comment rajouter des titres aux axes des graphiques, et d’utiliser les lignes en même temps que des points, toujours grâce à l’argument <code>geom</code>, qui peut prendre plusieurs valeurs (ici, <code>"point"</code> produit les points et <code>"line"</code> produit les lignes) :</p>
+<figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">qplot</span>(<span class="dt">data =</span> debt, <span class="dt">y =</span> ratio, <span class="dt">x =</span> Year, <span class="dt">geom =</span> <span class="kw">c</span>(<span class="st">"line"</span>, <span class="st">"point"</span>)) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">facet_wrap</span>(~<span class="st"> </span>Country) +
 <span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="ot">NULL</span>,
        <span class="dt">y =</span> <span class="st">"Ratio dette publique / produit intérieur brut (%)</span><span class="ch">\n</span><span class="st">"</span>)</code></pre></div>
-<p><img src="graphs/intro-ggplot2/unnamed-chunk-12-1.png" title="" alt="" width="1050"/></p>
+<img src="graphs/intro-ggplot2/unnamed-chunk-12-1.png" title="" alt="" width="1050"/>
+</figure>
 <p>Dans ce graphique, on a combiné deux <q>objets géométriques</q> (<code>geom</code>) pour afficher à la fois des points et des lignes. On a ensuite défini les titres des axes, en supprimant celui de l’axe <code>x</code>, et en rajoutant un peu d’espace entre le titre de l’axe <code>y</code> et l’axe lui-même grâce à la chaîne de caractères finale <code>\n</code>, qui rajoute une ligne vide entre ces deux éléments<a href="#intro-ggplot2_fn4" class="footnoteRef" id="intro-ggplot2_fnref4"><sup>4</sup></a>.</p>
 <p>Les différents exemples vus dans cette section montrent qu’il va falloir apprendre un minimum de syntaxe graphique pour parvenir à produire des graphiques avec <code class="pkg">ggplot2</code>. Ce petit investissement permet de savoir très vite produire de très nombreux types de graphiques, assez élégants de surcroît, et très facilement modifiables à l’aide de toutes sortes de paramètres optionnels.</p>
 <div class="important">
@@ -6821,17 +6886,21 @@ Netherlands New Zealand      Norway    Portugal
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">p &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> debt, <span class="kw">aes</span>(<span class="dt">y =</span> growth, <span class="dt">x =</span> ratio))</code></pre></div>
 <p>Aucun graphique ne s’affiche ici : en effet, ce que l’on a stocké, dans l’objet <code>p</code>, n’est pas un graphique complet, mais une base de travail. Cette base définit les coordonnées <code>x</code> et <code>y</code> du graphique dans l’argument <code data-pkg="ggplot2">aes</code> (<em>aesthetics</em>). Ici, on a choisi de mettre la variable dépendante de Reinhart et Rogoff, <var>growth</var> (le taux de croissance du PIB), sur l’axe <code>y</code>, et la variable indépendante <var>ratio</var> (le ratio <q>Dette publique / PIB</q>) sur l’axe <code>x</code>.</p>
 <p>Rajoutons désormais un objet géométrique, <code data-pkg="ggplot2">geom_point</code>, qui va projeter, sur le graphique, des points aux coordonnées précédemment définies, et divisons le graphique par un <q>petit multiple</q>, en projetant les points de chaque décennie dans une facette différente du graphique. Ce graphique propose une décomposition temporelle de la relation étudiée par Reinhart et Rogoff :</p>
+<figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">p +<span class="st"> </span><span class="kw">geom_point</span>() +
 <span class="st">  </span><span class="kw">facet_grid</span>(. ~<span class="st"> </span>Decade)</code></pre></div>
-<p><img src="graphs/intro-ggplot2/unnamed-chunk-14-1.png" title="" alt="" width="1050"/></p>
+<img src="graphs/intro-ggplot2/unnamed-chunk-14-1.png" title="" alt="" width="1050"/>
+</figure>
 <div class="note">
 <p>Le paramètre <code data-pkg="ggplot2">facet_grid</code>, qui utilise aussi la syntaxe <q><a href="#formules">équation</a></q>, permet de créer des facettes plus compliquées que celles créées par le paramètre <code data-pkg="ggplot2">facet_wrap</code>, même si, dans nos exemples, on aurait pu utiliser aussi bien l’un que l’autre.</p>
 </div>
 <p>Le graphique ci-dessus présente un problème fréquent : l’axe horizontal du graphique, très important puisque Reinhart et Rogoff évoquent un seuil <q>fatidique</q>, pour la croissance, de 90% du PIB, est illisible. Grâce à l’argument <code data-pkg="ggplot2" data-rdoc="continuous_scale">scale_x_continuous</code>, on va pouvoir clarifier cet axe en n’y faisant figurer que certaines valeurs :</p>
+<figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">p +<span class="st"> </span><span class="kw">geom_point</span>() +
 <span class="st">  </span><span class="kw">facet_grid</span>(. ~<span class="st"> </span>Decade) +
 <span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">200</span>, <span class="dt">by =</span> <span class="dv">100</span>))</code></pre></div>
-<p><img src="graphs/intro-ggplot2/unnamed-chunk-15-1.png" title="" alt="" width="1050"/></p>
+<img src="graphs/intro-ggplot2/unnamed-chunk-15-1.png" title="" alt="" width="1050"/>
+</figure>
 <p>Ces réglages nous conviennent : on va donc les sauvegarder dans l’objet <code>p</code>, de manière à continuer de construire notre graphique en incluant ces différents éléments.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">p &lt;-<span class="st"> </span>p +<span class="st"> </span><span class="kw">geom_point</span>() +
 <span class="st">  </span><span class="kw">facet_grid</span>(. ~<span class="st"> </span>Decade) +
@@ -6839,11 +6908,15 @@ Netherlands New Zealand      Norway    Portugal
 <div id="intro-ggplot2_couleurs-et-echelles" class="section level3">
 <h3>Couleurs et échelles</h3>
 <p>Abordons désormais un élément-clé de <code class="pkg">ggplot2</code> : la manipulation des paramètres esthétiques. Précédemment, on n’a montré que deux de ces paramètres : <code>x</code> et <code>y</code>, les coordonnées du graphique. Mais ces paramètres peuvent aussi influencer la couleur des points de notre graphique comme le montre l’exemple suivant :</p>
+<figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">p +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">color =</span> ratio &lt;<span class="st"> </span><span class="dv">90</span>)</code></pre></div>
-<p><img src="graphs/intro-ggplot2/unnamed-chunk-17-1.png" title="" alt="" width="1050"/></p>
+<img src="graphs/intro-ggplot2/unnamed-chunk-17-1.png" title="" alt="" width="1050"/>
+</figure>
 <p>Qu’a-t-on fait ici ? On a rajouté, au graphique stocké dans <code>p</code>, un paramètre esthétique qui détermine la couleur de ses points en fonction d’une inégalité, <code>ratio &lt; 90</code>, qui est vraie quand le ratio <q>Dette publique / PIB</q> est inférieur au seuil <q>fatidique</q> de Reinhart et Rogoff, et fausse quand ce ratio dépasse ce seuil. Les couleurs des points correspondent aux couleurs par défaut de <code class="pkg">ggplot2</code>, que l’on peut très facilement modifier avec <code data-pkg="ggplot2">scale_colour_brewer</code> :</p>
+<figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">p +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">color =</span> ratio &lt;<span class="st"> </span><span class="dv">90</span>) +<span class="st"> </span><span class="kw">scale_colour_brewer</span>(<span class="dt">palette =</span> <span class="st">"Set1"</span>)</code></pre></div>
-<p><img src="graphs/intro-ggplot2/unnamed-chunk-18-1.png" title="" alt="" width="1050"/></p>
+<img src="graphs/intro-ggplot2/unnamed-chunk-18-1.png" title="" alt="" width="1050"/>
+</figure>
 <p>Ici, on a fait appel à la palette de couleur <code>Set1</code> de l’éventail de couleurs <a href="http://colorbrewer2.org/">ColorBrewer</a>, qui est automatiquement disponible dans <code class="pkg">ggplot2</code>, et qui est contenu dans l’extension <code class="pkg">RColorBrewer</code>. La palette de couleurs que l’on a choisie affiche les points situés au-dessus du seuil <q>fatidique</q> de Reinhart et Rogoff en rouge, les autres en bleu.</p>
 <p>Que peut-on dire, à ce stade, du seuil <q>fatidique</q> de Reinhart et Rogoff ? On peut observer qu’après la Seconde guerre mondiale, de nombreux pays sont <em>déjà</em> endettés au-delà de ce seuil, et dégagent <em>déjà</em> moins de croissance que les autres. Sur la base de cette trajectoire, de nombreux critiques de Reinhart et Rogoff ont fait remarquer que le raisonnement de Reinhart et Rogoff pose en réalité un sérieux problème d’<a href="http://www.nextnewdeal.net/rortybomb/guest-post-reinhartrogoff-and-growth-time-debt">inversion du rapport causal</a> entre endettement et croissance au cours du temps.</p>
 <p>Envisageons une nouvelle modification des paramètres graphiques. La légende du graphique, qui affiche <code>FALSE</code> et <code>TRUE</code> en fonction de l’inégalité <code>ratio &lt; 90</code>, peut être déroutante. Clarifions un peu cette légende en supprimant son titre et en remplaçant les libellés (<em>labels</em>) <code>FALSE</code> et <code>TRUE</code> par leur signification :</p>
@@ -6851,14 +6924,17 @@ Netherlands New Zealand      Norway    Portugal
 <span class="st">  </span><span class="kw">scale_color_brewer</span>(<span class="st">""</span>, <span class="dt">palette =</span> <span class="st">"Set1"</span>,
                      <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">"ratio &gt; 90"</span>, <span class="st">"ratio &lt; 90"</span>))</code></pre></div>
 <p>Dans le bloc de code ci-dessus, on a stocké l’ensemble de nos modifications dans l’objet <code>p</code>, sans l’afficher ; en effet, on souhaite encore procéder à une dernière modification, en rajoutant une <a href="https://fr.wikipedia.org/wiki/Régression_locale">régression locale</a> à travers les points de chaque facette<a href="#intro-ggplot2_fn5" class="footnoteRef" id="intro-ggplot2_fnref5"><sup>5</sup></a>. Après consultation de la documentation de <code class="pkg">ggplot2</code> <a href="http://docs.ggplot2.org/current/geom_smooth.html">ici</a> et <a href="http://docs.ggplot2.org/current/stat_smooth.html">là</a>, on en arrive au code ci-dessous, où <code>p</code> produit le graphique précédent et <code data-pkg="ggplot2" data-rdoc="geom_smooth">geom_smooth</code> produit la régression locale :</p>
+<figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">p +<span class="st"> </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">"loess"</span>, <span class="dt">se =</span> <span class="ot">FALSE</span>,
                 <span class="dt">size =</span> <span class="dv">1</span>, <span class="dt">color =</span> <span class="st">"black"</span>)</code></pre></div>
-<p><img src="graphs/intro-ggplot2/unnamed-chunk-20-1.png" title="" alt="" width="1050"/></p>
+<img src="graphs/intro-ggplot2/unnamed-chunk-20-1.png" title="" alt="" width="1050"/>
+</figure>
 <p>Le graphique permet d’évaluer de manière encore un peu plus précise l’argument de Reinhart et Rogoff, et en particulier la nature pas si <q>fatidique</q> du seuil de 90% du ratio “Dette publique / PIB”, qui sans être une bonne nouvelle pour l’économie, ne détermine pas <q>fatidiquement</q> la direction du taux de croissance : si c’était le cas, toutes les courbes du graphique ressembleraient à celles des années 2000. Autrement dit, l’argumentaire de Reinhart et Rogoff laisse clairement à désirer.</p>
 </div>
 <div id="intro-ggplot2_utilisation-des-themes" class="section level3">
 <h3>Utilisation des thèmes</h3>
 <p>Reprenons notre graphique de départ. On va, pour terminer cette démonstration, en construire une version imprimable en noir et blanc, ce qui signifie qu’au lieu d’utiliser des couleurs pour distinguer les points en-deçà et au-delà du seuil <q>fatidique</q> de Reinhart et Rogoff, on va utiliser une ligne verticale, produite par <code data-pkg="ggplot2" data-rdoc="geom_vline">geom_vline</code> et affichée en pointillés par le paramètre <code>lty</code> (<em>linetype</em>) :</p>
+<figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(<span class="dt">data =</span> debt, <span class="kw">aes</span>(<span class="dt">y =</span> growth, <span class="dt">x =</span> ratio)) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">color =</span> <span class="st">"grey50"</span>) +
 <span class="st">  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">90</span>, <span class="dt">lty =</span> <span class="st">"dotted"</span>) +
@@ -6872,7 +6948,8 @@ Netherlands New Zealand      Norway    Portugal
 <span class="st">  </span><span class="kw">theme</span>(<span class="dt">strip.background =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span> <span class="st">"grey90"</span>, <span class="dt">color =</span> <span class="st">"grey50"</span>),
         <span class="dt">strip.text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="kw">rel</span>(<span class="dv">1</span>)),
         <span class="dt">panel.grid =</span> <span class="kw">element_blank</span>())</code></pre></div>
-<p><img src="graphs/intro-ggplot2/unnamed-chunk-21-1.png" title="" alt="" width="1050"/></p>
+<img src="graphs/intro-ggplot2/unnamed-chunk-21-1.png" title="" alt="" width="1050"/>
+</figure>
 <p>Ce graphique utilise tous les éléments présentés dans ce chapitre, ainsi qu’une dernière nouveauté : l’utilisation d’un thème graphique différent du thème par défaut de <code class="pkg">ggplot2</code>. Le thème par défaut, qui s’appelle <code>theme_grey</code>, est ici remplacé par un thème moins chargé, <code>theme_bw</code> (“<em>black and white</em>”), que l’on a modifié en y rajoutant <a href="http://docs.ggplot2.org/current/theme.html">quelques paramètres supplémentaires</a> :</p>
 <ul>
 <li>le paramètre <code>strip.background</code> détermine la couleur du rectangle contenant les titres des facettes, c’est-à-dire les décennies observées ;</li>
@@ -6893,6 +6970,7 @@ Netherlands New Zealand      Norway    Portugal
 <div id="intro-ggplot2_pour-aller-plus-loin" class="section level2">
 <h2>Pour aller plus loin</h2>
 <p>Ce chapitre n’a pu faire la démonstration que d’une infime partie des manières d’utiliser <code class="pkg">ggplot2</code>. En voici une dernière illustration, qui donne une idée des différents types de graphiques que l’extension permet de produire dès que l’on connaît les principaux éléments de sa syntaxe :</p>
+<figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(<span class="dt">data =</span> debt, <span class="kw">aes</span>(<span class="dt">x =</span> ratio &gt;<span class="st"> </span><span class="dv">90</span>, <span class="dt">y =</span> growth)) +
 <span class="st">  </span><span class="kw">geom_boxplot</span>() +
 <span class="st">  </span><span class="kw">scale_x_discrete</span>(<span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">"&lt; 90"</span>, <span class="st">"90+"</span>)) +
@@ -6903,7 +6981,8 @@ Netherlands New Zealand      Norway    Portugal
 <span class="st">  </span><span class="kw">theme_linedraw</span>() +
 <span class="st">  </span><span class="kw">theme</span>(<span class="dt">strip.text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="kw">rel</span>(<span class="dv">1</span>)),
         <span class="dt">panel.grid =</span> <span class="kw">element_blank</span>())</code></pre></div>
-<p><img src="graphs/intro-ggplot2/unnamed-chunk-24-1.png" title="" alt="" width="1050"/></p>
+<img src="graphs/intro-ggplot2/unnamed-chunk-24-1.png" title="" alt="" width="1050"/>
+</figure>
 <p>Le code ci-dessus est somme toute très proche du code présenté dans le reste du texte, et en même temps, on a basculé de la visualisation sous forme de série temporelles à une visualisation par <em>boxplots</em>. Ces basculements sont très faciles à envisager dès que l’on maîtrise les principaux éléments de <code class="pkg">ggplot2</code>, <code>geom</code>, <code>scale</code> et <code>facet</code>, et les paramètres <code>labs</code> et <code>theme</code> pour effectuer les finitions.</p>
 <div id="intro-ggplot2_ressources-essentielles" class="section level3">
 <h3>Ressources essentielles</h3>
@@ -6944,11 +7023,426 @@ Netherlands New Zealand      Norway    Portugal
 
 </div>
 
-
-<div class="important">
-<p>Ce chapitre est en cours d’écriture.</p>
+<div class="TOC">
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2_retour-sur-les-bases-de-ggplot2">Retour sur les bases de ggplot2</a></li>
+<li><a href="#graphiques-bivaries-ggplot2_histogramme">Histogramme</a></li>
+<li><a href="#graphiques-bivaries-ggplot2_densite-et-repartition-cumulee">Densité et répartition cumulée</a></li>
+<li><a href="#graphiques-bivaries-ggplot2_boites-a-moustaches-et-representations-associees">Boîtes à moustaches (et représentations associées)</a></li>
+<li><a href="#graphiques-bivaries-ggplot2_diagramme-en-batons">Diagramme en bâtons</a></li>
+<li><a href="#graphiques-bivaries-ggplot2_diagramme-de-cleveland">Diagramme de Cleveland</a></li>
+<li><a href="#graphiques-bivaries-ggplot2_nuage-de-points">Nuage de points</a></li>
+<li><a href="#graphiques-bivaries-ggplot2_matrice-de-nuages-de-points-et-matrice-de-correlation">Matrice de nuages de points et matrice de corrélation</a></li>
+<li><a href="#graphiques-bivaries-ggplot2_estimation-locale-de-densite-et-representations-associees">Estimation locale de densité (et représentations associées)</a></li>
+<li><a href="#graphiques-bivaries-ggplot2_diagrammes-en-barres">Diagrammes en barres</a></li>
+<li><a href="#graphiques-bivaries-ggplot2_graphe-en-mosaique">Graphe en mosaïque</a></li>
+<li><a href="#graphiques-bivaries-ggplot2_donnees-labellisees-et-ggplot2">Données labellisées et ggplot2</a></li>
+<li><a href="#graphiques-bivaries-ggplot2_exporter-les-graphiques-obtenus">Exporter les graphiques obtenus</a></li>
+</ul>
 </div>
-<p>Après avoir introduit l’extension <code class="pkg">ggplot2</code> au travers d’une <a href="#intro-ggplot2">étude de cas</a>, nous reprenons ici les graphiques produits dans les chapitres <a href="#statistique-univariee">statistique univariée</a> et <a href="#statistique-bivariee">statistique bivariée</a> et montront comment les réaliser avec <code class="pkg">ggplot2</code>.</p>
+
+<p>Après avoir introduit l’extension <code class="pkg">ggplot2</code> au travers d’une <a href="#intro-ggplot2">étude de cas</a>, nous reprenons ici les graphiques produits dans les chapitres <a href="#statistique-univariee">statistique univariée</a> et <a href="#statistique-bivariee">statistique bivariée</a> et montrons comment les réaliser avec <code class="pkg">ggplot2</code>.</p>
+<div id="graphiques-bivaries-ggplot2_retour-sur-les-bases-de-ggplot2" class="section level2">
+<h2>Retour sur les bases de ggplot2</h2>
+<p>L’extension <code class="pkg">ggplot2</code> nécessite que les données du graphique soient sous la forme d’un tableau de données (<em>data.frame</em>) avec une ligne par observation et les différentes valeurs à représenter sous forme de variables du tableau.</p>
+<p>Tous les graphiques avec <code class="pkg">ggplot2</code> suivent une même logique. En <strong>premier</strong> lieu, on appelera la fonction <code data-pkg="ggplot2">ggplot</code> en lui passant en paramètre le fichier de données.</p>
+<p><code class="pkg">ggplot2</code> nomme <em>esthétiques</em> les différentes propriétés visuelles d’un graphique, à savoir l’axe des x (<code>x</code>), celui des y (<code>y</code>), la couleur des lignes (<code>colour</code>), celle de remplissage des polygones (<code>fill</code>), le type de lignes (<code>linetype</code>), etc. Une représentation graphique consiste donc à représenter chacune de nos variables d’intérêt selon une esthétique donnée. En <strong>second</strong> lieu, on appelera donc la fonction <code data-pkg="ggplot2">aes</code> pour indiquer la correspondance entre les variables de notre fichier de données et les esthétiques du graphique.</p>
+<p>A minima, il est nécessaire d’indiquer en <strong>troisième</strong> lieu une <em>géométrie</em>, autrement dit la manière dont les éléments seront représentés visuellement. À chaque géométrie corresponds une fonction commençant par <code>geom_</code>, par exemple <code data-pkg="ggplot2">geom_point</code> pour dessiner des points, <code data-pkg="ggplot2" data-rdoc="geom_path">geom_line</code> pour des lignes, <code data-pkg="ggplot2">geom_bar</code> pour des barres ou encore <code data-pkg="ggplot2" data-rdoc="geom_ribbon">geom_area</code> pour des aires. Il existe de nombreuses géométries différentes, chacune prenant en compte certaines esthétiques, certaines étant requises pour cette géométrie et d’autres optionnelles. La liste des esthétiques prises en compte par chaque géométrie en indiquée dans l’aide en ligne de cette dernière.</p>
+<p>Pour un document récapitulant les principales géométries et options de <code class="pkg">ggplot2</code>, on pourra se référer à la <em>Cheat Sheet</em> officielle disponible à <a href="https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf" class="uri">https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf</a>. Une version en français est disponible à l’adresse <a href="http://thinkr.fr/pdf/ggplot2-french-cheatsheet.pdf" class="uri">http://thinkr.fr/pdf/ggplot2-french-cheatsheet.pdf</a>.</p>
+<p><code class="pkg">ggplot2</code> reposant sur une syntaxe additive, la syntaxe de base d’un graphique sera donc de la forme :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(data) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> Var1, <span class="dt">fill =</span> Var2) +<span class="st"> </span><span class="kw">geom_bar</span>()</code></pre></div>
+<p>De manière alternative, on peut également indiquer la correspondance entre variables et esthétiques comme deuxième argument de la fonction <code data-pkg="ggplot2">ggplot</code>. Les deux syntaxes sont équivalentes.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(data, <span class="kw">aes</span>(<span class="dt">x =</span> Var1, <span class="dt">fill =</span> Var2)) +<span class="st"> </span><span class="kw">geom_bar</span>()</code></pre></div>
+<p>Il est ensuite possible de personnaliser de nombreux éléments d’un graphique et notamment :</p>
+<ul>
+<li>les <em>étiquettes</em> ou <em>labs</em> (titre, axes, légendes) avec <code data-pkg="ggplot2" data-rdoc="labs">ggtitle</code>, <code data-pkg="ggplot2" data-rdoc="labs">xlab</code>, <code data-pkg="ggplot2" data-rdoc="labs">ylab</code> ou encore la fonction plus générique <code data-pkg="ggplot2">labs</code> ;</li>
+<li>les <em>échelles</em> (<em>scales</em>) des différentes esthétiques avec les fonctions commençant par <code>scale_</code> ;</li>
+<li>les <em>facettes</em> (<em>facets</em>) avec les fonctions commençant par <code>facet_</code> ;</li>
+<li>le système de <em>coordonnées</em> avec les fonctions commençant par <code>coord_</code> ;</li>
+<li>la <em>légende</em> (<em>guides</em>) avec les fonctions commençant par <code>guide_</code> ;</li>
+<li>le <em>thème</em> du graphiques (mise en forme des différents éléments) avec <code data-pkg="ggplot2">theme</code>.</li>
+</ul>
+<p>Ces différents éléments seront abordés plus en détails dans le <a href="#ggplot2-la-grammaire-des-graphiques">chapitre avancé sur ggplot2</a>. Dans la suite de ce chapitre, nous nous focaliserons sur les graphiques et options de base.</p>
+<p>Préparons les données des exemples et chargeons <code class="pkg">ggplot2</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
+<span class="kw">library</span>(ggplot2)
+<span class="kw">data</span>(<span class="st">"hdv2003"</span>)
+d &lt;-<span class="st"> </span>hdv2003</code></pre></div>
+</div>
+<div id="graphiques-bivaries-ggplot2_histogramme" class="section level2">
+<h2>Histogramme</h2>
+<p>Pour un <dfn>histogramme</dfn>, on aura recours à la géométrie <code data-pkg="ggplot2" data-rdoc="geom_freqpoly">geom_histogram</code>. Si l’on a une observation par ligne dans le fichier de données, l’histogramme s’obtient simplement en associant la variable d’intérêt à l’esthétique <code>x</code>. Notez la syntaxe de <code data-pkg="ggplot2">aes</code> : le nom des variables est indiqué directement, sans guillemets.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_histogram</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">"Nombres d'heures passées devant la télévision"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Heures"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Effectifs"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-4-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Un histogramme
+</figcaption>
+</figure>
+<p>On peut personnaliser la couleur de remplissage des rectangles en indiduant une valeur fixe pour l’esthétique <code>fill</code> dans l’appel de <code data-pkg="ggplot2" data-rdoc="geom_freqpoly">geom_histogram</code> (et non via la fonction <code data-pkg="ggplot2">aes</code> puisqu’il ne s’agit pas d’une variable du tableau de données). L’esthétique <code>colour</code> permet de spécifier la couleur du trait des rectangles. Enfin, le paramètre <code>binwidth</code> permet de spécifier la largeur des barres.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_histogram</span>(<span class="dt">fill =</span> <span class="st">"orange"</span>, 
+  <span class="dt">colour =</span> <span class="st">"black"</span>, <span class="dt">binwidth =</span> <span class="dv">2</span>) +<span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">"Nombres d'heures passées devant la télévision"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Heures"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Effectifs"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-5-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Un histogramme en couleur
+</figcaption>
+</figure>
+<p>Comme avec la fonction <code data-pkg="graphics">hist</code>, on peut personnaliser les classes avec l’argument <code>breaks</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_histogram</span>(<span class="dt">fill =</span> <span class="st">"orange"</span>, 
+  <span class="dt">colour =</span> <span class="st">"black"</span>, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">9</span>, <span class="dv">12</span>)) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">"Nombres d'heures passées devant la télévision"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Heures"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Effectifs"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-6-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Un histogramme avec classes personnalisées
+</figcaption>
+</figure>
+<p>On peut ajouter à l’axe des x des tirets représentant la position des observations à l’aide de <code data-pkg="ggplot2">geom_rug</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_histogram</span>(<span class="dt">fill =</span> <span class="st">"orange"</span>, 
+  <span class="dt">colour =</span> <span class="st">"black"</span>, <span class="dt">binwidth =</span> <span class="dv">2</span>) +<span class="st"> </span><span class="kw">geom_rug</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">"Nombres d'heures passées devant la télévision"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Heures"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Effectifs"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-7-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Un histogramme avec geom_rug()
+</figcaption>
+</figure>
+</div>
+<div id="graphiques-bivaries-ggplot2_densite-et-repartition-cumulee" class="section level2">
+<h2>Densité et répartition cumulée</h2>
+<p>Une <dfn>courbe de densité</dfn><dfn data-index="densité, courbe de"/> s’obtient aisément avec la géométrie <code data-pkg="ggplot2">geom_density</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_density</span>() +<span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">"Nombres d'heures passées devant la télévision"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Heures"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Densité"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-8-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Courbe de densité
+</figcaption>
+</figure>
+<p>On peut personnaliser la fenêtre d’ajustement avec l’argument <code>adjust</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_density</span>(<span class="dt">adjust =</span> <span class="fl">1.5</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">"Nombres d'heures passées devant la télévision"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Heures"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Densité"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-9-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Courbe de densité avec fenêtre d’ajustement personnalisée
+</figcaption>
+</figure>
+<p>Pour la <dfn>fonction de répartition empirique</dfn><dfn data-index="répartition empirique, fonction"/> ou <dfn lang="en">empirical cumulative distribution function</dfn> en anglais, on utilisera la statistique <code data-pkg="ggplot2">stat_ecdf</code>. Au passage, on notera qu’il est possible d’ajouter une <em>couche</em> à un graphique en appelant soit une <em>géométrie</em>, soit une <em>statistique</em>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> heures.tv) +<span class="st"> </span><span class="kw">stat_ecdf</span>() +<span class="st"> </span><span class="kw">xlab</span>(<span class="st">"Heures"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Fonction de répartition cumulée"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-10-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Fonction de répartition empirique cumulée
+</figcaption>
+</figure>
+</div>
+<div id="graphiques-bivaries-ggplot2_boites-a-moustaches-et-representations-associees" class="section level2">
+<h2>Boîtes à moustaches (et représentations associées)</h2>
+<p>La géométrie <code data-pkg="ggplot2">geom_boxplot</code> nécessite <em>a minima</em> deux esthétiques : <code>x</code> et <code>y</code>. Pour représenter une variable quantitative selon une variable catégorielle, on fera donc :</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> hard.rock, <span class="dt">y =</span> age) +<span class="st"> </span><span class="kw">geom_boxplot</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Ecoute du hard rock"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Âge"</span>) +<span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">"Répartition par âge selon que l'on écoute du hard rock ou non"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-11-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Boîtes à moustache
+</figcaption>
+</figure>
+<p>Lorsque l’on souhaite représenter une seule variable quantitative (statistique univariée), on passera alors une constante à l’esthétique <code>x</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> <span class="st">"Nombre d'heures passées devant la télévision"</span>, 
+  <span class="dt">y =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_boxplot</span>() +<span class="st"> </span><span class="kw">xlab</span>(<span class="st">""</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Heures quotidiennes"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-12-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Boîte à moustache (une seule variable)
+</figcaption>
+</figure>
+<p>Une représentation alternative aux <dfn data-index="boîte à moustaches">boîtes à moustaches</dfn><dfn data-index="moustaches, boîte"/> ou <dfn data-index="boxplot" lang="en">boxplots</dfn> sont les <dfn data-index="graphique en violon">graphiques en violon</dfn>&lt;dfn data-index=“violon, graphique en” ou <dfn data-index="violin plot" lang="en">violin plots</dfn>, qui représentent la densité de distribution. Ils s’obtiennent avec la géométrie <code data-pkg="ggplot2">geom_violin</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> hard.rock, <span class="dt">y =</span> age) +<span class="st"> </span><span class="kw">geom_violin</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Ecoute du hard rock"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Âge"</span>) +<span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">"Répartition par âge selon que l'on écoute du hard rock ou non"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-13-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Graphiques en violon ou “violin plot”
+</figcaption>
+</figure>
+</div>
+<div id="graphiques-bivaries-ggplot2_diagramme-en-batons" class="section level2">
+<h2>Diagramme en bâtons</h2>
+<p>Un <dfn>diagramme en bâtons</dfn><dfn data-index="bâtons, diagramme en"/> s’obtient avec la géométrie <code data-pkg="ggplot2">geom_bar</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> freres.soeurs) +<span class="st"> </span><span class="kw">geom_bar</span>() +<span class="st"> </span><span class="kw">xlab</span>(<span class="st">"Nombre de frères et soeurs"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Effectifs"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-14-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Diagramme en bâtons
+</figcaption>
+</figure>
+<p>La largeur des barres par défaut est de 0,9. Dès lors, le graphique ressemble plus à un histogramme qu’à un diagramme en bâtons. On peut personnaliser ce paramètre avec l’argument <code>width</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> freres.soeurs) +<span class="st"> </span><span class="kw">geom_bar</span>(<span class="dt">width =</span> <span class="fl">0.2</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Nombre de frères et soeurs"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Effectifs"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-15-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Diagramme en bâtons avec ajustement de la largeur des barres
+</figcaption>
+</figure>
+</div>
+<div id="graphiques-bivaries-ggplot2_diagramme-de-cleveland" class="section level2">
+<h2>Diagramme de Cleveland</h2>
+<p>Pour un <dfn>diagramme de Cleveland</dfn><dfn data-index="Cleveland, diagramme"/>, on aura recours à la géométrie <code data-pkg="ggplot2">geom_point</code>. Cependant, il faudra lui préciser que l’on souhaite utiliser la statistique <code data-pkg="ggplot2" data-rdoc="geom_bar">stat_count</code> afin que les effectifs soient calculés pour chaque valeur de <code>x</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> clso) +<span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">stat =</span> <span class="st">"count"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Sentiment d'appartenance à une classe sociale"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Effectifs"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-16-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Diagramme de Cleveland
+</figcaption>
+</figure>
+<p>Une alternative, notamment si l’on souhaite un diagramme de Cleveland ordonné, consiste à calculer les effectifs de chaque modalité en amont. <code class="pkg">ggplot2</code> ayant besoin d’un tableau de données en entrée, nous calculerons notre tableau de fréquences avec <code data-pkg="stats">xtabs</code> et le transformerons en tableau de données avec <code data-pkg="base" data-rdoc="table">as.data.frame</code>. Pour que les niveaux de qualifaction soient représentés selon leur effectif, il est nécessaire d’ordonner les étiquettes du facteur de manière adéquate. Enfin, nous utiliserons <code data-pkg="ggplot2">coord_flip</code> pour intervertir l’axe des <code>x</code> et celui des <code>y</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">xtabs</span>(~qualif, d))
+tab$qualif &lt;-<span class="st"> </span><span class="kw">factor</span>(tab$qualif, <span class="dt">levels =</span> tab$qualif[<span class="kw">order</span>(tab$Freq)])
+<span class="kw">str</span>(tab)</code></pre></div>
+<pre><code>'data.frame':   7 obs. of  2 variables:
+ $ qualif: Factor w/ 7 levels "Autre","Technicien",..: 4 6 2 3 5 7 1
+ $ Freq  : int  203 292 86 160 260 594 58</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(tab) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> qualif, <span class="dt">y =</span> Freq) +<span class="st"> </span><span class="kw">geom_point</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Niveau de qualification"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Effectifs"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">coord_flip</span>()</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-17-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Diagramme de Cleveland ordonné
+</figcaption>
+
+<div class="note">
+<p>L’extension <code class="pkg">ggalt</code> propose quelques géométries supplémentaires pour <code class="pkg">ggplot2</code>. L’une d’elles dite <q>en sucettes</q> (<em>lollipop</em>) propose une représentation graphique au croisement entre un diagramme en bâtons et un diagramme de Cleveland.</p>
+<p>Pour cela, il est d’abord nécessaire d’installer la version de développement de <code class="pkg">gglat</code> à l’aide de la commande suivante :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">"hrbrmstr/ggalt"</span>)</code></pre></div>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggalt)
+<span class="kw">ggplot</span>(tab) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> qualif, <span class="dt">y =</span> Freq) +<span class="st"> </span><span class="kw">geom_lollipop</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Niveau de qualification"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Effectifs"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">coord_flip</span>()</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-19-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Diagramme en “sucettes” (lollipop)
+</figcaption>
+</figure>
+</div>
+</div>
+<div id="graphiques-bivaries-ggplot2_nuage-de-points" class="section level2">
+<h2>Nuage de points</h2>
+<p>Un <dfn>nuage de points</dfn><dfn data-index="points, nuage de"/> se représente facilement avec la géométrie <code data-pkg="ggplot2">geom_point</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> age, <span class="dt">y =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_point</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Âge"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Heures quotidiennes de télévision"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-20-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Nuage de points
+</figcaption>
+</figure>
+<p>On pourra personnaliser la couleur des points avec <code>colour</code> et le niveau de transparence avec <code>alpha</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> age, <span class="dt">y =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">colour =</span> <span class="st">"red"</span>, 
+  <span class="dt">alpha =</span> <span class="fl">0.2</span>) +<span class="st"> </span><span class="kw">xlab</span>(<span class="st">"Âge"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Heures quotidiennes de télévision"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-21-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Nuage de points semi-transparents
+</figcaption>
+</figure>
+<p>Pour représenter une troisième variable quantitative, on pourra faire varier la taille des points avec l’esthétique <code>size</code>. Pour une variable qualitative, on pourra faire varier la couleur avec <code>colour</code>. Pour faciliter la lecture, on positionnera la légende en bas du graphique, en modifiant l’argument <code>legend.position</code> via la fonction <code data-pkg="ggplot2">theme</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">"rp99"</span>)
+rp99$prop.proprio &lt;-<span class="st"> </span><span class="dv">0</span>
+rp99[rp99$proprio &gt;=<span class="st"> </span><span class="kw">mean</span>(rp99$proprio), ]$prop.proprio &lt;-<span class="st"> </span><span class="dv">1</span>
+rp99$prop.proprio &lt;-<span class="st"> </span><span class="kw">factor</span>(rp99$prop.proprio, <span class="dv">0</span>:<span class="dv">1</span>, 
+  <span class="kw">c</span>(<span class="st">"non"</span>, <span class="st">"oui"</span>))
+<span class="kw">ggplot</span>(rp99) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> dipl.aucun, <span class="dt">y =</span> tx.chom, <span class="dt">size =</span> pop.tot, 
+  <span class="dt">colour =</span> prop.proprio) +<span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"% sans diplôme"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Taux de chômage"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">labs</span>(<span class="dt">size =</span> <span class="st">"Population totale"</span>, <span class="dt">colour =</span> <span class="st">"Proportion de propriétaires supérieure à la moyenne"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-22-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Nuage de points proportionnels
+</figcaption>
+</figure>
+<p><code data-pkg="ggplot2">geom_smooth</code> permets d’ajouter au graphique une moyenne mobile du nuage de points avec son intervalle de confiance. Notez que l’on ajoute <code data-pkg="ggplot2">geom_smooth</code> au graphique avant <code data-pkg="ggplot2">geom_point</code> puisque l’ordre dans lequel sont affichées les différentes couches du graphique dépend de l’ordre dans lequel elles ont été ajoutées. Dans cet exemple, nous souhaitons afficher les points <q>au-dessus</q> de la moyenne mobile.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(rp99) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> dipl.sup, <span class="dt">y =</span> cadres) +<span class="st"> </span><span class="kw">geom_smooth</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">xlab</span>(<span class="st">"% de diplômés du supérieur"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">ylab</span>(<span class="st">"% de cadres"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-23-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Nuage de points avec moyenne mobile
+</figcaption>
+</figure>
+<p>Si l’on préfère afficher plutôt la <dfn>droite de régression</dfn><dfn data-index="régression, droite">, on indiquera à <code data-pkg="ggplot2">geom_smooth</code> l’agument <code>method = "lm"</code>.</dfn></p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(rp99) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> dipl.sup, <span class="dt">y =</span> cadres) +<span class="st"> </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">"lm"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">xlab</span>(<span class="st">"% de diplômés du supérieur"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">ylab</span>(<span class="st">"% de cadres"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-24-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Nuage de points avec droite de régression linéaire
+</figcaption>
+</figure>
+</div>
+<div id="graphiques-bivaries-ggplot2_matrice-de-nuages-de-points-et-matrice-de-correlation" class="section level2">
+<h2>Matrice de nuages de points et matrice de corrélation</h2>
+<p><code class="pkg">ggplot2</code> ne fournit pas de fonction native pour la réalisation d’une matrice de nuages de points. Cependant, il existe plusieurs extensions permettant d’étendre <code class="pkg">ggplot2</code>. Parmi celles-ci, l’extension <code class="pkg">GGally</code> propose une fonction <code data-pkg="GGally">ggpairs</code> correspondant exactement à notre besoin.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(GGally)
+<span class="kw">ggpairs</span>(rp99[, <span class="kw">c</span>(<span class="st">"proprio"</span>, <span class="st">"hlm"</span>, <span class="st">"locataire"</span>, <span class="st">"maison"</span>)])</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-25-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Matrice de nuages de points
+</figcaption>
+</figure>
+<p><code data-pkg="GGally">ggpairs</code> accepte même des variables catégorielles ainsi que des esthétiques supplémentaires, offrant ainsi plus de possibilités que la fonction <code data-pkg="graphics">pairs</code><a href="#graphiques-bivaries-ggplot2_fn1" class="footnoteRef" id="graphiques-bivaries-ggplot2_fnref1"><sup>1</sup></a>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggpairs</span>(rp99[, <span class="kw">c</span>(<span class="st">"hlm"</span>, <span class="st">"locataire"</span>, <span class="st">"maison"</span>, <span class="st">"prop.proprio"</span>)], 
+  <span class="kw">aes</span>(<span class="dt">colour =</span> prop.proprio))</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-26-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Matrice de nuages de points avec variables catégorielles
+</figcaption>
+</figure>
+<p><code class="pkg">GGally</code> propose également une fonction <code data-pkg="GGally">ggcorr</code> permettant d’afficher une <dfn>matrice de corrélation</dfn><dfn data-index="corrélation, matrice de"/> entre variables quantitatives.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggcorr</span>(rp99)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-27-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Matrice de corrélarion
+</figcaption>
+</figure>
+</div>
+<div id="graphiques-bivaries-ggplot2_estimation-locale-de-densite-et-representations-associees" class="section level2">
+<h2>Estimation locale de densité (et représentations associées)</h2>
+<p>On peut aisément représenter une <dfn>estimation locale de densité</dfn><dfn data-index="densité, estimation locale"/> avec la géométrie <code data-pkg="ggplot2">geom_density_2d</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> age, <span class="dt">y =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_density_2d</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Âge"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Heures quotidiennes de télévision"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-28-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Estimation locale de densité (contours)
+</figcaption>
+</figure>
+<p>Par défaut, le résultat est représenté sous forme de contours. Pour obtenir une représentation avec des polygones, on appelera la statistique <code data-pkg="ggplot2" data-rdoc="geom_density_2d">stat_density_2d</code> en forçant la géométrie.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> age, <span class="dt">y =</span> heures.tv, <span class="dt">fill =</span> ..level..) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">stat_density_2d</span>(<span class="dt">geom =</span> <span class="st">"polygon"</span>) +<span class="st"> </span><span class="kw">xlab</span>(<span class="st">"Âge"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Heures quotidiennes de télévision"</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">"Densité"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-29-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Estimation locale de densité (contours)
+</figcaption>
+</figure>
+<p><code class="pkg">ggplot2</code> propose également deux géométries, <code data-pkg="ggplot2">geom_bin2d</code> et <code data-pkg="ggplot2">geom_hex</code>, permettant d’effectuer à un comptage des effectifs en deux dimensions.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> age, <span class="dt">y =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_bin2d</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Âge"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Heures quotidiennes de télévision"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">"Effectifs"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-30-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Effectifs en deux dimensions
+</figcaption>
+</figure>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> age, <span class="dt">y =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_hex</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Âge"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Heures quotidiennes de télévision"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">"Effectifs"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-31-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Effectifs en deux dimensions (hexagones)
+</figcaption>
+</figure>
+<div class="note">
+<p>Pour reproduire à l’identique l’exemple donné dans le chapitre <a href="#statistique-bivariee_deux-variables-quantitatives">statistique bivariée</a>, on aura besoin de la fonction <code data-pkg="prevR">xyz2dataframe</code> de l’extension <code class="pkg">prevR</code> afin de transformer le résultat de <code data-pkg="MASS">kde2d</code> en un tableau de données exploitables par <code class="pkg">ggplot2</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(MASS)
+tmp &lt;-<span class="st"> </span>d[, <span class="kw">c</span>(<span class="st">"age"</span>, <span class="st">"heures.tv"</span>)]
+tmp &lt;-<span class="st"> </span>tmp[<span class="kw">complete.cases</span>(tmp), ]
+<span class="kw">library</span>(prevR)
+tmp &lt;-<span class="st"> </span><span class="kw">xyz2dataframe</span>(<span class="kw">kde2d</span>(tmp$age, tmp$heures.tv))
+<span class="kw">str</span>(tmp)</code></pre></div>
+<pre><code>'data.frame':   625 obs. of  3 variables:
+ $ x: num  18 21.3 24.6 27.9 31.2 ...
+ $ y: num  0 0 0 0 0 0 0 0 0 0 ...
+ $ z: num  0.00147 0.00227 0.0027 0.00291 0.00308 ...</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(tmp) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">fill =</span> z) +<span class="st"> </span><span class="kw">geom_raster</span>(<span class="dt">interpolate =</span> <span class="ot">TRUE</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_fill_gradientn</span>(<span class="dt">colors =</span> <span class="kw">terrain.colors</span>(<span class="dv">14</span>)) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">"Âge"</span>, <span class="dt">y =</span> <span class="st">"Heures de TV"</span>, <span class="dt">fill =</span> <span class="st">"Densité"</span>)</code></pre></div>
+<p><img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-32-1.png" title="" alt="" width="1050"/></p>
+</div>
+</div>
+<div id="graphiques-bivaries-ggplot2_diagrammes-en-barres" class="section level2">
+<h2>Diagrammes en barres</h2>
+<p>Un <dfn>diagramme en barres</dfn><dfn data-index="barres, diagramme en"/> se construit avec la géométrie <code data-pkg="ggplot2">geom_bar</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d$qualreg &lt;-<span class="st"> </span><span class="kw">as.character</span>(d$qualif)
+d$qualreg[d$qualif %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">"Ouvrier specialise"</span>, <span class="st">"Ouvrier qualifie"</span>)] &lt;-<span class="st"> "Ouvrier"</span>
+d$qualreg[d$qualif %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">"Profession intermediaire"</span>, 
+  <span class="st">"Technicien"</span>)] &lt;-<span class="st"> "Intermediaire"</span>
+<span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> qualreg, <span class="dt">fill =</span> sport) +<span class="st"> </span><span class="kw">geom_bar</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"CSP"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Effectifs"</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">"Pratique du sport"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-33-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Diagramme en barres
+</figcaption>
+</figure>
+<p>On peut modifier la position des barres avec le paramètre <code>position</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> qualreg, <span class="dt">fill =</span> sport) +<span class="st"> </span><span class="kw">geom_bar</span>(<span class="dt">position =</span> <span class="st">"dodge"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"CSP"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Effectifs"</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">"Pratique du sport"</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-34-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Diagramme en barres côte à côte
+</figcaption>
+</figure>
+<p>Pour des barres cumulées, on aura recours à <code>position = "fill"</code>. Pour que les étiquettes de l’axe des <code>y</code> soient représentées sous forme de pourcentages (i.e. <code>25%</code> au lieu de <code>0.25</code>), on aura recours à la fonction <code data-pkg="scales" data-rdoc="percent_format">percent</code> de l’extension <code class="pkg">scales</code>, qui sera transmise à <code class="pkg">ggplot2</code> via <code data-pkg="ggplot2" data-rdoc="scale_continuous">scale_y_continuous</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(scales)
+<span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> qualreg, <span class="dt">fill =</span> sport) +<span class="st"> </span><span class="kw">geom_bar</span>(<span class="dt">position =</span> <span class="st">"fill"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">"CSP"</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Proportion"</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">"Pratique du sport"</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> percent)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-35-1.png" title="" alt="" width="1050"/>
+<figcaption>
+Diagramme en barres côte à côte
+</figcaption>
+</figure>
+</div>
+<div id="graphiques-bivaries-ggplot2_graphe-en-mosaique" class="section level2">
+<h2>Graphe en mosaïque</h2>
+<p>Il n’y a pas, à ce jour, d’implémentation officielle des <dfn data-index="graphique en mosaïque">graphiques en mosaïque</dfn><dfn data-index="mosaïque, graphique"/> sous <code class="pkg">ggplot2</code>. On pourra néanmoins se référer à l’extension expérimentale <code class="pkg">productplots</code><a href="#graphiques-bivaries-ggplot2_fn2" class="footnoteRef" id="graphiques-bivaries-ggplot2_fnref2"><sup>2</sup></a> développée par Hadley Wickham.</p>
+</div>
+<div id="graphiques-bivaries-ggplot2_donnees-labellisees-et-ggplot2" class="section level2">
+<h2>Données labellisées et ggplot2</h2>
+<p><code class="pkg">ggplot2</code> tient compte du type des variables, attendant à ce que les variables catégorielles soient présentées sous forme de facteurs. Si l’on utilise des données labellisées (voir le <a href="#facteurs-et-vecteurs-labellises_labelled">chapitre dédié</a>), nos variables catégorielles seront stockées sous la forme d’un vecteur numérique avec des étiquettes. Il sera donc nécessaire de convertir ces variables en facteurs, tout simplement avec la fonction <code data-pkg="labelled">to_factor</code> de l’extension <code class="pkg">labelled</code> qui pourra utiliser les étiquettes de valeurs comme modalités du facteur.</p>
+</div>
+<div id="graphiques-bivaries-ggplot2_exporter-les-graphiques-obtenus" class="section level2">
+<h2>Exporter les graphiques obtenus</h2>
+<p>Les graphiques produits par <code class="pkg">ggplot2</code> peuvent être sauvegardés manuellement, comme expliqué dans le chapitre <q><a href="#export-de-graphiques">Export des graphiques</a></q>, ou programmatiquement. Pour sauvegarder le dernier graphique affiché par <code class="pkg">ggplot2</code> au format PNG, il suffit d’utiliser la fonction <code data-pkg="ggplot2" data-rdoc="ggsave">ggsave</code>, qui permet d’en régler la taille (en pouces) et la résolution (en pixels par pouce ; 72 par défaut) :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggsave</span>(<span class="st">"mon_graphique.png"</span>, <span class="dt">width =</span> <span class="dv">11</span>, <span class="dt">height =</span> <span class="dv">8</span>)</code></pre></div>
+<p>De la même manière, pour sauvegarder n’importe quel graphique construit avec <code class="pkg">ggplot2</code> et stocké dans un objet, il suffit de préciser le nom de cet objet, comme ci-dessous, où l’on sauvegarde le graphique contenu dans l’objet <code>p</code> au format vectoriel PDF, qui préserve la netteté du texte et des autres éléments du graphique à n’importe quelle résolution d’affichage :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggsave</span>(<span class="st">"mon_graphique.pdf"</span>, <span class="dt">plot =</span> p,
+       <span class="dt">width =</span> <span class="dv">11</span>, <span class="dt">height =</span> <span class="dv">8</span>)</code></pre></div>
+</div>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="graphiques-bivaries-ggplot2_fn1"><p>Pour plus de détails, on pourra lire <a href="https://tgmstat.wordpress.com/2013/11/13/plot-matrix-with-the-r-package-ggally/" class="uri">https://tgmstat.wordpress.com/2013/11/13/plot-matrix-with-the-r-package-ggally/</a>.<a href="#graphiques-bivaries-ggplot2_fnref1">↩</a></p></li>
+<li id="graphiques-bivaries-ggplot2_fn2"><p>Voir <a href="https://github.com/hadley/productplots" class="uri">https://github.com/hadley/productplots</a> et <a href="http://vita.had.co.nz/papers/prodplots.html" class="uri">http://vita.had.co.nz/papers/prodplots.html</a>.<a href="#graphiques-bivaries-ggplot2_fnref2">↩</a></p></li>
+</ol>
+</div>
 
 </article>
 <article id="donnees-ponderees">
@@ -6964,8 +7458,9 @@ Netherlands New Zealand      Norway    Portugal
 <ul>
 <li><a href="#donnees-ponderees_options-de-certaines-fonctions">Options de certaines fonctions</a></li>
 <li><a href="#donnees-ponderees_fonctions-de-lextension-questionr">Fonctions de l’extension questionr</a></li>
-<li><a href="#donnees-ponderees_donnees-ponderees-avec-lextension-survey">Données pondérées avec l’extension survey</a></li>
+<li><a href="#donnees-ponderees_survey">Données pondérées avec l’extension survey</a><ul>
 <li><a href="#donnees-ponderees_extraire-un-sous-echantillon">Extraire un sous-échantillon</a></li>
+</ul></li>
 <li><a href="#donnees-ponderees_conclusion">Conclusion</a></li>
 </ul>
 </div>
@@ -6982,12 +7477,12 @@ d &lt;-<span class="st"> </span>hdv2003
 <pre><code>[1]    78.07834 31092.14132</code></pre>
 <div id="donnees-ponderees_options-de-certaines-fonctions" class="section level2">
 <h2>Options de certaines fonctions</h2>
-<p>Tout d’abord, certaines fonctions de <strong>R</strong> acceptent en argument un vecteur permettant de pondérer les observations (l’option est en général nommée <code>weights</code> ou <code>row.w</code>). C’est le cas par exemple des méthodes d’estimation de modèles linéaires (<code data-pkg="stats">lm</code>) ou de modèles linéaires généralisés (<code data-pkg="stats">glm</code>) ou dans les analyses de correspondances<a href="#donnees-ponderees_fn2" class="footnoteRef" id="donnees-ponderees_fnref2"><sup>2</sup></a> des extensions <code class="pkg">ade4</code> ou <code class="pkg">FactoMineR</code>.</p>
+<p>Tout d’abord, certaines fonctions de <strong>R</strong> acceptent en argument un vecteur permettant de pondérer les observations (l’option est en général nommée <code>weights</code> ou <code>row.w</code>). C’est le cas par exemple des méthodes d’estimation de modèles linéaires<a href="#donnees-ponderees_fn2" class="footnoteRef" id="donnees-ponderees_fnref2"><sup>2</sup></a> (<code data-pkg="stats">lm</code>) ou de modèles linéaires généralisés <a href="#donnees-ponderees_fn3" class="footnoteRef" id="donnees-ponderees_fnref3"><sup>3</sup></a> (<code data-pkg="stats">glm</code>) ou dans les analyses de correspondances<a href="#donnees-ponderees_fn4" class="footnoteRef" id="donnees-ponderees_fnref4"><sup>4</sup></a> des extensions <code class="pkg">ade4</code> ou <code class="pkg">FactoMineR</code>.</p>
 <p>Par contre cette option n’est pas présente dans les fonctions de base comme <code data-pkg="base">mean</code>, <code data-pkg="base" data-rdoc="cor">var</code>, <code data-pkg="base">table</code> ou <code data-pkg="stats">chisq.test</code>.</p>
 </div>
 <div id="donnees-ponderees_fonctions-de-lextension-questionr" class="section level2">
 <h2>Fonctions de l’extension questionr</h2>
-<p>L’extension <code class="pkg">questionr</code> propose quelques fonctions permettant de calculer des statistiques simples pondérées<a href="#donnees-ponderees_fn3" class="footnoteRef" id="donnees-ponderees_fnref3"><sup>3</sup></a> :</p>
+<p>L’extension <code class="pkg">questionr</code> propose quelques fonctions permettant de calculer des statistiques simples pondérées<a href="#donnees-ponderees_fn5" class="footnoteRef" id="donnees-ponderees_fnref5"><sup>5</sup></a> :</p>
 <ul>
 <li><code data-pkg="questionr">wtd.mean</code> : moyenne pondérée</li>
 <li><code data-pkg="questionr" data-rdoc="wtd.mean">wtd.var</code> : variance pondérée</li>
@@ -7017,14 +7512,14 @@ Femme 5872596.42   49247.49</code></pre>
 </ul>
 <p>Ces fonctions rendent possibles l’utilisation des statistiques descriptives les plus simples et le traitement des tableaux croisés (les fonctions <code data-pkg="questionr" data-rdoc="rprop">lprop</code>, <code data-pkg="questionr">cprop</code> ou <code data-pkg="stats">chisq.test</code> peuvent être appliquées au résultat d’un <code data-pkg="questionr">wtd.table</code>) mais restent limitées en termes de tests statistiques ou de graphiques…</p>
 </div>
-<div id="donnees-ponderees_donnees-ponderees-avec-lextension-survey" class="section level2">
+<div id="donnees-ponderees_survey" class="section level2">
 <h2>Données pondérées avec l’extension survey</h2>
 <p>L’extension <code class="pkg">survey</code> est spécialement dédiée au traitement d’enquêtes ayant des techniques d’échantillonnage et de pondération potentiellement très complexes.</p>
 <p>L’extension s’installe comme la plupart des autres :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"survey"</span>)</code></pre></div>
 <p>Le site officiel (en anglais) comporte beaucoup d’informations, mais pas forcément très accessibles : <br/><a href="http://faculty.washington.edu/tlumley/survey/" class="uri">http://faculty.washington.edu/tlumley/survey/</a>.</p>
 <p>Pour utiliser les fonctionnalités de l’extension, on doit d’abord définir le <dfn>plan d’échantillonnage</dfn> ou <dfn lang="en">design</dfn> de notre enquête, c’est-à-dire indiquer quel type de pondération nous souhaitons lui appliquer.</p>
-<p>Dans un premier temps, nous utiliserons le plan d’échantillonnage le plus simple, avec une variable de pondération déjà calculée. Ceci se fait à l’aide de la fonction <code data-pkg="survey">svydesign</code> :</p>
+<p>Dans un premier temps, nous utiliserons le plan d’échantillonnage le plus simple, avec une variable de pondération déjà calculée<a href="#donnees-ponderees_fn6" class="footnoteRef" id="donnees-ponderees_fnref6"><sup>6</sup></a>. Ceci se fait à l’aide de la fonction <code data-pkg="survey">svydesign</code> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(survey)
 dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~<span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> ~d$poids)</code></pre></div>
 <p>Cette fonction crée un nouvel objet, que nous avons nommé <code>dw</code>. Cet objet n’est pas à proprement parler un tableau de données, mais plutôt un tableau de données plus une méthode de pondération. <code>dw</code> et <code>d</code> sont des objets distincts, les opérations effectuées sur l’un n’ont pas d’influence sur l’autre. On peut cependant retrouver le contenu de <code>d</code> depuis <code>dw</code> en utilisant <code>dw$variables</code> :</p>
@@ -7039,19 +7534,16 @@ dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="
 <li><code data-pkg="survey" data-rdoc="svytable">svychisq</code> : <dfn data-index="test du Chi²">test du χ²</dfn> <dfn data-index="Chi², test"/></li>
 <li><code data-pkg="survey">svyby</code> : statistiques selon un facteur</li>
 <li><code data-pkg="survey">svyttest</code> : <dfn>test t de Student</dfn><dfn data-index="Student, test-t"/> de <dfn>comparaison de moyennes</dfn><dfn data-index="moyenne, comparaison"/></li>
+<li><code data-pkg="survey">svyciprop</code> : <dfn>intervalle de confiance d’une proportion</dfn><dfn data-index="proportion, intervalle de confiance"/></li>
 <li><code data-pkg="survey">svyglm</code> : <dfn data-index="modèle linéaire généralisé">modèles linéaires généralisés</dfn> (dont <dfn>régression logistique</dfn><dfn data-index="logistique, régression"/>)</li>
 <li><code data-pkg="survey">svyplot</code>, <code data-pkg="survey">svyhist</code>, <code data-pkg="survey" data-rdoc="svyhist">svyboxplot</code> : fonctions graphiques</li>
 </ul>
 <p>D’autres fonctions sont disponibles, comme <code data-pkg="survey">svyratio</code>, mais elles ne seront pas abordées ici.</p>
-<p>Pour ne rien arranger, ces fonctions prennent leurs arguments sous forme de formules, c’est-à-dire pas de la manière habituelle. En général l’appel de fonction se fait en spécifiant d’abord les variables d’intérêt sous forme de formule, puis l’objet <em>survey.design</em>.</p>
-<p>L’<dfn>intervalle de confiance d’une moyenne</dfn><dfn data-index="moyenne, intervalle de confiance"/> s’obtient avec <code data-pkg="survey" data-rdoc="surveysummary">confint</code> et celui d’une <dfn data-index="intervalle de confiance d'une proportion">proportion</dfn><dfn data-index="proportion, intervalle de confiance"/> avec <code data-pkg="survey">svyciprop</code>.</p>
-<p>Voyons tout de suite quelques exemples<a href="#donnees-ponderees_fn4" class="footnoteRef" id="donnees-ponderees_fnref4"><sup>4</sup></a> :</p>
+<p>Pour ne rien arranger, ces fonctions prennent leurs arguments sous forme de formules<a href="#donnees-ponderees_fn7" class="footnoteRef" id="donnees-ponderees_fnref7"><sup>7</sup></a>, c’est-à-dire pas de la manière habituelle. En général l’appel de fonction se fait en spécifiant d’abord les variables d’intérêt sous forme de formule, puis l’objet <em>survey.design</em>.</p>
+<p>Voyons tout de suite quelques exemples<a href="#donnees-ponderees_fn8" class="footnoteRef" id="donnees-ponderees_fnref8"><sup>8</sup></a> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svymean</span>(~age, dw)</code></pre></div>
 <pre><code>      mean     SE
 age 46.347 0.5284</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">confint</span>(<span class="kw">svymean</span>(~age, dw))  <span class="co"># Intervalle de confiance</span></code></pre></div>
-<pre><code>      2.5 %   97.5 %
-age 45.3117 47.38282</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyquantile</span>(~age, dw, <span class="dt">quantile =</span> <span class="kw">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), 
   <span class="dt">ci =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>$quantiles
@@ -7067,31 +7559,24 @@ upper)   32  47   62</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyvar</span>(~heures.tv, dw, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>          variance     SE
 heures.tv   2.9886 0.1836</code></pre>
-<p>Pour comparer deux moyennes à l’aide d’un test <em>t</em> on aura recours à <code data-pkg="survey">svyttest</code> :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyttest</span>(age ~<span class="st"> </span>sexe, dw)</code></pre></div>
-<pre><code>
-    Design-based t-test
-
-data:  age ~ sexe
-t = 2.0404, df = 1998, p-value = 0.04144
-alternative hypothesis: true difference in mean is not equal to 0
-sample estimates:
-difference in mean 
-          2.141129 </code></pre>
 <p>Les tris à plat se déclarent en passant comme argument le nom de la variable précédé d’un tilde (<code>~</code>), tandis que les tableaux croisés utilisent les noms des deux variables séparés par un signe plus (<code>+</code>) et précédés par un tilde (<code>~</code>).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svytable</span>(~sexe, dw)</code></pre></div>
 <pre><code>sexe
   Homme   Femme 
 5149382 5921844 </code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyciprop</span>(~sexe, dw)  <span class="co"># Intervalle de confiance</span></code></pre></div>
-<pre><code>            2.5% 97.5%
-sexe 0.535 0.507  0.56</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svytable</span>(~sexe +<span class="st"> </span>clso, dw)</code></pre></div>
 <pre><code>       clso
 sexe           Oui        Non Ne sait pas
   Homme 2658744.04 2418187.64    72450.75
   Femme 2602031.76 3242389.36    77422.79</code></pre>
-<p>On peut récupérer le tableau issu de <code data-pkg="survey">svytable</code> dans un objet et le réutiliser ensuite comme n’importe quel tableau croisé :</p>
+<p>La fonction <code data-pkg="questionr">freq</code> peut être utilisée si on lui passe en argument non pas la variable elle-même, mais son tri à plat obtenu avec <code data-pkg="survey">svytable</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">svytable</span>(~peche.chasse, dw)
+<span class="kw">freq</span>(tab, <span class="dt">total =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre><code>             n     %  val%
+Non    9716683  87.8  87.8
+Oui    1354544  12.2  12.2
+Total 11071226 100.0 100.0</code></pre>
+<p>On peut également récupérer le tableau issu de <code data-pkg="survey">svytable</code> dans un objet et le réutiliser ensuite comme n’importe quel tableau croisé :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">svytable</span>(~sexe +<span class="st"> </span>clso, dw)
 tab</code></pre></div>
 <pre><code>       clso
@@ -7105,30 +7590,11 @@ sexe       Oui   Non   Ne sait pas Total
   Homme     51.6  47.0   1.4       100.0
   Femme     43.9  54.8   1.3       100.0
   Ensemble  47.5  51.1   1.4       100.0</code></pre>
-<p>La fonction <code data-pkg="questionr">freq</code> peut également être utilisée si on lui passe en argument non pas la variable elle-même, mais son tri à plat obtenu avec <code data-pkg="survey">svytable</code> :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">svytable</span>(~peche.chasse, dw)
-<span class="kw">freq</span>(tab, <span class="dt">total =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<pre><code>             n     %  val%
-Non    9716683  87.8  87.8
-Oui    1354544  12.2  12.2
-Total 11071226 100.0 100.0</code></pre>
-<p>Par contre, il ne faut pas utiliser <code data-pkg="stats">chisq.test</code> sur un tableau généré par <code data-pkg="survey">svytable</code>. Les effectifs étant extrapolés à partir de la pondération, les résultats du test seraient complètement faussés. Si on veut faire un test du χ² sur un tableau croisé pondéré, il faut utiliser <code data-pkg="survey" data-rdoc="svytable">svychisq</code> :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svychisq</span>(~sexe +<span class="st"> </span>clso, dw)</code></pre></div>
-<pre><code>
-    Pearson's X^2: Rao &amp; Scott adjustment
-
-data:  svychisq(~sexe + clso, dw)
-F = 3.3331, ndf = 1.9734, ddf = 3944.9000,
-p-value = 0.03641</code></pre>
-<p>Le principe de la fonction <code data-pkg="survey">svyby</code> est similaire à celui de <code data-pkg="base">tapply</code><a href="#donnees-ponderees_fn5" class="footnoteRef" id="donnees-ponderees_fnref5"><sup>5</sup></a>. Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur. Par exemple :</p>
+<p>Le principe de la fonction <code data-pkg="survey">svyby</code> est similaire à celui de <code data-pkg="base">tapply</code><a href="#donnees-ponderees_fn9" class="footnoteRef" id="donnees-ponderees_fnref9"><sup>9</sup></a>. Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur. Par exemple :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyby</span>(~age, ~sexe, dw, svymean)</code></pre></div>
 <pre><code>       sexe      age        se
 Homme Homme 45.20200 0.7419450
 Femme Femme 47.34313 0.7420836</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">confint</span>(<span class="kw">svyby</span>(~age, ~sexe, dw, svymean))  <span class="co"># Intervalles de confiance</span></code></pre></div>
-<pre><code>         2.5 %   97.5 %
-Homme 43.74781 46.65618
-Femme 45.88867 48.79758</code></pre>
 <p><code class="pkg">survey</code> est également capable de produire des graphiques à partir des données pondérées. Quelques exemples :</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))
@@ -7137,90 +7603,16 @@ Femme 45.88867 48.79758</code></pre>
 <span class="kw">svyboxplot</span>(age ~<span class="st"> </span><span class="dv">1</span>, dw, <span class="dt">main =</span> <span class="st">"Boxplot simple"</span>, <span class="dt">ylab =</span> <span class="st">"Âge"</span>)
 <span class="kw">svyboxplot</span>(age ~<span class="st"> </span>sexe, dw, <span class="dt">main =</span> <span class="st">"Boxplot double"</span>, 
   <span class="dt">ylab =</span> <span class="st">"Âge"</span>, <span class="dt">xlab =</span> <span class="st">"Sexe"</span>)</code></pre></div>
-<img src="graphs/donnees-ponderees/unnamed-chunk-16-1.png" title="" alt="" width="1050"/>
+<img src="graphs/donnees-ponderees/unnamed-chunk-14-1.png" title="" alt="" width="1050"/>
 <figcaption>
 Fonctions graphiques de l’extension survey
 </figcaption>
 </figure>
-<p>Enfin, <code class="pkg">survey</code> fournit une fonction <code data-pkg="survey">svyglm</code> permettant de calculer un modèle statistique tout en prenant en compte le plan d’échantillonnage spécifié. La syntaxe de <code data-pkg="survey">svyglm</code> est proche de celle de <code data-pkg="stats">glm</code>. Cependant, le cadre d’une régression logistique, il est nécessaire d’utiliser <code>family = quasibinomial()</code> afin d’éviter un message d’erreur indiquant un nombre non entier de succès :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>age +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, 
-  dw, <span class="dt">family =</span> <span class="kw">binomial</span>())</code></pre></div>
-<pre><code>Warning: non-integer #successes in a binomial glm!</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>age +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, 
-  dw, <span class="dt">family =</span> <span class="kw">quasibinomial</span>())
-reg</code></pre></div>
-<pre><code>Independent Sampling design (with replacement)
-svydesign(ids = ~1, data = d, weights = ~d$poids)
-
-Call:  svyglm(formula = sport ~ sexe + age + relig + heures.tv, dw, 
-    family = quasibinomial())
-
-Coefficients:
-                     (Intercept)  
-                         1.90117  
-                       sexeFemme  
-                        -0.36526  
-                             age  
-                        -0.04127  
-     religPratiquant occasionnel  
-                         0.05577  
- religAppartenance sans pratique  
-                         0.16367  
-religNi croyance ni appartenance  
-                         0.03988  
-                      religRejet  
-                        -0.14862  
-                religNSP ou NVPR  
-                        -0.22682  
-                       heures.tv  
-                        -0.18204  
-
-Degrees of Freedom: 1994 Total (i.e. Null);  1986 Residual
-  (5 observations deleted due to missingness)
-Null Deviance:      2672 
-Residual Deviance: 2378     AIC: NA</code></pre>
-<p>Le résultat obtenu est similaire à celui de <code data-pkg="stats">glm</code> et l’on peut utiliser sans problème les fonctions <code data-pkg="survey" data-rdoc="svyglm">coef</code>, <code data-pkg="survey" data-rdoc="confint.glm">confint</code>, <code data-pkg="questionr">odds.ratio</code> ou <code data-pkg="survey" data-rdoc="svyglm">predict</code> abordées dans le chapitre sur la <a href="#regression-logistique">régression logistique</a>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">odds.ratio</span>(reg)</code></pre></div>
-<pre><code>                                    OR 2.5 %
-(Intercept)                      6.694 3.670
-sexeFemme                        0.694 0.540
-age                              0.960 0.952
-religPratiquant occasionnel      1.057 0.659
-religAppartenance sans pratique  1.178 0.759
-religNi croyance ni appartenance 1.041 0.646
-religRejet                       0.862 0.428
-religNSP ou NVPR                 0.797 0.325
-heures.tv                        0.834 0.770
-                                 97.5 %         p
-(Intercept)                      12.209 6.848e-10
-sexeFemme                         0.892  0.004325
-age                               0.967 &lt; 2.2e-16
-religPratiquant occasionnel       1.696  0.817180
-religAppartenance sans pratique   1.827  0.465321
-religNi croyance ni appartenance  1.676  0.869658
-religRejet                        1.738  0.677858
-religNSP ou NVPR                  1.956  0.620504
-heures.tv                         0.902 6.786e-06
-                                    
-(Intercept)                      ***
-sexeFemme                        ** 
-age                              ***
-religPratiquant occasionnel         
-religAppartenance sans pratique     
-religNi croyance ni appartenance    
-religRejet                          
-religNSP ou NVPR                    
-heures.tv                        ***
----
-Signif. codes:  
-0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
-<p>Dans ses dernières versions, <code class="pkg">survey</code> fournit une méthode <code data-pkg="survey" data-rdoc="anova.svyglm">AIC.svyglm</code> permettant d’estimer un <dfn>AIC</dfn> sur un modèle calculé avec <code data-pkg="survey">svyglm</code>. Il est dès lors possible d’utiliser la fonction <code data-pkg="stats">step</code> pour réaliser une <dfn>sélection descendante pas à pas</dfn><dfn data-index="pas à pas, sélection descendante"/>.</p>
-<p>L’extension <code class="pkg">effects</code> n’est quant à elle pas compatible avec <code data-pkg="survey">svyglm</code><a href="#donnees-ponderees_fn6" class="footnoteRef" id="donnees-ponderees_fnref6"><sup>6</sup></a>.</p>
-</div>
-<div id="donnees-ponderees_extraire-un-sous-echantillon" class="section level2">
-<h2>Extraire un sous-échantillon</h2>
-<p>Si l’on souhaite travailler sur un <dfn>sous-échantillon</dfn> tout en gardant les informations d’échantillonnage, on utilisera la fonction <code data-pkg="survey" data-rdoc="subset.survey.design">subset</code> présentée en détail dans le chapitre <a href="pem_manipulation.html#subset">Manipulation de données</a>.</p>
+<div id="donnees-ponderees_extraire-un-sous-echantillon" class="section level3">
+<h3>Extraire un sous-échantillon</h3>
+<p>Si l’on souhaite travailler sur un <dfn>sous-échantillon</dfn> tout en gardant les informations d’échantillonnage, on utilisera la fonction <code data-pkg="survey" data-rdoc="subset.survey.design">subset</code> présentée en détail dans le chapitre <a href="#sous-ensembles">Sous-ensembles</a>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sous &lt;-<span class="st"> </span><span class="kw">subset</span>(dw, sexe ==<span class="st"> "Femme"</span> &amp;<span class="st"> </span>age &gt;=<span class="st"> </span><span class="dv">40</span>)</code></pre></div>
+</div>
 </div>
 <div id="donnees-ponderees_conclusion" class="section level2">
 <h2>Conclusion</h2>
@@ -7236,11 +7628,14 @@ Signif. codes:
 <hr/>
 <ol>
 <li id="donnees-ponderees_fn1"><p>On notera que cette variable est utilisée à titre purement illustratif. Le jeu de données étant un extrait d’enquête et la variable de pondération n’ayant pas été recalculée, elle n’a ici à proprement parler aucun sens.<a href="#donnees-ponderees_fnref1">↩</a></p></li>
-<li id="donnees-ponderees_fn2"><p>Voir le chapitre dédié à l’<a href="">analyse des correspondances</a>.<a href="#donnees-ponderees_fnref2">↩</a></p></li>
-<li id="donnees-ponderees_fn3"><p>Les fonctions <code data-pkg="questionr">wtd.mean</code> et <code data-pkg="questionr" data-rdoc="wtd.mean">wtd.var</code> sont des copies conformes des fonctions du même nom de l’extension <code class="pkg">Hmisc</code> de Frank Harrel. <code class="pkg">Hmisc</code> étant une extension « de taille », on a préféré recopié les fonctions pour limiter le poids des dépendances.<a href="#donnees-ponderees_fnref3">↩</a></p></li>
-<li id="donnees-ponderees_fn4"><p>Pour d’autres exemples, voir <a href="http://www.ats.ucla.edu/stat/r/faq/svy_r_oscluster.htm" class="uri">http://www.ats.ucla.edu/stat/r/faq/svy_r_oscluster.htm</a> (en anglais).<a href="#donnees-ponderees_fnref4">↩</a></p></li>
-<li id="donnees-ponderees_fn5"><p>La fonction <code data-pkg="base">tapply</code> est présentée plus en détails dans le chapitre <a href="pem_manipulation.html#tapply">Manipulation de données</a>.<a href="#donnees-ponderees_fnref5">↩</a></p></li>
-<li id="donnees-ponderees_fn6"><p>Compatibilité qui pourra éventuellement être introduite dans une future version de l’extension.<a href="#donnees-ponderees_fnref6">↩</a></p></li>
+<li id="donnees-ponderees_fn2"><p>Voir le chapitre <a href="#regression-lineaire">régression linéaire</a>.<a href="#donnees-ponderees_fnref2">↩</a></p></li>
+<li id="donnees-ponderees_fn3"><p>Voir le chapitre sur la <a href="#regression-logistique">régression logistique</a>.<a href="#donnees-ponderees_fnref3">↩</a></p></li>
+<li id="donnees-ponderees_fn4"><p>Voir le chapitre dédié à l’<a href="#analyse-des-correspondances-multiples">analyse des correspondances</a>.<a href="#donnees-ponderees_fnref4">↩</a></p></li>
+<li id="donnees-ponderees_fn5"><p>Les fonctions <code data-pkg="questionr">wtd.mean</code> et <code data-pkg="questionr" data-rdoc="wtd.mean">wtd.var</code> sont des copies conformes des fonctions du même nom de l’extension <code class="pkg">Hmisc</code> de Frank Harrel. <code class="pkg">Hmisc</code> étant une extension « de taille », on a préféré recopié les fonctions pour limiter le poids des dépendances.<a href="#donnees-ponderees_fnref5">↩</a></p></li>
+<li id="donnees-ponderees_fn6"><p>Pour d’autres types de plan d’échantillonnage, voir la chapitre sur les <a href="#definir-un-plan-d-echantillonnage-complexe">plans d’échantillonnage complexes</a>.<a href="#donnees-ponderees_fnref6">↩</a></p></li>
+<li id="donnees-ponderees_fn7"><p>Pour plus de détails sur les formules, voir le <a href="#formules">chapitre dédié</a>.<a href="#donnees-ponderees_fnref7">↩</a></p></li>
+<li id="donnees-ponderees_fn8"><p>Pour d’autres exemples, voir <a href="http://www.ats.ucla.edu/stat/r/faq/svy_r_oscluster.htm" class="uri">http://www.ats.ucla.edu/stat/r/faq/svy_r_oscluster.htm</a> (en anglais).<a href="#donnees-ponderees_fnref8">↩</a></p></li>
+<li id="donnees-ponderees_fn9"><p>La fonction <code data-pkg="base">tapply</code> est présentée plus en détails dans le chapitre <a href="pem_manipulation.html#tapply">Manipulation de données</a>.<a href="#donnees-ponderees_fnref9">↩</a></p></li>
 </ol>
 </div>
 
@@ -7273,6 +7668,7 @@ Signif. codes:
 <ul>
 <li><a href="#intervalles-de-confiance_ic_moyenne">Intervalle de confiance d’une moyenne</a></li>
 <li><a href="#intervalles-de-confiance_ic_proportion">Intervalle de confiance d’une proportion</a></li>
+<li><a href="#intervalles-de-confiance_survey">Données pondérées et l’extension survey</a></li>
 </ul>
 </div>
 
@@ -7283,8 +7679,8 @@ Signif. codes:
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
 <span class="kw">data</span>(<span class="st">"hdv2003"</span>)
 d &lt;-<span class="st"> </span>hdv2003</code></pre></div>
-<div id="intervalles-de-confiance_ic_moyenne" class="section level3">
-<h3>Intervalle de confiance d’une moyenne</h3>
+<div id="intervalles-de-confiance_ic_moyenne" class="section level2">
+<h2>Intervalle de confiance d’une moyenne</h2>
 <p>L’<dfn>intervalle de confiance d’une moyenne</dfn><dfn data-index="moyenne, intervalle de confiance"/><dfn data-index="intervalle de confiance"/> peut être calculé avec la fonction <code data-pkg="stats">t.test</code> (fonction qui permet également de réaliser un test <em>t</em> de Student comme nous le verrons dans le chapitre dédié aux <a href="#comparaisons-moyennes-et-proportions">comparaisons de moyennes</a>) :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">t.test</span>(d$heures.tv)</code></pre></div>
 <pre><code>
@@ -7313,8 +7709,8 @@ mean of x
  2.246566 </code></pre>
 <p>Le nombre d’heures moyennes à regarder la télévision parmi les enquêtés s’avère être de 2,2 heures, avec un intervalle de confiance à 95 % de [2,17 - 2,33] et un intervalle de confiance à 90 % de [2,18 - 2,31].</p>
 </div>
-<div id="intervalles-de-confiance_ic_proportion" class="section level3">
-<h3>Intervalle de confiance d’une proportion</h3>
+<div id="intervalles-de-confiance_ic_proportion" class="section level2">
+<h2>Intervalle de confiance d’une proportion</h2>
 <p>La fonction <code data-pkg="stats">prop.test</code> permet de calculer l’<dfn>intervalle de confiance d’une proportion</dfn><dfn data-index="proportion, intervalle de confiance"/><dfn data-index="intervalle de confiance"/>. Une première possibilité consiste à lui transmettre une table à une dimension et deux entrées. Par exemple, si l’on s’intéresse à la proportion de personnes ayant pratiqué une activité physique au cours des douze derniers mois :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$sport)</code></pre></div>
 <pre><code>       n    % val%
@@ -7410,6 +7806,36 @@ NA     0  0.0   NA</code></pre>
 <pre><code>[1] 0.6595179 0.3830553</code></pre>
 </div>
 </div>
+<div id="intervalles-de-confiance_survey" class="section level2">
+<h2>Données pondérées et l’extension survey</h2>
+<p>Lorsque l’on utilise des données pondérées définies à l’aide de l’extension <code class="pkg">survey</code><a href="#intervalles-de-confiance_fn1" class="footnoteRef" id="intervalles-de-confiance_fnref1"><sup>1</sup></a>, l’<dfn>intervalle de confiance d’une moyenne</dfn><dfn data-index="moyenne, intervalle de confiance"/> s’obtient avec <code data-pkg="survey" data-rdoc="surveysummary">confint</code> et celui d’une <dfn data-index="intervalle de confiance d'une proportion">proportion</dfn><dfn data-index="proportion, intervalle de confiance"/> avec <code data-pkg="survey">svyciprop</code>.</p>
+<p>Quelques exemples :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(survey)
+dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~<span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> ~poids)
+<span class="kw">svymean</span>(~age, dw)</code></pre></div>
+<pre><code>      mean     SE
+age 46.347 0.5284</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">confint</span>(<span class="kw">svymean</span>(~age, dw))  <span class="co"># Intervalle de confiance d'une moyenne</span></code></pre></div>
+<pre><code>      2.5 %   97.5 %
+age 45.3117 47.38282</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">confint</span>(<span class="kw">svyby</span>(~age, ~sexe, dw, svymean))  <span class="co"># Intervalles de confiance pour chaque sexe</span></code></pre></div>
+<pre><code>         2.5 %   97.5 %
+Homme 43.74781 46.65618
+Femme 45.88867 48.79758</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(<span class="kw">svytable</span>(~sexe, dw))</code></pre></div>
+<pre><code>            n    % val%
+Homme 5149382 46.5 46.5
+Femme 5921844 53.5 53.5</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyciprop</span>(~sexe, dw)  <span class="co"># Intervalle de confiance d'une proportion</span></code></pre></div>
+<pre><code>            2.5% 97.5%
+sexe 0.535 0.507  0.56</code></pre>
+</div>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="intervalles-de-confiance_fn1"><p>Voir le chapitre dédié aux <a href="#donnees-ponderees_survey">données pondérées</a>.<a href="#intervalles-de-confiance_fnref1">↩</a></p></li>
+</ol>
+</div>
 
 </article>
 <article id="comparaisons-moyennes-et-proportions">
@@ -7426,6 +7852,7 @@ NA     0  0.0   NA</code></pre>
 <li><a href="#comparaisons-moyennes-et-proportions_comp_moyennes">Comparaison de moyennes</a></li>
 <li><a href="#comparaisons-moyennes-et-proportions_comp_prop">Comparaison de proportions</a></li>
 <li><a href="#comparaisons-moyennes-et-proportions_-et-derives">χ² et dérivés</a></li>
+<li><a href="#comparaisons-moyennes-et-proportions_survey">Données pondérées et l’extension survey</a></li>
 </ul>
 </div>
 
@@ -7621,6 +8048,52 @@ odds ratio
   2.903253 </code></pre>
 </div>
 </div>
+<div id="comparaisons-moyennes-et-proportions_survey" class="section level2">
+<h2>Données pondérées et l’extension survey</h2>
+<p>Lorsque l’on utilise des données pondérées, on aura recours à l’extension <code class="pkg">survey</code><a href="#comparaisons-moyennes-et-proportions_fn6" class="footnoteRef" id="comparaisons-moyennes-et-proportions_fnref6"><sup>6</sup></a>.</p>
+<p>Préparons des données d’exemple :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(survey)
+dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~<span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> ~poids)</code></pre></div>
+<p>Pour comparer deux moyennes à l’aide d’un test <em>t</em> on aura recours à <code data-pkg="survey">svyttest</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyttest</span>(age ~<span class="st"> </span>sexe, dw)</code></pre></div>
+<pre><code>
+    Design-based t-test
+
+data:  age ~ sexe
+t = 2.0404, df = 1998, p-value = 0.04144
+alternative hypothesis: true difference in mean is not equal to 0
+sample estimates:
+difference in mean 
+          2.141129 </code></pre>
+<p>On ne peut pas utiliser <code data-pkg="stats">chisq.test</code> directement sur un tableau généré par <code data-pkg="survey">svytable</code>. Les effectifs étant extrapolés à partir de la pondération, les résultats du test seraient complètement faussés. Si on veut faire un test du χ² sur un tableau croisé pondéré, il faut utiliser <code data-pkg="survey" data-rdoc="svytable">svychisq</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rprop</span>(<span class="kw">svytable</span>(~sexe +<span class="st"> </span>clso, dw))</code></pre></div>
+<pre><code>          clso
+sexe       Oui   Non   Ne sait pas Total
+  Homme     51.6  47.0   1.4       100.0
+  Femme     43.9  54.8   1.3       100.0
+  Ensemble  47.5  51.1   1.4       100.0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svychisq</span>(~sexe +<span class="st"> </span>clso, dw)</code></pre></div>
+<pre><code>
+    Pearson's X^2: Rao &amp; Scott adjustment
+
+data:  svychisq(~sexe + clso, dw)
+F = 3.3331, ndf = 1.9734, ddf = 3944.9000,
+p-value = 0.03641</code></pre>
+<p>L’extension <code class="pkg">survey</code> ne propose pas de version adaptée du test exact de Fisher. Pour comparer deux proportions, on aura donc recours au test du χ² :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rprop</span>(<span class="kw">svytable</span>(~lecture.bd +<span class="st"> </span>sport, dw))</code></pre></div>
+<pre><code>          sport
+lecture.bd Non   Oui   Total
+  Non       61.0  39.0 100.0
+  Oui       46.8  53.2 100.0
+  Ensemble  60.7  39.3 100.0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svychisq</span>(~lecture.bd +<span class="st"> </span>sport, dw)</code></pre></div>
+<pre><code>
+    Pearson's X^2: Rao &amp; Scott adjustment
+
+data:  svychisq(~lecture.bd + sport, dw)
+F = 2.6213, ndf = 1, ddf = 1999, p-value =
+0.1056</code></pre>
+</div>
 <div class="footnotes">
 <hr/>
 <ol>
@@ -7629,6 +8102,7 @@ odds ratio
 <li id="comparaisons-moyennes-et-proportions_fn3"><p>Ce test peut également fournir un intervalle de confiance avec l’option <code>conf.int=TRUE</code>.<a href="#comparaisons-moyennes-et-proportions_fnref3">↩</a></p></li>
 <li id="comparaisons-moyennes-et-proportions_fn4"><p>On ne donnera pas plus d’indications sur le test du χ² ici. Les personnes désirant une présentation plus détaillée pourront se reporter (attention, séance d’autopromotion !) à la page suivante : <a href="http://alea.fr.eu.org/pages/khi2" class="uri">http://alea.fr.eu.org/pages/khi2</a>.<a href="#comparaisons-moyennes-et-proportions_fnref4">↩</a></p></li>
 <li id="comparaisons-moyennes-et-proportions_fn5"><p>On peut aussi appliquer directement le test en spécifiant les deux variables à croiser via <code>chisq.test(d$qualreg, d$sport)</code>.<a href="#comparaisons-moyennes-et-proportions_fnref5">↩</a></p></li>
+<li id="comparaisons-moyennes-et-proportions_fn6"><p>Voir le chapitre dédié aux <a href="#donnees-ponderees_survey">données pondérées</a>.<a href="#comparaisons-moyennes-et-proportions_fnref6">↩</a></p></li>
 </ol>
 </div>
 
@@ -7749,6 +8223,7 @@ design.eds &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span
 <li><a href="#regression-logistique_regression-logistique-binaire">Régression logistique binaire</a></li>
 <li><a href="#regression-logistique_selection-de-modeles">Sélection de modèles</a></li>
 <li><a href="#regression-logistique_regression-logistique-multinomiale">Régression logistique multinomiale</a></li>
+<li><a href="#regression-logistique_survey">Données pondérées et l’extension survey</a></li>
 </ul>
 </div>
 
@@ -7796,9 +8271,9 @@ NA       0  0   NA</code></pre>
 Femme 1101 55   55
 Homme  899 45   45
 NA       0  0   NA</code></pre>
-<div class="note">
-<p>Si l’on a importé nos données depuis <strong>SPSS</strong> ou <strong>Stata</strong> avec l’extension <code class="pkg">haven</code>, les variables codées numériquement et disposant d’étiquettes sont conservées stockées sous forme de <dfn lang="en">labelled vector</dfn>, c’est-à-dire d’un vecteur numérique ayant des attributs indiquant les étiquettes des modalités. Il importera donc de convertir notre variable en facteur avant d’effectuer notre analyse. La fonction <code data-pkg="haven" data-rdoc="labelled">as_factor</code> créera automatiquement un facteur à partir des étiquettes.</p>
-<p>Une alternative consiste à utiliser la fonction <code data-pkg="JLutils">lfactor</code> de l’extension <code class="pkg">JLutils</code> qui fonctionne également si les données ont été importées avec <code data-pkg="foreign">read.spss</code> ou <code data-pkg="foreign">read.dta</code> de l’extension <code class="pkg">foreign</code> sans avoir converti les variables labelisées en facteurs.</p>
+<div class="important">
+<p><strong>Données labellisées</strong></p>
+<p>Si l’on utilise des données labellisées (voir le <a href="#facteurs-et-vecteurs-labellises_labelled">chapitre dédié</a>), nos variables catégorielles seront stockées sous la forme d’un vecteur numérique avec des étiquettes. Il sera donc nécessaire de convertir ces variables en facteurs, tout simplement avec la fonction <code data-pkg="labelled">to_factor</code> de l’extension <code class="pkg">labelled</code> qui pourra utiliser les étiquettes de valeurs comme modalités du facteur.</p>
 </div>
 <p>Les variables <em>age</em> et <em>heures.tv</em> sont des variables quantitatives. Il importe de vérifier qu’elles sont bien enregistrées en tant que variables numériques. En effet, il arrive parfois que dans le fichier source les variables quantitatives soient renseignées sous forme de valeur textuelle et non sous forme numérique.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(d$age)</code></pre></div>
@@ -8515,12 +8990,95 @@ Signif. codes:
   Satisfaction               45
   Insatisfaction             23</code></pre>
 </div>
+<div id="regression-logistique_survey" class="section level2">
+<h2>Données pondérées et l’extension survey</h2>
+<p>Lorsque l’on utilise des données pondérées, on aura recours à l’extension <code class="pkg">survey</code><a href="#regression-logistique_fn4" class="footnoteRef" id="regression-logistique_fnref4"><sup>4</sup></a>.</p>
+<p>Préparons des données d’exemple :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(survey)
+dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~<span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> ~poids)</code></pre></div>
+<p>L’extension <code class="pkg">survey</code> fournit une fonction <code data-pkg="survey">svyglm</code> permettant de calculer un modèle statistique tout en prenant en compte le plan d’échantillonnage spécifié. La syntaxe de <code data-pkg="survey">svyglm</code> est proche de celle de <code data-pkg="stats">glm</code>. Cependant, le cadre d’une régression logistique, il est nécessaire d’utiliser <code>family = quasibinomial()</code> afin d’éviter un message d’erreur indiquant un nombre non entier de succès :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>age +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, 
+  dw, <span class="dt">family =</span> <span class="kw">binomial</span>())</code></pre></div>
+<pre><code>Warning: non-integer #successes in a binomial glm!</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>age +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, 
+  dw, <span class="dt">family =</span> <span class="kw">quasibinomial</span>())
+reg</code></pre></div>
+<pre><code>Independent Sampling design (with replacement)
+svydesign(ids = ~1, data = d, weights = ~poids)
+
+Call:  svyglm(formula = sport ~ sexe + age + relig + heures.tv, dw, 
+    family = quasibinomial())
+
+Coefficients:
+                     (Intercept)  
+                         1.53590  
+                       sexeHomme  
+                         0.36526  
+                             age  
+                        -0.04127  
+     religPratiquant occasionnel  
+                         0.05577  
+ religAppartenance sans pratique  
+                         0.16367  
+religNi croyance ni appartenance  
+                         0.03988  
+                      religRejet  
+                        -0.14862  
+                religNSP ou NVPR  
+                        -0.22682  
+                       heures.tv  
+                        -0.18204  
+
+Degrees of Freedom: 1994 Total (i.e. Null);  1986 Residual
+  (5 observations deleted due to missingness)
+Null Deviance:      2672 
+Residual Deviance: 2378     AIC: NA</code></pre>
+<p>Le résultat obtenu est similaire à celui de <code data-pkg="stats">glm</code> et l’on peut utiliser sans problème les fonctions <code data-pkg="survey" data-rdoc="svyglm">coef</code>, <code data-pkg="survey" data-rdoc="confint.glm">confint</code>, <code data-pkg="questionr">odds.ratio</code> ou <code data-pkg="survey" data-rdoc="svyglm">predict</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">odds.ratio</span>(reg)</code></pre></div>
+<pre><code>                                    OR 2.5 %
+(Intercept)                      4.646 2.578
+sexeHomme                        1.441 1.121
+age                              0.960 0.952
+religPratiquant occasionnel      1.057 0.659
+religAppartenance sans pratique  1.178 0.759
+religNi croyance ni appartenance 1.041 0.646
+religRejet                       0.862 0.428
+religNSP ou NVPR                 0.797 0.325
+heures.tv                        0.834 0.770
+                                 97.5 %         p
+(Intercept)                       8.373 3.522e-07
+sexeHomme                         1.851  0.004325
+age                               0.967 &lt; 2.2e-16
+religPratiquant occasionnel       1.696  0.817180
+religAppartenance sans pratique   1.827  0.465321
+religNi croyance ni appartenance  1.676  0.869658
+religRejet                        1.738  0.677858
+religNSP ou NVPR                  1.956  0.620504
+heures.tv                         0.902 6.786e-06
+                                    
+(Intercept)                      ***
+sexeHomme                        ** 
+age                              ***
+religPratiquant occasionnel         
+religAppartenance sans pratique     
+religNi croyance ni appartenance    
+religRejet                          
+religNSP ou NVPR                    
+heures.tv                        ***
+---
+Signif. codes:  
+0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+<p>Dans ses dernières versions, <code class="pkg">survey</code> fournit une méthode <code data-pkg="survey" data-rdoc="anova.svyglm">AIC.svyglm</code> permettant d’estimer un <dfn>AIC</dfn> sur un modèle calculé avec <code data-pkg="survey">svyglm</code>. Il est dès lors possible d’utiliser la fonction <code data-pkg="stats">step</code> pour réaliser une <dfn>sélection descendante pas à pas</dfn><dfn data-index="pas à pas, sélection descendante"/>.</p>
+<p>L’extension <code class="pkg">effects</code> n’est quant à elle pas compatible avec <code data-pkg="survey">svyglm</code><a href="#regression-logistique_fn5" class="footnoteRef" id="regression-logistique_fnref5"><sup>5</sup></a>.</p>
+</div>
 <div class="footnotes">
 <hr/>
 <ol>
 <li id="regression-logistique_fn1"><p>Pour plus de détails, voir <a href="http://www.spc.univ-lyon1.fr/polycop/odds%20ratio.htm">http://www.spc.univ-lyon1.fr/polycop/odds%20ratio.htm</a>.<a href="#regression-logistique_fnref1">↩</a></p></li>
 <li id="regression-logistique_fn2"><p>Il existe également des méthodes de <em>sélection ascendante pas à pas</em>, mais nous les aborderons pas ici.<a href="#regression-logistique_fnref2">↩</a></p></li>
 <li id="regression-logistique_fn3"><p>Une alternative est d’avoir recours à l’extension <code class="pkg">mlogit</code> que nous n’aborderons pas ici. Voir <a href="http://www.ats.ucla.edu/stat/r/dae/mlogit.htm" class="uri">http://www.ats.ucla.edu/stat/r/dae/mlogit.htm</a> (en anglais) pour plus de détails.<a href="#regression-logistique_fnref3">↩</a></p></li>
+<li id="regression-logistique_fn4"><p>Voir le chapitre dédié aux <a href="#donnees-ponderees_survey">données pondérées</a>.<a href="#regression-logistique_fnref4">↩</a></p></li>
+<li id="regression-logistique_fn5"><p>Compatibilité qui pourra éventuellement être introduite dans une future version de l’extension.<a href="#regression-logistique_fnref5">↩</a></p></li>
 </ol>
 </div>
 
@@ -10862,9 +11420,17 @@ B
 <ul>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
 </ul>
+<p><dfn>barres, diagramme en</dfn></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
 <p><dfn>bâton, diagramme</dfn></p>
 <ul>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
+</ul>
+<p><dfn>bâtons, diagramme en</dfn></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 <p><dfn>binaire, régression logistique</dfn></p>
 <ul>
@@ -10884,6 +11450,7 @@ B
 </ul>
 <p><dfn>boîte à moustaches</dfn></p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
 </ul>
 <p><dfn>booléenne, valeur</dfn></p>
@@ -10896,6 +11463,7 @@ B
 </ul>
 <p><dfn lang="en">boxplot</dfn></p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
 </ul>
@@ -10966,6 +11534,7 @@ C
 </ul>
 <p><dfn>Cleveland, diagramme</dfn></p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
 </ul>
 <p><dfn lang="en">cluster</dfn></p>
@@ -11036,6 +11605,10 @@ C
 <ul>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
 </ul>
+<p><dfn>corrélation, matrice de</dfn></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
 <p><dfn>correspondances, analyse factorielle</dfn></p>
 <ul>
 <li><a href="#analyse-des-correspondances-multiples">Analyse des correspondances multiples (ACM)</a></li>
@@ -11043,6 +11616,10 @@ C
 <p><dfn>couleur, palette</dfn></p>
 <ul>
 <li><a href="#analyse-des-correspondances-multiples">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><dfn>courbe de densité</dfn></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 <p><dfn>Cramer, coefficient de contingence</dfn></p>
 <ul>
@@ -11077,8 +11654,13 @@ D
 <ul>
 <li><a href="#classification-ascendante-hierarchique">Classification ascendante hiérarchique (CAH)</a></li>
 </ul>
+<p><dfn>densité, courbe de</dfn></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
 <p><dfn>densité, estimation locale</dfn></p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
 </ul>
 <p><dfn>descriptive, statistique</dfn></p>
@@ -11092,10 +11674,16 @@ D
 </ul>
 <p><dfn>diagramme de Cleveland</dfn></p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
+</ul>
+<p><dfn>diagramme en barres</dfn></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 <p><dfn>diagramme en bâtons</dfn></p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
 </ul>
 <p><dfn>diagramme en secteur</dfn></p>
@@ -11144,6 +11732,10 @@ D
 <ul>
 <li><a href="#listes-et-tableaux-de-donnes">Listes et Tableaux de données</a></li>
 </ul>
+<p><dfn>droite de régression</dfn></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
 <h2 id="index-des-concepts_E">
 E
 </h2>
@@ -11181,6 +11773,7 @@ E
 </ul>
 <p><dfn lang="en">empirical cumulative distribution function</dfn></p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
 </ul>
 <p><dfn>entier</dfn></p>
@@ -11209,6 +11802,7 @@ E
 </ul>
 <p><dfn>estimation locale de densité</dfn></p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
 </ul>
 <p><dfn>estimation par noyau</dfn></p>
@@ -11297,13 +11891,14 @@ F
 <ul>
 <li><a href="#comparaisons-moyennes-et-proportions">Comparaisons (moyennes et proportions)</a></li>
 </ul>
-<p><dfn>fonction de répartition empirique</dfn></p>
-<ul>
-<li><a href="#statistique-univariee">Statistique univariée</a></li>
-</ul>
 <p><dfn>fonction</dfn></p>
 <ul>
 <li><a href="#premier-contact">Premier contact</a></li>
+</ul>
+<p><dfn>fonction de répartition empirique</dfn></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+<li><a href="#statistique-univariee">Statistique univariée</a></li>
 </ul>
 <p><dfn>formule</dfn></p>
 <ul>
@@ -11332,6 +11927,14 @@ G
 <p><dfn>Gower, indice de similarité</dfn></p>
 <ul>
 <li><a href="#classification-ascendante-hierarchique">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><dfn>graphique en mosaïque</dfn></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><dfn>graphique en violon</dfn></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 <p><dfn>graphique, export</dfn></p>
 <ul>
@@ -11463,7 +12066,7 @@ I
 </ul>
 <p><dfn>intervalle de confiance d’une moyenne</dfn></p>
 <ul>
-<li><a href="#donnees-ponderees">Données pondérées</a></li>
+<li><a href="#intervalles-de-confiance">Intervalles de confiance</a></li>
 </ul>
 <p><dfn>intervalle de confiance d’une proportion</dfn></p>
 <ul>
@@ -11480,10 +12083,6 @@ L
 <p><dfn>labelled data</dfn></p>
 <ul>
 <li><a href="#facteurs-et-vecteurs-labellises">Facteurs et vecteurs labellisés</a></li>
-</ul>
-<p><dfn lang="en">labelled vector</dfn></p>
-<ul>
-<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><dfn>labellisée, donnée</dfn></p>
 <ul>
@@ -11563,6 +12162,10 @@ M
 <ul>
 <li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
+<p><dfn>matrice de corrélation</dfn></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
 <p><dfn>matrice de distances</dfn></p>
 <ul>
 <li><a href="#classification-ascendante-hierarchique">Classification ascendante hiérarchique (CAH)</a></li>
@@ -11615,10 +12218,12 @@ M
 </ul>
 <p><dfn>mosaïque, graphique</dfn></p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
 </ul>
 <p><dfn>moustaches, boîte</dfn></p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
 </ul>
@@ -11638,7 +12243,6 @@ M
 </ul>
 <p><dfn>moyenne, intervalle de confiance</dfn></p>
 <ul>
-<li><a href="#donnees-ponderees">Données pondérées</a></li>
 <li><a href="#intervalles-de-confiance">Intervalles de confiance</a></li>
 </ul>
 <p><dfn lang="en">multidimensional scaling</dfn></p>
@@ -11688,6 +12292,10 @@ N
 <p><dfn>noyau, estimation</dfn></p>
 <ul>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
+</ul>
+<p><dfn>nuage de points</dfn></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 <p><dfn lang="en">numeric</dfn></p>
 <ul>
@@ -11757,7 +12365,6 @@ P
 </ul>
 <p><dfn>pas à pas, sélection descendante</dfn></p>
 <ul>
-<li><a href="#donnees-ponderees">Données pondérées</a></li>
 <li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><dfn>patron</dfn></p>
@@ -11779,6 +12386,10 @@ P
 <p><dfn>plan factoriel</dfn></p>
 <ul>
 <li><a href="#analyse-des-correspondances-multiples">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><dfn>points, nuage de</dfn></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 <p><dfn>pondération</dfn></p>
 <ul>
@@ -11888,6 +12499,7 @@ R
 </ul>
 <p><dfn>régression, droite</dfn></p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
 </ul>
 <p><dfn>relatif, risque</dfn></p>
@@ -11896,6 +12508,7 @@ R
 </ul>
 <p><dfn>répartition empirique, fonction</dfn></p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
 </ul>
 <p><dfn>répertoire de travail</dfn></p>
@@ -11954,7 +12567,6 @@ S
 </ul>
 <p><dfn>sélection descendante pas à pas</dfn></p>
 <ul>
-<li><a href="#donnees-ponderees">Données pondérées</a></li>
 <li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><dfn>séparateur de champs</dfn></p>
@@ -12152,6 +12764,10 @@ V
 <ul>
 <li><a href="#vecteurs-indexation-et-assignation">Vecteurs, indexation et assignation</a></li>
 </ul>
+<p><dfn>valeur manquante</dfn></p>
+<ul>
+<li><a href="#statistique-univariee">Statistique univariée</a></li>
+</ul>
 <p><dfn>valeur manquante déclarée</dfn></p>
 <ul>
 <li><a href="#import-de-donnees">Import de données</a></li>
@@ -12161,7 +12777,6 @@ V
 <li><a href="#classification-ascendante-hierarchique">Classification ascendante hiérarchique (CAH)</a></li>
 <li><a href="#import-de-donnees">Import de données</a></li>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
-<li><a href="#statistique-univariee">Statistique univariée</a></li>
 <li><a href="#vecteurs-indexation-et-assignation">Vecteurs, indexation et assignation</a></li>
 </ul>
 <p><dfn>valeur, étiquette</dfn></p>
@@ -12192,33 +12807,33 @@ V
 <p><dfn>variable qualitative</dfn></p>
 <ul>
 <li><a href="#analyse-des-correspondances-multiples">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#classification-ascendante-hierarchique">Classification ascendante hiérarchique (CAH)</a></li>
 <li><a href="#regression-logistique">Régression logistique</a></li>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
 </ul>
+<p><dfn>variable quantitative</dfn></p>
+<ul>
+<li><a href="#classification-ascendante-hierarchique">Classification ascendante hiérarchique (CAH)</a></li>
+<li><a href="#statistique-bivariee">Statistique bivariée</a></li>
+</ul>
 <p><dfn>variable, étiquette</dfn></p>
 <ul>
-<li><a href="#import-de-donnees">Import de données</a></li>
+<li><a href="#facteurs-et-vecteurs-labellises">Facteurs et vecteurs labellisés</a></li>
 </ul>
 <p><dfn>variable</dfn></p>
 <ul>
 <li><a href="#premier-travail-avec-les-donnees">Premier travail avec des données</a></li>
 </ul>
-<p><dfn>variable qualitative</dfn></p>
-<ul>
-<li><a href="#classification-ascendante-hierarchique">Classification ascendante hiérarchique (CAH)</a></li>
-</ul>
 <p><dfn>variable quantitative</dfn></p>
 <ul>
 <li><a href="#analyse-des-correspondances-multiples">Analyse des correspondances multiples (ACM)</a></li>
-<li><a href="#classification-ascendante-hierarchique">Classification ascendante hiérarchique (CAH)</a></li>
 <li><a href="#regression-logistique">Régression logistique</a></li>
-<li><a href="#statistique-bivariee">Statistique bivariée</a></li>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
 </ul>
 <p><dfn>variable, étiquette</dfn></p>
 <ul>
-<li><a href="#facteurs-et-vecteurs-labellises">Facteurs et vecteurs labellisés</a></li>
+<li><a href="#import-de-donnees">Import de données</a></li>
 </ul>
 <p><dfn>variable, recodage</dfn></p>
 <ul>
@@ -12245,6 +12860,14 @@ V
 <p><dfn lang="en">viewer</dfn></p>
 <ul>
 <li><a href="#premier-travail-avec-les-donnees">Premier travail avec des données</a></li>
+</ul>
+<p><dfn lang="en">violin plot</dfn></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><dfn>violon, graphique en</dfn></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 <h2 id="index-des-concepts_W">
 W
@@ -12347,6 +12970,9 @@ W
 <li>
 <a href="#index-des-fonctions_X">X</a>
 </li>
+<li>
+<a href="#index-des-fonctions_Y">Y</a>
+</li>
 </ul>
 <p/></nav>
 <div id="index-des-fonctions_index_fonctions">
@@ -12382,6 +13008,7 @@ A
 </ul>
 <p><code data-pkg="ggplot2">aes</code> (ggplot2)</p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#intro-ggplot2">Introduction à ggplot2</a></li>
 </ul>
 <p><code data-pkg="eeptools">age_calc</code> (eeptools)</p>
@@ -12399,7 +13026,7 @@ A
 </ul>
 <p><code data-pkg="survey" data-rdoc="anova.svyglm">AIC.svyglm</code> (survey)</p>
 <ul>
-<li><a href="#donnees-ponderees">Données pondérées</a></li>
+<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code data-pkg="effects" data-rdoc="effect">allEffects</code> (effects)</p>
 <ul>
@@ -12412,6 +13039,10 @@ A
 <p><code data-pkg="base" data-rdoc="character">as.character</code> (base)</p>
 <ul>
 <li><a href="#recodage">Recodage</a></li>
+</ul>
+<p><code data-pkg="base" data-rdoc="table">as.data.frame</code> (base)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 <p><code data-pkg="cluster" data-rdoc="agnes.object">as.hclust</code> (cluster)</p>
 <ul>
@@ -12432,7 +13063,6 @@ A
 <p><code data-pkg="haven" data-rdoc="labelled">as_factor</code> (haven)</p>
 <ul>
 <li><a href="#recodage">Recodage</a></li>
-<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <h2 id="index-des-fonctions_B">
 B
@@ -12506,7 +13136,7 @@ C
 </ul>
 <p><code data-pkg="survey" data-rdoc="svyglm">coef</code> (survey)</p>
 <ul>
-<li><a href="#donnees-ponderees">Données pondérées</a></li>
+<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code data-pkg="grDevices">colors</code> (grDevices)</p>
 <ul>
@@ -12527,12 +13157,16 @@ C
 </ul>
 <p><code data-pkg="survey" data-rdoc="surveysummary">confint</code> (survey)</p>
 <ul>
-<li><a href="#donnees-ponderees">Données pondérées</a></li>
-<li><a href="#donnees-ponderees">Données pondérées</a></li>
+<li><a href="#intervalles-de-confiance">Intervalles de confiance</a></li>
+<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code data-pkg="graphics">contour</code> (graphics)</p>
 <ul>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
+</ul>
+<p><code data-pkg="ggplot2">coord_flip</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 <p><code data-pkg="stats">cor</code> (stats)</p>
 <ul>
@@ -12702,13 +13336,59 @@ F
 <h2 id="index-des-fonctions_G">
 G
 </h2>
+<p><code data-pkg="ggplot2" data-rdoc="geom_ribbon">geom_area</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><code data-pkg="ggplot2">geom_bar</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><code data-pkg="ggplot2">geom_bin2d</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><code data-pkg="ggplot2">geom_boxplot</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><code data-pkg="ggplot2">geom_density</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><code data-pkg="ggplot2">geom_density_2d</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><code data-pkg="ggplot2">geom_hex</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><code data-pkg="ggplot2" data-rdoc="geom_freqpoly">geom_histogram</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><code data-pkg="ggplot2" data-rdoc="geom_path">geom_line</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
 <p><code data-pkg="ggplot2">geom_point</code> (ggplot2)</p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#intro-ggplot2">Introduction à ggplot2</a></li>
 </ul>
-<p><code data-pkg="ggplot2" data-rdoc="geom_smooth">geom_smooth</code> (ggplot2)</p>
+<p><code data-pkg="ggplot2">geom_rug</code> (ggplot2)</p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><code data-pkg="ggplot2">geom_smooth</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#intro-ggplot2">Introduction à ggplot2</a></li>
+</ul>
+<p><code data-pkg="ggplot2">geom_violin</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 <p><code data-pkg="ggplot2" data-rdoc="geom_vline">geom_vline</code> (ggplot2)</p>
 <ul>
@@ -12722,14 +13402,28 @@ G
 <ul>
 <li><a href="#organiser-ses-fichiers">Organiser ses fichiers</a></li>
 </ul>
+<p><code data-pkg="GGally">ggcorr</code> (GGally)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><code data-pkg="GGally">ggpairs</code> (GGally)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
 <p><code data-pkg="ggplot2">ggplot</code> (ggplot2)</p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#intro-ggplot2">Introduction à ggplot2</a></li>
 </ul>
 <p><code data-pkg="ggplot2" data-rdoc="ggsave">ggsave</code> (ggplot2)</p>
 <ul>
 <li><a href="#export-de-graphiques">Export de graphiques</a></li>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#intro-ggplot2">Introduction à ggplot2</a></li>
+</ul>
+<p><code data-pkg="ggplot2" data-rdoc="labs">ggtitle</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 <p><code data-pkg="dplyr">glimpse</code> (dplyr)</p>
 <ul>
@@ -12782,6 +13476,7 @@ H
 </ul>
 <p><code data-pkg="graphics">hist</code> (graphics)</p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
 </ul>
 <h2 id="index-des-fonctions_I">
@@ -12848,6 +13543,7 @@ K
 </h2>
 <p><code data-pkg="MASS">kde2d</code> (MASS)</p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
 </ul>
 <h2 id="index-des-fonctions_L">
@@ -12860,6 +13556,10 @@ L
 <p><code data-pkg="labelled">labelled</code> (labelled)</p>
 <ul>
 <li><a href="#facteurs-et-vecteurs-labellises">Facteurs et vecteurs labellisés</a></li>
+</ul>
+<p><code data-pkg="ggplot2">labs</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 <p><code data-pkg="base">length</code> (base)</p>
 <ul>
@@ -12880,10 +13580,6 @@ L
 <li><a href="#facteurs-et-vecteurs-labellises">Facteurs et vecteurs labellisés</a></li>
 <li><a href="#regression-logistique">Régression logistique</a></li>
 <li><a href="#tris">Tris</a></li>
-</ul>
-<p><code data-pkg="JLutils">lfactor</code> (JLutils)</p>
-<ul>
-<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code data-pkg="base">library</code> (base)</p>
 <ul>
@@ -12912,6 +13608,10 @@ L
 <p><code data-pkg="questionr" data-rdoc="rprop">lprop</code> (questionr)</p>
 <ul>
 <li><a href="#donnees-ponderees">Données pondérées</a></li>
+<li><a href="#statistique-bivariee">Statistique bivariée</a></li>
+</ul>
+<p><code data-pkg="questionr">ltabs</code> (questionr)</p>
+<ul>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
 </ul>
 <h2 id="index-des-fonctions_M">
@@ -13026,7 +13726,7 @@ O
 <p><code data-pkg="questionr">odds.ratio</code> (questionr)</p>
 <ul>
 <li><a href="#comparaisons-moyennes-et-proportions">Comparaisons (moyennes et proportions)</a></li>
-<li><a href="#donnees-ponderees">Données pondérées</a></li>
+<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code data-pkg="base">order</code> (base)</p>
 <ul>
@@ -13037,6 +13737,7 @@ P
 </h2>
 <p><code data-pkg="graphics">pairs</code> (graphics)</p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
 </ul>
 <p><code data-pkg="graphics">par</code> (graphics)</p>
@@ -13051,6 +13752,10 @@ P
 <p><code data-pkg="grDevices">pdf</code> (grDevices)</p>
 <ul>
 <li><a href="#export-de-graphiques">Export de graphiques</a></li>
+</ul>
+<p><code data-pkg="scales" data-rdoc="percent_format">percent</code> (scales)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 <p><code data-pkg="lubridate" data-rdoc="Period">Period</code> (lubridate)</p>
 <ul>
@@ -13105,7 +13810,7 @@ P
 </ul>
 <p><code data-pkg="survey" data-rdoc="svyglm">predict</code> (survey)</p>
 <ul>
-<li><a href="#donnees-ponderees">Données pondérées</a></li>
+<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code data-pkg="stats">princomp</code> (stats)</p>
 <ul>
@@ -13202,12 +13907,10 @@ R
 <p><code data-pkg="foreign">read.dta</code> (foreign)</p>
 <ul>
 <li><a href="#import-de-donnees">Import de données</a></li>
-<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code data-pkg="foreign">read.spss</code> (foreign)</p>
 <ul>
 <li><a href="#import-de-donnees">Import de données</a></li>
-<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code data-pkg="utils">read.table</code> (utils)</p>
 <ul>
@@ -13362,6 +14065,10 @@ S
 <ul>
 <li><a href="#intro-ggplot2">Introduction à ggplot2</a></li>
 </ul>
+<p><code data-pkg="ggplot2" data-rdoc="scale_continuous">scale_y_continuous</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
 <p><code data-pkg="ade4">scatter</code> (ade4)</p>
 <ul>
 <li><a href="#analyse-des-correspondances-multiples">Analyse des correspondances multiples (ACM)</a></li>
@@ -13453,9 +14160,20 @@ S
 <ul>
 <li><a href="#import-de-donnees">Import de données</a></li>
 </ul>
+<p><code data-pkg="ggplot2" data-rdoc="geom_bar">stat_count</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><code data-pkg="ggplot2" data-rdoc="geom_density_2d">stat_density_2d</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><code data-pkg="ggplot2">stat_ecdf</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
 <p><code data-pkg="stats">step</code> (stats)</p>
 <ul>
-<li><a href="#donnees-ponderees">Données pondérées</a></li>
 <li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code data-pkg="utils">str</code> (utils)</p>
@@ -13503,11 +14221,13 @@ S
 </ul>
 <p><code data-pkg="survey" data-rdoc="svytable">svychisq</code> (survey)</p>
 <ul>
+<li><a href="#comparaisons-moyennes-et-proportions">Comparaisons (moyennes et proportions)</a></li>
 <li><a href="#donnees-ponderees">Données pondérées</a></li>
 </ul>
 <p><code data-pkg="survey">svyciprop</code> (survey)</p>
 <ul>
 <li><a href="#donnees-ponderees">Données pondérées</a></li>
+<li><a href="#intervalles-de-confiance">Intervalles de confiance</a></li>
 </ul>
 <p><code data-pkg="survey">svydesign</code> (survey)</p>
 <ul>
@@ -13517,6 +14237,7 @@ S
 <p><code data-pkg="survey">svyglm</code> (survey)</p>
 <ul>
 <li><a href="#donnees-ponderees">Données pondérées</a></li>
+<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code data-pkg="survey">svyhist</code> (survey)</p>
 <ul>
@@ -13540,6 +14261,7 @@ S
 </ul>
 <p><code data-pkg="survey">svytable</code> (survey)</p>
 <ul>
+<li><a href="#comparaisons-moyennes-et-proportions">Comparaisons (moyennes et proportions)</a></li>
 <li><a href="#donnees-ponderees">Données pondérées</a></li>
 </ul>
 <p><code data-pkg="survey" data-rdoc="surveysummary">svytotal</code> (survey)</p>
@@ -13548,6 +14270,7 @@ S
 </ul>
 <p><code data-pkg="survey">svyttest</code> (survey)</p>
 <ul>
+<li><a href="#comparaisons-moyennes-et-proportions">Comparaisons (moyennes et proportions)</a></li>
 <li><a href="#donnees-ponderees">Données pondérées</a></li>
 </ul>
 <p><code data-pkg="survey" data-rdoc="surveysummary">svyvar</code> (survey)</p>
@@ -13590,6 +14313,10 @@ T
 <ul>
 <li><a href="#import-de-donnees">Import de données</a></li>
 </ul>
+<p><code data-pkg="ggplot2">theme</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
 <p><code data-pkg="grDevices" data-rdoc="png">tiff</code> (grDevices)</p>
 <ul>
 <li><a href="#export-de-graphiques">Export de graphiques</a></li>
@@ -13600,7 +14327,9 @@ T
 </ul>
 <p><code data-pkg="labelled">to_factor</code> (labelled)</p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#recodage">Recodage</a></li>
+<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code data-pkg="base">typeof</code> (base)</p>
 <ul>
@@ -13728,12 +14457,28 @@ W
 <h2 id="index-des-fonctions_X">
 X
 </h2>
+<p><code data-pkg="ggplot2" data-rdoc="labs">xlab</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
 <p><code data-pkg="stats">xtabs</code> (stats)</p>
 <ul>
 <li><a href="#comparaisons-moyennes-et-proportions">Comparaisons (moyennes et proportions)</a></li>
 <li><a href="#formules">Formules</a></li>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#recodage">Recodage</a></li>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
+</ul>
+<p><code data-pkg="prevR">xyz2dataframe</code> (prevR)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<h2 id="index-des-fonctions_Y">
+Y
+</h2>
+<p><code data-pkg="ggplot2" data-rdoc="labs">ylab</code> (ggplot2)</p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 </div>
 
@@ -13836,6 +14581,7 @@ B
 <li><a href="#facteurs-et-vecteurs-labellises">Facteurs et vecteurs labellisés</a></li>
 <li><a href="#formules">Formules</a></li>
 <li><a href="#fusion-de-tables">Fusion de tables</a></li>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#import-de-donnees">Import de données</a></li>
 <li><a href="#intervalles-de-confiance">Intervalles de confiance</a></li>
 <li><a href="#listes-et-tableaux-de-donnes">Listes et Tableaux de données</a></li>
@@ -13902,7 +14648,6 @@ E
 </ul>
 <p><code class="pkg">effects</code></p>
 <ul>
-<li><a href="#donnees-ponderees">Données pondérées</a></li>
 <li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <h2 id="index-des-extensions_F">
@@ -13922,14 +14667,18 @@ F
 <ul>
 <li><a href="#export-de-donnees">Export de données</a></li>
 <li><a href="#import-de-donnees">Import de données</a></li>
-<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <h2 id="index-des-extensions_G">
 G
 </h2>
 <p><code class="pkg">GGally</code></p>
 <ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#intro-ggplot2">Introduction à ggplot2</a></li>
+</ul>
+<p><code class="pkg">ggalt</code></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 <p><code class="pkg">ggdendro</code></p>
 <ul>
@@ -13938,6 +14687,10 @@ G
 <p><code class="pkg">ggfortify</code></p>
 <ul>
 <li><a href="#intro-ggplot2">Introduction à ggplot2</a></li>
+</ul>
+<p><code class="pkg">gglat</code></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
 <p><code class="pkg">ggmap</code></p>
 <ul>
@@ -13964,6 +14717,7 @@ G
 <ul>
 <li><a href="#analyse-des-correspondances-multiples">Analyse des correspondances multiples (ACM)</a></li>
 <li><a href="#comparaisons-moyennes-et-proportions">Comparaisons (moyennes et proportions)</a></li>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#intro-ggplot2">Introduction à ggplot2</a></li>
 <li><a href="#premier-travail-avec-les-donnees">Premier travail avec des données</a></li>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
@@ -13984,7 +14738,6 @@ H
 <li><a href="#facteurs-et-vecteurs-labellises">Facteurs et vecteurs labellisés</a></li>
 <li><a href="#import-de-donnees">Import de données</a></li>
 <li><a href="#recodage">Recodage</a></li>
-<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code class="pkg">Hmisc</code></p>
 <ul>
@@ -14000,7 +14753,6 @@ J
 <li><a href="#analyse-des-correspondances-multiples">Analyse des correspondances multiples (ACM)</a></li>
 <li><a href="#classification-ascendante-hierarchique">Classification ascendante hiérarchique (CAH)</a></li>
 <li><a href="#intervalles-de-confiance">Intervalles de confiance</a></li>
-<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <h2 id="index-des-extensions_L">
 L
@@ -14008,7 +14760,9 @@ L
 <p><code class="pkg">labelled</code></p>
 <ul>
 <li><a href="#facteurs-et-vecteurs-labellises">Facteurs et vecteurs labellisés</a></li>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#recodage">Recodage</a></li>
+<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code class="pkg">lattice</code></p>
 <ul>
@@ -14033,6 +14787,7 @@ M
 <p><code class="pkg">MASS</code></p>
 <ul>
 <li><a href="#analyse-des-correspondances-multiples">Analyse des correspondances multiples (ACM)</a></li>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
 </ul>
 <p><code class="pkg">memisc</code></p>
@@ -14065,9 +14820,21 @@ P
 <ul>
 <li><a href="#fusion-de-tables">Fusion de tables</a></li>
 </ul>
+<p><code class="pkg">prevR</code></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><code class="pkg">productplots</code></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
 <h2 id="index-des-extensions_Q">
 Q
 </h2>
+<p><code class="pkg">question</code></p>
+<ul>
+<li><a href="#statistique-bivariee">Statistique bivariée</a></li>
+</ul>
 <p><code class="pkg">questionr</code></p>
 <ul>
 <li><a href="#analyse-de-sequences">Analyse de séquences</a></li>
@@ -14079,6 +14846,7 @@ Q
 <li><a href="#facteurs-et-vecteurs-labellises">Facteurs et vecteurs labellisés</a></li>
 <li><a href="#formules">Formules</a></li>
 <li><a href="#fusion-de-tables">Fusion de tables</a></li>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#intervalles-de-confiance">Intervalles de confiance</a></li>
 <li><a href="#listes-et-tableaux-de-donnes">Listes et Tableaux de données</a></li>
 <li><a href="#premier-travail-avec-les-donnees">Premier travail avec des données</a></li>
@@ -14127,6 +14895,10 @@ R
 <h2 id="index-des-extensions_S">
 S
 </h2>
+<p><code class="pkg">scales</code></p>
+<ul>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
 <p><code class="pkg">sp</code></p>
 <ul>
 <li><a href="#import-de-donnees">Import de données</a></li>
@@ -14139,6 +14911,7 @@ S
 <li><a href="#comparaisons-moyennes-et-proportions">Comparaisons (moyennes et proportions)</a></li>
 <li><a href="#donnees-ponderees">Données pondérées</a></li>
 <li><a href="#formules">Formules</a></li>
+<li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#intervalles-de-confiance">Intervalles de confiance</a></li>
 <li><a href="#premier-contact">Premier contact</a></li>
 <li><a href="#premier-travail-avec-les-donnees">Premier travail avec des données</a></li>
@@ -14154,8 +14927,11 @@ S
 </ul>
 <p><code class="pkg">survey</code></p>
 <ul>
+<li><a href="#comparaisons-moyennes-et-proportions">Comparaisons (moyennes et proportions)</a></li>
 <li><a href="#definir-un-plan-d-echantillonnage-complexe">Définir un plan d’échantillonnage complexe</a></li>
 <li><a href="#donnees-ponderees">Données pondérées</a></li>
+<li><a href="#intervalles-de-confiance">Intervalles de confiance</a></li>
+<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <h2 id="index-des-extensions_T">
 T

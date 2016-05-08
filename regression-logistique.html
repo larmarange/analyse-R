@@ -225,7 +225,7 @@ $(document).ready(function () {
                   <li><a href="statistique-univariee.html">Statistique univariée</a></li>
                   <li><a href="statistique-bivariee.html">Statistique bivariée</a></li>
                   <li><a href="intro-ggplot2.html">Introduction à ggplot2</a></li>
-                  <li class="dev"><a href="graphiques-bivaries-ggplot2.html">Graphiques univariés et bivariés avec ggplot2</a></li>
+                  <li><a href="graphiques-bivaries-ggplot2.html">Graphiques univariés et bivariés avec ggplot2</a></li>
                   <li><a href="donnees-ponderees.html">Données pondérées</a></li>
                   <li class="dev"><a href="graphiques-de-donnees-ponderees.html">Graphiques de données pondérées</a></li>
   	            </ul>
@@ -233,8 +233,8 @@ $(document).ready(function () {
               <div class="col-sm-4">
   	            <ul class="multi-column-dropdown">
   		            <li class="dropdown-header">Statistiques intermédiaires</li>
-  		            <li class="dev"><a href="intervalles-de-confiance.html">Intervalles de confiance</a></li>
-                  <li class="dev"><a href="comparaisons-moyennes-et-proportions.html">Comparaisons (moyennes et proportions)</a></li>
+  		            <li><a href="intervalles-de-confiance.html">Intervalles de confiance</a></li>
+                  <li><a href="comparaisons-moyennes-et-proportions.html">Comparaisons (moyennes et proportions)</a></li>
                   <li><a href="definir-un-plan-d-echantillonnage-complexe.html">Définir un plan d'échantillonnage complexe</a></li>
                   <li class="dev"><a href="regression-lineaire.html">Régression linéaire</a></li>
                   <li><a href="regression-logistique.html">Régression logistique</a></li>
@@ -344,6 +344,7 @@ $(document).ready(function () {
 <li><a href="#regression-logistique-binaire">Régression logistique binaire</a></li>
 <li><a href="#selection-de-modeles">Sélection de modèles</a></li>
 <li><a href="#regression-logistique-multinomiale">Régression logistique multinomiale</a></li>
+<li><a href="#survey">Données pondérées et l’extension survey</a></li>
 </ul>
 </div>
 
@@ -391,9 +392,9 @@ NA       0  0   NA</code></pre>
 Femme 1101 55   55
 Homme  899 45   45
 NA       0  0   NA</code></pre>
-<div class="note">
-<p>Si l’on a importé nos données depuis <strong>SPSS</strong> ou <strong>Stata</strong> avec l’extension <code class="pkg">haven</code>, les variables codées numériquement et disposant d’étiquettes sont conservées stockées sous forme de <dfn lang="en">labelled vector</dfn>, c’est-à-dire d’un vecteur numérique ayant des attributs indiquant les étiquettes des modalités. Il importera donc de convertir notre variable en facteur avant d’effectuer notre analyse. La fonction <code data-pkg="haven" data-rdoc="labelled">as_factor</code> créera automatiquement un facteur à partir des étiquettes.</p>
-<p>Une alternative consiste à utiliser la fonction <code data-pkg="JLutils">lfactor</code> de l’extension <code class="pkg">JLutils</code> qui fonctionne également si les données ont été importées avec <code data-pkg="foreign">read.spss</code> ou <code data-pkg="foreign">read.dta</code> de l’extension <code class="pkg">foreign</code> sans avoir converti les variables labelisées en facteurs.</p>
+<div class="important">
+<p><strong>Données labellisées</strong></p>
+<p>Si l’on utilise des données labellisées (voir le <a href="facteurs-et-vecteurs-labellises.html#labelled">chapitre dédié</a>), nos variables catégorielles seront stockées sous la forme d’un vecteur numérique avec des étiquettes. Il sera donc nécessaire de convertir ces variables en facteurs, tout simplement avec la fonction <code data-pkg="labelled">to_factor</code> de l’extension <code class="pkg">labelled</code> qui pourra utiliser les étiquettes de valeurs comme modalités du facteur.</p>
 </div>
 <p>Les variables <em>age</em> et <em>heures.tv</em> sont des variables quantitatives. Il importe de vérifier qu’elles sont bien enregistrées en tant que variables numériques. En effet, il arrive parfois que dans le fichier source les variables quantitatives soient renseignées sous forme de valeur textuelle et non sous forme numérique.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(d$age)</code></pre></div>
@@ -1110,12 +1111,95 @@ Signif. codes:
   Satisfaction               45
   Insatisfaction             23</code></pre>
 </div>
+<div id="survey" class="section level2">
+<h2>Données pondérées et l’extension survey</h2>
+<p>Lorsque l’on utilise des données pondérées, on aura recours à l’extension <code class="pkg">survey</code><a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>.</p>
+<p>Préparons des données d’exemple :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(survey)
+dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~<span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> ~poids)</code></pre></div>
+<p>L’extension <code class="pkg">survey</code> fournit une fonction <code data-pkg="survey">svyglm</code> permettant de calculer un modèle statistique tout en prenant en compte le plan d’échantillonnage spécifié. La syntaxe de <code data-pkg="survey">svyglm</code> est proche de celle de <code data-pkg="stats">glm</code>. Cependant, le cadre d’une régression logistique, il est nécessaire d’utiliser <code>family = quasibinomial()</code> afin d’éviter un message d’erreur indiquant un nombre non entier de succès :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>age +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, 
+  dw, <span class="dt">family =</span> <span class="kw">binomial</span>())</code></pre></div>
+<pre><code>Warning: non-integer #successes in a binomial glm!</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>age +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, 
+  dw, <span class="dt">family =</span> <span class="kw">quasibinomial</span>())
+reg</code></pre></div>
+<pre><code>Independent Sampling design (with replacement)
+svydesign(ids = ~1, data = d, weights = ~poids)
+
+Call:  svyglm(formula = sport ~ sexe + age + relig + heures.tv, dw, 
+    family = quasibinomial())
+
+Coefficients:
+                     (Intercept)  
+                         1.53590  
+                       sexeHomme  
+                         0.36526  
+                             age  
+                        -0.04127  
+     religPratiquant occasionnel  
+                         0.05577  
+ religAppartenance sans pratique  
+                         0.16367  
+religNi croyance ni appartenance  
+                         0.03988  
+                      religRejet  
+                        -0.14862  
+                religNSP ou NVPR  
+                        -0.22682  
+                       heures.tv  
+                        -0.18204  
+
+Degrees of Freedom: 1994 Total (i.e. Null);  1986 Residual
+  (5 observations deleted due to missingness)
+Null Deviance:      2672 
+Residual Deviance: 2378     AIC: NA</code></pre>
+<p>Le résultat obtenu est similaire à celui de <code data-pkg="stats">glm</code> et l’on peut utiliser sans problème les fonctions <code data-pkg="survey" data-rdoc="svyglm">coef</code>, <code data-pkg="survey" data-rdoc="confint.glm">confint</code>, <code data-pkg="questionr">odds.ratio</code> ou <code data-pkg="survey" data-rdoc="svyglm">predict</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">odds.ratio</span>(reg)</code></pre></div>
+<pre><code>                                    OR 2.5 %
+(Intercept)                      4.646 2.578
+sexeHomme                        1.441 1.121
+age                              0.960 0.952
+religPratiquant occasionnel      1.057 0.659
+religAppartenance sans pratique  1.178 0.759
+religNi croyance ni appartenance 1.041 0.646
+religRejet                       0.862 0.428
+religNSP ou NVPR                 0.797 0.325
+heures.tv                        0.834 0.770
+                                 97.5 %         p
+(Intercept)                       8.373 3.522e-07
+sexeHomme                         1.851  0.004325
+age                               0.967 &lt; 2.2e-16
+religPratiquant occasionnel       1.696  0.817180
+religAppartenance sans pratique   1.827  0.465321
+religNi croyance ni appartenance  1.676  0.869658
+religRejet                        1.738  0.677858
+religNSP ou NVPR                  1.956  0.620504
+heures.tv                         0.902 6.786e-06
+                                    
+(Intercept)                      ***
+sexeHomme                        ** 
+age                              ***
+religPratiquant occasionnel         
+religAppartenance sans pratique     
+religNi croyance ni appartenance    
+religRejet                          
+religNSP ou NVPR                    
+heures.tv                        ***
+---
+Signif. codes:  
+0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>Dans ses dernières versions, <code class="pkg">survey</code> fournit une méthode <code data-pkg="survey" data-rdoc="anova.svyglm">AIC.svyglm</code> permettant d’estimer un <dfn>AIC</dfn> sur un modèle calculé avec <code data-pkg="survey">svyglm</code>. Il est dès lors possible d’utiliser la fonction <code data-pkg="stats">step</code> pour réaliser une <dfn>sélection descendante pas à pas</dfn><dfn data-index="pas à pas, sélection descendante"></dfn>.</p>
+<p>L’extension <code class="pkg">effects</code> n’est quant à elle pas compatible avec <code data-pkg="survey">svyglm</code><a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a>.</p>
+</div>
 <div class="footnotes">
 <hr />
 <ol>
 <li id="fn1"><p>Pour plus de détails, voir <a href="http://www.spc.univ-lyon1.fr/polycop/odds%20ratio.htm">http://www.spc.univ-lyon1.fr/polycop/odds%20ratio.htm</a>.<a href="#fnref1">↩</a></p></li>
 <li id="fn2"><p>Il existe également des méthodes de <em>sélection ascendante pas à pas</em>, mais nous les aborderons pas ici.<a href="#fnref2">↩</a></p></li>
 <li id="fn3"><p>Une alternative est d’avoir recours à l’extension <code class="pkg">mlogit</code> que nous n’aborderons pas ici. Voir <a href="http://www.ats.ucla.edu/stat/r/dae/mlogit.htm" class="uri">http://www.ats.ucla.edu/stat/r/dae/mlogit.htm</a> (en anglais) pour plus de détails.<a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>Voir le chapitre dédié aux <a href="donnees-ponderees.html#survey">données pondérées</a>.<a href="#fnref4">↩</a></p></li>
+<li id="fn5"><p>Compatibilité qui pourra éventuellement être introduite dans une future version de l’extension.<a href="#fnref5">↩</a></p></li>
 </ol>
 </div>
 

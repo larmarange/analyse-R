@@ -225,7 +225,7 @@ $(document).ready(function () {
                   <li><a href="statistique-univariee.html">Statistique univariée</a></li>
                   <li><a href="statistique-bivariee.html">Statistique bivariée</a></li>
                   <li><a href="intro-ggplot2.html">Introduction à ggplot2</a></li>
-                  <li class="dev"><a href="graphiques-bivaries-ggplot2.html">Graphiques univariés et bivariés avec ggplot2</a></li>
+                  <li><a href="graphiques-bivaries-ggplot2.html">Graphiques univariés et bivariés avec ggplot2</a></li>
                   <li><a href="donnees-ponderees.html">Données pondérées</a></li>
                   <li class="dev"><a href="graphiques-de-donnees-ponderees.html">Graphiques de données pondérées</a></li>
   	            </ul>
@@ -233,8 +233,8 @@ $(document).ready(function () {
               <div class="col-sm-4">
   	            <ul class="multi-column-dropdown">
   		            <li class="dropdown-header">Statistiques intermédiaires</li>
-  		            <li class="dev"><a href="intervalles-de-confiance.html">Intervalles de confiance</a></li>
-                  <li class="dev"><a href="comparaisons-moyennes-et-proportions.html">Comparaisons (moyennes et proportions)</a></li>
+  		            <li><a href="intervalles-de-confiance.html">Intervalles de confiance</a></li>
+                  <li><a href="comparaisons-moyennes-et-proportions.html">Comparaisons (moyennes et proportions)</a></li>
                   <li><a href="definir-un-plan-d-echantillonnage-complexe.html">Définir un plan d'échantillonnage complexe</a></li>
                   <li class="dev"><a href="regression-lineaire.html">Régression linéaire</a></li>
                   <li><a href="regression-logistique.html">Régression logistique</a></li>
@@ -348,6 +348,7 @@ $(document).ready(function () {
 </ul></li>
 <li><a href="#deux-variables-qualitatives">Deux variables qualitatives</a><ul>
 <li><a href="#tableau-croise">Tableau croisé</a></li>
+<li><a href="#pourcentages-en-ligne-et-en-colonne">Pourcentages en ligne et en colonne</a></li>
 <li><a href="#representation-graphique">Représentation graphique</a></li>
 </ul></li>
 </ul>
@@ -571,6 +572,32 @@ sport Non Oui
   Non 358 389
   Oui 132 222</code></pre>
 <p>On remarquera que le rendu par défaut est en général plus lisible car le nom des variables est indiqué, permettant de savoir quelle variable est affichée en colonnes et laquelle en lignes.</p>
+<p>Si l’on utilise des <a href="facteurs-et-vecteurs-labellises.html">données labellisées</a>, la fonction <code data-pkg="stats">xtabs</code> ne prendra pas en compte les étiquettes de valeur.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(fecondite)
+<span class="kw">xtabs</span>(~educ +<span class="st"> </span>region, femmes)</code></pre></div>
+<pre><code>    region
+educ   1   2   3   4
+   0 387 213 282 256
+   1 179  53  86 142
+   2 123  57  37 131
+   3  18   1   2  33</code></pre>
+<p>On pourra alors utiliser la fonction <code data-pkg="questionr">ltabs</code> de l’extension <code class="pkg">question</code>, qui fonctionne exactement comme <code data-pkg="stats">xtabs</code>, à ceci près qu’elle prendra en compte les étiquettes de variable et de valeur quand elles existent.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ltabs</span>(~educ +<span class="st"> </span>region, femmes)</code></pre></div>
+<pre><code>                        region: Région de résidence
+educ: Niveau d&#39;éducation [1] Nord [2] Est [3] Sud
+          [0] aucun           387     213     282
+          [1] primaire        179      53      86
+          [2] secondaire      123      57      37
+          [3] supérieur        18       1       2
+                        region: Région de résidence
+educ: Niveau d&#39;éducation [4] Ouest
+          [0] aucun            256
+          [1] primaire         142
+          [2] secondaire       131
+          [3] supérieur         33</code></pre>
+</div>
+<div id="pourcentages-en-ligne-et-en-colonne" class="section level3">
+<h3>Pourcentages en ligne et en colonne</h3>
 <p>On n’a cependant que les effectifs, ce qui rend difficile les comparaisons. L’extension <code class="pkg">questionr</code> fournit des fonctions permettant de calculer facilement les pourcentages lignes, colonnes et totaux d’un tableau croisé.</p>
 <p>Les pourcentages lignes s’obtiennent avec la fonction <code data-pkg="questionr" data-rdoc="rprop">lprop</code><a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>. Celle-ci s’applique au tableau croisé généré par <code data-pkg="base">table</code> ou <code data-pkg="stats">xtabs</code>  :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">table</span>(d$sport, d$qualreg)
@@ -655,7 +682,7 @@ sport   Ouvrier Ensemble
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mosaicplot</span>(qualreg ~<span class="st"> </span>sport, <span class="dt">data =</span> d, <span class="dt">shade =</span> <span class="ot">TRUE</span>, 
   <span class="dt">main =</span> <span class="st">&quot;Graphe en mosaïque&quot;</span>)</code></pre></div>
-<img src="graphs/statistique-bivariee/unnamed-chunk-24-1.png" title="" alt="" width="1050" />
+<img src="graphs/statistique-bivariee/unnamed-chunk-26-1.png" title="" alt="" width="1050" />
 <figcaption>
 Exemple de graphe en mosaïque
 </figcaption>
@@ -667,12 +694,12 @@ Exemple de graphe en mosaïque
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(vcd)
 <span class="kw">mosaic</span>(~sport +<span class="st"> </span>cuisine +<span class="st"> </span>sexe, d, <span class="dt">highlighting =</span> <span class="st">&quot;sexe&quot;</span>, 
   <span class="dt">main =</span> <span class="st">&quot;Exemple de graphique en mosaïque à 3 dimensions&quot;</span>)</code></pre></div>
-<p><img src="graphs/statistique-bivariee/unnamed-chunk-25-1.png" title="" alt="" width="1050" /></p>
+<p><img src="graphs/statistique-bivariee/unnamed-chunk-27-1.png" title="" alt="" width="1050" /></p>
 </div>
 <p>Lorsque l’on s’intéresse principalement aux variations d’une variable selon une autre, par exemple ici à la pratique du sport selon le niveau de qualification, il peut être intéressant de présenter les pourcentages en colonne sous la forme de <dfn data-index="barres cumulées, graphique">barres cumulées</dfn>.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">barplot</span>(<span class="kw">cprop</span>(tab, <span class="dt">total =</span> <span class="ot">FALSE</span>), <span class="dt">main =</span> <span class="st">&quot;Pratique du sport selon le niveau de qualification&quot;</span>)</code></pre></div>
-<img src="graphs/statistique-bivariee/unnamed-chunk-26-1.png" title="" alt="" width="1050" />
+<img src="graphs/statistique-bivariee/unnamed-chunk-28-1.png" title="" alt="" width="1050" />
 <figcaption>
 Exemple de barres cumulées
 </figcaption>

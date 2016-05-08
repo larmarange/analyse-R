@@ -225,7 +225,7 @@ $(document).ready(function () {
                   <li><a href="statistique-univariee.html">Statistique univariée</a></li>
                   <li><a href="statistique-bivariee.html">Statistique bivariée</a></li>
                   <li><a href="intro-ggplot2.html">Introduction à ggplot2</a></li>
-                  <li class="dev"><a href="graphiques-bivaries-ggplot2.html">Graphiques univariés et bivariés avec ggplot2</a></li>
+                  <li><a href="graphiques-bivaries-ggplot2.html">Graphiques univariés et bivariés avec ggplot2</a></li>
                   <li><a href="donnees-ponderees.html">Données pondérées</a></li>
                   <li class="dev"><a href="graphiques-de-donnees-ponderees.html">Graphiques de données pondérées</a></li>
   	            </ul>
@@ -233,8 +233,8 @@ $(document).ready(function () {
               <div class="col-sm-4">
   	            <ul class="multi-column-dropdown">
   		            <li class="dropdown-header">Statistiques intermédiaires</li>
-  		            <li class="dev"><a href="intervalles-de-confiance.html">Intervalles de confiance</a></li>
-                  <li class="dev"><a href="comparaisons-moyennes-et-proportions.html">Comparaisons (moyennes et proportions)</a></li>
+  		            <li><a href="intervalles-de-confiance.html">Intervalles de confiance</a></li>
+                  <li><a href="comparaisons-moyennes-et-proportions.html">Comparaisons (moyennes et proportions)</a></li>
                   <li><a href="definir-un-plan-d-echantillonnage-complexe.html">Définir un plan d'échantillonnage complexe</a></li>
                   <li class="dev"><a href="regression-lineaire.html">Régression linéaire</a></li>
                   <li><a href="regression-logistique.html">Régression logistique</a></li>
@@ -343,6 +343,7 @@ $(document).ready(function () {
 <li><a href="#comp_moyennes">Comparaison de moyennes</a></li>
 <li><a href="#comp_prop">Comparaison de proportions</a></li>
 <li><a href="#-et-derives">χ² et dérivés</a></li>
+<li><a href="#survey">Données pondérées et l’extension survey</a></li>
 </ul>
 </div>
 
@@ -538,6 +539,52 @@ odds ratio
   2.903253 </code></pre>
 </div>
 </div>
+<div id="survey" class="section level2">
+<h2>Données pondérées et l’extension survey</h2>
+<p>Lorsque l’on utilise des données pondérées, on aura recours à l’extension <code class="pkg">survey</code><a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a>.</p>
+<p>Préparons des données d’exemple :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(survey)
+dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~<span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> ~poids)</code></pre></div>
+<p>Pour comparer deux moyennes à l’aide d’un test <em>t</em> on aura recours à <code data-pkg="survey">svyttest</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svyttest</span>(age ~<span class="st"> </span>sexe, dw)</code></pre></div>
+<pre><code>
+    Design-based t-test
+
+data:  age ~ sexe
+t = 2.0404, df = 1998, p-value = 0.04144
+alternative hypothesis: true difference in mean is not equal to 0
+sample estimates:
+difference in mean 
+          2.141129 </code></pre>
+<p>On ne peut pas utiliser <code data-pkg="stats">chisq.test</code> directement sur un tableau généré par <code data-pkg="survey">svytable</code>. Les effectifs étant extrapolés à partir de la pondération, les résultats du test seraient complètement faussés. Si on veut faire un test du χ² sur un tableau croisé pondéré, il faut utiliser <code data-pkg="survey" data-rdoc="svytable">svychisq</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rprop</span>(<span class="kw">svytable</span>(~sexe +<span class="st"> </span>clso, dw))</code></pre></div>
+<pre><code>          clso
+sexe       Oui   Non   Ne sait pas Total
+  Homme     51.6  47.0   1.4       100.0
+  Femme     43.9  54.8   1.3       100.0
+  Ensemble  47.5  51.1   1.4       100.0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svychisq</span>(~sexe +<span class="st"> </span>clso, dw)</code></pre></div>
+<pre><code>
+    Pearson&#39;s X^2: Rao &amp; Scott adjustment
+
+data:  svychisq(~sexe + clso, dw)
+F = 3.3331, ndf = 1.9734, ddf = 3944.9000,
+p-value = 0.03641</code></pre>
+<p>L’extension <code class="pkg">survey</code> ne propose pas de version adaptée du test exact de Fisher. Pour comparer deux proportions, on aura donc recours au test du χ² :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rprop</span>(<span class="kw">svytable</span>(~lecture.bd +<span class="st"> </span>sport, dw))</code></pre></div>
+<pre><code>          sport
+lecture.bd Non   Oui   Total
+  Non       61.0  39.0 100.0
+  Oui       46.8  53.2 100.0
+  Ensemble  60.7  39.3 100.0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">svychisq</span>(~lecture.bd +<span class="st"> </span>sport, dw)</code></pre></div>
+<pre><code>
+    Pearson&#39;s X^2: Rao &amp; Scott adjustment
+
+data:  svychisq(~lecture.bd + sport, dw)
+F = 2.6213, ndf = 1, ddf = 1999, p-value =
+0.1056</code></pre>
+</div>
 <div class="footnotes">
 <hr />
 <ol>
@@ -546,6 +593,7 @@ odds ratio
 <li id="fn3"><p>Ce test peut également fournir un intervalle de confiance avec l’option <code>conf.int=TRUE</code>.<a href="#fnref3">↩</a></p></li>
 <li id="fn4"><p>On ne donnera pas plus d’indications sur le test du χ² ici. Les personnes désirant une présentation plus détaillée pourront se reporter (attention, séance d’autopromotion !) à la page suivante : <a href="http://alea.fr.eu.org/pages/khi2" class="uri">http://alea.fr.eu.org/pages/khi2</a>.<a href="#fnref4">↩</a></p></li>
 <li id="fn5"><p>On peut aussi appliquer directement le test en spécifiant les deux variables à croiser via <code>chisq.test(d$qualreg, d$sport)</code>.<a href="#fnref5">↩</a></p></li>
+<li id="fn6"><p>Voir le chapitre dédié aux <a href="donnees-ponderees.html#survey">données pondérées</a>.<a href="#fnref6">↩</a></p></li>
 </ol>
 </div>
 
