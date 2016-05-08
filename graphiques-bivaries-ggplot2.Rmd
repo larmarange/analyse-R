@@ -6,8 +6,528 @@ title: "Graphiques univariés et bivariés avec ggplot2"
 source("options_communes.R")
 ```
 
-<div class="important">
-Ce chapitre est en cours d'écriture.
+
+Après avoir introduit l'extension `ggplot2`{.pkg} au travers d'une [étude de cas](intro-ggplot2.html), nous reprenons ici les graphiques produits dans les chapitres [statistique univariée](statistique-univariee.html) et [statistique bivariée](statistique-bivariee.html) et montrons comment les réaliser avec `ggplot2`{.pkg}.
+
+## Retour sur les bases de ggplot2
+
+L'extension `ggplot2`{.pkg} nécessite que les données du graphique soient sous la forme d'un tableau de données (*data.frame*) avec une ligne par observation et les différentes valeurs à représenter sous forme de variables du tableau.
+
+Tous les graphiques avec `ggplot2`{.pkg} suivent une même logique. En **premier** lieu, on appelera la fonction `ggplot`{data-pkg="ggplot2"} en lui passant en paramètre le fichier de données. 
+
+`ggplot2`{.pkg} nomme *esthétiques* les différentes propriétés visuelles d'un graphique, à savoir l'axe des x (`x`), celui des y (`y`), la couleur des lignes (`colour`), celle de remplissage des polygones (`fill`), le type de lignes (`linetype`), etc. Une représentation graphique consiste donc à représenter chacune de nos variables d'intérêt selon une esthétique donnée. En **second** lieu, on appelera donc la fonction `aes`{data-pkg="ggplot2"} pour indiquer la correspondance entre les variables de notre fichier de données et les esthétiques du graphique.
+
+A minima, il est nécessaire d'indiquer en **troisième** lieu une *géométrie*, autrement dit la manière dont les éléments seront représentés visuellement. À chaque géométrie corresponds une fonction commençant par `geom_`, par exemple `geom_point`{data-pkg="ggplot2"} pour dessiner des points, `geom_line`{data-pkg="ggplot2" data-rdoc="geom_path"} pour des lignes, `geom_bar`{data-pkg="ggplot2"} pour des barres ou encore `geom_area`{data-pkg="ggplot2" data-rdoc="geom_ribbon"} pour des aires. Il existe de nombreuses géométries différentes, chacune prenant en compte certaines esthétiques, certaines étant requises pour cette géométrie et d'autres optionnelles. La liste des esthétiques prises en compte par chaque géométrie en indiquée dans l'aide en ligne de cette dernière.
+
+Pour un document récapitulant les principales géométries et options de `ggplot2`{.pkg}, on pourra se référer à la *Cheat Sheet* officielle disponible à https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf. Une version en français est disponible à l'adresse http://thinkr.fr/pdf/ggplot2-french-cheatsheet.pdf.
+
+`ggplot2`{.pkg} reposant sur une syntaxe additive, la syntaxe de base d'un graphique sera donc de la forme :
+
+```{r, eval=FALSE}
+ggplot(data) + aes(x = Var1, fill = Var2) + geom_bar()
+```
+
+De manière alternative, on peut également indiquer la correspondance entre variables et esthétiques comme deuxième argument de la fonction `ggplot`{data-pkg="ggplot2"}. Les deux syntaxes sont équivalentes.
+
+```{r, eval=FALSE}
+ggplot(data, aes(x = Var1, fill = Var2)) + geom_bar()
+```
+
+Il est ensuite possible de personnaliser de nombreux éléments d'un graphique et notamment :
+
+- les *étiquettes* ou *labs* (titre, axes, légendes) avec `ggtitle`{data-pkg="ggplot2" data-rdoc="labs"}, `xlab`{data-pkg="ggplot2" data-rdoc="labs"}, `ylab`{data-pkg="ggplot2" data-rdoc="labs"} ou encore la fonction plus générique `labs`{data-pkg="ggplot2"} ;
+- les *échelles* (*scales*) des différentes esthétiques avec les fonctions commençant par `scale_` ;
+- les *facettes* (*facets*) avec les fonctions commençant par `facet_` ;
+- le système de *coordonnées* avec les fonctions commençant par `coord_` ;
+- la *légende* (*guides*) avec les fonctions commençant par `guide_` ;
+- le *thème* du graphiques (mise en forme des différents éléments) avec `theme`{data-pkg="ggplot2"}.
+
+Ces différents éléments seront abordés plus en détails dans le [chapitre avancé sur ggplot2](ggplot2-la-grammaire-des-graphiques.html). Dans la suite de ce chapitre, nous nous focaliserons sur les graphiques et options de base.
+
+Préparons les données des exemples et chargeons `ggplot2`{.pkg} :
+
+```{r}
+library(questionr)
+library(ggplot2)
+data("hdv2003")
+d <- hdv2003
+```
+
+## Histogramme
+
+Pour un <dfn>histogramme</dfn>, on aura recours à la géométrie `geom_histogram`{data-pkg="ggplot2" data-rdoc="geom_freqpoly"}. Si l'on a une observation par ligne dans le fichier de données, l'histogramme s'obtient simplement en associant la variable d'intérêt à l'esthétique `x`. Notez la syntaxe de `aes`{data-pkg="ggplot2"} : le nom des variables est indiqué directement, sans guillemets.
+
+<figure>
+```{r, message=FALSE, warning=FALSE}
+ggplot(d) +
+  aes(x = heures.tv) +
+  geom_histogram() +
+  ggtitle("Nombres d'heures passées devant la télévision") +
+  xlab("Heures") +
+  ylab("Effectifs")
+```
+<figcaption>Un histogramme</figcaption>
+</figure>
+
+On peut personnaliser la couleur de remplissage des rectangles en indiduant une valeur fixe pour l'esthétique `fill` dans l'appel de `geom_histogram`{data-pkg="ggplot2" data-rdoc="geom_freqpoly"} (et non via la fonction `aes`{data-pkg="ggplot2"} puisqu'il ne s'agit pas d'une variable du tableau de données). L'esthétique `colour` permet de spécifier la couleur du trait des rectangles. Enfin, le paramètre `binwidth` permet de spécifier la largeur des barres.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = heures.tv) +
+  geom_histogram(fill ="orange", colour = "black", binwidth = 2) +
+  ggtitle("Nombres d'heures passées devant la télévision") +
+  xlab("Heures") +
+  ylab("Effectifs")
+```
+<figcaption>Un histogramme en couleur</figcaption>
+</figure>
+
+Comme avec la fonction `hist`{data-pkg="graphics"}, on peut personnaliser les classes avec l'argument `breaks`.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = heures.tv) +
+  geom_histogram(fill ="orange", colour = "black", breaks = c(0, 1, 4, 9, 12)) +
+  ggtitle("Nombres d'heures passées devant la télévision") +
+  xlab("Heures") +
+  ylab("Effectifs")
+```
+<figcaption>Un histogramme avec classes personnalisées</figcaption>
+</figure>
+
+On peut ajouter à l'axe des x des tirets représentant la position des observations à l'aide de `geom_rug`{data-pkg="ggplot2"}.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = heures.tv) +
+  geom_histogram(fill ="orange", colour = "black", binwidth = 2) +
+  geom_rug() +
+  ggtitle("Nombres d'heures passées devant la télévision") +
+  xlab("Heures") +
+  ylab("Effectifs")
+```
+<figcaption>Un histogramme avec geom_rug()</figcaption>
+</figure>
+
+## Densité et répartition cumulée
+
+Une <dfn>courbe de densité</dfn><dfn data-index="densité, courbe de"></dfn> s'obtient aisément avec la géométrie `geom_density`{data-pkg="ggplot2"}.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = heures.tv) +
+  geom_density() +
+  ggtitle("Nombres d'heures passées devant la télévision") +
+  xlab("Heures") +
+  ylab("Densité")
+```
+<figcaption>Courbe de densité</figcaption>
+</figure>
+
+On peut personnaliser la fenêtre d'ajustement avec l'argument `adjust`.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = heures.tv) +
+  geom_density(adjust = 1.5) +
+  ggtitle("Nombres d'heures passées devant la télévision") +
+  xlab("Heures") +
+  ylab("Densité")
+```
+<figcaption>Courbe de densité avec fenêtre d'ajustement personnalisée</figcaption>
+</figure>
+
+Pour la <dfn>fonction de répartition empirique</dfn><dfn data-index="répartition empirique, fonction"></dfn> ou <dfn lang="en">empirical cumulative distribution function</dfn> en anglais, on utilisera la statistique `stat_ecdf`{data-pkg="ggplot2"}. Au passage, on notera qu'il est possible d'ajouter une *couche* à un graphique en appelant soit une *géométrie*, soit une *statistique*.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = heures.tv) +
+  stat_ecdf() +
+  xlab("Heures") +
+  ylab("Fonction de répartition cumulée")
+```
+<figcaption>Fonction de répartition empirique cumulée</figcaption>
+</figure>
+
+## Boîtes à moustaches (et représentations associées)
+
+La géométrie `geom_boxplot`{data-pkg="ggplot2"} nécessite *a minima* deux esthétiques : `x` et `y`. Pour représenter une variable quantitative selon une variable catégorielle, on fera donc :
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = hard.rock, y = age) +
+  geom_boxplot() +
+  xlab("Ecoute du hard rock") +
+  ylab("Âge") +
+  ggtitle("Répartition par âge selon que l'on écoute du hard rock ou non")
+```
+<figcaption>Boîtes à moustache</figcaption>
+</figure>
+
+Lorsque l'on souhaite représenter une seule variable quantitative (statistique univariée), on passera alors une constante à l'esthétique `x`.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = "Nombre d'heures passées devant la télévision", y = heures.tv) +
+  geom_boxplot() +
+  xlab("") +
+  ylab("Heures quotidiennes")
+```
+<figcaption>Boîte à moustache (une seule variable)</figcaption>
+</figure>
+
+Une représentation alternative aux <dfn data-index="boîte à moustaches">boîtes à moustaches</dfn><dfn data-index="moustaches, boîte"></dfn> ou  <dfn data-index="boxplot" lang="en">boxplots</dfn> sont les <dfn data-index="graphique en violon">graphiques en violon</dfn><dfn data-index="violon, graphique en"</dfn> ou <dfn data-index="violin plot" lang="en">violin plots</dfn>, qui représentent la densité de distribution. Ils s'obtiennent avec la géométrie `geom_violin`{data-pkg="ggplot2"}.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = hard.rock, y = age) +
+  geom_violin() +
+  xlab("Ecoute du hard rock") +
+  ylab("Âge") +
+  ggtitle("Répartition par âge selon que l'on écoute du hard rock ou non")
+```
+<figcaption>Graphiques en violon ou "violin plot"</figcaption>
+</figure>
+
+## Diagramme en bâtons
+
+Un <dfn>diagramme en bâtons</dfn><dfn data-index="bâtons, diagramme en"></dfn> s'obtient avec la géométrie `geom_bar`{data-pkg="ggplot2"}.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = freres.soeurs) +
+  geom_bar() +
+  xlab("Nombre de frères et soeurs") +
+  ylab("Effectifs")
+```
+<figcaption>Diagramme en bâtons</figcaption>
+</figure>
+
+La largeur des barres par défaut est de 0,9. Dès lors, le graphique ressemble plus à un histogramme qu'à un diagramme en bâtons. On peut personnaliser ce paramètre avec l'argument `width`.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = freres.soeurs) +
+  geom_bar(width = .2) +
+  xlab("Nombre de frères et soeurs") +
+  ylab("Effectifs")
+```
+<figcaption>Diagramme en bâtons avec ajustement de la largeur des barres</figcaption>
+</figure>
+
+## Diagramme de Cleveland
+
+Pour un <dfn>diagramme de Cleveland</dfn><dfn data-index="Cleveland, diagramme"></dfn>, on aura recours à la géométrie `geom_point`{data-pkg="ggplot2"}. Cependant, il faudra lui préciser que l'on souhaite utiliser la statistique `stat_count`{data-pkg="ggplot2" data-rdoc="geom_bar"} afin que les effectifs soient calculés pour chaque valeur de `x`.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = clso) +
+  geom_point(stat = "count") +
+  xlab("Sentiment d'appartenance à une classe sociale") +
+  ylab("Effectifs")
+```
+<figcaption>Diagramme de Cleveland</figcaption>
+</figure>
+
+Une alternative, notamment si l'on souhaite un diagramme de Cleveland ordonné, consiste à calculer les effectifs de chaque modalité en amont. `ggplot2`{.pkg} ayant besoin d'un tableau de données en entrée, nous calculerons notre tableau de fréquences avec `xtabs`{data-pkg="stats"} et le transformerons en tableau de données avec `as.data.frame`{data-pkg="base" data-rdoc="table"}. Pour que les niveaux de qualifaction soient représentés selon leur effectif, il est nécessaire d'ordonner les étiquettes du facteur de manière adéquate. Enfin, nous utiliserons `coord_flip`{data-pkg="ggplot2"} pour intervertir l'axe des `x` et celui des `y`.
+
+```{r, warning=FALSE}
+tab <- as.data.frame(xtabs(~qualif, d))
+tab$qualif <- factor(tab$qualif, levels = tab$qualif[order(tab$Freq)])
+str(tab)
+ggplot(tab) +
+  aes(x = qualif, y = Freq) +
+  geom_point() +
+  xlab("Niveau de qualification") +
+  ylab("Effectifs") +
+  coord_flip()
+```
+<figcaption>Diagramme de Cleveland ordonné</figcaption>
+</figure>
+
+<div class="note">
+L'extension `ggalt`{.pkg} propose quelques géométries supplémentaires pour `ggplot2`{.pkg}. L'une d'elles dite <q>en sucettes</q> (*lollipop*) propose une représentation graphique au croisement entre un diagramme en bâtons et un diagramme de Cleveland. 
+
+Pour cela, il est d'abord nécessaire d'installer la version de développement de `gglat`{.pkg} à l'aide de la commande suivante :
+
+```{r, eval=FALSE}
+devtools::install_github("hrbrmstr/ggalt")
+```
+
+<figure>
+```{r, warning=FALSE}
+library(ggalt)
+ggplot(tab) +
+  aes(x = qualif, y = Freq) +
+  geom_lollipop() +
+  xlab("Niveau de qualification") +
+  ylab("Effectifs") +
+  coord_flip()
+```
+<figcaption>Diagramme en "sucettes" (lollipop)</figcaption>
+</figure>
 </div>
 
-Après avoir introduit l'extension `ggplot2`{.pkg} au travers d'une [étude de cas](intro-ggplot2.html), nous reprenons ici les graphiques produits dans les chapitres [statistique univariée](statistique-univariee.html) et [statistique bivariée](statistique-bivariee.html) et montront comment les réaliser avec `ggplot2`{.pkg}.
+## Nuage de points
+
+Un <dfn>nuage de points</dfn><dfn data-index="points, nuage de"></dfn> se représente facilement avec la géométrie `geom_point`{data-pkg="ggplot2"}.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = age, y = heures.tv) +
+  geom_point() +
+  xlab("Âge") +
+  ylab("Heures quotidiennes de télévision")
+```
+<figcaption>Nuage de points</figcaption>
+</figure>
+
+On pourra personnaliser la couleur des points avec `colour` et le niveau de transparence avec `alpha`.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = age, y = heures.tv) +
+  geom_point(colour = "red", alpha = .2) +
+  xlab("Âge") +
+  ylab("Heures quotidiennes de télévision")
+```
+<figcaption>Nuage de points semi-transparents</figcaption>
+</figure>
+
+Pour représenter une troisième variable quantitative, on pourra faire varier la taille des points avec l'esthétique `size`. Pour une variable qualitative, on pourra faire varier la couleur avec `colour`. Pour faciliter la lecture, on positionnera la légende en bas du graphique, en modifiant l'argument `legend.position` via la fonction `theme`{data-pkg="ggplot2"}.
+
+<figure>
+```{r, warning=FALSE}
+data("rp99")
+rp99$prop.proprio <- 0
+rp99[rp99$proprio >= mean(rp99$proprio), ]$prop.proprio <- 1
+rp99$prop.proprio <- factor(rp99$prop.proprio, 0:1, c("non", "oui"))
+ggplot(rp99) +
+  aes(x = dipl.aucun, y = tx.chom, size = pop.tot, colour = prop.proprio) +
+  geom_point(alpha = .5) +
+  xlab("% sans diplôme") +
+  ylab("Taux de chômage") +
+  labs(size = "Population totale", colour = "Proportion de propriétaires supérieure à la moyenne") +
+  theme(legend.position = "bottom")
+```
+<figcaption>Nuage de points proportionnels</figcaption>
+</figure>
+
+`geom_smooth`{data-pkg="ggplot2"} permets d'ajouter au graphique une moyenne mobile du nuage de points avec son intervalle de confiance. Notez que l'on ajoute `geom_smooth`{data-pkg="ggplot2"} au graphique avant `geom_point`{data-pkg="ggplot2"} puisque l'ordre dans lequel sont affichées les différentes couches du graphique dépend de l'ordre dans lequel elles ont été ajoutées. Dans cet exemple, nous souhaitons afficher les points <q>au-dessus</q> de la moyenne mobile.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(rp99) +
+  aes(x = dipl.sup, y = cadres) +
+  geom_smooth() +
+  geom_point() +
+  xlab("% de diplômés du supérieur") +
+  ylab("% de cadres")
+```
+<figcaption>Nuage de points avec moyenne mobile</figcaption>
+</figure>
+
+Si l'on préfère afficher plutôt la <dfn>droite de régression</dfn><dfn data-index="régression, droite">, on indiquera à `geom_smooth`{data-pkg="ggplot2"} l'agument `method = "lm"`.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(rp99) +
+  aes(x = dipl.sup, y = cadres) +
+  geom_smooth(method = "lm") +
+  geom_point() +
+  xlab("% de diplômés du supérieur") +
+  ylab("% de cadres")
+```
+<figcaption>Nuage de points avec droite de régression linéaire</figcaption>
+</figure>
+
+## Matrice de nuages de points et matrice de corrélation
+
+`ggplot2`{.pkg} ne fournit pas de fonction native pour la réalisation d'une matrice de nuages de points. Cependant, il existe plusieurs extensions permettant d'étendre `ggplot2`{.pkg}. Parmi celles-ci, l'extension `GGally`{.pkg} propose une fonction `ggpairs`{data-pkg="GGally"} correspondant exactement à notre besoin.
+
+<figure>
+```{r, warning=FALSE, message=FALSE}
+library(GGally)
+ggpairs(rp99[, c("proprio", "hlm", "locataire", "maison")])
+```
+<figcaption>Matrice de nuages de points</figcaption>
+</figure>
+
+`ggpairs`{data-pkg="GGally"} accepte même des variables catégorielles ainsi que des esthétiques supplémentaires, offrant ainsi plus de possibilités que la fonction `pairs`{data-pkg="graphics"}^[Pour plus de détails, on pourra lire https://tgmstat.wordpress.com/2013/11/13/plot-matrix-with-the-r-package-ggally/.].
+
+<figure>
+```{r, warning=FALSE, message=FALSE}
+ggpairs(rp99[, c("hlm", "locataire", "maison", "prop.proprio")], aes(colour = prop.proprio))
+```
+<figcaption>Matrice de nuages de points avec variables catégorielles</figcaption>
+</figure>
+
+`GGally`{.pkg} propose également une fonction `ggcorr`{data-pkg="GGally"} permettant d'afficher une <dfn>matrice de corrélation</dfn><dfn data-index="corrélation, matrice de"></dfn> entre variables quantitatives.
+
+<figure>
+```{r, warning=FALSE, message=FALSE}
+ggcorr(rp99)
+```
+<figcaption>Matrice de corrélarion</figcaption>
+</figure>
+
+## Estimation locale de densité (et représentations associées)
+
+On peut aisément représenter une <dfn>estimation locale de densité</dfn><dfn data-index="densité, estimation locale"></dfn> avec la géométrie `geom_density_2d`{data-pkg="ggplot2"}.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = age, y = heures.tv) +
+  geom_density_2d() +
+  xlab("Âge") +
+  ylab("Heures quotidiennes de télévision")
+```
+<figcaption>Estimation locale de densité (contours)</figcaption>
+</figure>
+
+Par défaut, le résultat est représenté sous forme de contours. Pour obtenir une représentation avec des polygones, on appelera la statistique `stat_density_2d`{data-pkg="ggplot2" data-rdoc="geom_density_2d"} en forçant la géométrie.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = age, y = heures.tv, fill = ..level..) +
+  stat_density_2d(geom = "polygon") +
+  xlab("Âge") +
+  ylab("Heures quotidiennes de télévision") +
+  labs(fill = "Densité")
+```
+<figcaption>Estimation locale de densité (contours)</figcaption>
+</figure>
+
+`ggplot2`{.pkg} propose également deux géométries, `geom_bin2d`{data-pkg="ggplot2"} et `geom_hex`{data-pkg="ggplot2"}, permettant d'effectuer à un comptage des effectifs en deux dimensions.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = age, y = heures.tv) +
+  geom_bin2d() +
+  xlab("Âge") +
+  ylab("Heures quotidiennes de télévision") +
+  labs(fill = "Effectifs")
+```
+<figcaption>Effectifs en deux dimensions</figcaption>
+</figure>
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = age, y = heures.tv) +
+  geom_hex() +
+  xlab("Âge") +
+  ylab("Heures quotidiennes de télévision") +
+  labs(fill = "Effectifs")
+```
+<figcaption>Effectifs en deux dimensions (hexagones)</figcaption>
+</figure>
+
+<div class="note">
+Pour reproduire à l'identique l'exemple donné dans le chapitre [statistique bivariée](statistique-bivariee.html#deux-variables-quantitatives), on aura besoin de la fonction `xyz2dataframe`{data-pkg="prevR"} de l'extension `prevR`{.pkg} afin de transformer le résultat de `kde2d`{data-pkg="MASS"} en un tableau de données exploitables par `ggplot2`{.pkg}.
+
+```{r, message=FALSE, warning=FALSE}
+library(MASS)
+tmp <- d[, c("age", "heures.tv")]
+tmp <- tmp[complete.cases(tmp), ]
+library(prevR)
+tmp <- xyz2dataframe(kde2d(tmp$age, tmp$heures.tv))
+str(tmp)
+ggplot(tmp) + 
+  aes(x = x, y = y, fill = z) +
+  geom_raster(interpolate = TRUE) +
+  scale_fill_gradientn(colors = terrain.colors(14)) +
+  labs(x = "Âge", y = "Heures de TV", fill = "Densité")
+```
+</div>
+
+## Diagrammes en barres
+
+Un <dfn>diagramme en barres</dfn><dfn data-index="barres, diagramme en"></dfn> se construit avec la géométrie `geom_bar`{data-pkg="ggplot2"}.
+
+
+<figure>
+```{r, warning=FALSE}
+d$qualreg <- as.character(d$qualif)
+d$qualreg[d$qualif %in% c("Ouvrier specialise", "Ouvrier qualifie")] <- "Ouvrier"
+d$qualreg[d$qualif %in% c("Profession intermediaire", 
+  "Technicien")] <- "Intermediaire"
+ggplot(d) +
+  aes(x = qualreg, fill = sport) +
+  geom_bar() +
+  xlab("CSP") +
+  ylab("Effectifs") +
+  labs(fill = "Pratique du sport")
+```
+<figcaption>Diagramme en barres</figcaption>
+</figure>
+
+On peut modifier la position des barres avec le paramètre `position`.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = qualreg, fill = sport) +
+  geom_bar(position = "dodge") +
+  xlab("CSP") +
+  ylab("Effectifs") +
+  labs(fill = "Pratique du sport")
+```
+<figcaption>Diagramme en barres côte à côte</figcaption>
+</figure>
+
+Pour des barres cumulées, on aura recours à `position = "fill"`. Pour que les étiquettes de l'axe des `y` soient représentées sous forme de pourcentages (i.e. `25%` au lieu de `0.25`), on aura recours à la fonction `percent`{data-pkg="scales" data-rdoc="percent_format"} de l'extension `scales`{.pkg}, qui sera transmise à `ggplot2`{.pkg} via `scale_y_continuous`{data-pkg="ggplot2" data-rdoc="scale_continuous"}.
+
+<figure>
+```{r, warning=FALSE}
+library(scales)
+ggplot(d) +
+  aes(x = qualreg, fill = sport) +
+  geom_bar(position = "fill") +
+  xlab("CSP") +
+  ylab("Proportion") +
+  labs(fill = "Pratique du sport") +
+  scale_y_continuous(labels = percent)
+```
+<figcaption>Diagramme en barres côte à côte</figcaption>
+</figure>
+
+## Graphe en mosaïque
+
+Il n'y a pas, à ce jour, d'implémentation officielle des <dfn data-index="graphique en mosaïque">graphiques en mosaïque</dfn><dfn data-index="mosaïque, graphique"></dfn> sous `ggplot2`{.pkg}. On pourra néanmoins se référer à l'extension expérimentale `productplots`{.pkg}^[Voir https://github.com/hadley/productplots et http://vita.had.co.nz/papers/prodplots.html.] développée par Hadley Wickham.
+
+## Données labellisées et ggplot2
+
+`ggplot2`{.pkg} tient compte du type des variables, attendant à ce que les variables catégorielles soient présentées sous forme de facteurs. Si l'on utilise des données labellisées (voir le [chapitre dédié](facteurs-et-vecteurs-labellises.html#labelled)), nos variables catégorielles seront stockées sous la forme d'un vecteur numérique avec des étiquettes. Il sera donc nécessaire de convertir ces variables en facteurs, tout simplement avec la fonction `to_factor`{data-pkg="labelled"} de l'extension `labelled`{.pkg} qui pourra utiliser les étiquettes de valeurs comme modalités du facteur.
+
+## Exporter les graphiques obtenus
+
+Les graphiques produits par `ggplot2`{.pkg} peuvent être sauvegardés manuellement, comme expliqué dans le chapitre <q>[Export des graphiques](export-de-graphiques.html)</q>, ou programmatiquement. Pour sauvegarder le dernier graphique affiché par `ggplot2`{.pkg} au format PNG, il suffit d'utiliser la fonction `ggsave`{data-pkg="ggplot2" data-rdoc="ggsave"}, qui permet d'en régler la taille (en pouces) et la résolution (en pixels par pouce ; 72 par défaut) :
+
+```{r, eval = FALSE}
+ggsave("mon_graphique.png", width = 11, height = 8)
+```
+
+De la même manière, pour sauvegarder n'importe quel graphique construit avec `ggplot2`{.pkg} et stocké dans un objet, il suffit de préciser le nom de cet objet, comme ci-dessous, où l'on sauvegarde le graphique contenu dans l'objet `p` au format vectoriel PDF, qui préserve la netteté du texte et des autres éléments du graphique à n'importe quelle résolution d'affichage :
+
+```{r, eval = FALSE, tidy = FALSE}
+ggsave("mon_graphique.pdf", plot = p,
+       width = 11, height = 8)
+```
