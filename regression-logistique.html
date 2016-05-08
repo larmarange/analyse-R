@@ -782,6 +782,85 @@ heures.tv                        ***
 ---
 Signif. codes:  
 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>Il est possible de représenter graphiquement les différents odds ratios. Pour cela, on va transformer le résultat de <code data-pkg="questionr">odds.ratio</code> en tableau de données, renommer les colonnes pour plus de commodité et stocker le nom des modalités dans une variable. <code data-pkg="ggplot2" data-rdoc="geom_crossbar">geom_errorbar</code> permets de représenter des barres d’erreurs, <code data-pkg="ggplot2" data-rdoc="geom_abline">geom_hline</code> une ligne au niveau <code>y = 1</code>, <code data-pkg="ggplot2" data-rdoc="scale_continuous">scale_y_log10</code> pour afficher l’axe des <code>y</code> de manière logarithmique, les odds ratios étant de nature multiplicative et non additive et <code data-pkg="ggplot2">coord_flip</code> pour inverser l’axe des <code>x</code> et celui des <code>y</code> afin de faciliter la lecture du graphique.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tmp &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">odds.ratio</span>(reg))</code></pre></div>
+<pre><code>Waiting for profiling to be done...</code></pre>
+<pre><code>                                    OR 2.5 %
+(Intercept)                      0.451 0.238
+sexeHomme                        1.551 1.261
+grpage[25,45)                    0.657 0.420
+grpage[45,65)                    0.338 0.212
+grpage[65,93]                    0.252 0.147
+etudSecondaire                   2.581 1.761
+etudTechnique/Professionnel      2.850 1.976
+etudSupérieur                    6.617 4.543
+etudNA                           8.572 4.527
+religPratiquant occasionnel      0.980 0.677
+religAppartenance sans pratique  0.994 0.707
+religNi croyance ni appartenance 0.807 0.553
+religRejet                       0.682 0.387
+religNSP ou NVPR                 0.920 0.400
+heures.tv                        0.886 0.829
+                                 97.5 %         p
+(Intercept)                       0.848 0.0138062
+sexeHomme                         1.911 3.488e-05
+grpage[25,45)                     1.028 0.0653132
+grpage[45,65)                     0.538 4.961e-06
+grpage[65,93]                     0.430 4.713e-07
+etudSecondaire                    3.824 1.560e-06
+etudTechnique/Professionnel       4.164 3.432e-08
+etudSupérieur                     9.775 &lt; 2.2e-16
+etudNA                           16.556 7.674e-11
+religPratiquant occasionnel       1.422 0.9133105
+religAppartenance sans pratique   1.403 0.9718010
+religNi croyance ni appartenance  1.180 0.2675998
+religRejet                        1.190 0.1806239
+religNSP ou NVPR                  2.022 0.8392596
+heures.tv                         0.946 0.0003255
+                                    
+(Intercept)                      *  
+sexeHomme                        ***
+grpage[25,45)                    .  
+grpage[45,65)                    ***
+grpage[65,93]                    ***
+etudSecondaire                   ***
+etudTechnique/Professionnel      ***
+etudSupérieur                    ***
+etudNA                           ***
+religPratiquant occasionnel         
+religAppartenance sans pratique     
+religNi croyance ni appartenance    
+religRejet                          
+religNSP ou NVPR                    
+heures.tv                        ***
+---
+Signif. codes:  
+0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(tmp)</code></pre></div>
+<pre><code>&#39;data.frame&#39;:   15 obs. of  4 variables:
+ $ OR    : num  0.451 1.551 0.657 0.338 0.252 ...
+ $ 2.5 % : num  0.238 1.261 0.42 0.212 0.147 ...
+ $ 97.5 %: num  0.848 1.911 1.028 0.538 0.43 ...
+ $ p     : num  1.38e-02 3.49e-05 6.53e-02 4.96e-06 4.71e-07 ...</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">names</span>(tmp) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;OR&quot;</span>, <span class="st">&quot;ICmin&quot;</span>, <span class="st">&quot;ICmax&quot;</span>, <span class="st">&quot;p&quot;</span>)
+tmp$modalite &lt;-<span class="st"> </span><span class="kw">row.names</span>(tmp)
+<span class="kw">str</span>(tmp)</code></pre></div>
+<pre><code>&#39;data.frame&#39;:   15 obs. of  5 variables:
+ $ OR      : num  0.451 1.551 0.657 0.338 0.252 ...
+ $ ICmin   : num  0.238 1.261 0.42 0.212 0.147 ...
+ $ ICmax   : num  0.848 1.911 1.028 0.538 0.43 ...
+ $ p       : num  1.38e-02 3.49e-05 6.53e-02 4.96e-06 4.71e-07 ...
+ $ modalite: chr  &quot;(Intercept)&quot; &quot;sexeHomme&quot; &quot;grpage[25,45)&quot; &quot;grpage[45,65)&quot; ...</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)
+<span class="kw">ggplot</span>(tmp) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> modalite, <span class="dt">y =</span> OR, <span class="dt">ymin =</span> ICmin, 
+  <span class="dt">ymax =</span> ICmax) +<span class="st"> </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> <span class="dv">1</span>) +<span class="st"> </span><span class="kw">geom_errorbar</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">scale_y_log10</span>() +<span class="st"> </span><span class="kw">coord_flip</span>()</code></pre></div>
+<img src="graphs/regression-logistique/unnamed-chunk-16-1.png" title="" alt="" width="1050" />
+<figcaption>
+Représentation graphique des odds ratios
+</figcaption>
+</figure>
 <p>L’extension <code class="pkg">effects</code> propose une représentation graphique résumant les effets de chaque variable du modèle. Pour cela, il suffit d’appliquer la méthode <code data-pkg="effects" data-rdoc="summary.effect">plot</code> au résultat de la fonction <code data-pkg="effects" data-rdoc="effect">allEffects</code>. Nous obtenons alors la <a href="#reglog_alleffects">figure ci-dessous</a>.</p>
 <figure id="reglog_alleffects">
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(effects)
