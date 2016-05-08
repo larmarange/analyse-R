@@ -242,6 +242,27 @@ library(questionr)
 odds.ratio(reg)
 ```
 
+Il est possible de représenter graphiquement les différents odds ratios. Pour cela, on va transformer le résultat de `odds.ratio`{data-pkg="questionr"} en tableau de données, renommer les colonnes pour plus de commodité et stocker le nom des modalités dans une variable. `geom_errorbar`{data-pkg="ggplot2" data-rdoc="geom_crossbar"} permets de représenter des barres d'erreurs, `geom_hline`{data-pkg="ggplot2" data-rdoc="geom_abline"} une ligne au niveau `y = 1`, `scale_y_log10`{data-pkg="ggplot2" data-rdoc="scale_continuous"} pour afficher l'axe des `y` de manière logarithmique, les odds ratios étant de nature multiplicative et non additive et `coord_flip`{data-pkg="ggplot2"} pour inverser l'axe des `x` et celui des `y` afin de faciliter la lecture du graphique.
+
+<figure>
+```{r}
+tmp <- as.data.frame(odds.ratio(reg))
+str(tmp)
+names(tmp) <- c("OR", "ICmin", "ICmax", "p")
+tmp$modalite <- row.names(tmp)
+str(tmp)
+library(ggplot2)
+ggplot(tmp) + 
+  aes(x = modalite, y = OR, ymin = ICmin, ymax = ICmax) +
+  geom_hline(yintercept = 1) +
+  geom_errorbar() +
+  geom_point() +
+  scale_y_log10() +
+  coord_flip()
+```
+<figcaption>Représentation graphique des odds ratios</figcaption>
+</figure>
+
 L'extension `effects`{.pkg} propose une représentation graphique résumant les effets de chaque variable du modèle. Pour cela, il suffit d'appliquer la méthode `plot`{data-pkg="effects" data-rdoc="summary.effect"} au résultat de la fonction `allEffects`{data-pkg="effects" data-rdoc="effect"}. Nous obtenons alors la [figure ci-dessous](#reglog_alleffects).
 
 <figure id="reglog_alleffects">
