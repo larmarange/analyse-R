@@ -364,7 +364,7 @@ d &lt;-<span class="st"> </span>hdv2003</code></pre></div>
 <p>En premier lieu, il importe de vérifier que notre variable d’intérêt (ici <em>sport</em>) est correctement codée. Une possibilité consiste à créer une <dfn>variable booléenne</dfn><dfn data-index="booléenne, variable"></dfn> (vrai / faux) selon que l’individu a pratiqué du sport ou non :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d$sport2 &lt;-<span class="st"> </span><span class="ot">FALSE</span>
 d$sport2[d$sport ==<span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> </span><span class="ot">TRUE</span></code></pre></div>
-<p>Dans le cas présent, cette variable n’a pas de <dfn>valeur manquante</dfn><dfn data-index="manquante, valeur">/dfn&gt;. Mais, le cas échéant, il importe de bien coder les valeurs manquantes en <code>NA</code>, les individus en question étant alors exclu de l’analyse.</p>
+<p>Dans le cas présent, cette variable n’a pas de <dfn>valeur manquante</dfn><dfn data-index="manquante, valeur"></dfn>. Mais, le cas échéant, il importe de bien coder les valeurs manquantes en <code>NA</code>, les individus en question étant alors exclu de l’analyse.</p>
 <p>Il n’est pas forcément nécessaire de transformer notre variable d’intérêt en variable booléenne. En effet, <strong>R</strong> accepte sans problème une variable de type <dfn>facteur</dfn>. Cependant, l’ordre des valeurs d’un facteur a de l’importance. En effet, <strong>R</strong> considère toujours la première modalité comme étant la <dfn>modalité de référence</dfn><dfn data-index="référence, modalité"></dfn>. Dans le cas de la variable d’intérêt, la modalité de référence correspond au fait de ne pas remplir le critère étudié, dans notre exemple au fait de ne pas avoir eu d’activité sportive au cours des douze derniers mois.</p>
 <p>Pour connaître l’ordre des modalités d’une variable de type facteur, on peut utiliser la fonction <code data-pkg="base">levels</code> ou bien encore tout simplement la fonction <code data-pkg="questionr">freq</code> de l’extension <code class="pkg">questionr</code> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d$sport)</code></pre></div>
@@ -782,85 +782,63 @@ heures.tv                        ***
 ---
 Signif. codes:  
 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>Il est possible de représenter graphiquement les différents odds ratios. Pour cela, on va transformer le résultat de <code data-pkg="questionr">odds.ratio</code> en tableau de données, renommer les colonnes pour plus de commodité et stocker le nom des modalités dans une variable. <code data-pkg="ggplot2" data-rdoc="geom_crossbar">geom_errorbar</code> permets de représenter des barres d’erreurs, <code data-pkg="ggplot2" data-rdoc="geom_abline">geom_hline</code> une ligne au niveau <code>y = 1</code>, <code data-pkg="ggplot2" data-rdoc="scale_continuous">scale_y_log10</code> pour afficher l’axe des <code>y</code> de manière logarithmique, les odds ratios étant de nature multiplicative et non additive et <code data-pkg="ggplot2">coord_flip</code> pour inverser l’axe des <code>x</code> et celui des <code>y</code> afin de faciliter la lecture du graphique.</p>
+<p>Il est possible de représenter graphiquement les différents odds ratios. Pour cela, on va utiliser la fonction <code data-pkg="broom" data-rdoc="gm_tidiers">tidy</code> de l’extension <code class="pkg">broom</code> pour récupérer les coefficients du modèle sous la forme d’un tableau de données exploitable avec <code class="pkg">ggplot2</code>. On précisera <code>conf.int = TRUE</code> pour obtenir les intervalles de confiance et <code>exponentiate = TRUE</code> pour avoir les odds ratio plutôt que les coefficients bruts. <code data-pkg="ggplot2" data-rdoc="geom_crossbar">geom_errorbarh</code> permets de représenter les intervalles de confiance sous forme de barres d’erreurs, <code data-pkg="ggplot2" data-rdoc="geom_abline">geom_vline</code> une ligne verticale au niveau <code>x = 1</code>, <code data-pkg="ggplot2" data-rdoc="scale_continuous">scale_x_log10</code> pour afficher l’axe des <code>x</code> de manière logarithmique, les odds ratios étant de nature multiplicative et non additive.</p>
 <figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tmp &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">odds.ratio</span>(reg))</code></pre></div>
-<pre><code>Waiting for profiling to be done...</code></pre>
-<pre><code>                                    OR 2.5 %
-(Intercept)                      0.451 0.238
-sexeHomme                        1.551 1.261
-grpage[25,45)                    0.657 0.420
-grpage[45,65)                    0.338 0.212
-grpage[65,93]                    0.252 0.147
-etudSecondaire                   2.581 1.761
-etudTechnique/Professionnel      2.850 1.976
-etudSupérieur                    6.617 4.543
-etudNA                           8.572 4.527
-religPratiquant occasionnel      0.980 0.677
-religAppartenance sans pratique  0.994 0.707
-religNi croyance ni appartenance 0.807 0.553
-religRejet                       0.682 0.387
-religNSP ou NVPR                 0.920 0.400
-heures.tv                        0.886 0.829
-                                 97.5 %         p
-(Intercept)                       0.848 0.0138062
-sexeHomme                         1.911 3.488e-05
-grpage[25,45)                     1.028 0.0653132
-grpage[45,65)                     0.538 4.961e-06
-grpage[65,93]                     0.430 4.713e-07
-etudSecondaire                    3.824 1.560e-06
-etudTechnique/Professionnel       4.164 3.432e-08
-etudSupérieur                     9.775 &lt; 2.2e-16
-etudNA                           16.556 7.674e-11
-religPratiquant occasionnel       1.422 0.9133105
-religAppartenance sans pratique   1.403 0.9718010
-religNi croyance ni appartenance  1.180 0.2675998
-religRejet                        1.190 0.1806239
-religNSP ou NVPR                  2.022 0.8392596
-heures.tv                         0.946 0.0003255
-                                    
-(Intercept)                      *  
-sexeHomme                        ***
-grpage[25,45)                    .  
-grpage[45,65)                    ***
-grpage[65,93]                    ***
-etudSecondaire                   ***
-etudTechnique/Professionnel      ***
-etudSupérieur                    ***
-etudNA                           ***
-religPratiquant occasionnel         
-religAppartenance sans pratique     
-religNi croyance ni appartenance    
-religRejet                          
-religNSP ou NVPR                    
-heures.tv                        ***
----
-Signif. codes:  
-0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(tmp)</code></pre></div>
-<pre><code>&#39;data.frame&#39;:   15 obs. of  4 variables:
- $ OR    : num  0.451 1.551 0.657 0.338 0.252 ...
- $ 2.5 % : num  0.238 1.261 0.42 0.212 0.147 ...
- $ 97.5 %: num  0.848 1.911 1.028 0.538 0.43 ...
- $ p     : num  1.38e-02 3.49e-05 6.53e-02 4.96e-06 4.71e-07 ...</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">names</span>(tmp) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;OR&quot;</span>, <span class="st">&quot;ICmin&quot;</span>, <span class="st">&quot;ICmax&quot;</span>, <span class="st">&quot;p&quot;</span>)
-tmp$modalite &lt;-<span class="st"> </span><span class="kw">row.names</span>(tmp)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(broom)
+tmp &lt;-<span class="st"> </span><span class="kw">tidy</span>(reg, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)
 <span class="kw">str</span>(tmp)</code></pre></div>
-<pre><code>&#39;data.frame&#39;:   15 obs. of  5 variables:
- $ OR      : num  0.451 1.551 0.657 0.338 0.252 ...
- $ ICmin   : num  0.238 1.261 0.42 0.212 0.147 ...
- $ ICmax   : num  0.848 1.911 1.028 0.538 0.43 ...
- $ p       : num  1.38e-02 3.49e-05 6.53e-02 4.96e-06 4.71e-07 ...
- $ modalite: chr  &quot;(Intercept)&quot; &quot;sexeHomme&quot; &quot;grpage[25,45)&quot; &quot;grpage[45,65)&quot; ...</code></pre>
+<pre><code>&#39;data.frame&#39;:   15 obs. of  7 variables:
+ $ term     : chr  &quot;(Intercept)&quot; &quot;sexeHomme&quot; &quot;grpage[25,45)&quot; &quot;grpage[45,65)&quot; ...
+ $ estimate : num  0.451 1.551 0.657 0.338 0.252 ...
+ $ std.error: num  0.324 0.106 0.228 0.238 0.274 ...
+ $ statistic: num  -2.46 4.14 -1.84 -4.57 -5.04 ...
+ $ p.value  : num  1.38e-02 3.49e-05 6.53e-02 4.96e-06 4.71e-07 ...
+ $ conf.low : num  0.238 1.261 0.42 0.212 0.147 ...
+ $ conf.high: num  0.848 1.911 1.028 0.538 0.43 ...</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)
-<span class="kw">ggplot</span>(tmp) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> modalite, <span class="dt">y =</span> OR, <span class="dt">ymin =</span> ICmin, 
-  <span class="dt">ymax =</span> ICmax) +<span class="st"> </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> <span class="dv">1</span>) +<span class="st"> </span><span class="kw">geom_errorbar</span>() +<span class="st"> </span>
-<span class="st">  </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">scale_y_log10</span>() +<span class="st"> </span><span class="kw">coord_flip</span>()</code></pre></div>
+<span class="kw">ggplot</span>(tmp) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> estimate, <span class="dt">y =</span> term, <span class="dt">xmin =</span> conf.low, 
+  <span class="dt">xmax =</span> conf.high) +<span class="st"> </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">1</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_errorbarh</span>() +<span class="st"> </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">scale_x_log10</span>()</code></pre></div>
 <img src="graphs/regression-logistique/unnamed-chunk-16-1.png" title="" alt="" width="1050" />
 <figcaption>
 Représentation graphique des odds ratios
 </figcaption>
 </figure>
+<div class="note">
+<p>L’extension <code class="pkg">JLutils</code>, disponible uniquement sur GitHub, propose deux fonctions intéressantes dans ce contexte. Pour l’installer ou la mettre à jour, si ce n’est déjà fait, on aura recours à la commande ci-après.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</code></pre></div>
+<p>La fonction <code data-pkg="JLutils">ggcoef</code> permet d’effectuer le graphique précédent directement à partir de notre modèle. Voir l’aide de cette fonction pour la liste complète des paramètres personnalisables.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(JLutils)
+<span class="kw">ggcoef</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<p><img src="graphs/regression-logistique/unnamed-chunk-18-1.png" title="" alt="" width="1050" /></p>
+<p>La fonction <code data-pkg="JLutils">tidy_detailed</code> est une version <q>élargie</q> de <code data-pkg="broom">tidy</code> qui rajoute des colonnes supplémentaires avec le nom des variables et des modalités.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(<span class="kw">tidy</span>(reg))</code></pre></div>
+<pre><code>&#39;data.frame&#39;:   15 obs. of  5 variables:
+ $ term     : chr  &quot;(Intercept)&quot; &quot;sexeHomme&quot; &quot;grpage[25,45)&quot; &quot;grpage[45,65)&quot; ...
+ $ estimate : num  -0.797 0.439 -0.42 -1.085 -1.379 ...
+ $ std.error: num  0.324 0.106 0.228 0.238 0.274 ...
+ $ statistic: num  -2.46 4.14 -1.84 -4.57 -5.04 ...
+ $ p.value  : num  1.38e-02 3.49e-05 6.53e-02 4.96e-06 4.71e-07 ...</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(<span class="kw">tidy_detailed</span>(reg))</code></pre></div>
+<pre><code>Loading required namespace: labelled</code></pre>
+<pre><code>&#39;data.frame&#39;:   14 obs. of  10 variables:
+ $ term          : chr  &quot;etudNA&quot; &quot;etudSecondaire&quot; &quot;etudSupérieur&quot; &quot;etudTechnique/Professionnel&quot; ...
+ $ estimate      : num  2.149 0.948 1.89 1.047 -0.42 ...
+ $ std.error     : num  0.33 0.197 0.195 0.19 0.228 ...
+ $ statistic     : num  6.51 4.8 9.68 5.52 -1.84 ...
+ $ p.value       : num  7.67e-11 1.56e-06 3.63e-22 3.43e-08 6.53e-02 ...
+ $ variable      : chr  &quot;etud&quot; &quot;etud&quot; &quot;etud&quot; &quot;etud&quot; ...
+ $ variable_label: chr  &quot;etud&quot; &quot;etud&quot; &quot;etud&quot; &quot;etud&quot; ...
+ $ level         : chr  NA &quot;Secondaire&quot; &quot;Supérieur&quot; &quot;Technique/Professionnel&quot; ...
+ $ level_detail  : chr  &quot;NA vs. Primaire&quot; &quot;Secondaire vs. Primaire&quot; &quot;Supérieur vs. Primaire&quot; &quot;Technique/Professionnel vs. Primaire&quot; ...
+ $ label         : chr  &quot;NA vs. Primaire&quot; &quot;Secondaire vs. Primaire&quot; &quot;Supérieur vs. Primaire&quot; &quot;Technique/Professionnel vs. Primaire&quot; ...</code></pre>
+<p>Il est possible de combiner les deux pour personnaliser un peu plus le résultat.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">td &lt;-<span class="st"> </span><span class="kw">tidy_detailed</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)
+td$label &lt;-<span class="st"> </span><span class="kw">factor</span>(td$label, <span class="kw">rev</span>(td$label))  <span class="co"># Pour fixer l&#39;ordre pour ggplot2</span>
+<span class="kw">ggcoef</span>(td, <span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">y =</span> level_detail, <span class="dt">x =</span> estimate, 
+  <span class="dt">colour =</span> variable_label), <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<p><img src="graphs/regression-logistique/unnamed-chunk-20-1.png" title="" alt="" width="1050" /></p>
+</div>
 <p>L’extension <code class="pkg">effects</code> propose une représentation graphique résumant les effets de chaque variable du modèle. Pour cela, il suffit d’appliquer la méthode <code data-pkg="effects" data-rdoc="summary.effect">plot</code> au résultat de la fonction <code data-pkg="effects" data-rdoc="effect">allEffects</code>. Nous obtenons alors la <a href="#reglog_alleffects">figure ci-dessous</a>.</p>
 <figure id="reglog_alleffects">
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(effects)
@@ -1233,7 +1211,7 @@ Degrees of Freedom: 1994 Total (i.e. Null);  1986 Residual
   (5 observations deleted due to missingness)
 Null Deviance:      2672 
 Residual Deviance: 2378     AIC: NA</code></pre>
-<p>Le résultat obtenu est similaire à celui de <code data-pkg="stats">glm</code> et l’on peut utiliser sans problème les fonctions <code data-pkg="survey" data-rdoc="svyglm">coef</code>, <code data-pkg="survey" data-rdoc="confint.glm">confint</code>, <code data-pkg="questionr">odds.ratio</code> ou <code data-pkg="survey" data-rdoc="svyglm">predict</code>.</p>
+<p>Le résultat obtenu est similaire à celui de <code data-pkg="stats">glm</code> et l’on peut utiliser sans problème les fonctions <code data-pkg="survey" data-rdoc="svyglm">coef</code>, <code data-pkg="survey" data-rdoc="confint.glm">confint</code>, <code data-pkg="questionr">odds.ratio</code>, <code data-pkg="survey" data-rdoc="svyglm">predict</code> ou encore <code data-pkg="broom" data-rdoc="glm_tidiers">tidy</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">odds.ratio</span>(reg)</code></pre></div>
 <pre><code>                                    OR 2.5 %
 (Intercept)                      4.646 2.578

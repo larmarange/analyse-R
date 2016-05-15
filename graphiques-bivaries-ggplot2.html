@@ -345,10 +345,10 @@ $(document).ready(function () {
 <li><a href="#densite-et-repartition-cumulee">Densité et répartition cumulée</a></li>
 <li><a href="#boites-a-moustaches-et-representations-associees">Boîtes à moustaches (et représentations associées)</a></li>
 <li><a href="#diagramme-en-batons">Diagramme en bâtons</a></li>
-<li><a href="#diagramme-de-cleveland">Diagramme de Cleveland</a></li>
 <li><a href="#nuage-de-points">Nuage de points</a></li>
 <li><a href="#matrice-de-nuages-de-points-et-matrice-de-correlation">Matrice de nuages de points et matrice de corrélation</a></li>
 <li><a href="#estimation-locale-de-densite-et-representations-associees">Estimation locale de densité (et représentations associées)</a></li>
+<li><a href="#diagramme-de-cleveland">Diagramme de Cleveland</a></li>
 <li><a href="#diagrammes-en-barres">Diagrammes en barres</a></li>
 <li><a href="#graphe-en-mosaique">Graphe en mosaïque</a></li>
 <li><a href="#donnees-labellisees-et-ggplot2">Données labellisées et ggplot2</a></li>
@@ -511,56 +511,13 @@ Diagramme en bâtons avec ajustement de la largeur des barres
 </figcaption>
 </figure>
 </div>
-<div id="diagramme-de-cleveland" class="section level2">
-<h2>Diagramme de Cleveland</h2>
-<p>Pour un <dfn>diagramme de Cleveland</dfn><dfn data-index="Cleveland, diagramme"></dfn>, on aura recours à la géométrie <code data-pkg="ggplot2">geom_point</code>. Cependant, il faudra lui préciser que l’on souhaite utiliser la statistique <code data-pkg="ggplot2" data-rdoc="geom_bar">stat_count</code> afin que les effectifs soient calculés pour chaque valeur de <code>x</code>.</p>
-<figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> clso) +<span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">stat =</span> <span class="st">&quot;count&quot;</span>) +<span class="st"> </span>
-<span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Sentiment d&#39;appartenance à une classe sociale&quot;</span>) +<span class="st"> </span>
-<span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;Effectifs&quot;</span>)</code></pre></div>
-<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-16-1.png" title="" alt="" width="1050" />
-<figcaption>
-Diagramme de Cleveland
-</figcaption>
-</figure>
-<p>Une alternative, notamment si l’on souhaite un diagramme de Cleveland ordonné, consiste à calculer les effectifs de chaque modalité en amont. <code class="pkg">ggplot2</code> ayant besoin d’un tableau de données en entrée, nous calculerons notre tableau de fréquences avec <code data-pkg="stats">xtabs</code> et le transformerons en tableau de données avec <code data-pkg="base" data-rdoc="table">as.data.frame</code>. Pour que les niveaux de qualifaction soient représentés selon leur effectif, il est nécessaire d’ordonner les étiquettes du facteur de manière adéquate. Enfin, nous utiliserons <code data-pkg="ggplot2">coord_flip</code> pour intervertir l’axe des <code>x</code> et celui des <code>y</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">xtabs</span>(~qualif, d))
-tab$qualif &lt;-<span class="st"> </span><span class="kw">factor</span>(tab$qualif, <span class="dt">levels =</span> tab$qualif[<span class="kw">order</span>(tab$Freq)])
-<span class="kw">str</span>(tab)</code></pre></div>
-<pre><code>&#39;data.frame&#39;:   7 obs. of  2 variables:
- $ qualif: Factor w/ 7 levels &quot;Autre&quot;,&quot;Technicien&quot;,..: 4 6 2 3 5 7 1
- $ Freq  : int  203 292 86 160 260 594 58</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(tab) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> qualif, <span class="dt">y =</span> Freq) +<span class="st"> </span><span class="kw">geom_point</span>() +<span class="st"> </span>
-<span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Niveau de qualification&quot;</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Effectifs&quot;</span>) +<span class="st"> </span>
-<span class="st">  </span><span class="kw">coord_flip</span>()</code></pre></div>
-<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-17-1.png" title="" alt="" width="1050" />
-<figcaption>
-Diagramme de Cleveland ordonné
-</figcaption>
-</figure>
-<div class="note">
-<p>L’extension <code class="pkg">ggalt</code> propose quelques géométries supplémentaires pour <code class="pkg">ggplot2</code>. L’une d’elles dite <q>en sucettes</q> (<em>lollipop</em>) propose une représentation graphique au croisement entre un diagramme en bâtons et un diagramme de Cleveland.</p>
-<p>Pour cela, il est d’abord nécessaire d’installer la version de développement de <code class="pkg">gglat</code> à l’aide de la commande suivante :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">&quot;hrbrmstr/ggalt&quot;</span>)</code></pre></div>
-<figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggalt)
-<span class="kw">ggplot</span>(tab) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> qualif, <span class="dt">y =</span> Freq) +<span class="st"> </span><span class="kw">geom_lollipop</span>() +<span class="st"> </span>
-<span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Niveau de qualification&quot;</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Effectifs&quot;</span>) +<span class="st"> </span>
-<span class="st">  </span><span class="kw">coord_flip</span>()</code></pre></div>
-<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-19-1.png" title="" alt="" width="1050" />
-<figcaption>
-Diagramme en “sucettes” (lollipop)
-</figcaption>
-</figure>
-</div>
-</div>
 <div id="nuage-de-points" class="section level2">
 <h2>Nuage de points</h2>
 <p>Un <dfn>nuage de points</dfn><dfn data-index="points, nuage de"></dfn> se représente facilement avec la géométrie <code data-pkg="ggplot2">geom_point</code>.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> age, <span class="dt">y =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_point</span>() +<span class="st"> </span>
 <span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Âge&quot;</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Heures quotidiennes de télévision&quot;</span>)</code></pre></div>
-<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-20-1.png" title="" alt="" width="1050" />
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-16-1.png" title="" alt="" width="1050" />
 <figcaption>
 Nuage de points
 </figcaption>
@@ -569,7 +526,7 @@ Nuage de points
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> age, <span class="dt">y =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">colour =</span> <span class="st">&quot;red&quot;</span>, 
   <span class="dt">alpha =</span> <span class="fl">0.2</span>) +<span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Âge&quot;</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Heures quotidiennes de télévision&quot;</span>)</code></pre></div>
-<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-21-1.png" title="" alt="" width="1050" />
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-17-1.png" title="" alt="" width="1050" />
 <figcaption>
 Nuage de points semi-transparents
 </figcaption>
@@ -586,7 +543,7 @@ rp99$prop.proprio &lt;-<span class="st"> </span><span class="kw">factor</span>(r
 <span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;% sans diplôme&quot;</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Taux de chômage&quot;</span>) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">labs</span>(<span class="dt">size =</span> <span class="st">&quot;Population totale&quot;</span>, <span class="dt">colour =</span> <span class="st">&quot;Proportion de propriétaires supérieure à la moyenne&quot;</span>) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;bottom&quot;</span>)</code></pre></div>
-<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-22-1.png" title="" alt="" width="1050" />
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-18-1.png" title="" alt="" width="1050" />
 <figcaption>
 Nuage de points proportionnels
 </figcaption>
@@ -596,7 +553,7 @@ Nuage de points proportionnels
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(rp99) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> dipl.sup, <span class="dt">y =</span> cadres) +<span class="st"> </span><span class="kw">geom_smooth</span>() +<span class="st"> </span>
 <span class="st">  </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;% de diplômés du supérieur&quot;</span>) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;% de cadres&quot;</span>)</code></pre></div>
-<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-23-1.png" title="" alt="" width="1050" />
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-19-1.png" title="" alt="" width="1050" />
 <figcaption>
 Nuage de points avec moyenne mobile
 </figcaption>
@@ -606,7 +563,7 @@ Nuage de points avec moyenne mobile
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(rp99) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> dipl.sup, <span class="dt">y =</span> cadres) +<span class="st"> </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;% de diplômés du supérieur&quot;</span>) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;% de cadres&quot;</span>)</code></pre></div>
-<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-24-1.png" title="" alt="" width="1050" />
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-20-1.png" title="" alt="" width="1050" />
 <figcaption>
 Nuage de points avec droite de régression linéaire
 </figcaption>
@@ -618,7 +575,7 @@ Nuage de points avec droite de régression linéaire
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(GGally)
 <span class="kw">ggpairs</span>(rp99[, <span class="kw">c</span>(<span class="st">&quot;proprio&quot;</span>, <span class="st">&quot;hlm&quot;</span>, <span class="st">&quot;locataire&quot;</span>, <span class="st">&quot;maison&quot;</span>)])</code></pre></div>
-<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-25-1.png" title="" alt="" width="1050" />
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-21-1.png" title="" alt="" width="1050" />
 <figcaption>
 Matrice de nuages de points
 </figcaption>
@@ -627,15 +584,15 @@ Matrice de nuages de points
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggpairs</span>(rp99[, <span class="kw">c</span>(<span class="st">&quot;hlm&quot;</span>, <span class="st">&quot;locataire&quot;</span>, <span class="st">&quot;maison&quot;</span>, <span class="st">&quot;prop.proprio&quot;</span>)], 
   <span class="kw">aes</span>(<span class="dt">colour =</span> prop.proprio))</code></pre></div>
-<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-26-1.png" title="" alt="" width="1050" />
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-22-1.png" title="" alt="" width="1050" />
 <figcaption>
 Matrice de nuages de points avec variables catégorielles
 </figcaption>
 </figure>
-<p><code class="pkg">GGally</code> propose également une fonction <code data-pkg="GGally">ggcorr</code> permettant d’afficher une <dfn>matrice de corrélation</dfn><dfn data-index="corrélation, matrice de"></dfn> entre variables quantitatives.</p>
+<p><code class="pkg">GGally</code> propose également une fonction <code data-pkg="GGally">ggcorr</code> permettant d’afficher une <dfn>matrice de corrélation</dfn><dfn data-index="corrélation, matrice de"></dfn> entre variables quantitatives<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggcorr</span>(rp99)</code></pre></div>
-<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-27-1.png" title="" alt="" width="1050" />
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-23-1.png" title="" alt="" width="1050" />
 <figcaption>
 Matrice de corrélarion
 </figcaption>
@@ -647,7 +604,7 @@ Matrice de corrélarion
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> age, <span class="dt">y =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_density_2d</span>() +<span class="st"> </span>
 <span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Âge&quot;</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Heures quotidiennes de télévision&quot;</span>)</code></pre></div>
-<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-28-1.png" title="" alt="" width="1050" />
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-24-1.png" title="" alt="" width="1050" />
 <figcaption>
 Estimation locale de densité (contours)
 </figcaption>
@@ -657,7 +614,7 @@ Estimation locale de densité (contours)
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> age, <span class="dt">y =</span> heures.tv, <span class="dt">fill =</span> ..level..) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">stat_density_2d</span>(<span class="dt">geom =</span> <span class="st">&quot;polygon&quot;</span>) +<span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Âge&quot;</span>) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;Heures quotidiennes de télévision&quot;</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">&quot;Densité&quot;</span>)</code></pre></div>
-<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-29-1.png" title="" alt="" width="1050" />
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-25-1.png" title="" alt="" width="1050" />
 <figcaption>
 Estimation locale de densité (contours)
 </figcaption>
@@ -667,7 +624,7 @@ Estimation locale de densité (contours)
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> age, <span class="dt">y =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_bin2d</span>() +<span class="st"> </span>
 <span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Âge&quot;</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Heures quotidiennes de télévision&quot;</span>) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">&quot;Effectifs&quot;</span>)</code></pre></div>
-<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-30-1.png" title="" alt="" width="1050" />
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-26-1.png" title="" alt="" width="1050" />
 <figcaption>
 Effectifs en deux dimensions
 </figcaption>
@@ -676,18 +633,18 @@ Effectifs en deux dimensions
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> age, <span class="dt">y =</span> heures.tv) +<span class="st"> </span><span class="kw">geom_hex</span>() +<span class="st"> </span>
 <span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Âge&quot;</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Heures quotidiennes de télévision&quot;</span>) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">&quot;Effectifs&quot;</span>)</code></pre></div>
-<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-31-1.png" title="" alt="" width="1050" />
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-27-1.png" title="" alt="" width="1050" />
 <figcaption>
 Effectifs en deux dimensions (hexagones)
 </figcaption>
 </figure>
 <div class="note">
-<p>Pour reproduire à l’identique l’exemple donné dans le chapitre <a href="statistique-bivariee.html#deux-variables-quantitatives">statistique bivariée</a>, on aura besoin de la fonction <code data-pkg="prevR">xyz2dataframe</code> de l’extension <code class="pkg">prevR</code> afin de transformer le résultat de <code data-pkg="MASS">kde2d</code> en un tableau de données exploitables par <code class="pkg">ggplot2</code>.</p>
+<p>Pour reproduire à l’identique l’exemple donné dans le chapitre <a href="statistique-bivariee.html#deux-variables-quantitatives">statistique bivariée</a>, on aura besoin de la méthode <code data-pkg="broom" data-rdoc="xyz_tidiers">tidy</code> de l’extension <code class="pkg">broom</code> afin de transformer le résultat de <code data-pkg="MASS">kde2d</code> en un tableau de données exploitables par <code class="pkg">ggplot2</code>. <code data-pkg="broom">tidy</code> est une méthode générique permettant de transformer un grand nombre d’objets (et en particulier les résultats d’un modèle) en un tableau de données exploitable by <code class="pkg">ggplot2</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(MASS)
 tmp &lt;-<span class="st"> </span>d[, <span class="kw">c</span>(<span class="st">&quot;age&quot;</span>, <span class="st">&quot;heures.tv&quot;</span>)]
 tmp &lt;-<span class="st"> </span>tmp[<span class="kw">complete.cases</span>(tmp), ]
-<span class="kw">library</span>(prevR)
-tmp &lt;-<span class="st"> </span><span class="kw">xyz2dataframe</span>(<span class="kw">kde2d</span>(tmp$age, tmp$heures.tv))
+<span class="kw">library</span>(broom)
+tmp &lt;-<span class="st"> </span><span class="kw">tidy</span>(<span class="kw">kde2d</span>(tmp$age, tmp$heures.tv))
 <span class="kw">str</span>(tmp)</code></pre></div>
 <pre><code>&#39;data.frame&#39;:   625 obs. of  3 variables:
  $ x: num  18 21.3 24.6 27.9 31.2 ...
@@ -696,7 +653,50 @@ tmp &lt;-<span class="st"> </span><span class="kw">xyz2dataframe</span>(<span cl
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(tmp) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">fill =</span> z) +<span class="st"> </span><span class="kw">geom_raster</span>(<span class="dt">interpolate =</span> <span class="ot">TRUE</span>) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">scale_fill_gradientn</span>(<span class="dt">colors =</span> <span class="kw">terrain.colors</span>(<span class="dv">14</span>)) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Âge&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Heures de TV&quot;</span>, <span class="dt">fill =</span> <span class="st">&quot;Densité&quot;</span>)</code></pre></div>
-<p><img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-32-1.png" title="" alt="" width="1050" /></p>
+<p><img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-28-1.png" title="" alt="" width="1050" /></p>
+</div>
+</div>
+<div id="diagramme-de-cleveland" class="section level2">
+<h2>Diagramme de Cleveland</h2>
+<p>Pour un <dfn>diagramme de Cleveland</dfn><dfn data-index="Cleveland, diagramme"></dfn>, on aura recours à la géométrie <code data-pkg="ggplot2">geom_point</code>. Cependant, il faudra lui préciser que l’on souhaite utiliser la statistique <code data-pkg="ggplot2" data-rdoc="geom_bar">stat_count</code> afin que les effectifs soient calculés pour chaque valeur de <code>x</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(d) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> clso) +<span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">stat =</span> <span class="st">&quot;count&quot;</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Sentiment d&#39;appartenance à une classe sociale&quot;</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;Effectifs&quot;</span>)</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-29-1.png" title="" alt="" width="1050" />
+<figcaption>
+Diagramme de Cleveland
+</figcaption>
+</figure>
+<p>Une alternative, notamment si l’on souhaite un diagramme de Cleveland ordonné, consiste à calculer les effectifs de chaque modalité en amont. <code class="pkg">ggplot2</code> ayant besoin d’un tableau de données en entrée, nous calculerons notre tableau de fréquences avec <code data-pkg="stats">xtabs</code> et le transformerons en tableau de données avec <code data-pkg="base" data-rdoc="table">as.data.frame</code>. Pour que les niveaux de qualifaction soient représentés selon leur effectif, il est nécessaire d’ordonner les étiquettes du facteur de manière adéquate. Enfin, nous utiliserons <code data-pkg="ggplot2">coord_flip</code> pour intervertir l’axe des <code>x</code> et celui des <code>y</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">xtabs</span>(~qualif, d))
+tab$qualif &lt;-<span class="st"> </span><span class="kw">factor</span>(tab$qualif, <span class="dt">levels =</span> tab$qualif[<span class="kw">order</span>(tab$Freq)])
+<span class="kw">str</span>(tab)</code></pre></div>
+<pre><code>&#39;data.frame&#39;:   7 obs. of  2 variables:
+ $ qualif: Factor w/ 7 levels &quot;Autre&quot;,&quot;Technicien&quot;,..: 4 6 2 3 5 7 1
+ $ Freq  : int  203 292 86 160 260 594 58</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(tab) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> qualif, <span class="dt">y =</span> Freq) +<span class="st"> </span><span class="kw">geom_point</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Niveau de qualification&quot;</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Effectifs&quot;</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">coord_flip</span>()</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-30-1.png" title="" alt="" width="1050" />
+<figcaption>
+Diagramme de Cleveland ordonné
+</figcaption>
+</figure>
+<div class="note">
+<p>L’extension <code class="pkg">ggalt</code> propose quelques géométries supplémentaires pour <code class="pkg">ggplot2</code>. L’une d’elles dite <q>en sucettes</q> (<em>lollipop</em>) propose une représentation graphique au croisement entre un diagramme en bâtons et un diagramme de Cleveland.</p>
+<p>Pour cela, il est d’abord nécessaire d’installer la version de développement de <code class="pkg">gglat</code> à l’aide de la commande suivante :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">&quot;hrbrmstr/ggalt&quot;</span>)</code></pre></div>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggalt)
+<span class="kw">ggplot</span>(tab) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> qualif, <span class="dt">y =</span> Freq) +<span class="st"> </span><span class="kw">geom_lollipop</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Niveau de qualification&quot;</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Effectifs&quot;</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">coord_flip</span>()</code></pre></div>
+<img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-32-1.png" title="" alt="" width="1050" />
+<figcaption>
+Diagramme en “sucettes” (lollipop)
+</figcaption>
+</figure>
 </div>
 </div>
 <div id="diagrammes-en-barres" class="section level2">
@@ -731,13 +731,13 @@ Diagramme en barres côte à côte
 <span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> percent)</code></pre></div>
 <img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-35-1.png" title="" alt="" width="1050" />
 <figcaption>
-Diagramme en barres côte à côte
+Diagramme en barres cumulées
 </figcaption>
 </figure>
 </div>
 <div id="graphe-en-mosaique" class="section level2">
 <h2>Graphe en mosaïque</h2>
-<p>Il n’y a pas, à ce jour, d’implémentation officielle des <dfn data-index="graphique en mosaïque">graphiques en mosaïque</dfn><dfn data-index="mosaïque, graphique"></dfn> sous <code class="pkg">ggplot2</code>. On pourra néanmoins se référer à l’extension expérimentale <code class="pkg">productplots</code><a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> développée par Hadley Wickham.</p>
+<p>Il n’y a pas, à ce jour, d’implémentation officielle des <dfn data-index="graphique en mosaïque">graphiques en mosaïque</dfn><dfn data-index="mosaïque, graphique"></dfn> sous <code class="pkg">ggplot2</code>. On pourra néanmoins se référer à l’extension expérimentale <code class="pkg">productplots</code><a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a> développée par Hadley Wickham.</p>
 </div>
 <div id="donnees-labellisees-et-ggplot2" class="section level2">
 <h2>Données labellisées et ggplot2</h2>
@@ -755,7 +755,8 @@ Diagramme en barres côte à côte
 <hr />
 <ol>
 <li id="fn1"><p>Pour plus de détails, on pourra lire <a href="https://tgmstat.wordpress.com/2013/11/13/plot-matrix-with-the-r-package-ggally/" class="uri">https://tgmstat.wordpress.com/2013/11/13/plot-matrix-with-the-r-package-ggally/</a>.<a href="#fnref1">↩</a></p></li>
-<li id="fn2"><p>Voir <a href="https://github.com/hadley/productplots" class="uri">https://github.com/hadley/productplots</a> et <a href="http://vita.had.co.nz/papers/prodplots.html" class="uri">http://vita.had.co.nz/papers/prodplots.html</a>.<a href="#fnref2">↩</a></p></li>
+<li id="fn2"><p>Pour une présentation détaillée de cette fonction et de ses options, voir <a href="https://briatte.github.io/ggcorr/" class="uri">https://briatte.github.io/ggcorr/</a>.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>Voir <a href="https://github.com/hadley/productplots" class="uri">https://github.com/hadley/productplots</a> et <a href="http://vita.had.co.nz/papers/prodplots.html" class="uri">http://vita.had.co.nz/papers/prodplots.html</a>.<a href="#fnref3">↩</a></p></li>
 </ol>
 </div>
 
