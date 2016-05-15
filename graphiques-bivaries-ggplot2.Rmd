@@ -226,59 +226,6 @@ ggplot(d) +
 <figcaption>Diagramme en bâtons avec ajustement de la largeur des barres</figcaption>
 </figure>
 
-## Diagramme de Cleveland
-
-Pour un <dfn>diagramme de Cleveland</dfn><dfn data-index="Cleveland, diagramme"></dfn>, on aura recours à la géométrie `geom_point`{data-pkg="ggplot2"}. Cependant, il faudra lui préciser que l'on souhaite utiliser la statistique `stat_count`{data-pkg="ggplot2" data-rdoc="geom_bar"} afin que les effectifs soient calculés pour chaque valeur de `x`.
-
-<figure>
-```{r, warning=FALSE}
-ggplot(d) +
-  aes(x = clso) +
-  geom_point(stat = "count") +
-  xlab("Sentiment d'appartenance à une classe sociale") +
-  ylab("Effectifs")
-```
-<figcaption>Diagramme de Cleveland</figcaption>
-</figure>
-
-Une alternative, notamment si l'on souhaite un diagramme de Cleveland ordonné, consiste à calculer les effectifs de chaque modalité en amont. `ggplot2`{.pkg} ayant besoin d'un tableau de données en entrée, nous calculerons notre tableau de fréquences avec `xtabs`{data-pkg="stats"} et le transformerons en tableau de données avec `as.data.frame`{data-pkg="base" data-rdoc="table"}. Pour que les niveaux de qualifaction soient représentés selon leur effectif, il est nécessaire d'ordonner les étiquettes du facteur de manière adéquate. Enfin, nous utiliserons `coord_flip`{data-pkg="ggplot2"} pour intervertir l'axe des `x` et celui des `y`.
-
-```{r, warning=FALSE}
-tab <- as.data.frame(xtabs(~qualif, d))
-tab$qualif <- factor(tab$qualif, levels = tab$qualif[order(tab$Freq)])
-str(tab)
-ggplot(tab) +
-  aes(x = qualif, y = Freq) +
-  geom_point() +
-  xlab("Niveau de qualification") +
-  ylab("Effectifs") +
-  coord_flip()
-```
-<figcaption>Diagramme de Cleveland ordonné</figcaption>
-</figure>
-
-<div class="note">
-L'extension `ggalt`{.pkg} propose quelques géométries supplémentaires pour `ggplot2`{.pkg}. L'une d'elles dite <q>en sucettes</q> (*lollipop*) propose une représentation graphique au croisement entre un diagramme en bâtons et un diagramme de Cleveland. 
-
-Pour cela, il est d'abord nécessaire d'installer la version de développement de `gglat`{.pkg} à l'aide de la commande suivante :
-
-```{r, eval=FALSE}
-devtools::install_github("hrbrmstr/ggalt")
-```
-
-<figure>
-```{r, warning=FALSE}
-library(ggalt)
-ggplot(tab) +
-  aes(x = qualif, y = Freq) +
-  geom_lollipop() +
-  xlab("Niveau de qualification") +
-  ylab("Effectifs") +
-  coord_flip()
-```
-<figcaption>Diagramme en "sucettes" (lollipop)</figcaption>
-</figure>
-</div>
 
 ## Nuage de points
 
@@ -441,14 +388,14 @@ ggplot(d) +
 </figure>
 
 <div class="note">
-Pour reproduire à l'identique l'exemple donné dans le chapitre [statistique bivariée](statistique-bivariee.html#deux-variables-quantitatives), on aura besoin de la fonction `xyz2dataframe`{data-pkg="prevR"} de l'extension `prevR`{.pkg} afin de transformer le résultat de `kde2d`{data-pkg="MASS"} en un tableau de données exploitables par `ggplot2`{.pkg}.
+Pour reproduire à l'identique l'exemple donné dans le chapitre [statistique bivariée](statistique-bivariee.html#deux-variables-quantitatives), on aura besoin de la méthode `tidy`{data-pkg="broom" data-rdoc="xyz_tidiers"} de l'extension `broom`{.pkg} afin de transformer le résultat de `kde2d`{data-pkg="MASS"} en un tableau de données exploitables par `ggplot2`{.pkg}. `tidy`{data-pkg="broom"} est une méthode générique permettant de transformer un grand nombre d'objets (et en particulier les résultats d'un modèle) en un tableau de données exploitable by `ggplot2`{.pkg}.
 
 ```{r, message=FALSE, warning=FALSE}
 library(MASS)
 tmp <- d[, c("age", "heures.tv")]
 tmp <- tmp[complete.cases(tmp), ]
-library(prevR)
-tmp <- xyz2dataframe(kde2d(tmp$age, tmp$heures.tv))
+library(broom)
+tmp <- tidy(kde2d(tmp$age, tmp$heures.tv))
 str(tmp)
 ggplot(tmp) + 
   aes(x = x, y = y, fill = z) +
@@ -457,6 +404,61 @@ ggplot(tmp) +
   labs(x = "Âge", y = "Heures de TV", fill = "Densité")
 ```
 </div>
+
+## Diagramme de Cleveland
+
+Pour un <dfn>diagramme de Cleveland</dfn><dfn data-index="Cleveland, diagramme"></dfn>, on aura recours à la géométrie `geom_point`{data-pkg="ggplot2"}. Cependant, il faudra lui préciser que l'on souhaite utiliser la statistique `stat_count`{data-pkg="ggplot2" data-rdoc="geom_bar"} afin que les effectifs soient calculés pour chaque valeur de `x`.
+
+<figure>
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = clso) +
+  geom_point(stat = "count") +
+  xlab("Sentiment d'appartenance à une classe sociale") +
+  ylab("Effectifs")
+```
+<figcaption>Diagramme de Cleveland</figcaption>
+</figure>
+
+Une alternative, notamment si l'on souhaite un diagramme de Cleveland ordonné, consiste à calculer les effectifs de chaque modalité en amont. `ggplot2`{.pkg} ayant besoin d'un tableau de données en entrée, nous calculerons notre tableau de fréquences avec `xtabs`{data-pkg="stats"} et le transformerons en tableau de données avec `as.data.frame`{data-pkg="base" data-rdoc="table"}. Pour que les niveaux de qualifaction soient représentés selon leur effectif, il est nécessaire d'ordonner les étiquettes du facteur de manière adéquate. Enfin, nous utiliserons `coord_flip`{data-pkg="ggplot2"} pour intervertir l'axe des `x` et celui des `y`.
+
+```{r, warning=FALSE}
+tab <- as.data.frame(xtabs(~qualif, d))
+tab$qualif <- factor(tab$qualif, levels = tab$qualif[order(tab$Freq)])
+str(tab)
+ggplot(tab) +
+  aes(x = qualif, y = Freq) +
+  geom_point() +
+  xlab("Niveau de qualification") +
+  ylab("Effectifs") +
+  coord_flip()
+```
+<figcaption>Diagramme de Cleveland ordonné</figcaption>
+</figure>
+
+<div class="note">
+L'extension `ggalt`{.pkg} propose quelques géométries supplémentaires pour `ggplot2`{.pkg}. L'une d'elles dite <q>en sucettes</q> (*lollipop*) propose une représentation graphique au croisement entre un diagramme en bâtons et un diagramme de Cleveland. 
+
+Pour cela, il est d'abord nécessaire d'installer la version de développement de `gglat`{.pkg} à l'aide de la commande suivante :
+
+```{r, eval=FALSE}
+devtools::install_github("hrbrmstr/ggalt")
+```
+
+<figure>
+```{r, warning=FALSE}
+library(ggalt)
+ggplot(tab) +
+  aes(x = qualif, y = Freq) +
+  geom_lollipop() +
+  xlab("Niveau de qualification") +
+  ylab("Effectifs") +
+  coord_flip()
+```
+<figcaption>Diagramme en "sucettes" (lollipop)</figcaption>
+</figure>
+</div>
+
 
 ## Diagrammes en barres
 
