@@ -242,26 +242,59 @@ library(questionr)
 odds.ratio(reg)
 ```
 
-Il est possible de représenter graphiquement les différents odds ratios. Pour cela, on va transformer le résultat de `odds.ratio`{data-pkg="questionr"} en tableau de données, renommer les colonnes pour plus de commodité et stocker le nom des modalités dans une variable. `geom_errorbar`{data-pkg="ggplot2" data-rdoc="geom_crossbar"} permets de représenter des barres d'erreurs, `geom_hline`{data-pkg="ggplot2" data-rdoc="geom_abline"} une ligne au niveau `y = 1`, `scale_y_log10`{data-pkg="ggplot2" data-rdoc="scale_continuous"} pour afficher l'axe des `y` de manière logarithmique, les odds ratios étant de nature multiplicative et non additive et `coord_flip`{data-pkg="ggplot2"} pour inverser l'axe des `x` et celui des `y` afin de faciliter la lecture du graphique.
+Il est possible de représenter graphiquement les différents odds ratios. Pour cela, on va utiliser la fonction `tidy`{data-pkg="broom" data-rdoc="gm_tidiers"} de l'extension `broom`{.pkg} pour récupérer les coefficients du modèle sous la forme d'un tableau de données exploitable avec `ggplot2`{.pkg}. On précisera `conf.int = TRUE` pour obtenir les intervalles de confiance et `exponentiate = TRUE` pour avoir les odds ratio plutôt que les coefficients bruts. `geom_errorbarh`{data-pkg="ggplot2" data-rdoc="geom_crossbar"} permets de représenter les intervalles de confiance sous forme de barres d'erreurs, `geom_vline`{data-pkg="ggplot2" data-rdoc="geom_abline"} une ligne verticale au niveau `x = 1`, `scale_x_log10`{data-pkg="ggplot2" data-rdoc="scale_continuous"} pour afficher l'axe des `x` de manière logarithmique, les odds ratios étant de nature multiplicative et non additive.
 
 <figure>
 ```{r}
-tmp <- as.data.frame(odds.ratio(reg))
-str(tmp)
-names(tmp) <- c("OR", "ICmin", "ICmax", "p")
-tmp$modalite <- row.names(tmp)
+library(broom)
+tmp <- tidy(reg, conf.int = TRUE, exponentiate = TRUE)
 str(tmp)
 library(ggplot2)
 ggplot(tmp) + 
-  aes(x = modalite, y = OR, ymin = ICmin, ymax = ICmax) +
-  geom_hline(yintercept = 1) +
-  geom_errorbar() +
+  aes(x = estimate, y = term, xmin = conf.low, xmax = conf.high) +
+  geom_vline(xintercept = 1) +
+  geom_errorbarh() +
   geom_point() +
-  scale_y_log10() +
-  coord_flip()
+  scale_x_log10()
 ```
 <figcaption>Représentation graphique des odds ratios</figcaption>
 </figure>
+
+<div class="note">
+L'extension `JLutils`{.pkg}, disponible uniquement sur GitHub, propose deux fonctions intéressantes dans ce contexte. Pour l'installer ou la mettre à jour, si ce n'est déjà fait, on aura recours à la commande ci-après.
+
+```{r, eval=FALSE}
+devtools::install_github("larmarange/JLutils")
+```
+
+La fonction `ggcoef`{data-pkg="JLutils"} permet d'effectuer le graphique précédent directement à partir de notre modèle. Voir l'aide de cette fonction pour la liste complète des paramètres personnalisables.
+
+```{r}
+library(JLutils)
+ggcoef(reg, exponentiate = TRUE)
+```
+
+La fonction `tidy_detailed`{data-pkg="JLutils"} est une version <q>élargie</q> de `tidy`{data-pkg="broom"} qui rajoute des colonnes supplémentaires avec le nom des variables et des modalités.
+
+```{r}
+str(tidy(reg))
+str(tidy_detailed(reg))
+```
+
+Il est possible de combiner les deux pour personnaliser un peu plus le résultat.
+
+```{r}
+td <- tidy_detailed(reg, exponentiate = TRUE, conf.int = TRUE)
+td$label <- factor(td$label, rev(td$label)) # Pour fixer l'ordre pour ggplot2
+ggcoef(
+  td, 
+  mapping = aes(y = level_detail, x = estimate, colour = variable_label), 
+  exponentiate = TRUE
+)
+```
+
+
+</div>
 
 L'extension `effects`{.pkg} propose une représentation graphique résumant les effets de chaque variable du modèle. Pour cela, il suffit d'appliquer la méthode `plot`{data-pkg="effects" data-rdoc="summary.effect"} au résultat de la fonction `allEffects`{data-pkg="effects" data-rdoc="effect"}. Nous obtenons alors la [figure ci-dessous](#reglog_alleffects).
 
@@ -416,7 +449,7 @@ reg
 Le résultat obtenu est similaire à celui de `glm`{data-pkg="stats"} et l'on peut utiliser 
 sans problème les fonctions `coef`{data-pkg="survey" data-rdoc="svyglm"},
 `confint`{data-pkg="survey" data-rdoc="confint.glm"}, 
-`odds.ratio`{data-pkg="questionr"} ou `predict`{data-pkg="survey" data-rdoc="svyglm"}.
+`odds.ratio`{data-pkg="questionr"}, `predict`{data-pkg="survey" data-rdoc="svyglm"} ou encore `tidy`{data-pkg="broom" data-rdoc="glm_tidiers"}.
 
 ```{r}
 odds.ratio(reg)
