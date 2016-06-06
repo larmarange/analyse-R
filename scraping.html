@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1">
+
 
 
 
@@ -89,25 +89,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </style>
 
 
-
-</head>
-
-<body>
-
-<style type = "text/css">
-.main-container {
-  max-width: 940px;
-  margin-left: auto;
-  margin-right: auto;
-}
-code {
-  color: inherit;
-  background-color: rgba(0, 0, 0, 0.04);
-}
-img {
-  max-width:100%;
-  height: auto;
-}
+<style type="text/css">
 h1 {
   font-size: 34px;
 }
@@ -129,6 +111,30 @@ h5 {
 h6 {
   font-size: 12px;
 }
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
 .tabbed-pane {
   padding-top: 12px;
 }
@@ -141,7 +147,7 @@ button.code-folding-btn:focus {
 <div class="container-fluid main-container">
 
 <!-- tabsets -->
-<script src="libs/navigation-1.0/tabsets.js"></script>
+<script src="libs/navigation-1.1/tabsets.js"></script>
 <script>
 $(document).ready(function () {
   window.buildTabsets("TOC");
@@ -334,7 +340,8 @@ $(document).ready(function () {
 <div class="fluid-row" id="header">
 
 
-<h1 class="title">Scraping</h1>
+
+<h1 class="title toc-ignore">Scraping</h1>
 
 </div>
 
@@ -401,82 +408,57 @@ http://www.conspiracywatch.info/?start=40
 <p>Commençons par le blog <a href="http://confusionnisme.info/">Confusionnisme</a>. Un rapide coup d’oeil au <a href="view-source:http://confusionnisme.info/">code source de sa page d’accueil</a> montre que les billets publiés sur ce blog se trouvent dans une suite de structures : l’une d’entre elles, <code>&lt;div id=&quot;content&quot;&gt;</code>, qui se lit « diviseur à identifiant <code>content</code> », contient tous les billets, et à l’intérieur de cette structure, tous les titres de billets se trouvent dans un hyperlien <code>&lt;a&gt;</code> à l’intérieur d’une balise <code>&lt;h1 class=&quot;entry-title&quot;&gt;</code>, qui se lit « titre de niveau 1 de classe « entry-title ».</p>
 <p>Récupérons désormais le code source de la page d’accueil du blog grâce à la fonction <code data-pkg="rvest">html</code>. Une fois exécuté le code ci-dessous, affichez le contenu de l’objet <code>h</code> pour réaliser que vous venez de récupérer le code source HTML de la page d’accueil du blog :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">h =<span class="st"> </span><span class="kw">html</span>(<span class="st">&quot;http://confusionnisme.info/&quot;</span>)</code></pre></div>
+<pre><code>Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)</code></pre>
 <p>Sélectionnons, à présent, toutes les balises correspondant aux identifiants notés ci-dessus, grâce à la fonction <code data-pkg="rvest">html_nodes</code>. Pour gagner de la place, on n’affichera ici que les deux premiers titres de billets que renvoie cette dernière fonction :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">html_nodes</span>(h, <span class="st">&quot;#content .entry-title a&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">head</span>(<span class="dv">2</span>)</code></pre></div>
-<pre><code>[[1]]
-&lt;a href=&quot;http://confusionnisme.info/2015/07/01/alexandre-koltchenko-compte-rendu-de-la-manifestation-parisienne-du-30-juin/&quot; rel=&quot;bookmark&quot;&gt;Alexandre Koltchenko : compte-rendu de la manifestation parisienne du 30 juin 2015&lt;/a&gt; 
-
-[[2]]
-&lt;a href=&quot;http://confusionnisme.info/2015/06/12/a-lire-charles-martel-et-la-bataille-de-poitiers-de-lhistoire-au-mythe-identitaire/&quot; rel=&quot;bookmark&quot;&gt;A lire : &lt;i&gt;Charles Martel et la bataille de Poitiers, de lhistoire au mythe identitaire&lt;/i&gt;&lt;/a&gt; 
-
-attr(,&quot;class&quot;)
-[1] &quot;XMLNodeSet&quot;</code></pre>
+<pre><code>{xml_nodeset (2)}
+[1] &lt;a href=&quot;http://confusionnisme.info/2016/01 ...
+[2] &lt;a href=&quot;http://confusionnisme.info/2016/01 ...</code></pre>
 <p>Le code ci-dessus signifie : « sélectionner tous les hyperliens <code>&lt;a&gt;</code>, à l’intérieur des éléments identifiés par la classe <code>entry-title</code>, à l’intérieur de l’élément portant l’identifiant <code>content</code> ». Comme l’on peut le voir, les identifiants des éléments HTML (<code>id</code>), qui sont censés être uniques, sont codés par un dièse (<code>#</code>), et les classes de ces mêmes éléments (<code>class</code>), qui peuvent se répéter, sont codées par un point (<code>.</code>). Ces codes sont identiques à ceux que l’on utilise pour attribuer des styles particuliers à ces éléments en langage CSS.</p>
 <p>Les éléments HTML que l’on a sélectionnés contiennent aussi bien des balises HTML (telles que <code>&lt;a&gt;</code> et <code>&lt;i&gt;</code>) que du texte. Pour ne sélectionner que le texte, on rajoute la fonction <code data-pkg="rvest">html_text</code> au code montré ci-dessus. Toujours par économie de place, on ne montre que les deux premiers résultats de ce nouvel enchaînement de fonctions :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">html_nodes</span>(h, <span class="st">&quot;#content .entry-title a&quot;</span>) %&gt;%
 <span class="st">  </span>html_text %&gt;%
 <span class="st">  </span><span class="kw">head</span>(<span class="dv">2</span>)</code></pre></div>
-<pre><code>[1] &quot;Alexandre Koltchenko : compte-rendu de la manifestation parisienne du 30 juin 2015&quot;    
-[2] &quot;A lire : Charles Martel et la bataille de Poitiers, de lhistoire au mythe identitaire&quot;</code></pre>
+<pre><code>[1] &quot;Demonstration in Calais: the port and a ferry occupied&quot;  
+[2] &quot;Calais : manifestation et occupation du port et du ferry&quot;</code></pre>
 <p>Voilà qui permet donc de récupérer les titres des billets ! Pour récupérer les hyperliens vers ces billets, rien de plus simple : au lieu de récupérer le texte des titres, il suffit de demander à récupérer l’attribut <code>href</code> de chaque lien, en utilisant la fonction <code data-pkg="rvest">html_attr</code>. On obtient cette fois-ci les hyperliens complets vers chaque billet :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">html_nodes</span>(h, <span class="st">&quot;#content .entry-title a&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">html_attr</span>(<span class="st">&quot;href&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">head</span>(<span class="dv">2</span>)</code></pre></div>
-<pre><code>[1] &quot;http://confusionnisme.info/2015/07/01/alexandre-koltchenko-compte-rendu-de-la-manifestation-parisienne-du-30-juin/&quot;       
-[2] &quot;http://confusionnisme.info/2015/06/12/a-lire-charles-martel-et-la-bataille-de-poitiers-de-lhistoire-au-mythe-identitaire/&quot;</code></pre>
+<pre><code>[1] &quot;http://confusionnisme.info/2016/01/24/demonstration-in-calais-the-port-and-a-ferry-occupied/&quot; 
+[2] &quot;http://confusionnisme.info/2016/01/24/calais-manifestation-et-occupation-du-port-et-du-ferry/&quot;</code></pre>
 <p>Présentons encore un exemple de sélection d’éléments sur la page d’accueil de ce blog, cette fois-ci en montrant l’intégralité des éléments récupérés, car ils prennent peu de place à l’écran. Ici, on récupère les dates de publications des billets, qui se trouvent, toujours selon le <a href="view-source:http://confusionnisme.info/">code source de la page</a>, dans une balise <code>&lt;time&gt;</code> qui se trouve dans une balise <code>&lt;header class=&quot;entry-meta&quot;&gt;</code>. Le code que l’on donne à la fonction <code data-pkg="rvest">html_nodes</code> est donc :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">html_nodes</span>(h, <span class="st">&quot;#content header.entry-header time&quot;</span>) %&gt;%
 <span class="st">  </span>html_text</code></pre></div>
-<pre><code> [1] &quot;1 juillet 2015&quot; &quot;12 juin 2015&quot;  
- [3] &quot;4 juin 2015&quot;    &quot;29 mai 2015&quot;   
- [5] &quot;15 mai 2015&quot;    &quot;25 avril 2015&quot; 
- [7] &quot;16 avril 2015&quot;  &quot;22 mars 2015&quot;  
- [9] &quot;20 mars 2015&quot;   &quot;18 mars 2015&quot;  </code></pre>
+<pre><code> [1] &quot;24 janvier 2016&quot;   &quot;24 janvier 2016&quot;  
+ [3] &quot;25 dÃ©cembre 2015&quot; &quot;22 dÃ©cembre 2015&quot;
+ [5] &quot;21 dÃ©cembre 2015&quot; &quot;13 dÃ©cembre 2015&quot;
+ [7] &quot;10 dÃ©cembre 2015&quot; &quot;5 dÃ©cembre 2015&quot; 
+ [9] &quot;24 novembre 2015&quot;  &quot;13 novembre 2015&quot; </code></pre>
 <p>On voit bien ici que les deux premières dates sont identiques aux dates qui figurent dans les hyperliens des deux premiers billets, tels que vus plus haut.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">html_nodes</span>(h, <span class="st">&quot;#content header.entry-header time&quot;</span>) %&gt;%
 <span class="st">  </span>html_text</code></pre></div>
-<pre><code> [1] &quot;1 juillet 2015&quot; &quot;12 juin 2015&quot;  
- [3] &quot;4 juin 2015&quot;    &quot;29 mai 2015&quot;   
- [5] &quot;15 mai 2015&quot;    &quot;25 avril 2015&quot; 
- [7] &quot;16 avril 2015&quot;  &quot;22 mars 2015&quot;  
- [9] &quot;20 mars 2015&quot;   &quot;18 mars 2015&quot;  </code></pre>
+<pre><code> [1] &quot;24 janvier 2016&quot;   &quot;24 janvier 2016&quot;  
+ [3] &quot;25 dÃ©cembre 2015&quot; &quot;22 dÃ©cembre 2015&quot;
+ [5] &quot;21 dÃ©cembre 2015&quot; &quot;13 dÃ©cembre 2015&quot;
+ [7] &quot;10 dÃ©cembre 2015&quot; &quot;5 dÃ©cembre 2015&quot; 
+ [9] &quot;24 novembre 2015&quot;  &quot;13 novembre 2015&quot; </code></pre>
 <p>Terminons, enfin, par un exemple plus compliqué. Comme on l’a déjà écrit, chacun des billets du blog est accompagné de plusieurs mots-clés. Après inspection du code source, on voit que ces mots-clés se trouvent regroupés dans un élément appelé <code>&lt;span class=&quot;tag-links&quot;&gt;</code>. Visionnons les deux premiers éléments en question, toujours à l’aide de la même syntaxe de sélection :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">html_nodes</span>(h, <span class="st">&quot;.tag-links&quot;</span>) %&gt;%
 <span class="st">    </span><span class="kw">head</span>(<span class="dv">2</span>)</code></pre></div>
-<pre><code>[[1]]
-&lt;span class=&quot;tag-links&quot;&gt;
-  &lt;a href=&quot;http://confusionnisme.info/tag/alexandre-koltchenko/&quot; rel=&quot;tag&quot;&gt;Alexandre Koltchenko&lt;/a&gt;
-  &lt;a href=&quot;http://confusionnisme.info/tag/antifascisme/&quot; rel=&quot;tag&quot;&gt;Antifascisme&lt;/a&gt;
-  &lt;a href=&quot;http://confusionnisme.info/tag/international/&quot; rel=&quot;tag&quot;&gt;International&lt;/a&gt;
-  &lt;a href=&quot;http://confusionnisme.info/tag/internationalisme/&quot; rel=&quot;tag&quot;&gt;Internationalisme&lt;/a&gt;
-  &lt;a href=&quot;http://confusionnisme.info/tag/oleg-sentsov/&quot; rel=&quot;tag&quot;&gt;Oleg Sentsov&lt;/a&gt;
-  &lt;a href=&quot;http://confusionnisme.info/tag/russie/&quot; rel=&quot;tag&quot;&gt;Russie&lt;/a&gt;
-  &lt;a href=&quot;http://confusionnisme.info/tag/ukraine/&quot; rel=&quot;tag&quot;&gt;Ukraine&lt;/a&gt;
-  &lt;a href=&quot;http://confusionnisme.info/tag/vladimir-poutine/&quot; rel=&quot;tag&quot;&gt;Vladimir Poutine&lt;/a&gt;
-&lt;/span&gt; 
-
-[[2]]
-&lt;span class=&quot;tag-links&quot;&gt;
-  &lt;a href=&quot;http://confusionnisme.info/tag/bataille-de-poitiers/&quot; rel=&quot;tag&quot;&gt;Bataille de Poitiers&lt;/a&gt;
-  &lt;a href=&quot;http://confusionnisme.info/tag/charles-martel/&quot; rel=&quot;tag&quot;&gt;Charles Martel&lt;/a&gt;
-  &lt;a href=&quot;http://confusionnisme.info/tag/christophe-naudin/&quot; rel=&quot;tag&quot;&gt;Christophe Naudin&lt;/a&gt;
-  &lt;a href=&quot;http://confusionnisme.info/tag/discours-identitaires/&quot; rel=&quot;tag&quot;&gt;Discours identitaires&lt;/a&gt;
-  &lt;a href=&quot;http://confusionnisme.info/tag/extreme-droite/&quot; rel=&quot;tag&quot;&gt;Extrême droite&lt;/a&gt;
-  &lt;a href=&quot;http://confusionnisme.info/tag/moyen-age/&quot; rel=&quot;tag&quot;&gt;Moyen Âge&lt;/a&gt;
-  &lt;a href=&quot;http://confusionnisme.info/tag/william-blanc/&quot; rel=&quot;tag&quot;&gt;William Blanc&lt;/a&gt;
-&lt;/span&gt; 
-
-attr(,&quot;class&quot;)
-[1] &quot;XMLNodeSet&quot;</code></pre>
+<pre><code>{xml_nodeset (2)}
+[1] &lt;span class=&quot;tag-links&quot;&gt;\n  &lt;a href=&quot;http:/ ...
+[2] &lt;span class=&quot;tag-links&quot;&gt;\n  &lt;a href=&quot;http:/ ...</code></pre>
 <p>Pour pouvoir stocker tous les mots-clés d’un billet sur la même ligne d’un fichier CSV, qui contiendra aussi le titre du billet, son hyperlien et sa date de publication, il va falloir regroupr ces mots-clés. On va donc, <em>à l’intérieur de chacun des éléments</em> de la liste d’éléments <code>&lt;span&gt;</code>, extraire le texte des mots-clés, contenus dans les éléments <code>&lt;a&gt;</code>, et les “coller” ensemble grâce à la fonction <code data-pkg="base">paste0</code> et à son argument <code>collapse</code> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">html_nodes</span>(h, <span class="st">&quot;.tag-links&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">sapply</span>(function(x) <span class="kw">html_nodes</span>(x, <span class="st">&quot;a&quot;</span>) %&gt;%
 <span class="st">           </span>html_text %&gt;%
 <span class="st">           </span><span class="kw">paste0</span>(<span class="dt">collapse =</span> <span class="st">&quot;;&quot;</span>)) %&gt;%
 <span class="st">  </span><span class="kw">head</span>(<span class="dv">2</span>)</code></pre></div>
-<pre><code>[1] &quot;Alexandre Koltchenko;Antifascisme;International;Internationalisme;Oleg Sentsov;Russie;Ukraine;Vladimir Poutine&quot;    
-[2] &quot;Bataille de Poitiers;Charles Martel;Christophe Naudin;Discours identitaires;Extrême droite;Moyen Âge;William Blanc&quot;</code></pre>
+<pre><code>[1] &quot;Calais;Migrations&quot; &quot;Calais;Migrations&quot;</code></pre>
 <p>L’astuce se trouve ici dans l’utilisation de la fonction <code data-pkg="base">sapply</code>, qui permet de travailler sur chacun des éléments <code>&lt;span class=&quot;tag-links&quot;&gt;</code> de manière séparée. L’utilisation de la fonction <em>pipe</em> <code>%&gt;%</code> a par ailleurs permis de travailler de manière cumulative, par essai-erreur, tout en produisant un code final plutôt lisible.</p>
 </div>
 <div id="recuperation-de-plusieurs-pages" class="section level3">
@@ -499,6 +481,21 @@ for(i in <span class="dv">1</span>:<span class="dv">4</span>) {
   ))
   
 }</code></pre></div>
+<pre><code>Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)</code></pre>
 <p>À la date de publication de ce blog, ce petit bout de code récupère les 36 billets étalés sur les 4 pages du site <a href="http://confusionnisme.info/">Confusionnisme</a>. Comme le montre l’inspection du résultat, le jeu de données que l’on vient de constituer contient l’adresse, le titre, la date de publication et les mots-clés de ces billets :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">View</span>(d1)</code></pre></div>
 <p>Il ne reste plus qu’à convertir la variable <var>date</var> vers le format générique <code>yyyy-mm-dd</code> que propose <strong>R</strong> à travers la fonction <code data-pkg="base">as.Date</code>. Pour convertir la variable, on utilise l’extension <code class="pkg">lubridate</code>, qui peut facilement interpréter les mois écrits en langue française grâce à l’argument <code>locale</code> spécifié ci-dessous :</p>
@@ -506,10 +503,12 @@ for(i in <span class="dv">1</span>:<span class="dv">4</span>) {
 <span class="st">  </span>as.Date</code></pre></div>
 <pre><code>Warning in Sys.setlocale(&quot;LC_TIME&quot;, locale):
 la requête OS pour spécifier la localisation à
-&quot;fr_FR&quot; n&#39;a pas pu être honorée</code></pre>
-<pre><code>Warning in Sys.setlocale(&quot;LC_TIME&quot;, locale):
+&quot;fr_FR&quot; n&#39;a pas pu être honorée
+
+Warning in Sys.setlocale(&quot;LC_TIME&quot;, locale):
 la requête OS pour spécifier la localisation à
 &quot;fr_FR&quot; n&#39;a pas pu être honorée</code></pre>
+<pre><code>Warning: 7 failed to parse.</code></pre>
 </div>
 <div id="utilisation-de-la-syntaxe-xpath" class="section level3">
 <h3>Utilisation de la syntaxe XPath</h3>
@@ -530,9 +529,27 @@ for(i in <span class="dv">1</span>:<span class="dv">5</span>) {
 <span class="st">               </span><span class="kw">paste0</span>(<span class="dt">collapse =</span> <span class="st">&quot;;&quot;</span>))
   ))
   
-}
+}</code></pre></div>
+<pre><code>Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
 
-d2$date =<span class="st"> </span><span class="kw">parse_date_time</span>(d2$date, <span class="st">&quot;%d/%m/%Y&quot;</span>) %&gt;%<span class="st"> </span>as.Date</code></pre></div>
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d2$date =<span class="st"> </span><span class="kw">parse_date_time</span>(d2$date, <span class="st">&quot;%d/%m/%Y&quot;</span>) %&gt;%<span class="st"> </span>as.Date</code></pre></div>
 <p>On remarquera que plusieurs petites choses ont changé : par exemple, sur le blog <a href="http://conspishorsdenosvies.noblogs.org/">Conspis hors de nos vi[ll]es</a>, les dates sont affichées dans un format <code>dd/mm/yyyy</code> qui ne nécessite pas de conversion, car chaque élément de la date est donné sous la forme d’un chiffre. On remarquera aussi que l’emplacement de la date a changé, car le gabarit graphique du blog diffère de celui de <a href="http://confusionnisme.info/">Confusionnisme</a> et place cette information dans un élément différent du <a href="view-source:http://conspishorsdenosvies.noblogs.org/">code source de la page</a>.</p>
 <p>Le changement le plus important ici concerne l’utilisation de la syntaxe <a href="https://fr.wikipedia.org/wiki/XPath">XPath</a> : en effet, pour récupérer les mots-clés, il nous a fallu limiter ceux-ci à ceux se trouvant dans des hyperliens (<code>&lt;a&gt;</code>) dont la propriété <code>rel</code> est égale à <code>tag</code>, pour ne pas également récupérer les mots-clés correspondant à des catégories du blog. La syntaxe XPath est un peu plus alambiquée : ici, c’est l’expression <code>a[@rel='tag']</code> qui accomplit l’opération souhaitée, à condition d’être bien passée à l’argument <code>xpath</code> de la fonction <code data-pkg="rvest">html_nodes</code>.</p>
 </div>
@@ -556,29 +573,271 @@ for(i in <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv"
 <span class="st">               </span><span class="kw">paste0</span>(<span class="dt">collapse =</span> <span class="st">&quot;;&quot;</span>))
   ))
   
-}
+}</code></pre></div>
+<pre><code>Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
 
-d3$url =<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;http://www.conspiracywatch.info&quot;</span>, d3$url)
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)
+
+Warning: &#39;html&#39; is deprecated.
+Use &#39;read_html&#39; instead.
+See help(&quot;Deprecated&quot;)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d3$url =<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;http://www.conspiracywatch.info&quot;</span>, d3$url)
 d3$date =<span class="st"> </span><span class="kw">parse_date_time</span>(d3$date, <span class="st">&quot;%d %m %Y&quot;</span>, <span class="dt">locale =</span> <span class="st">&quot;fr_FR&quot;</span>) %&gt;%<span class="st"> </span>as.Date</code></pre></div>
 <pre><code>Warning in Sys.setlocale(&quot;LC_TIME&quot;, locale):
 la requête OS pour spécifier la localisation à
 &quot;fr_FR&quot; n&#39;a pas pu être honorée</code></pre>
+<pre><code>Warning in Sys.setlocale(&quot;LC_TIME&quot;, locale):
+la requête OS pour spécifier la localisation à
+&quot;fr_FR&quot; n&#39;a pas pu être honorée</code></pre>
+<pre><code>Warning: 245 failed to parse.</code></pre>
 <p>Il ne reste plus qu’à combiner les différents résultats de nos récupérations, de les ordonner par date de publication, puis d’harmoniser les mots-clés a minima, en supprimant les traits d’union et en s’assurant qu’ils ne contiennent pas de lettres majuscules :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d =<span class="st"> </span><span class="kw">rbind</span>(d1, d2, d3) %&gt;%<span class="st"> </span><span class="kw">arrange</span>(date)
 d$tags =<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;-&quot;</span>, <span class="st">&quot; &quot;</span>, d$tags) %&gt;%<span class="st"> </span>tolower</code></pre></div>
 <p>L’inspection du résultat montre que l’on dispose à présent d’un jeu de données contenant les métadonnées de 1,268 billets de blogs, dont l’immense majorité proviennent de <a href="http://www.conspiracywatch.info/">Conspiracy Watch</a> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># nombre de billets récupérés</span>
 <span class="kw">nrow</span>(d)</code></pre></div>
-<pre><code>[1] 1269</code></pre>
+<pre><code>[1] 1284</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># sources des billets</span>
 <span class="kw">table</span>(<span class="kw">substr</span>(d$url, <span class="dv">1</span>, <span class="dv">25</span>))</code></pre></div>
 <pre><code>
 http://confusionnisme.inf 
-                       36 
-http://conspishorsdenosvi 
-                       44 
+                       40 
 http://www.conspiracywatc 
-                     1189 </code></pre>
+                     1200 
+https://conspishorsdenosv 
+                       44 </code></pre>
 <p>Il ne reste plus qu’à sauvegarder ce résultat, pour réutilisation future :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">write_csv</span>(d, <span class="st">&quot;data/conspi.csv&quot;</span>)</code></pre></div>
 </div>
