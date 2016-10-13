@@ -144,6 +144,7 @@ button.code-folding-btn:focus {
 </style>
 
 
+
 <div class="container-fluid main-container">
 
 <!-- tabsets -->
@@ -747,6 +748,18 @@ Femme moins de 40 ans  Femme plus de 40 ans
 Homme moins de 40 ans  Homme plus de 40 ans 
                   315                   584 </code></pre>
 <p>Les combinaisons de variables un peu complexes nécessitent parfois un petit travail de réflexion. En particulier, l’ordre des commandes de recodage a parfois une influence dans le résultat final.</p>
+<p>Pour combiner rapidement plusieurs variables entre elles, on peut aussi avoir recours à la fonction <code data-pkg="base">interaction</code> qui créra un facteur avec un niveau pour chaque combinaison de modalités des variables sources.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d$age20.sexe &lt;-<span class="st"> </span><span class="kw">interaction</span>(d$sexe, d$age20)
+<span class="kw">table</span>(d$age20.sexe)</code></pre></div>
+<pre><code>
+   Homme.&lt;20ans    Femme.&lt;20ans Homme.21-40 ans 
+             34              38             291 
+Femme.21-40 ans  Homme.41-60ans  Femme.41-60ans 
+            369             352             428 
+ Homme.61-80ans  Femme.61-80ans    Homme.&gt;80ans 
+            205             231              17 
+   Femme.&gt;80ans 
+             35 </code></pre>
 </div>
 <div id="variables-scores" class="section level2">
 <h2>Variables scores</h2>
@@ -803,19 +816,835 @@ d$act.manuelles[d$cuisine ==<span class="st"> &quot;Non&quot;</span> &amp;<span 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(data.table)
 dt &lt;-<span class="st"> </span><span class="kw">data.table</span>(hdv2003)
 
-dt[, score.ext :<span class="er">=</span><span class="st"> </span><span class="dv">0</span>]
-dt[cinema ==<span class="st"> &quot;Oui&quot;</span>, score.ext :<span class="er">=</span><span class="st"> </span>score.ext +<span class="st"> </span><span class="dv">10</span>]
-dt[peche.chasse ==<span class="st"> &quot;Oui&quot;</span>, score.ext :<span class="er">=</span><span class="st"> </span>score.ext +<span class="st"> </span><span class="dv">30</span>]
-dt[sport ==<span class="st"> &quot;Oui&quot;</span>, score.ext :<span class="er">=</span><span class="st"> </span>score.ext +<span class="st"> </span><span class="dv">20</span>]
-<span class="kw">table</span>(dt$score.ext)</code></pre></div>
+dt[, score.ext :<span class="er">=</span><span class="st"> </span><span class="dv">0</span>]</code></pre></div>
+<pre><code>        id age  sexe
+   1:    1  28 Femme
+   2:    2  23 Femme
+   3:    3  59 Homme
+   4:    4  34 Homme
+   5:    5  71 Femme
+  ---               
+1996: 1996  45 Homme
+1997: 1997  46 Homme
+1998: 1998  24 Homme
+1999: 1999  24 Femme
+2000: 2000  66 Femme
+                                                   nivetud
+   1: Enseignement superieur y compris technique superieur
+   2:                                                   NA
+   3:                    Derniere annee d&#39;etudes primaires
+   4: Enseignement superieur y compris technique superieur
+   5:                    Derniere annee d&#39;etudes primaires
+  ---                                                     
+1996:        Enseignement technique ou professionnel court
+1997:        Enseignement technique ou professionnel court
+1998:         Enseignement technique ou professionnel long
+1999:        Enseignement technique ou professionnel court
+2000:         Enseignement technique ou professionnel long
+           poids                 occup
+   1:  2634.3982 Exerce une profession
+   2:  9738.3958       Etudiant, eleve
+   3:  3994.1025 Exerce une profession
+   4:  5731.6615 Exerce une profession
+   5:  4329.0940              Retraite
+  ---                                 
+1996:  8092.1473 Exerce une profession
+1997:   955.8787 Exerce une profession
+1998:  5320.1624 Exerce une profession
+1999: 13740.8095 Exerce une profession
+2000:  7709.5131              Au foyer
+                qualif freres.soeurs clso
+   1:          Employe             8  Oui
+   2:               NA             2  Oui
+   3:       Technicien             2  Non
+   4:       Technicien             1  Non
+   5:          Employe             0  Oui
+  ---                                    
+1996:       Technicien             3  Non
+1997: Ouvrier qualifie             4  Oui
+1998:       Technicien             1  Oui
+1999:          Employe             2  Non
+2000:          Employe             3  Non
+                            relig
+   1: Ni croyance ni appartenance
+   2: Ni croyance ni appartenance
+   3: Ni croyance ni appartenance
+   4:  Appartenance sans pratique
+   5:         Pratiquant regulier
+  ---                            
+1996: Ni croyance ni appartenance
+1997:      Pratiquant occasionnel
+1998:                       Rejet
+1999:  Appartenance sans pratique
+2000:  Appartenance sans pratique
+                          trav.imp    trav.satisf
+   1:                Peu important Insatisfaction
+   2:                           NA             NA
+   3: Aussi important que le reste      Equilibre
+   4: Moins important que le reste   Satisfaction
+   5:                           NA             NA
+  ---                                            
+1996: Moins important que le reste      Equilibre
+1997:            Le plus important      Equilibre
+1998: Moins important que le reste   Satisfaction
+1999: Moins important que le reste      Equilibre
+2000:                           NA             NA
+      hard.rock lecture.bd peche.chasse cuisine
+   1:       Non        Non          Non     Oui
+   2:       Non        Non          Non     Non
+   3:       Non        Non          Non     Non
+   4:       Non        Non          Non     Oui
+   5:       Non        Non          Non     Non
+  ---                                          
+1996:       Non        Non          Non     Non
+1997:       Non        Non          Oui     Oui
+1998:       Non        Non          Non     Non
+1999:       Non        Non          Non     Non
+2000:       Non        Oui          Non     Oui
+      bricol cinema sport heures.tv score.ext
+   1:    Non    Non   Non       0.0         0
+   2:    Non    Oui   Oui       1.0         0
+   3:    Non    Non   Oui       0.0         0
+   4:    Oui    Oui   Oui       2.0         0
+   5:    Non    Non   Non       3.0         0
+  ---                                        
+1996:    Oui    Non   Non       3.0         0
+1997:    Oui    Non   Non       0.0         0
+1998:    Oui    Oui   Oui       1.4         0
+1999:    Non    Oui   Non       0.3         0
+2000:    Non    Non   Non       0.0         0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dt[cinema ==<span class="st"> &quot;Oui&quot;</span>, score.ext :<span class="er">=</span><span class="st"> </span>score.ext +<span class="st"> </span><span class="dv">10</span>]</code></pre></div>
+<pre><code>        id age  sexe
+   1:    1  28 Femme
+   2:    2  23 Femme
+   3:    3  59 Homme
+   4:    4  34 Homme
+   5:    5  71 Femme
+  ---               
+1996: 1996  45 Homme
+1997: 1997  46 Homme
+1998: 1998  24 Homme
+1999: 1999  24 Femme
+2000: 2000  66 Femme
+                                                   nivetud
+   1: Enseignement superieur y compris technique superieur
+   2:                                                   NA
+   3:                    Derniere annee d&#39;etudes primaires
+   4: Enseignement superieur y compris technique superieur
+   5:                    Derniere annee d&#39;etudes primaires
+  ---                                                     
+1996:        Enseignement technique ou professionnel court
+1997:        Enseignement technique ou professionnel court
+1998:         Enseignement technique ou professionnel long
+1999:        Enseignement technique ou professionnel court
+2000:         Enseignement technique ou professionnel long
+           poids                 occup
+   1:  2634.3982 Exerce une profession
+   2:  9738.3958       Etudiant, eleve
+   3:  3994.1025 Exerce une profession
+   4:  5731.6615 Exerce une profession
+   5:  4329.0940              Retraite
+  ---                                 
+1996:  8092.1473 Exerce une profession
+1997:   955.8787 Exerce une profession
+1998:  5320.1624 Exerce une profession
+1999: 13740.8095 Exerce une profession
+2000:  7709.5131              Au foyer
+                qualif freres.soeurs clso
+   1:          Employe             8  Oui
+   2:               NA             2  Oui
+   3:       Technicien             2  Non
+   4:       Technicien             1  Non
+   5:          Employe             0  Oui
+  ---                                    
+1996:       Technicien             3  Non
+1997: Ouvrier qualifie             4  Oui
+1998:       Technicien             1  Oui
+1999:          Employe             2  Non
+2000:          Employe             3  Non
+                            relig
+   1: Ni croyance ni appartenance
+   2: Ni croyance ni appartenance
+   3: Ni croyance ni appartenance
+   4:  Appartenance sans pratique
+   5:         Pratiquant regulier
+  ---                            
+1996: Ni croyance ni appartenance
+1997:      Pratiquant occasionnel
+1998:                       Rejet
+1999:  Appartenance sans pratique
+2000:  Appartenance sans pratique
+                          trav.imp    trav.satisf
+   1:                Peu important Insatisfaction
+   2:                           NA             NA
+   3: Aussi important que le reste      Equilibre
+   4: Moins important que le reste   Satisfaction
+   5:                           NA             NA
+  ---                                            
+1996: Moins important que le reste      Equilibre
+1997:            Le plus important      Equilibre
+1998: Moins important que le reste   Satisfaction
+1999: Moins important que le reste      Equilibre
+2000:                           NA             NA
+      hard.rock lecture.bd peche.chasse cuisine
+   1:       Non        Non          Non     Oui
+   2:       Non        Non          Non     Non
+   3:       Non        Non          Non     Non
+   4:       Non        Non          Non     Oui
+   5:       Non        Non          Non     Non
+  ---                                          
+1996:       Non        Non          Non     Non
+1997:       Non        Non          Oui     Oui
+1998:       Non        Non          Non     Non
+1999:       Non        Non          Non     Non
+2000:       Non        Oui          Non     Oui
+      bricol cinema sport heures.tv score.ext
+   1:    Non    Non   Non       0.0         0
+   2:    Non    Oui   Oui       1.0        10
+   3:    Non    Non   Oui       0.0         0
+   4:    Oui    Oui   Oui       2.0        10
+   5:    Non    Non   Non       3.0         0
+  ---                                        
+1996:    Oui    Non   Non       3.0         0
+1997:    Oui    Non   Non       0.0         0
+1998:    Oui    Oui   Oui       1.4        10
+1999:    Non    Oui   Non       0.3        10
+2000:    Non    Non   Non       0.0         0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dt[peche.chasse ==<span class="st"> &quot;Oui&quot;</span>, score.ext :<span class="er">=</span><span class="st"> </span>score.ext +<span class="st"> </span><span class="dv">30</span>]</code></pre></div>
+<pre><code>        id age  sexe
+   1:    1  28 Femme
+   2:    2  23 Femme
+   3:    3  59 Homme
+   4:    4  34 Homme
+   5:    5  71 Femme
+  ---               
+1996: 1996  45 Homme
+1997: 1997  46 Homme
+1998: 1998  24 Homme
+1999: 1999  24 Femme
+2000: 2000  66 Femme
+                                                   nivetud
+   1: Enseignement superieur y compris technique superieur
+   2:                                                   NA
+   3:                    Derniere annee d&#39;etudes primaires
+   4: Enseignement superieur y compris technique superieur
+   5:                    Derniere annee d&#39;etudes primaires
+  ---                                                     
+1996:        Enseignement technique ou professionnel court
+1997:        Enseignement technique ou professionnel court
+1998:         Enseignement technique ou professionnel long
+1999:        Enseignement technique ou professionnel court
+2000:         Enseignement technique ou professionnel long
+           poids                 occup
+   1:  2634.3982 Exerce une profession
+   2:  9738.3958       Etudiant, eleve
+   3:  3994.1025 Exerce une profession
+   4:  5731.6615 Exerce une profession
+   5:  4329.0940              Retraite
+  ---                                 
+1996:  8092.1473 Exerce une profession
+1997:   955.8787 Exerce une profession
+1998:  5320.1624 Exerce une profession
+1999: 13740.8095 Exerce une profession
+2000:  7709.5131              Au foyer
+                qualif freres.soeurs clso
+   1:          Employe             8  Oui
+   2:               NA             2  Oui
+   3:       Technicien             2  Non
+   4:       Technicien             1  Non
+   5:          Employe             0  Oui
+  ---                                    
+1996:       Technicien             3  Non
+1997: Ouvrier qualifie             4  Oui
+1998:       Technicien             1  Oui
+1999:          Employe             2  Non
+2000:          Employe             3  Non
+                            relig
+   1: Ni croyance ni appartenance
+   2: Ni croyance ni appartenance
+   3: Ni croyance ni appartenance
+   4:  Appartenance sans pratique
+   5:         Pratiquant regulier
+  ---                            
+1996: Ni croyance ni appartenance
+1997:      Pratiquant occasionnel
+1998:                       Rejet
+1999:  Appartenance sans pratique
+2000:  Appartenance sans pratique
+                          trav.imp    trav.satisf
+   1:                Peu important Insatisfaction
+   2:                           NA             NA
+   3: Aussi important que le reste      Equilibre
+   4: Moins important que le reste   Satisfaction
+   5:                           NA             NA
+  ---                                            
+1996: Moins important que le reste      Equilibre
+1997:            Le plus important      Equilibre
+1998: Moins important que le reste   Satisfaction
+1999: Moins important que le reste      Equilibre
+2000:                           NA             NA
+      hard.rock lecture.bd peche.chasse cuisine
+   1:       Non        Non          Non     Oui
+   2:       Non        Non          Non     Non
+   3:       Non        Non          Non     Non
+   4:       Non        Non          Non     Oui
+   5:       Non        Non          Non     Non
+  ---                                          
+1996:       Non        Non          Non     Non
+1997:       Non        Non          Oui     Oui
+1998:       Non        Non          Non     Non
+1999:       Non        Non          Non     Non
+2000:       Non        Oui          Non     Oui
+      bricol cinema sport heures.tv score.ext
+   1:    Non    Non   Non       0.0         0
+   2:    Non    Oui   Oui       1.0        10
+   3:    Non    Non   Oui       0.0         0
+   4:    Oui    Oui   Oui       2.0        10
+   5:    Non    Non   Non       3.0         0
+  ---                                        
+1996:    Oui    Non   Non       3.0         0
+1997:    Oui    Non   Non       0.0        30
+1998:    Oui    Oui   Oui       1.4        10
+1999:    Non    Oui   Non       0.3        10
+2000:    Non    Non   Non       0.0         0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dt[sport ==<span class="st"> &quot;Oui&quot;</span>, score.ext :<span class="er">=</span><span class="st"> </span>score.ext +<span class="st"> </span><span class="dv">20</span>]</code></pre></div>
+<pre><code>        id age  sexe
+   1:    1  28 Femme
+   2:    2  23 Femme
+   3:    3  59 Homme
+   4:    4  34 Homme
+   5:    5  71 Femme
+  ---               
+1996: 1996  45 Homme
+1997: 1997  46 Homme
+1998: 1998  24 Homme
+1999: 1999  24 Femme
+2000: 2000  66 Femme
+                                                   nivetud
+   1: Enseignement superieur y compris technique superieur
+   2:                                                   NA
+   3:                    Derniere annee d&#39;etudes primaires
+   4: Enseignement superieur y compris technique superieur
+   5:                    Derniere annee d&#39;etudes primaires
+  ---                                                     
+1996:        Enseignement technique ou professionnel court
+1997:        Enseignement technique ou professionnel court
+1998:         Enseignement technique ou professionnel long
+1999:        Enseignement technique ou professionnel court
+2000:         Enseignement technique ou professionnel long
+           poids                 occup
+   1:  2634.3982 Exerce une profession
+   2:  9738.3958       Etudiant, eleve
+   3:  3994.1025 Exerce une profession
+   4:  5731.6615 Exerce une profession
+   5:  4329.0940              Retraite
+  ---                                 
+1996:  8092.1473 Exerce une profession
+1997:   955.8787 Exerce une profession
+1998:  5320.1624 Exerce une profession
+1999: 13740.8095 Exerce une profession
+2000:  7709.5131              Au foyer
+                qualif freres.soeurs clso
+   1:          Employe             8  Oui
+   2:               NA             2  Oui
+   3:       Technicien             2  Non
+   4:       Technicien             1  Non
+   5:          Employe             0  Oui
+  ---                                    
+1996:       Technicien             3  Non
+1997: Ouvrier qualifie             4  Oui
+1998:       Technicien             1  Oui
+1999:          Employe             2  Non
+2000:          Employe             3  Non
+                            relig
+   1: Ni croyance ni appartenance
+   2: Ni croyance ni appartenance
+   3: Ni croyance ni appartenance
+   4:  Appartenance sans pratique
+   5:         Pratiquant regulier
+  ---                            
+1996: Ni croyance ni appartenance
+1997:      Pratiquant occasionnel
+1998:                       Rejet
+1999:  Appartenance sans pratique
+2000:  Appartenance sans pratique
+                          trav.imp    trav.satisf
+   1:                Peu important Insatisfaction
+   2:                           NA             NA
+   3: Aussi important que le reste      Equilibre
+   4: Moins important que le reste   Satisfaction
+   5:                           NA             NA
+  ---                                            
+1996: Moins important que le reste      Equilibre
+1997:            Le plus important      Equilibre
+1998: Moins important que le reste   Satisfaction
+1999: Moins important que le reste      Equilibre
+2000:                           NA             NA
+      hard.rock lecture.bd peche.chasse cuisine
+   1:       Non        Non          Non     Oui
+   2:       Non        Non          Non     Non
+   3:       Non        Non          Non     Non
+   4:       Non        Non          Non     Oui
+   5:       Non        Non          Non     Non
+  ---                                          
+1996:       Non        Non          Non     Non
+1997:       Non        Non          Oui     Oui
+1998:       Non        Non          Non     Non
+1999:       Non        Non          Non     Non
+2000:       Non        Oui          Non     Oui
+      bricol cinema sport heures.tv score.ext
+   1:    Non    Non   Non       0.0         0
+   2:    Non    Oui   Oui       1.0        30
+   3:    Non    Non   Oui       0.0        20
+   4:    Oui    Oui   Oui       2.0        30
+   5:    Non    Non   Non       3.0         0
+  ---                                        
+1996:    Oui    Non   Non       3.0         0
+1997:    Oui    Non   Non       0.0        30
+1998:    Oui    Oui   Oui       1.4        30
+1999:    Non    Oui   Non       0.3        10
+2000:    Non    Non   Non       0.0         0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(dt$score.ext)</code></pre></div>
 <pre><code>
   0  10  20  30  40  50  60 
 800 342 229 509  31  41  48 </code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dt[cuisine ==<span class="st"> &quot;Oui&quot;</span> &amp;<span class="st"> </span>bricol ==<span class="st"> &quot;Oui&quot;</span>, act.manuelles :<span class="er">=</span><span class="st"> &quot;Cuisine et Bricolage&quot;</span>]
-dt[cuisine ==<span class="st"> &quot;Oui&quot;</span> &amp;<span class="st"> </span>bricol ==<span class="st"> &quot;Non&quot;</span>, act.manuelles :<span class="er">=</span><span class="st"> &quot;Cuisine seulement&quot;</span>]
-dt[cuisine ==<span class="st"> &quot;Non&quot;</span> &amp;<span class="st"> </span>bricol ==<span class="st"> &quot;Oui&quot;</span>, act.manuelles :<span class="er">=</span><span class="st"> &quot;Bricolage seulement&quot;</span>]
-dt[cuisine ==<span class="st"> &quot;Non&quot;</span> &amp;<span class="st"> </span>bricol ==<span class="st"> &quot;Non&quot;</span>, act.manuelles :<span class="er">=</span><span class="st"> &quot;Ni cuisine ni bricolage&quot;</span>]
-<span class="kw">table</span>(dt$act.manuelles)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dt[cuisine ==<span class="st"> &quot;Oui&quot;</span> &amp;<span class="st"> </span>bricol ==<span class="st"> &quot;Oui&quot;</span>, act.manuelles :<span class="er">=</span><span class="st"> &quot;Cuisine et Bricolage&quot;</span>]</code></pre></div>
+<pre><code>        id age  sexe
+   1:    1  28 Femme
+   2:    2  23 Femme
+   3:    3  59 Homme
+   4:    4  34 Homme
+   5:    5  71 Femme
+  ---               
+1996: 1996  45 Homme
+1997: 1997  46 Homme
+1998: 1998  24 Homme
+1999: 1999  24 Femme
+2000: 2000  66 Femme
+                                                   nivetud
+   1: Enseignement superieur y compris technique superieur
+   2:                                                   NA
+   3:                    Derniere annee d&#39;etudes primaires
+   4: Enseignement superieur y compris technique superieur
+   5:                    Derniere annee d&#39;etudes primaires
+  ---                                                     
+1996:        Enseignement technique ou professionnel court
+1997:        Enseignement technique ou professionnel court
+1998:         Enseignement technique ou professionnel long
+1999:        Enseignement technique ou professionnel court
+2000:         Enseignement technique ou professionnel long
+           poids                 occup
+   1:  2634.3982 Exerce une profession
+   2:  9738.3958       Etudiant, eleve
+   3:  3994.1025 Exerce une profession
+   4:  5731.6615 Exerce une profession
+   5:  4329.0940              Retraite
+  ---                                 
+1996:  8092.1473 Exerce une profession
+1997:   955.8787 Exerce une profession
+1998:  5320.1624 Exerce une profession
+1999: 13740.8095 Exerce une profession
+2000:  7709.5131              Au foyer
+                qualif freres.soeurs clso
+   1:          Employe             8  Oui
+   2:               NA             2  Oui
+   3:       Technicien             2  Non
+   4:       Technicien             1  Non
+   5:          Employe             0  Oui
+  ---                                    
+1996:       Technicien             3  Non
+1997: Ouvrier qualifie             4  Oui
+1998:       Technicien             1  Oui
+1999:          Employe             2  Non
+2000:          Employe             3  Non
+                            relig
+   1: Ni croyance ni appartenance
+   2: Ni croyance ni appartenance
+   3: Ni croyance ni appartenance
+   4:  Appartenance sans pratique
+   5:         Pratiquant regulier
+  ---                            
+1996: Ni croyance ni appartenance
+1997:      Pratiquant occasionnel
+1998:                       Rejet
+1999:  Appartenance sans pratique
+2000:  Appartenance sans pratique
+                          trav.imp    trav.satisf
+   1:                Peu important Insatisfaction
+   2:                           NA             NA
+   3: Aussi important que le reste      Equilibre
+   4: Moins important que le reste   Satisfaction
+   5:                           NA             NA
+  ---                                            
+1996: Moins important que le reste      Equilibre
+1997:            Le plus important      Equilibre
+1998: Moins important que le reste   Satisfaction
+1999: Moins important que le reste      Equilibre
+2000:                           NA             NA
+      hard.rock lecture.bd peche.chasse cuisine
+   1:       Non        Non          Non     Oui
+   2:       Non        Non          Non     Non
+   3:       Non        Non          Non     Non
+   4:       Non        Non          Non     Oui
+   5:       Non        Non          Non     Non
+  ---                                          
+1996:       Non        Non          Non     Non
+1997:       Non        Non          Oui     Oui
+1998:       Non        Non          Non     Non
+1999:       Non        Non          Non     Non
+2000:       Non        Oui          Non     Oui
+      bricol cinema sport heures.tv score.ext
+   1:    Non    Non   Non       0.0         0
+   2:    Non    Oui   Oui       1.0        30
+   3:    Non    Non   Oui       0.0        20
+   4:    Oui    Oui   Oui       2.0        30
+   5:    Non    Non   Non       3.0         0
+  ---                                        
+1996:    Oui    Non   Non       3.0         0
+1997:    Oui    Non   Non       0.0        30
+1998:    Oui    Oui   Oui       1.4        30
+1999:    Non    Oui   Non       0.3        10
+2000:    Non    Non   Non       0.0         0
+             act.manuelles
+   1:                   NA
+   2:                   NA
+   3:                   NA
+   4: Cuisine et Bricolage
+   5:                   NA
+  ---                     
+1996:                   NA
+1997: Cuisine et Bricolage
+1998:                   NA
+1999:                   NA
+2000:                   NA</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dt[cuisine ==<span class="st"> &quot;Oui&quot;</span> &amp;<span class="st"> </span>bricol ==<span class="st"> &quot;Non&quot;</span>, act.manuelles :<span class="er">=</span><span class="st"> &quot;Cuisine seulement&quot;</span>]</code></pre></div>
+<pre><code>        id age  sexe
+   1:    1  28 Femme
+   2:    2  23 Femme
+   3:    3  59 Homme
+   4:    4  34 Homme
+   5:    5  71 Femme
+  ---               
+1996: 1996  45 Homme
+1997: 1997  46 Homme
+1998: 1998  24 Homme
+1999: 1999  24 Femme
+2000: 2000  66 Femme
+                                                   nivetud
+   1: Enseignement superieur y compris technique superieur
+   2:                                                   NA
+   3:                    Derniere annee d&#39;etudes primaires
+   4: Enseignement superieur y compris technique superieur
+   5:                    Derniere annee d&#39;etudes primaires
+  ---                                                     
+1996:        Enseignement technique ou professionnel court
+1997:        Enseignement technique ou professionnel court
+1998:         Enseignement technique ou professionnel long
+1999:        Enseignement technique ou professionnel court
+2000:         Enseignement technique ou professionnel long
+           poids                 occup
+   1:  2634.3982 Exerce une profession
+   2:  9738.3958       Etudiant, eleve
+   3:  3994.1025 Exerce une profession
+   4:  5731.6615 Exerce une profession
+   5:  4329.0940              Retraite
+  ---                                 
+1996:  8092.1473 Exerce une profession
+1997:   955.8787 Exerce une profession
+1998:  5320.1624 Exerce une profession
+1999: 13740.8095 Exerce une profession
+2000:  7709.5131              Au foyer
+                qualif freres.soeurs clso
+   1:          Employe             8  Oui
+   2:               NA             2  Oui
+   3:       Technicien             2  Non
+   4:       Technicien             1  Non
+   5:          Employe             0  Oui
+  ---                                    
+1996:       Technicien             3  Non
+1997: Ouvrier qualifie             4  Oui
+1998:       Technicien             1  Oui
+1999:          Employe             2  Non
+2000:          Employe             3  Non
+                            relig
+   1: Ni croyance ni appartenance
+   2: Ni croyance ni appartenance
+   3: Ni croyance ni appartenance
+   4:  Appartenance sans pratique
+   5:         Pratiquant regulier
+  ---                            
+1996: Ni croyance ni appartenance
+1997:      Pratiquant occasionnel
+1998:                       Rejet
+1999:  Appartenance sans pratique
+2000:  Appartenance sans pratique
+                          trav.imp    trav.satisf
+   1:                Peu important Insatisfaction
+   2:                           NA             NA
+   3: Aussi important que le reste      Equilibre
+   4: Moins important que le reste   Satisfaction
+   5:                           NA             NA
+  ---                                            
+1996: Moins important que le reste      Equilibre
+1997:            Le plus important      Equilibre
+1998: Moins important que le reste   Satisfaction
+1999: Moins important que le reste      Equilibre
+2000:                           NA             NA
+      hard.rock lecture.bd peche.chasse cuisine
+   1:       Non        Non          Non     Oui
+   2:       Non        Non          Non     Non
+   3:       Non        Non          Non     Non
+   4:       Non        Non          Non     Oui
+   5:       Non        Non          Non     Non
+  ---                                          
+1996:       Non        Non          Non     Non
+1997:       Non        Non          Oui     Oui
+1998:       Non        Non          Non     Non
+1999:       Non        Non          Non     Non
+2000:       Non        Oui          Non     Oui
+      bricol cinema sport heures.tv score.ext
+   1:    Non    Non   Non       0.0         0
+   2:    Non    Oui   Oui       1.0        30
+   3:    Non    Non   Oui       0.0        20
+   4:    Oui    Oui   Oui       2.0        30
+   5:    Non    Non   Non       3.0         0
+  ---                                        
+1996:    Oui    Non   Non       3.0         0
+1997:    Oui    Non   Non       0.0        30
+1998:    Oui    Oui   Oui       1.4        30
+1999:    Non    Oui   Non       0.3        10
+2000:    Non    Non   Non       0.0         0
+             act.manuelles
+   1:    Cuisine seulement
+   2:                   NA
+   3:                   NA
+   4: Cuisine et Bricolage
+   5:                   NA
+  ---                     
+1996:                   NA
+1997: Cuisine et Bricolage
+1998:                   NA
+1999:                   NA
+2000:    Cuisine seulement</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dt[cuisine ==<span class="st"> &quot;Non&quot;</span> &amp;<span class="st"> </span>bricol ==<span class="st"> &quot;Oui&quot;</span>, act.manuelles :<span class="er">=</span><span class="st"> &quot;Bricolage seulement&quot;</span>]</code></pre></div>
+<pre><code>        id age  sexe
+   1:    1  28 Femme
+   2:    2  23 Femme
+   3:    3  59 Homme
+   4:    4  34 Homme
+   5:    5  71 Femme
+  ---               
+1996: 1996  45 Homme
+1997: 1997  46 Homme
+1998: 1998  24 Homme
+1999: 1999  24 Femme
+2000: 2000  66 Femme
+                                                   nivetud
+   1: Enseignement superieur y compris technique superieur
+   2:                                                   NA
+   3:                    Derniere annee d&#39;etudes primaires
+   4: Enseignement superieur y compris technique superieur
+   5:                    Derniere annee d&#39;etudes primaires
+  ---                                                     
+1996:        Enseignement technique ou professionnel court
+1997:        Enseignement technique ou professionnel court
+1998:         Enseignement technique ou professionnel long
+1999:        Enseignement technique ou professionnel court
+2000:         Enseignement technique ou professionnel long
+           poids                 occup
+   1:  2634.3982 Exerce une profession
+   2:  9738.3958       Etudiant, eleve
+   3:  3994.1025 Exerce une profession
+   4:  5731.6615 Exerce une profession
+   5:  4329.0940              Retraite
+  ---                                 
+1996:  8092.1473 Exerce une profession
+1997:   955.8787 Exerce une profession
+1998:  5320.1624 Exerce une profession
+1999: 13740.8095 Exerce une profession
+2000:  7709.5131              Au foyer
+                qualif freres.soeurs clso
+   1:          Employe             8  Oui
+   2:               NA             2  Oui
+   3:       Technicien             2  Non
+   4:       Technicien             1  Non
+   5:          Employe             0  Oui
+  ---                                    
+1996:       Technicien             3  Non
+1997: Ouvrier qualifie             4  Oui
+1998:       Technicien             1  Oui
+1999:          Employe             2  Non
+2000:          Employe             3  Non
+                            relig
+   1: Ni croyance ni appartenance
+   2: Ni croyance ni appartenance
+   3: Ni croyance ni appartenance
+   4:  Appartenance sans pratique
+   5:         Pratiquant regulier
+  ---                            
+1996: Ni croyance ni appartenance
+1997:      Pratiquant occasionnel
+1998:                       Rejet
+1999:  Appartenance sans pratique
+2000:  Appartenance sans pratique
+                          trav.imp    trav.satisf
+   1:                Peu important Insatisfaction
+   2:                           NA             NA
+   3: Aussi important que le reste      Equilibre
+   4: Moins important que le reste   Satisfaction
+   5:                           NA             NA
+  ---                                            
+1996: Moins important que le reste      Equilibre
+1997:            Le plus important      Equilibre
+1998: Moins important que le reste   Satisfaction
+1999: Moins important que le reste      Equilibre
+2000:                           NA             NA
+      hard.rock lecture.bd peche.chasse cuisine
+   1:       Non        Non          Non     Oui
+   2:       Non        Non          Non     Non
+   3:       Non        Non          Non     Non
+   4:       Non        Non          Non     Oui
+   5:       Non        Non          Non     Non
+  ---                                          
+1996:       Non        Non          Non     Non
+1997:       Non        Non          Oui     Oui
+1998:       Non        Non          Non     Non
+1999:       Non        Non          Non     Non
+2000:       Non        Oui          Non     Oui
+      bricol cinema sport heures.tv score.ext
+   1:    Non    Non   Non       0.0         0
+   2:    Non    Oui   Oui       1.0        30
+   3:    Non    Non   Oui       0.0        20
+   4:    Oui    Oui   Oui       2.0        30
+   5:    Non    Non   Non       3.0         0
+  ---                                        
+1996:    Oui    Non   Non       3.0         0
+1997:    Oui    Non   Non       0.0        30
+1998:    Oui    Oui   Oui       1.4        30
+1999:    Non    Oui   Non       0.3        10
+2000:    Non    Non   Non       0.0         0
+             act.manuelles
+   1:    Cuisine seulement
+   2:                   NA
+   3:                   NA
+   4: Cuisine et Bricolage
+   5:                   NA
+  ---                     
+1996:  Bricolage seulement
+1997: Cuisine et Bricolage
+1998:  Bricolage seulement
+1999:                   NA
+2000:    Cuisine seulement</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dt[cuisine ==<span class="st"> &quot;Non&quot;</span> &amp;<span class="st"> </span>bricol ==<span class="st"> &quot;Non&quot;</span>, act.manuelles :<span class="er">=</span><span class="st"> &quot;Ni cuisine ni bricolage&quot;</span>]</code></pre></div>
+<pre><code>        id age  sexe
+   1:    1  28 Femme
+   2:    2  23 Femme
+   3:    3  59 Homme
+   4:    4  34 Homme
+   5:    5  71 Femme
+  ---               
+1996: 1996  45 Homme
+1997: 1997  46 Homme
+1998: 1998  24 Homme
+1999: 1999  24 Femme
+2000: 2000  66 Femme
+                                                   nivetud
+   1: Enseignement superieur y compris technique superieur
+   2:                                                   NA
+   3:                    Derniere annee d&#39;etudes primaires
+   4: Enseignement superieur y compris technique superieur
+   5:                    Derniere annee d&#39;etudes primaires
+  ---                                                     
+1996:        Enseignement technique ou professionnel court
+1997:        Enseignement technique ou professionnel court
+1998:         Enseignement technique ou professionnel long
+1999:        Enseignement technique ou professionnel court
+2000:         Enseignement technique ou professionnel long
+           poids                 occup
+   1:  2634.3982 Exerce une profession
+   2:  9738.3958       Etudiant, eleve
+   3:  3994.1025 Exerce une profession
+   4:  5731.6615 Exerce une profession
+   5:  4329.0940              Retraite
+  ---                                 
+1996:  8092.1473 Exerce une profession
+1997:   955.8787 Exerce une profession
+1998:  5320.1624 Exerce une profession
+1999: 13740.8095 Exerce une profession
+2000:  7709.5131              Au foyer
+                qualif freres.soeurs clso
+   1:          Employe             8  Oui
+   2:               NA             2  Oui
+   3:       Technicien             2  Non
+   4:       Technicien             1  Non
+   5:          Employe             0  Oui
+  ---                                    
+1996:       Technicien             3  Non
+1997: Ouvrier qualifie             4  Oui
+1998:       Technicien             1  Oui
+1999:          Employe             2  Non
+2000:          Employe             3  Non
+                            relig
+   1: Ni croyance ni appartenance
+   2: Ni croyance ni appartenance
+   3: Ni croyance ni appartenance
+   4:  Appartenance sans pratique
+   5:         Pratiquant regulier
+  ---                            
+1996: Ni croyance ni appartenance
+1997:      Pratiquant occasionnel
+1998:                       Rejet
+1999:  Appartenance sans pratique
+2000:  Appartenance sans pratique
+                          trav.imp    trav.satisf
+   1:                Peu important Insatisfaction
+   2:                           NA             NA
+   3: Aussi important que le reste      Equilibre
+   4: Moins important que le reste   Satisfaction
+   5:                           NA             NA
+  ---                                            
+1996: Moins important que le reste      Equilibre
+1997:            Le plus important      Equilibre
+1998: Moins important que le reste   Satisfaction
+1999: Moins important que le reste      Equilibre
+2000:                           NA             NA
+      hard.rock lecture.bd peche.chasse cuisine
+   1:       Non        Non          Non     Oui
+   2:       Non        Non          Non     Non
+   3:       Non        Non          Non     Non
+   4:       Non        Non          Non     Oui
+   5:       Non        Non          Non     Non
+  ---                                          
+1996:       Non        Non          Non     Non
+1997:       Non        Non          Oui     Oui
+1998:       Non        Non          Non     Non
+1999:       Non        Non          Non     Non
+2000:       Non        Oui          Non     Oui
+      bricol cinema sport heures.tv score.ext
+   1:    Non    Non   Non       0.0         0
+   2:    Non    Oui   Oui       1.0        30
+   3:    Non    Non   Oui       0.0        20
+   4:    Oui    Oui   Oui       2.0        30
+   5:    Non    Non   Non       3.0         0
+  ---                                        
+1996:    Oui    Non   Non       3.0         0
+1997:    Oui    Non   Non       0.0        30
+1998:    Oui    Oui   Oui       1.4        30
+1999:    Non    Oui   Non       0.3        10
+2000:    Non    Non   Non       0.0         0
+                act.manuelles
+   1:       Cuisine seulement
+   2: Ni cuisine ni bricolage
+   3: Ni cuisine ni bricolage
+   4:    Cuisine et Bricolage
+   5: Ni cuisine ni bricolage
+  ---                        
+1996:     Bricolage seulement
+1997:    Cuisine et Bricolage
+1998:     Bricolage seulement
+1999: Ni cuisine ni bricolage
+2000:       Cuisine seulement</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(dt$act.manuelles)</code></pre></div>
 <pre><code>
     Bricolage seulement    Cuisine et Bricolage 
                     437                     416 
@@ -996,6 +1825,7 @@ $(document).ready(function () {
 $(document).ready(function () {
   $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
 });
+
 
 </script>
 
