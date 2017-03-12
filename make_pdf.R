@@ -3,7 +3,7 @@ require(stringr)
 
 ## Page d'accueil
 index <- read_html("index.html", encoding = "UTF-8")
-res <- as.character(xml_find_one(index, ".//article"))
+res <- as.character(xml_find_first(index, ".//article"))
 
 ## Identifier les chapitres
 divs <- xml_find_all(index, ".//div")
@@ -17,7 +17,7 @@ chapitres <- xml_attr(xml_find_all(tdm, ".//a"), 'href')
 ## Récupérer le contenu de chaque chapitre
 for (chap in chapitres) {
   page <- read_html(chap, encoding = "UTF-8")
-  contenu <- as.character(xml_find_one(page, ".//article"))
+  contenu <- as.character(xml_find_first(page, ".//article"))
   rac <- str_sub(chap, 1, -6)
   contenu <- str_replace_all(contenu, 'id="TOC', 'class="TOC')
   contenu <- str_replace_all(contenu, 'id="', paste0('id="', rac, "_"))
