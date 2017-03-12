@@ -25,7 +25,7 @@ if (!length(m)) {
 
 # 2. Installer les packages manquants (CRAN ou GitHub) ----------------
 
-thru_github <- c("lubridate", "questionr", "JLutils", "hrbrmstr", "ropensci")
+thru_github <- c("tidyverse", "questionr", "JLutils", "hrbrmstr", "ropensci")
 repo_github <- c("hadley", "juba", "larmarange", "ggalt", "plotly")
 
 for (i in m[m %in% thru_github])
@@ -41,7 +41,7 @@ if (any(!p %in% installed.packages()[, 1]))
 
 library(lubridate)
 if (!exists("time_length"))
-  install_github("hadley/lubridate")
+  install_github("tidyverse/lubridate")
 
 library(questionr)
 if (is.null(getS3method("odds.ratio", "numeric", TRUE)))
