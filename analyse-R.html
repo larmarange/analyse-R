@@ -198,7 +198,7 @@ pre:not([class]) {
 Introduction <br>à l’analyse d’enquêtes <br>avec R et RStudio
 </h1>
 <p>
-Dernière mise à jour : 14 mars 2017
+Dernière mise à jour : 26 avril 2017
 </p>
 </div>
 <div id="contributeurs" class="section level2">
@@ -2310,7 +2310,7 @@ d &lt;-<span class="st"> </span>hdv2003</code></pre></div>
      bricol cinema sport heures.tv
 1999    Non    Oui   Non       0.3
 2000    Non    Non   Non       0.0</code></pre>
-<p>L’extension <code class="pkg">dplyr</code>, que nous n’aborderons en détails que <a href="#introduction-a-dplyr">plus tard</a>, propose une fonction <code data-pkg="dplyr">glimpse</code> (ce qui signifie <q>aperçu</q> en anglais) qui permet de visualiser rapidement et de manière condensée le contenu d’un tableau de données.</p>
+<p>L’extension <code class="pkg">dplyr</code>, que nous n’aborderons en détails que <a href="#introduction-a-dplyr">plus tard</a>, propose une fonction <code data-pkg="tibble">glimpse</code> (ce qui signifie <q>aperçu</q> en anglais) qui permet de visualiser rapidement et de manière condensée le contenu d’un tableau de données.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)
 <span class="kw">glimpse</span>(d)</code></pre></div>
 <pre><code>Observations: 2,000
@@ -4978,9 +4978,107 @@ mean&gt; c(xm, mean(x, trim = 0.10))
 
 </div>
 
+<div class="TOC">
+<ul>
+<li>
+<a href="#introduction-a-dplyr_les-tibbles">Les tibbles</a><ul>
+<li><a href="#introduction-a-dplyr_dplyr-et-data.table">dplyr et data.table</a></li>
+</ul>
+</li>
+<li><a href="#introduction-a-dplyr_principaux-verbes">Principaux verbes</a></li>
+<li><a href="#introduction-a-dplyr_enchainer-les-operations">Enchaîner les opérations</a></li>
+</ul>
+</div>
 
 <div class="important">
 <p>Ce chapitre est en cours d’écriture.</p>
+</div>
+<p>Pour une introduction à <code class="pkg">dplyr</code> en anglais, voir la vignette officielle : <a href="https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html" class="uri">https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html</a>. On pourra également se référer à <a href="https://rpubs.com/justmarkham/dplyr-tutorial" class="uri">https://rpubs.com/justmarkham/dplyr-tutorial</a>.</p>
+<div id="introduction-a-dplyr_les-tibbles" class="section level1">
+<h1>Les tibbles</h1>
+<p>L’extension <code class="pkg">tibble</code> permet d’étendre les data.frame en améliorant la manière dont les tableaux sont affichés dans la console et ayant un comportement plus uniforme concernant les noms de colonnes et la manière d’extraire des éléments avec les crochets simples et doubles.</p>
+<p>Voir <a href="https://cran.r-project.org/web/packages/tibble/vignettes/tibble.html" class="uri">https://cran.r-project.org/web/packages/tibble/vignettes/tibble.html</a> pour plus de détails.</p>
+<p>Cela ne modifie pas radicalement les tableaux de données, mais lorsque l’on travail avec <code class="pkg">dplyr</code>, il est préférable de convertir ses tableaux de données en <em>tibble</em> ce qui se fait aisément avec la fonction <code data_pkg="dplyr">tbl_df</code> fournie avec <code class="pkg">dplyr</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)</code></pre></div>
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2 &lt;-<span class="st"> </span><span class="kw">tbl_df</span>(iris)
+<span class="kw">class</span>(iris2)</code></pre></div>
+<pre><code>[1] "tbl_df"     "tbl"        "data.frame"</code></pre>
+<p>Comme on le voit, cela ajoute plusieurs classes additionnelles au tableau de données, celui-ci restant malgré tout toujours un <em>data.frame</em>.</p>
+<p><code class="pkg">dplyr</code> et <code class="pkg">tibble</code> propose également une petite fonction bien pratique pour <q>jeter un coup d’oeil</q> à ses données : <code data-pkg="tibble">glimpse</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">glimpse</span>(iris2)</code></pre></div>
+<pre><code>Observations: 150
+Variables: 5
+$ Sepal.Length &lt;dbl&gt; 5.1, 4.9, 4.7, 4.6, 5.0,...
+$ Sepal.Width  &lt;dbl&gt; 3.5, 3.0, 3.2, 3.1, 3.6,...
+$ Petal.Length &lt;dbl&gt; 1.4, 1.4, 1.3, 1.5, 1.4,...
+$ Petal.Width  &lt;dbl&gt; 0.2, 0.2, 0.2, 0.2, 0.2,...
+$ Species      &lt;fctr&gt; setosa, setosa, setosa,...</code></pre>
+<p>Il faut également noter que le format <em>tibble</em> est celui dans lequel les données sont importées lorsque l’on utilise les fonctions d’import des extensions <code class="pkg">readr</code>, <code class="pkg">haven</code> et <code class="pkg">readxl</code> (voir le chapitre <a href="#import-de-donnees">Import de données</a>).</p>
+<div id="introduction-a-dplyr_dplyr-et-data.table" class="section level2">
+<h2>dplyr et data.table</h2>
+<p>Pour ceux travaillant également avec l’extension <code class="pkg">data.table</code>, il est possible de concilier <em>tibble</em> et <em>data.table</em> avec l’extension <code class="pkg">dtplyr</code> et sa fonction <code data-pkg="dtplyr">tbl_dt</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dtplyr)
+iris_dt &lt;-<span class="st"> </span><span class="kw">tbl_dt</span>(iris)
+<span class="kw">class</span>(iris_dt)</code></pre></div>
+<pre><code>[1] "tbl_dt"     "tbl"        "data.table"
+[4] "data.frame"</code></pre>
+<p>Le tableau de données est à la fois compatible avec <code class="pkg">data.table</code> (et notamment sa syntaxe particulière des crochets) et les verbes de <code class="pkg">dplyr</code>.</p>
+</div>
+</div>
+<div id="introduction-a-dplyr_principaux-verbes" class="section level1">
+<h1>Principaux verbes</h1>
+<p><code class="pkg">dplyr</code> est construit autour de fonctions nommées selon des verbes anglais. Chaque verbe prends comme premier argument un tableau de données, les options étant indiquées à la suite. Chacune de ces fonctions renvoie à son tour un tableau de données.</p>
+<ul>
+<li>
+<code data-pkg="dplyr">filter</code> pour sélectionner des observation selon une condition</li>
+<li>
+<code data-pkg="dplyr">slice</code> pour sélectionner des observations selon leur position</li>
+<li>
+<code data-pkg="dplyr">arrange</code> pour trier les observations</li>
+<li>
+<code data-pkg="dplyr">select</code> pour sélectionner des variables</li>
+<li>
+<code data-pkg="dplyr" data-rdoc="dplyr">rename</code> pour renommer des variables</li>
+<li>
+<code data-pkg="dplyr">distinct</code> pour ne retenir que les observations distinctes (et donc éliminer les doublons)</li>
+<li>
+<code data-pkg="dplyr">mutate</code> pour créer de nouvelles variables</li>
+<li>
+<code data-pkg="dplyr">summarise</code> pour résumer des des valeurs multiples en une seule (par exemple, avec une moyenne)</li>
+<li>
+<code data-pkg="dplyr">group_by</code> pour exécuter les opérations par groupe</li>
+<li>
+<code data-pkg="dplyr" data-rdoc="sample">sample_n</code> et <code data-pkg="dplyr" data-rdoc="sample">sample_frac</code> pour sélectionner un sous-échantillon aléatoire</li>
+</ul>
+<p>On notera que les verbes de <code class="pkg">dplyr</code> accepte une syntaxe assez libre, puisque que les noms de variables sont interprétés dans leur contexte : il n’est donc pas nécessaire de les entourer de guillemets.</p>
+</div>
+<div id="introduction-a-dplyr_enchainer-les-operations" class="section level1">
+<h1>Enchaîner les opérations</h1>
+<p><code class="pkg">dplyr</code> importe automatiquement l’opérateur <code data-pkg="magrittr">%&gt;%</code> fourni par l’extension <code class="pkg">magrittr</code>. Cela permet d’enchaîner facilement les verbes de <code class="pkg">dplyr</code>. Cet opérateur ne fonctionne essentiellement qu’avec des fonctions dont le premier argument est un tableau de données et qui renvoient un tableau de données.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris %&gt;%<span class="st"> </span><span class="kw">group_by</span>(Species) %&gt;%<span class="st"> </span><span class="kw">summarise</span>(<span class="dt">mean.sepal.width =</span> <span class="kw">mean</span>(Sepal.Width, 
+  <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="dt">mean.sepal.length =</span> <span class="kw">mean</span>(Sepal.Length, 
+  <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)) %&gt;%<span class="st"> </span><span class="kw">filter</span>(mean.sepal.width &lt;<span class="st"> </span><span class="dv">3</span>)</code></pre></div>
+<pre><code># A tibble: 2 × 3
+     Species mean.sepal.width mean.sepal.length
+      &lt;fctr&gt;            &lt;dbl&gt;             &lt;dbl&gt;
+1 versicolor            2.770             5.936
+2  virginica            2.974             6.588</code></pre>
+<p><code data-pkg="magrittr">%&lt;&gt;%</code> permet quant à lui de renvoyer le résultat final dans le premier objet appelé. C’est une manière plus courte d’écrire une commande comme la suivante :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris &lt;-<span class="st"> </span>iris %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Sepal.Area =</span> Sepal.Length *<span class="st"> </span>
+<span class="st">  </span>Sepal.Width)</code></pre></div>
+<p>en</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(magrittr)
+iris %&lt;&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Sepal.Area =</span> Sepal.Length *<span class="st"> </span>Sepal.Width)</code></pre></div>
+<p>De manière plus générique, <code>some_object %&lt;&gt;% foo %&gt;% bar</code> est équivalent à <code>some_object &lt;- some_object %&gt;% foo %&gt;% bar</code>.</p>
+<p>Pour plus de détails, voir <a href="https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html" class="uri">https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html</a>.</p>
 </div>
 
 </article>
@@ -4992,9 +5090,269 @@ mean&gt; c(xm, mean(x, trim = 0.10))
 
 </div>
 
+<div class="TOC">
+<ul>
+<li>
+<a href="#introduction-a-data-table_convertir-un-data.frame-en-data.table">Convertir un data.frame en data.table</a><ul>
+<li><a href="#introduction-a-data-table_setdt-et-setdf">setDT et setDF</a></li>
+<li><a href="#introduction-a-data-table_dplyr-et-data.table">dplyr et data.table</a></li>
+</ul>
+</li>
+<li>
+<a href="#introduction-a-data-table_la-syntaxe-des-crochets">La syntaxe des crochets</a><ul>
+<li><a href="#introduction-a-data-table_selectionner-des-observations">Sélectionner des observations</a></li>
+<li><a href="#introduction-a-data-table_selectionner-des-variables">Sélectionner des variables</a></li>
+<li><a href="#introduction-a-data-table_grouper-les-results">Grouper les résults</a></li>
+<li><a href="#introduction-a-data-table_ajoutermodifiersupprimer-une-variable">Ajouter/Modifier/Supprimer une variable</a></li>
+</ul>
+</li>
+<li><a href="#introduction-a-data-table_enchainer-les-operations">Enchaîner les opérations</a></li>
+</ul>
+</div>
 
 <div class="important">
 <p>Ce chapitre est en cours d’écriture.</p>
+</div>
+<p>L’extension <code class="pkg">data.table</code> permets d’étendre les tableaux de données. Elle modifie radicalement la syntaxe des crochets, permettant un code plus court et surtout plus puissant. Par ailleurs, elle est particulièrement rapide pour opérer des opérations sur les données et permets d’effectuer des opérations par assignation directe sans avoir à copier les objets en mémoire. Autrement dit, elle est particulièrement utile lorsque l’on travaille sur des gros fichiers de données.</p>
+<p>Certes, l’apprentissage de cette nouvelle syntaxe peut faire peur au début, mais c’est un gain tellement notable une fois qu’on la maîtrise, qu’il est difficile de revenir en arrière.</p>
+<p>Pour un tutoriel (en anglais et en ligne) écrit par les développeurs de <code class="pkg">data.table</code>, voir <a href="https://www.datacamp.com/courses/data-table-data-manipulation-r-tutorial" class="uri">https://www.datacamp.com/courses/data-table-data-manipulation-r-tutorial</a>. On pourra aussi se référer à la vignette officielle <a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html" class="uri">https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html</a>.</p>
+<div id="introduction-a-data-table_convertir-un-data.frame-en-data.table" class="section level1">
+<h1>Convertir un data.frame en data.table</h1>
+<p>Il suffit d’avoir recours à la fonction <code data-pkg="data.table">as.data.table</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(data.table)
+iris2 &lt;-<span class="st"> </span><span class="kw">as.data.table</span>(iris)
+<span class="kw">class</span>(iris2)</code></pre></div>
+<pre><code>[1] "data.table" "data.frame"</code></pre>
+<p>Comme on le voit, cela ajoute plusieurs classes additionnelles au tableau de données, celui-ci restant malgré tout toujours un <em>data.frame</em>. Cependant, la syntaxe des crochets simples <code>[]</code> change radicalement, tandis que les crochets doubles <code>[[]]</code> restent inchangés. Par contre, comme il s’agit toujours d’un tableau de données classique, on pourra l’utiliser avec les fonctions des autres extensions de R. Si jamais vous rencontriez un problème, il est toujours possible de reconvertir en tableau de données classique avec <code data-pkg="data.table">setDF</code> (voir ci-dessous).</p>
+<div id="introduction-a-data-table_setdt-et-setdf" class="section level2">
+<h2>setDT et setDF</h2>
+<p>Lors de l’utilisation de <code data-pkg="data.table">as.data.table</code>, le tableau de données original a d’abord été copié en mémoire, converti puis il a fallu le sauvegarder dans un objet avec <code>&lt;-</code>. Lorsqu’on l’on manipule de gros tableaux, cela est gourmand en ressources système et prend du temps.</p>
+<p>C’est pour cela que <code class="pkg">data.table</code> fournie plusieurs fonctions (commençant parle préfixe <code>set</code>) qui modifient directement l’objet sélectionné en mémoire, ce qu’on appelle <q>modification par assignation</q>. Ce type de fonction est beaucoup plus rapide et efficace en termes de ressources système. On notera également qu’il est inutile de stocker le résultats dans un objet puisque l’objet a été modifié directement en mémoire.</p>
+<p><code data-pkg="data.table">setDT</code> converti un tableaux de données en <em>data.table</em> tandis que <code data-pkg="data.table">setDF</code> fait l’opération opposée.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setDT</span>(iris)
+<span class="kw">class</span>(iris)</code></pre></div>
+<pre><code>[1] "data.table" "data.frame"</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setDF</span>(iris)
+<span class="kw">class</span>(iris)</code></pre></div>
+<pre><code>[1] "data.frame"</code></pre>
+</div>
+<div id="introduction-a-data-table_dplyr-et-data.table" class="section level2">
+<h2>dplyr et data.table</h2>
+<p>Pour ceux travaillant également avec les extension <code class="pkg">dplyr</code> et <code class="pkg">tibble</code>, il est possible de concilier <em>tibble</em> et <em>data.table</em> avec l’extension <code class="pkg">dtplyr</code> et sa fonction <code data-pkg="dtplyr">tbl_dt</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dtplyr)
+iris_dt &lt;-<span class="st"> </span><span class="kw">tbl_dt</span>(iris)
+<span class="kw">class</span>(iris_dt)</code></pre></div>
+<pre><code>[1] "tbl_dt"     "tbl"        "data.table"
+[4] "data.frame"</code></pre>
+<p>Le tableau de données est à la fois compatible avec <code class="pkg">data.table</code> (et notamment sa syntaxe particulière des crochets) et les verbes de <code class="pkg">dplyr</code>.</p>
+</div>
+</div>
+<div id="introduction-a-data-table_la-syntaxe-des-crochets" class="section level1">
+<h1>La syntaxe des crochets</h1>
+<p>La syntaxe des crochets change radicalement avec <code class="pkg">data.table</code>. Elle est de la forme <code>objet[i, j, by]</code> (dans sa forme la plus simple, pour une présentation exhaustive, voir le fichier d’aide de <code data-pkg="data.table">data.table-package</code>).</p>
+<div id="introduction-a-data-table_selectionner-des-observations" class="section level2">
+<h2>Sélectionner des observations</h2>
+<p>Cela se fait en indiquant une indiquant une condition au premier argument, à savoir <code>i</code>. Si l’on ne procède à une sélection en même temps sur les variables, il n’est pas nécessaire d’indiquer de virgule <code>,</code> dans les crochets.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[Sepal.Length &lt;<span class="st"> </span><span class="dv">5</span>]</code></pre></div>
+<pre><code>    Sepal.Length Sepal.Width Petal.Length
+ 1:          4.9         3.0          1.4
+ 2:          4.7         3.2          1.3
+ 3:          4.6         3.1          1.5
+ 4:          4.6         3.4          1.4
+ 5:          4.4         2.9          1.4
+ 6:          4.9         3.1          1.5
+ 7:          4.8         3.4          1.6
+ 8:          4.8         3.0          1.4
+ 9:          4.3         3.0          1.1
+10:          4.6         3.6          1.0
+11:          4.8         3.4          1.9
+12:          4.7         3.2          1.6
+13:          4.8         3.1          1.6
+14:          4.9         3.1          1.5
+15:          4.9         3.6          1.4
+16:          4.4         3.0          1.3
+17:          4.5         2.3          1.3
+18:          4.4         3.2          1.3
+19:          4.8         3.0          1.4
+20:          4.6         3.2          1.4
+21:          4.9         2.4          3.3
+22:          4.9         2.5          4.5
+    Sepal.Length Sepal.Width Petal.Length
+    Petal.Width    Species
+ 1:         0.2     setosa
+ 2:         0.2     setosa
+ 3:         0.2     setosa
+ 4:         0.3     setosa
+ 5:         0.2     setosa
+ 6:         0.1     setosa
+ 7:         0.2     setosa
+ 8:         0.1     setosa
+ 9:         0.1     setosa
+10:         0.2     setosa
+11:         0.2     setosa
+12:         0.2     setosa
+13:         0.2     setosa
+14:         0.2     setosa
+15:         0.1     setosa
+16:         0.2     setosa
+17:         0.3     setosa
+18:         0.2     setosa
+19:         0.3     setosa
+20:         0.2     setosa
+21:         1.0 versicolor
+22:         1.7  virginica
+    Petal.Width    Species</code></pre>
+<p>On notera que les noms indiquer entre les crochets sont évalués en fonction du contexte, en l’occurence la liste des variables de l’objet considéré. Ainsi, les noms des variables peuvent être indiqués tels quels, sans utilisation du symbole <code>$</code> ni des guillemets.</p>
+<div class="important">
+<p>Une différence de taille : lorsqu’il y a des observations pour lesquelles la condition indiquée en <code>i</code> renvoie <code>NA</code>, elles ne sont pas sélectionnées par `data.table``{.pkg} tandis que, pour un <em>data.frame</em> classique cela renvoie des lignes manquantes.</p>
+</div>
+</div>
+<div id="introduction-a-data-table_selectionner-des-variables" class="section level2">
+<h2>Sélectionner des variables</h2>
+<p>Pour sélectionner une variable, il suffit d’indiquer son nom dans la seconde partie, à savoir <code>j</code>. Noter la virgule qui permets d’indiquer que c’est une condition sur <code>j</code> et non sur <code>i</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, Sepal.Length]</code></pre></div>
+<pre><code>  [1] 5.1 4.9 4.7 4.6 5.0 5.4 4.6 5.0 4.4 4.9 5.4
+ [12] 4.8 4.8 4.3 5.8 5.7 5.4 5.1 5.7 5.1 5.4 5.1
+ [23] 4.6 5.1 4.8 5.0 5.0 5.2 5.2 4.7 4.8 5.4 5.2
+ [34] 5.5 4.9 5.0 5.5 4.9 4.4 5.1 5.0 4.5 4.4 5.0
+ [45] 5.1 4.8 5.1 4.6 5.3 5.0 7.0 6.4 6.9 5.5 6.5
+ [56] 5.7 6.3 4.9 6.6 5.2 5.0 5.9 6.0 6.1 5.6 6.7
+ [67] 5.6 5.8 6.2 5.6 5.9 6.1 6.3 6.1 6.4 6.6 6.8
+ [78] 6.7 6.0 5.7 5.5 5.5 5.8 6.0 5.4 6.0 6.7 6.3
+ [89] 5.6 5.5 5.5 6.1 5.8 5.0 5.6 5.7 5.7 6.2 5.1
+[100] 5.7 6.3 5.8 7.1 6.3 6.5 7.6 4.9 7.3 6.7 7.2
+[111] 6.5 6.4 6.8 5.7 5.8 6.4 6.5 7.7 7.7 6.0 6.9
+[122] 5.6 7.7 6.3 6.7 7.2 6.2 6.1 6.4 7.2 7.4 7.9
+[133] 6.4 6.3 6.1 7.7 6.3 6.4 6.0 6.9 6.7 6.9 5.8
+[144] 6.8 6.7 6.7 6.3 6.5 6.2 5.9</code></pre>
+<p>Pour sélectionner plusieurs variables, on fournira une liste définie avec <code data-pkg="base">list</code> (et non un vecteur défini avec <code data-pkg="base">c</code>).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, <span class="kw">list</span>(Sepal.Length, Sepal.Width)]</code></pre></div>
+<pre><code>     Sepal.Length Sepal.Width
+  1:          5.1         3.5
+  2:          4.9         3.0
+  3:          4.7         3.2
+  4:          4.6         3.1
+  5:          5.0         3.6
+ ---                         
+146:          6.7         3.0
+147:          6.3         2.5
+148:          6.5         3.0
+149:          6.2         3.4
+150:          5.9         3.0</code></pre>
+<p><code class="pkg">data.table</code> fourni un raccourci pour écrire une liste : <code>.()</code>. A l’intérieur des crochets (mais pas en dehors), <code>.()</code> sera compris comme <code>list()</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, .(Sepal.Length, Sepal.Width)]</code></pre></div>
+<pre><code>     Sepal.Length Sepal.Width
+  1:          5.1         3.5
+  2:          4.9         3.0
+  3:          4.7         3.2
+  4:          4.6         3.1
+  5:          5.0         3.6
+ ---                         
+146:          6.7         3.0
+147:          6.3         2.5
+148:          6.5         3.0
+149:          6.2         3.4
+150:          5.9         3.0</code></pre>
+<p>Il est possible de renommer une variable à la volée et même d’en calculer d’autres.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, .(<span class="dt">espece =</span> Species, <span class="dt">aire_petal =</span> Petal.Length *<span class="st"> </span>
+<span class="st">  </span>Petal.Width)]</code></pre></div>
+<pre><code>        espece aire_petal
+  1:    setosa       0.28
+  2:    setosa       0.28
+  3:    setosa       0.26
+  4:    setosa       0.30
+  5:    setosa       0.28
+ ---                     
+146: virginica      11.96
+147: virginica       9.50
+148: virginica      10.40
+149: virginica      12.42
+150: virginica       9.18</code></pre>
+<p>Seul le retour est ici affecté. Cela n’impacte pas le tableau d’origine. Nous verrons plus loin comment créer / modifier une variable.</p>
+<p>Attention : on ne peut pas directement sélectionner une variable par sa position ou en indiquant une chaîne de caractères. En effet, une valeur numérique ou textuelle est comprise comme une constante.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, .(<span class="st">"Species"</span>, <span class="dv">3</span>)]</code></pre></div>
+<pre><code>        V1 V2
+1: Species  3</code></pre>
+</div>
+<div id="introduction-a-data-table_grouper-les-results" class="section level2">
+<h2>Grouper les résults</h2>
+<p>Si en <code>j</code> on utilise des fonctions qui à partir d’un vecteur renvoient une valeur unique (telles que <code data-pkg="base">mean</code>, <code data-pkg="stats">median</code>, <code data-pkg="base" data-rdoc="Extremes">min</code>, <code data-pkg="base" data-rdoc="Extremes">max</code>, <code data-pkg="data.table">first</code>, <code data-pkg="data.table">last</code>, <code data-pkg="dplyr">nth</code>, etc.), on peut ainsi obtenir un résumé. On pourra également utiliser <code data-pkg="data.table" data-rdoc="special-symbols">.N</code> pour obtenir le nombre d’observations.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, .(<span class="dt">min_sepal_width =</span> <span class="kw">min</span>(Sepal.Width), <span class="dt">max_sepal_width =</span> <span class="kw">max</span>(Sepal.Width), 
+  <span class="dt">n_observations =</span> .N)]</code></pre></div>
+<pre><code>   min_sepal_width max_sepal_width n_observations
+1:               2             4.4            150</code></pre>
+<p>Cela devient particulièrement intéressant en calculant ces mêmes valeurs par sous-groupe, grace au troisième paramètre : <code>by</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, .(<span class="dt">min_sepal_width =</span> <span class="kw">min</span>(Sepal.Width), <span class="dt">max_sepal_width =</span> <span class="kw">max</span>(Sepal.Width), 
+  <span class="dt">n_observations =</span> .N), by =<span class="st"> </span>Species]</code></pre></div>
+<pre><code>      Species min_sepal_width max_sepal_width
+1:     setosa             2.3             4.4
+2: versicolor             2.0             3.4
+3:  virginica             2.2             3.8
+   n_observations
+1:             50
+2:             50
+3:             50</code></pre>
+</div>
+<div id="introduction-a-data-table_ajoutermodifiersupprimer-une-variable" class="section level2">
+<h2>Ajouter/Modifier/Supprimer une variable</h2>
+<p><code class="pkg">data.table</code> introduit un nouvel opérateur <code>:=</code> permettant de modifier une variable par assignation directe. Cela signifie que la modification a lieu directement en mémoire dans le tableau de données, sans qu’il soit besoin réaffecter le résultat avec <code>&lt;-</code>.</p>
+<p>On peut également combiner <code>:=</code> avec une sélection sur les observations en <code>i</code> pour ne modifier que certaines observations. De même, le recours à <code>by</code> permets des calculs par groupe.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(group, <span class="st">"A"</span>)]
+iris2[Species ==<span class="st"> "virginica"</span>, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(group, <span class="st">"B"</span>)]
+iris2[, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(n_obs_per_species, .N), by =<span class="st"> </span>Species]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2</code></pre></div>
+<pre><code>     Sepal.Length Sepal.Width Petal.Length
+  1:          5.1         3.5          1.4
+  2:          4.9         3.0          1.4
+  3:          4.7         3.2          1.3
+  4:          4.6         3.1          1.5
+  5:          5.0         3.6          1.4
+ ---                                      
+146:          6.7         3.0          5.2
+147:          6.3         2.5          5.0
+148:          6.5         3.0          5.2
+149:          6.2         3.4          5.4
+150:          5.9         3.0          5.1
+     Petal.Width   Species group
+  1:         0.2    setosa     A
+  2:         0.2    setosa     A
+  3:         0.2    setosa     A
+  4:         0.2    setosa     A
+  5:         0.2    setosa     A
+ ---                            
+146:         2.3 virginica     B
+147:         1.9 virginica     B
+148:         2.0 virginica     B
+149:         2.3 virginica     B
+150:         1.8 virginica     B
+     n_obs_per_species
+  1:                50
+  2:                50
+  3:                50
+  4:                50
+  5:                50
+ ---                  
+146:                50
+147:                50
+148:                50
+149:                50
+150:                50</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, .N, by =<span class="st"> </span>group]</code></pre></div>
+<pre><code>   group   N
+1:     A 100
+2:     B  50</code></pre>
+</div>
+</div>
+<div id="introduction-a-data-table_enchainer-les-operations" class="section level1">
+<h1>Enchaîner les opérations</h1>
+<p>Il est possible d’enchaîner les opérations avec une succession de crochets.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, .(<span class="dt">petal_area =</span> Petal.Width *<span class="st"> </span>Petal.Length, 
+  Species)][, .(<span class="dt">min_petal_area =</span> <span class="kw">min</span>(petal_area)), 
+  by =<span class="st"> </span>Species]</code></pre></div>
+<pre><code>      Species min_petal_area
+1:     setosa           0.11
+2: versicolor           3.30
+3:  virginica           7.50</code></pre>
 </div>
 
 </article>
@@ -5010,6 +5368,71 @@ mean&gt; c(xm, mean(x, trim = 0.10))
 <div class="important">
 <p>Ce chapitre est en cours d’écriture.</p>
 </div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">A =</span> <span class="kw">rep</span>(<span class="dv">1</span>:<span class="dv">3</span>, <span class="dt">each =</span> <span class="dv">4</span>), <span class="dt">B =</span> <span class="kw">rep</span>(<span class="dv">1</span>:<span class="dv">4</span>, 
+  <span class="dt">each =</span> <span class="dv">3</span>), <span class="dt">C =</span> <span class="kw">rep</span>(<span class="dv">1</span>:<span class="dv">2</span>, <span class="dv">6</span>))
+df</code></pre></div>
+<pre><code>   A B C
+1  1 1 1
+2  1 1 2
+3  1 1 1
+4  1 2 2
+5  2 2 1
+6  2 2 2
+7  2 3 1
+8  2 3 2
+9  3 3 1
+10 3 4 2
+11 3 4 1
+12 3 4 2</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(data.table)
+dt &lt;-<span class="st"> </span><span class="kw">as.data.table</span>(df)
+<span class="kw">library</span>(dplyr)
+tbl &lt;-<span class="st"> </span><span class="kw">tbl_df</span>(df)
+
+
+<span class="co"># data.frame</span>
+<span class="kw">unique</span>(df)</code></pre></div>
+<pre><code>   A B C
+1  1 1 1
+2  1 1 2
+4  1 2 2
+5  2 2 1
+6  2 2 2
+7  2 3 1
+8  2 3 2
+9  3 3 1
+10 3 4 2
+11 3 4 1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># data.table</span>
+<span class="kw">unique</span>(dt)</code></pre></div>
+<pre><code>    A B C
+ 1: 1 1 1
+ 2: 1 1 2
+ 3: 1 2 2
+ 4: 2 2 1
+ 5: 2 2 2
+ 6: 2 3 1
+ 7: 2 3 2
+ 8: 3 3 1
+ 9: 3 4 2
+10: 3 4 1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># dplyr</span>
+<span class="kw">library</span>(dplyr)
+<span class="kw">distinct</span>(tbl)</code></pre></div>
+<pre><code># A tibble: 10 × 3
+       A     B     C
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;
+1      1     1     1
+2      1     1     2
+3      1     2     2
+4      2     2     1
+5      2     2     2
+6      2     3     1
+7      2     3     2
+8      3     3     1
+9      3     4     2
+10     3     4     1</code></pre>
+<p>Voir aussi <code data-pkg="base">duplicated</code>.</p>
 
 </article>
 <article id="tris"><div class="fluid-row" id="tris_header">
@@ -5110,9 +5533,22 @@ d &lt;-<span class="st"> </span>hdv2003</code></pre></div>
 </div>
 <div id="tris_extension-dplyr" class="section level2">
 <h2>Extension dplyr</h2>
+<p>On aura simplement recours à la fonction <code data-pkg="dplyr">arrange</code>. Un tri par ordre décroissant s’indique avec la fonction <code data-pakg="dplyr">desc</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)
+tbl &lt;-<span class="st"> </span><span class="kw">tbl_df</span>(hdv2003)
+tbl &lt;-<span class="st"> </span>tbl %&gt;%<span class="st"> </span><span class="kw">arrange</span>(sexe, <span class="kw">desc</span>(age))</code></pre></div>
 </div>
 <div id="tris_extension-data.table" class="section level2">
 <h2>Extension data.table</h2>
+<p>On pourra utiliser la fonction <code data-pkg="data.table" data-rdoc="setorder">order</code> dans la condition sur les observations (attention à sauvegarder le résultats si nécessaire) ou bien la fonction <code data-pkg="data.table">setorder</code> pour modifier l’ordre des observations directement par assignation (modification directe en mémoire de l’objet). Un tri décroissant s’indique avec le signe <code>-</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(data.table)
+dt &lt;-<span class="st"> </span><span class="kw">as.data.table</span>(hdv2003)
+
+<span class="co"># Option 1</span>
+dt &lt;-<span class="st"> </span>dt[<span class="kw">order</span>(sexe, -age)]
+
+<span class="co"># Option 2</span>
+<span class="kw">setorder</span>(dt, sexe, -age)</code></pre></div>
 </div>
 
 </article>
@@ -5266,9 +5702,20 @@ d$sexe: Femme
 </div>
 <div id="sous-ensembles_extension-dplyr" class="section level2">
 <h2>Extension dplyr</h2>
+<p>On utilisera tout simplement la fonction <code data-pkg="dplyr">filter</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)
+tbl &lt;-<span class="st"> </span><span class="kw">tbl_df</span>(hdv2003)
+hommes_jeunes &lt;-<span class="st"> </span>tbl %&gt;%<span class="st"> </span><span class="kw">filter</span>(sexe ==<span class="st"> "Homme"</span>, age &lt;<span class="st"> </span>
+<span class="st">  </span><span class="dv">30</span>)</code></pre></div>
+<p>Voir le chapitre <a href="#introduction-a-dplyr">Introduction à dplyr</a> pour plus de détails.</p>
 </div>
 <div id="sous-ensembles_extension-data.table" class="section level2">
 <h2>Extension data.table</h2>
+<p>Il suffit d’indiquer la condition entre crochets.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(data.table)
+dt &lt;-<span class="st"> </span><span class="kw">as.data.table</span>(hdv2003)
+hommes_jeunes &lt;-<span class="st"> </span>dt[sexe ==<span class="st"> "Hommes"</span> &amp;<span class="st"> </span>age &lt;<span class="st"> </span><span class="dv">30</span>]</code></pre></div>
+<p>Voir le chapitre <a href="#introduction-a-data-table">Introduction à data.table</a> pour plus de détails.</p>
 </div>
 
 </article>
@@ -5282,19 +5729,22 @@ d$sexe: Femme
 
 <div class="TOC">
 <ul>
-<li><a href="#fusion-de-tables_un-premier-exemple-les-enquetes-insee">Un premier exemple : les enquêtes INSEE</a></li>
-<li><a href="#fusion-de-tables_un-second-exemple-une-enquete-menage">Un second exemple : une enquête ménage</a></li>
+<li>
+<a href="#fusion-de-tables_la-fonction-merge">La fonction merge</a><ul>
 <li><a href="#fusion-de-tables_extension-dplyr">Extension dplyr</a></li>
 <li><a href="#fusion-de-tables_extension-data.table">Extension data.table</a></li>
+</ul>
+</li>
 </ul>
 </div>
 
 <div class="important">
 <p>Ce chapitre est en cours d’écriture.</p>
 </div>
-<div id="fusion-de-tables_un-premier-exemple-les-enquetes-insee" class="section level2">
-<h2>Un premier exemple : les enquêtes INSEE</h2>
 <p>Lorsqu’on traite de grosses enquêtes, notamment les enquêtes de l’INSEE, on a souvent à gérer des données réparties dans plusieurs tables, soit du fait de la construction du questionnaire, soit du fait de contraintes techniques (fichiers <strong>dbf</strong> ou <strong>Excel</strong> limités à 256 colonnes, par exemple).</p>
+<p>Cela arrive également lorsque l’on traitre de données d’une enquêtes réalisée à différents niveaux (par exemple, un questionnaire ménage et un questionnaire individu).</p>
+<div id="fusion-de-tables_la-fonction-merge" class="section level1">
+<h1>La fonction merge</h1>
 <p>Une opération relativement courante consiste à <dfn data-index="fusion de tables">fusionner</dfn><dfn data-index="tableau de données, fusion"></dfn> plusieurs tables pour regrouper tout ou partie des données dans un unique tableau.</p>
 <p>Nous allons simuler artificiellement une telle situation en créant deux tables à partir de l’extrait de l’enquête <em>Histoire de vie</em> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
@@ -6322,16 +6772,14 @@ F
 </table>
 </td>
 </tr></table>
-</div>
-<div id="fusion-de-tables_un-second-exemple-une-enquete-menage" class="section level2">
-<h2>Un second exemple : une enquête ménage</h2>
-</div>
 <div id="fusion-de-tables_extension-dplyr" class="section level2">
 <h2>Extension dplyr</h2>
-<p>Voir aussi <code data-pkg="dplyr" data-rdoc="bind">combine</code> de <strong class="pkg">dplyr</strong> et <code data-pkg="plyr">rbind.fill</code> de <strong class="pkg">plyr</strong>.</p>
+<p>Voir la vignette dédiée (en anglais) : <a href="https://cran.rstudio.com/web/packages/dplyr/vignettes/two-table.html" class="uri">https://cran.rstudio.com/web/packages/dplyr/vignettes/two-table.html</a></p>
 </div>
 <div id="fusion-de-tables_extension-data.table" class="section level2">
 <h2>Extension data.table</h2>
+<p><code class="pkg">data.table</code> fourni une fonction <code data-pkg="data.table">merge</code> beaucoup plus rapide que celle standard de R mais fonctionnant de manière identique.</p>
+</div>
 </div>
 <div class="footnotes">
 <hr>
@@ -6354,6 +6802,7 @@ F
 <div class="important">
 <p>Ce chapitre est en cours d’écriture.</p>
 </div>
+<p>Si R fournit quelques fonctions natives pour la gestion des dates, l’extension <code class="pkg">lubridate</code> est recommandée pour tout travail un peu plus fin sur des dates. On pourra se référer à la vignette officielle (<a href="https://cran.rstudio.com/web/packages/dplyr/vignettes/two-table.html" class="uri">https://cran.rstudio.com/web/packages/dplyr/vignettes/two-table.html</a>, en anglais) ou encore à ce tutoriel (<a href="https://rpubs.com/davoodastaraky/lubridate" class="uri">https://rpubs.com/davoodastaraky/lubridate</a>).</p>
 
 </article>
 <article id="aggregation"><div class="fluid-row" id="aggregation_header">
@@ -8488,7 +8937,7 @@ Femme 5872596.42   49247.49</code></pre>
 <p>L’extension <code class="pkg">survey</code> est spécialement dédiée au traitement d’enquêtes ayant des techniques d’échantillonnage et de pondération potentiellement très complexes.</p>
 <p>L’extension s’installe comme la plupart des autres :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"survey"</span>)</code></pre></div>
-<p>Le site officiel (en anglais) comporte beaucoup d’informations, mais pas forcément très accessibles : <br><a href="http://faculty.washington.edu/tlumley/survey/" class="uri">http://faculty.washington.edu/tlumley/survey/</a>.</p>
+<p>Le site officiel (en anglais) comporte beaucoup d’informations, mais pas forcément très accessibles : <br><a href="http://r-survey.r-forge.r-project.org/" class="uri">http://r-survey.r-forge.r-project.org/</a>.</p>
 <p>Pour utiliser les fonctionnalités de l’extension, on doit d’abord définir le <dfn>plan d’échantillonnage</dfn> ou <dfn lang="en">design</dfn> de notre enquête, c’est-à-dire indiquer quel type de pondération nous souhaitons lui appliquer.</p>
 <p>Dans un premier temps, nous utiliserons le plan d’échantillonnage le plus simple, avec une variable de pondération déjà calculée<a href="#donnees-ponderees_fn6" class="footnoteRef" id="donnees-ponderees_fnref6"><sup>6</sup></a>. Ceci se fait à l’aide de la fonction <code data-pkg="survey">svydesign</code> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(survey)
@@ -8649,9 +9098,6 @@ Fonctions graphiques de l’extension survey
 </ul>
 </div>
 
-<div class="important">
-<p>Ce chapitre est en cours d’écriture.</p>
-</div>
 <p>Nous utiliserons dans ce chapitre les données de l’enquête <em>Histoire de vie 2003</em> fournies avec l’extension <code class="pkg">questionr</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
 <span class="kw">data</span>(<span class="st">"hdv2003"</span>)
@@ -8833,9 +9279,6 @@ sexe 0.535 0.507  0.56</code></pre>
 </ul>
 </div>
 
-<div class="important">
-<p>Ce chapitre est en cours d’écriture.</p>
-</div>
 <p>Nous utiliserons dans ce chapitre les données de l’enquête <em>Histoire de vie 2003</em> fournies avec l’extension <code class="pkg">questionr</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
 <span class="kw">data</span>(<span class="st">"hdv2003"</span>)
@@ -9097,10 +9540,8 @@ F = 2.6213, ndf = 1, ddf = 1999, p-value =
 </ul>
 </div>
 
-<div class="important">
-<p>Ce chapitre est en cours d’écriture.</p>
-</div>
 <p>L’extension <code class="pkg">survey</code> ne permet pas seulement d’indiquer une variable de pondération mais également de prendre les spécificités du plan d’échantillonnage (strates, grappes, …). Le plan d’échantillonnage ne joue pas seulement sur la pondération des données, mais influence le calcul des variances et par ricochet tous les tests statistiques. Deux échantillons identiques avec la même variable de pondération mais des designs différents produiront les mêmes moyennes et proportions mais des intervalles de confiance différents.</p>
+<p>Le site officiel (en anglais) comporte beaucoup d’informations, mais pas forcément très accessibles : <br><a href="http://r-survey.r-forge.r-project.org/" class="uri">http://r-survey.r-forge.r-project.org/</a>.</p>
 <div id="definir-un-plan-d-echantillonnage-complexe_differents-types-dechantillonnage" class="section level2">
 <h2>Différents types d’échantillonnage</h2>
 <p>L’<dfn>échantillonnage aléatoire simple</dfn><dfn data-index="aléatoire, échantillonnage"></dfn> ou <dfn>échantillonnage équiprobable</dfn><dfn data-index="équiprobable, échantillonnage"></dfn> est une méthode pour laquelle tous les échantillons possibles (de même taille) ont la même probabilité d’être choisis et tous les éléments de la population ont une chance égale de faire partie de l’échantillon. C’est l’échantillonnage le plus simple : chaque individu à la même probabilité d’être sélectionné.</p>
@@ -13785,6 +14226,9 @@ W
 <a href="#index-des-fonctions_%">%</a>
 </li>
 <li>
+<a href="#index-des-fonctions_.">.</a>
+</li>
+<li>
 <a href="#index-des-fonctions_A">A</a>
 </li>
 <li>
@@ -13868,6 +14312,13 @@ W
 <ul>
 <li><a href="#conditions-et-comparaisons">Conditions et comparaisons</a></li>
 </ul>
+<h2 id="index-des-fonctions_.">
+.
+</h2>
+<p><code data-pkg="data.table" data-rdoc="special">.N</code> (data.table)</p>
+<ul>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
+</ul>
 <h2 id="index-des-fonctions_A">
 A
 </h2>
@@ -13921,6 +14372,11 @@ A
 <ul>
 <li><a href="#listes-et-tableaux-de-donnes">Listes et Tableaux de données</a></li>
 </ul>
+<p><code data-pkg="dplyr">arrange</code> (dplyr)</p>
+<ul>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
+<li><a href="#tris">Tris</a></li>
+</ul>
 <p><code data-pkg="base" data-rdoc="character">as.character</code> (base)</p>
 <ul>
 <li><a href="#recodage">Recodage</a></li>
@@ -13928,6 +14384,10 @@ A
 <p><code data-pkg="base" data-rdoc="table">as.data.frame</code> (base)</p>
 <ul>
 <li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><code data-pkg="data.table">as.data.table</code> (data.table)</p>
+<ul>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
 </ul>
 <p><code data-pkg="cluster" data-rdoc="agnes.object">as.hclust</code> (cluster)</p>
 <ul>
@@ -13986,6 +14446,7 @@ C
 </h2>
 <p><code data-pkg="base">c</code> (base)</p>
 <ul>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
 <li><a href="#premier-contact">Premier contact</a></li>
 <li><a href="#vecteurs-indexation-et-assignation">Vecteurs, indexation et assignation</a></li>
 </ul>
@@ -14026,10 +14487,6 @@ C
 <p><code data-pkg="grDevices">colors</code> (grDevices)</p>
 <ul>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
-</ul>
-<p><code data-pkg="dplyr" data-rdoc="bind">combine</code> (dplyr)</p>
-<ul>
-<li><a href="#fusion-de-tables">Fusion de tables</a></li>
 </ul>
 <p><code data-pkg="stats">complete.cases</code> (stats)</p>
 <ul>
@@ -14138,6 +14595,10 @@ D
 <ul>
 <li><a href="#classification-ascendante-hierarchique">Classification ascendante hiérarchique (CAH)</a></li>
 </ul>
+<p><code data-pkg="dplyr">distinct</code> (dplyr)</p>
+<ul>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
+</ul>
 <p><code data-pkg="graphics">dotchart</code> (graphics)</p>
 <ul>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
@@ -14162,6 +14623,10 @@ D
 <p><code data-pkg="ade4">dudi.pca</code> (ade4)</p>
 <ul>
 <li><a href="#analyse-des-correspondances-multiples">Analyse des correspondances multiples (ACM)</a></li>
+</ul>
+<p><code data-pkg="base">duplicated</code> (base)</p>
+<ul>
+<li><a href="#doublons">Doublons</a></li>
 </ul>
 <p><code data-pkg="lubridate" data-rdoc="Duration">Duration</code> (lubridate)</p>
 <ul>
@@ -14199,6 +14664,15 @@ F
 <p><code data-pkg="graphics">filled.contour</code> (graphics)</p>
 <ul>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
+</ul>
+<p><code data-pkg="dplyr">filter</code> (dplyr)</p>
+<ul>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
+<li><a href="#sous-ensembles">Sous-ensembles</a></li>
+</ul>
+<p><code data-pkg="data.table">first</code> (data.table)</p>
+<ul>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
 </ul>
 <p><code data-pkg="stats">fisher.test</code> (stats)</p>
 <ul>
@@ -14324,12 +14798,20 @@ G
 <p><code data-pkg="dplyr">glimpse</code> (dplyr)</p>
 <ul>
 <li><a href="#facteurs-et-vecteurs-labellises">Facteurs et vecteurs labellisés</a></li>
+</ul>
+<p><code data-pkg="tibble">glimpse</code> (tibble)</p>
+<ul>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
 <li><a href="#listes-et-tableaux-de-donnes">Listes et Tableaux de données</a></li>
 </ul>
 <p><code data-pkg="stats">glm</code> (stats)</p>
 <ul>
 <li><a href="#donnees-ponderees">Données pondérées</a></li>
 <li><a href="#regression-logistique">Régression logistique</a></li>
+</ul>
+<p><code data-pkg="dplyr">group_by</code> (dplyr)</p>
+<ul>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
 </ul>
 <h2 id="index-des-fonctions_H">
 H
@@ -14461,6 +14943,10 @@ L
 <ul>
 <li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 </ul>
+<p><code data-pkg="data.table">last</code> (data.table)</p>
+<ul>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
+</ul>
 <p><code data-pkg="base">length</code> (base)</p>
 <ul>
 <li><a href="#listes-et-tableaux-de-donnes">Listes et Tableaux de données</a></li>
@@ -14489,6 +14975,7 @@ L
 </ul>
 <p><code data-pkg="base">list</code> (base)</p>
 <ul>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
 <li><a href="#listes-et-tableaux-de-donnes">Listes et Tableaux de données</a></li>
 </ul>
 <p><code data-pkg="stats">lm</code> (stats)</p>
@@ -14519,6 +15006,7 @@ M
 </h2>
 <p><code data-pkg="base" data-rdoc="Extremes">max</code> (base)</p>
 <ul>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
 <li><a href="#premier-contact">Premier contact</a></li>
 <li><a href="#premier-travail-avec-les-donnees">Premier travail avec des données</a></li>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
@@ -14534,6 +15022,7 @@ M
 <p><code data-pkg="base">mean</code> (base)</p>
 <ul>
 <li><a href="#donnees-ponderees">Données pondérées</a></li>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
 <li><a href="#ou-trouver-de-l-aide">Où trouver de l’aide ?</a></li>
 <li><a href="#premier-contact">Premier contact</a></li>
 <li><a href="#premier-travail-avec-les-donnees">Premier travail avec des données</a></li>
@@ -14542,6 +15031,7 @@ M
 </ul>
 <p><code data-pkg="stats">median</code> (stats)</p>
 <ul>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
 <li><a href="#premier-travail-avec-les-donnees">Premier travail avec des données</a></li>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
 </ul>
@@ -14550,8 +15040,13 @@ M
 <li><a href="#fusion-de-tables">Fusion de tables</a></li>
 <li><a href="#import-de-donnees">Import de données</a></li>
 </ul>
+<p><code data-pkg="data.table">merge</code> (data.table)</p>
+<ul>
+<li><a href="#fusion-de-tables">Fusion de tables</a></li>
+</ul>
 <p><code data-pkg="base" data-rdoc="Extremes">min</code> (base)</p>
 <ul>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
 <li><a href="#premier-contact">Premier contact</a></li>
 <li><a href="#premier-travail-avec-les-donnees">Premier travail avec des données</a></li>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
@@ -14575,6 +15070,10 @@ M
 <p><code data-pkg="nnet">multinom</code> (nnet)</p>
 <ul>
 <li><a href="#regression-logistique">Régression logistique</a></li>
+</ul>
+<p><code data-pkg="dplyr">mutate</code> (dplyr)</p>
+<ul>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
 </ul>
 <h2 id="index-des-fonctions_N">
 N
@@ -14612,6 +15111,10 @@ N
 <li><a href="#listes-et-tableaux-de-donnes">Listes et Tableaux de données</a></li>
 <li><a href="#premier-travail-avec-les-donnees">Premier travail avec des données</a></li>
 </ul>
+<p><code data-pkg="dplyr">nth</code> (dplyr)</p>
+<ul>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
+</ul>
 <p><code data-pkg="base">NULL</code> (base)</p>
 <ul>
 <li><a href="#vecteurs-indexation-et-assignation">Vecteurs, indexation et assignation</a></li>
@@ -14625,6 +15128,10 @@ O
 <li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code data-pkg="base">order</code> (base)</p>
+<ul>
+<li><a href="#tris">Tris</a></li>
+</ul>
+<p><code data-pkg="data.table" data-rdoc="setorder">order</code> (data.table)</p>
 <ul>
 <li><a href="#tris">Tris</a></li>
 </ul>
@@ -14775,10 +15282,6 @@ R
 <ul>
 <li><a href="#fusion-de-tables">Fusion de tables</a></li>
 </ul>
-<p><code data-pkg="plyr">rbind.fill</code> (plyr)</p>
-<ul>
-<li><a href="#fusion-de-tables">Fusion de tables</a></li>
-</ul>
 <p><code data-pkg="utils" data-rdoc="read.table">read.csv</code> (utils)</p>
 <ul>
 <li><a href="#import-de-donnees">Import de données</a></li>
@@ -14898,6 +15401,10 @@ R
 <ul>
 <li><a href="#extensions">Extensions</a></li>
 </ul>
+<p><code data-pkg="dplyr" data-rdoc="dplyr">rename</code> (dplyr)</p>
+<ul>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
+</ul>
 <p><code data-pkg="questionr">rename.variable</code> (questionr)</p>
 <ul>
 <li><a href="#recodage">Recodage</a></li>
@@ -14958,6 +15465,14 @@ S
 <ul>
 <li><a href="#analyse-des-correspondances-multiples">Analyse des correspondances multiples (ACM)</a></li>
 </ul>
+<p><code data-pkg="dplyr" data-rdoc="sample">sample_frac</code> (dplyr)</p>
+<ul>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
+</ul>
+<p><code data-pkg="dplyr" data-rdoc="sample">sample_n</code> (dplyr)</p>
+<ul>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
+</ul>
 <p><code data-pkg="base">save</code> (base)</p>
 <ul>
 <li><a href="#import-de-donnees">Import de données</a></li>
@@ -14998,6 +15513,10 @@ S
 <ul>
 <li><a href="#premier-contact">Premier contact</a></li>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
+</ul>
+<p><code data-pkg="dplyr">select</code> (dplyr)</p>
+<ul>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
 </ul>
 <p><code data-pkg="base">seq</code> (base)</p>
 <ul>
@@ -15044,6 +15563,18 @@ S
 <ul>
 <li><a href="#analyse-de-sequences">Analyse de séquences</a></li>
 </ul>
+<p><code data-pkg="data.table">setDF</code> (data.table)</p>
+<ul>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
+</ul>
+<p><code data-pkg="data.table">setDT</code> (data.table)</p>
+<ul>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
+</ul>
+<p><code data-pkg="data.table">setorder</code> (data.table)</p>
+<ul>
+<li><a href="#tris">Tris</a></li>
+</ul>
 <p><code data-pkg="base" data-rdoc="getwd">setwd</code> (base)</p>
 <ul>
 <li><a href="#organiser-ses-fichiers">Organiser ses fichiers</a></li>
@@ -15051,6 +15582,10 @@ S
 <p><code data-pkg="stats">shapiro.test</code> (stats)</p>
 <ul>
 <li><a href="#comparaisons-moyennes-et-proportions">Comparaisons (moyennes et proportions)</a></li>
+</ul>
+<p><code data-pkg="dplyr">slice</code> (dplyr)</p>
+<ul>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
 </ul>
 <p><code data-pkg="graphics">smoothScatter</code> (graphics)</p>
 <ul>
@@ -15103,6 +15638,10 @@ S
 <ul>
 <li><a href="#definir-un-plan-d-echantillonnage-complexe">Définir un plan d’échantillonnage complexe</a></li>
 <li><a href="#donnees-ponderees">Données pondérées</a></li>
+</ul>
+<p><code data-pkg="dplyr">summarise</code> (dplyr)</p>
+<ul>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
 </ul>
 <p><code data-pkg="ade4" data-rdoc="dudi">summary</code> (ade4)</p>
 <ul>
@@ -15229,6 +15768,11 @@ T
 <p><code data-pkg="dplyr">tbl_df</code> (dplyr)</p>
 <ul>
 <li><a href="#import-de-donnees">Import de données</a></li>
+</ul>
+<p><code data-pkg="dtplyr">tbl_dt</code> (dtplyr)</p>
+<ul>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
 </ul>
 <p><code data-pkg="ggplot2">theme</code> (ggplot2)</p>
 <ul>
@@ -15503,6 +16047,7 @@ B
 <li><a href="#conditions-et-comparaisons">Conditions et comparaisons</a></li>
 <li><a href="#definir-un-plan-d-echantillonnage-complexe">Définir un plan d’échantillonnage complexe</a></li>
 <li><a href="#donnees-ponderees">Données pondérées</a></li>
+<li><a href="#doublons">Doublons</a></li>
 <li><a href="#extensions">Extensions</a></li>
 <li><a href="#facteurs-et-vecteurs-labellises">Facteurs et vecteurs labellisés</a></li>
 <li><a href="#formules">Formules</a></li>
@@ -15510,6 +16055,7 @@ B
 <li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#import-de-donnees">Import de données</a></li>
 <li><a href="#intervalles-de-confiance">Intervalles de confiance</a></li>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
 <li><a href="#listes-et-tableaux-de-donnes">Listes et Tableaux de données</a></li>
 <li><a href="#organiser-ses-fichiers">Organiser ses fichiers</a></li>
 <li><a href="#ou-trouver-de-l-aide">Où trouver de l’aide ?</a></li>
@@ -15541,7 +16087,13 @@ D
 </h2>
 <p><code class="pkg">data.table</code></p>
 <ul>
+<li><a href="#doublons">Doublons</a></li>
+<li><a href="#fusion-de-tables">Fusion de tables</a></li>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
 <li><a href="#recodage">Recodage</a></li>
+<li><a href="#sous-ensembles">Sous-ensembles</a></li>
+<li><a href="#tris">Tris</a></li>
 </ul>
 <p><code class="pkg">dendextend</code></p>
 <ul>
@@ -15558,13 +16110,22 @@ D
 </ul>
 <p><code class="pkg">dplyr</code></p>
 <ul>
+<li><a href="#doublons">Doublons</a></li>
 <li><a href="#extensions">Extensions</a></li>
 <li><a href="#facteurs-et-vecteurs-labellises">Facteurs et vecteurs labellisés</a></li>
 <li><a href="#formules">Formules</a></li>
-<li><a href="#fusion-de-tables">Fusion de tables</a></li>
 <li><a href="#import-de-donnees">Import de données</a></li>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
 <li><a href="#listes-et-tableaux-de-donnes">Listes et Tableaux de données</a></li>
 <li><a href="#scraping">Scraping</a></li>
+<li><a href="#sous-ensembles">Sous-ensembles</a></li>
+<li><a href="#tris">Tris</a></li>
+</ul>
+<p><code class="pkg">dtplyr</code></p>
+<ul>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
 </ul>
 <h2 id="index-des-extensions_E">
 E
@@ -15674,6 +16235,7 @@ H
 <li><a href="#extensions">Extensions</a></li>
 <li><a href="#facteurs-et-vecteurs-labellises">Facteurs et vecteurs labellisés</a></li>
 <li><a href="#import-de-donnees">Import de données</a></li>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
 <li><a href="#recodage">Recodage</a></li>
 </ul>
 <p><code class="pkg">Hmisc</code></p>
@@ -15712,12 +16274,17 @@ L
 <ul>
 <li><a href="#calculer-un-age">Calculer un âge</a></li>
 <li><a href="#extensions">Extensions</a></li>
+<li><a href="#gestion-des-dates">Gestion des dates</a></li>
 <li><a href="#import-de-donnees">Import de données</a></li>
 <li><a href="#scraping">Scraping</a></li>
 </ul>
 <h2 id="index-des-extensions_M">
 M
 </h2>
+<p><code class="pkg">magrittr</code></p>
+<ul>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
+</ul>
 <p><code class="pkg">maptools</code></p>
 <ul>
 <li><a href="#export-de-donnees">Export de données</a></li>
@@ -15754,10 +16321,6 @@ P
 <p><code class="pkg">packrat</code></p>
 <ul>
 <li><a href="#organiser-ses-fichiers">Organiser ses fichiers</a></li>
-</ul>
-<p><code class="pkg">plyr</code></p>
-<ul>
-<li><a href="#fusion-de-tables">Fusion de tables</a></li>
 </ul>
 <p><code class="pkg">productplots</code></p>
 <ul>
@@ -15816,6 +16379,7 @@ R
 <li><a href="#extensions">Extensions</a></li>
 <li><a href="#formules">Formules</a></li>
 <li><a href="#import-de-donnees">Import de données</a></li>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
 <li><a href="#intro-ggplot2">Introduction à ggplot2</a></li>
 <li><a href="#scraping">Scraping</a></li>
 </ul>
@@ -15823,6 +16387,7 @@ R
 <ul>
 <li><a href="#extensions">Extensions</a></li>
 <li><a href="#import-de-donnees">Import de données</a></li>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
 </ul>
 <p><code class="pkg">reshape2</code></p>
 <ul>
@@ -15853,6 +16418,7 @@ S
 <li><a href="#formules">Formules</a></li>
 <li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#intervalles-de-confiance">Intervalles de confiance</a></li>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
 <li><a href="#premier-contact">Premier contact</a></li>
 <li><a href="#premier-travail-avec-les-donnees">Premier travail avec des données</a></li>
 <li><a href="#recodage">Recodage</a></li>
@@ -15879,6 +16445,9 @@ T
 <p><code class="pkg">tibble</code></p>
 <ul>
 <li><a href="#extensions">Extensions</a></li>
+<li><a href="#introduction-a-data-table">Introduction à data.table</a></li>
+<li><a href="#introduction-a-dplyr">Introduction à dplyr</a></li>
+<li><a href="#listes-et-tableaux-de-donnes">Listes et Tableaux de données</a></li>
 </ul>
 <p><code class="pkg">tidyr</code></p>
 <ul>

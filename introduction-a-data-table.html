@@ -4,7 +4,7 @@
 
 <head>
 
-<meta charset="utf-8">
+<meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
@@ -45,6 +45,49 @@
 <meta name="theme-color" content="#ffffff">
 
 
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
 
 
 <style type="text/css">
@@ -304,9 +347,265 @@ $(document).ready(function () {
 
 </div>
 
+<div id="TOC">
+<ul>
+<li><a href="#convertir-un-data.frame-en-data.table">Convertir un data.frame en data.table</a><ul>
+<li><a href="#setdt-et-setdf">setDT et setDF</a></li>
+<li><a href="#dplyr-et-data.table">dplyr et data.table</a></li>
+</ul></li>
+<li><a href="#la-syntaxe-des-crochets">La syntaxe des crochets</a><ul>
+<li><a href="#selectionner-des-observations">Sélectionner des observations</a></li>
+<li><a href="#selectionner-des-variables">Sélectionner des variables</a></li>
+<li><a href="#grouper-les-results">Grouper les résults</a></li>
+<li><a href="#ajoutermodifiersupprimer-une-variable">Ajouter/Modifier/Supprimer une variable</a></li>
+</ul></li>
+<li><a href="#enchainer-les-operations">Enchaîner les opérations</a></li>
+</ul>
+</div>
 
 <div class="important">
 <p>Ce chapitre est en cours d’écriture.</p>
+</div>
+<p>L’extension <code class="pkg">data.table</code> permets d’étendre les tableaux de données. Elle modifie radicalement la syntaxe des crochets, permettant un code plus court et surtout plus puissant. Par ailleurs, elle est particulièrement rapide pour opérer des opérations sur les données et permets d’effectuer des opérations par assignation directe sans avoir à copier les objets en mémoire. Autrement dit, elle est particulièrement utile lorsque l’on travaille sur des gros fichiers de données.</p>
+<p>Certes, l’apprentissage de cette nouvelle syntaxe peut faire peur au début, mais c’est un gain tellement notable une fois qu’on la maîtrise, qu’il est difficile de revenir en arrière.</p>
+<p>Pour un tutoriel (en anglais et en ligne) écrit par les développeurs de <code class="pkg">data.table</code>, voir <a href="https://www.datacamp.com/courses/data-table-data-manipulation-r-tutorial" class="uri">https://www.datacamp.com/courses/data-table-data-manipulation-r-tutorial</a>. On pourra aussi se référer à la vignette officielle <a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html" class="uri">https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html</a>.</p>
+<div id="convertir-un-data.frame-en-data.table" class="section level1">
+<h1>Convertir un data.frame en data.table</h1>
+<p>Il suffit d’avoir recours à la fonction <code data-pkg="data.table">as.data.table</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(data.table)
+iris2 &lt;-<span class="st"> </span><span class="kw">as.data.table</span>(iris)
+<span class="kw">class</span>(iris2)</code></pre></div>
+<pre><code>[1] &quot;data.table&quot; &quot;data.frame&quot;</code></pre>
+<p>Comme on le voit, cela ajoute plusieurs classes additionnelles au tableau de données, celui-ci restant malgré tout toujours un <em>data.frame</em>. Cependant, la syntaxe des crochets simples <code>[]</code> change radicalement, tandis que les crochets doubles <code>[[]]</code> restent inchangés. Par contre, comme il s’agit toujours d’un tableau de données classique, on pourra l’utiliser avec les fonctions des autres extensions de R. Si jamais vous rencontriez un problème, il est toujours possible de reconvertir en tableau de données classique avec <code data-pkg="data.table">setDF</code> (voir ci-dessous).</p>
+<div id="setdt-et-setdf" class="section level2">
+<h2>setDT et setDF</h2>
+<p>Lors de l’utilisation de <code data-pkg="data.table">as.data.table</code>, le tableau de données original a d’abord été copié en mémoire, converti puis il a fallu le sauvegarder dans un objet avec <code>&lt;-</code>. Lorsqu’on l’on manipule de gros tableaux, cela est gourmand en ressources système et prend du temps.</p>
+<p>C’est pour cela que <code class="pkg">data.table</code> fournie plusieurs fonctions (commençant parle préfixe <code>set</code>) qui modifient directement l’objet sélectionné en mémoire, ce qu’on appelle <q>modification par assignation</q>. Ce type de fonction est beaucoup plus rapide et efficace en termes de ressources système. On notera également qu’il est inutile de stocker le résultats dans un objet puisque l’objet a été modifié directement en mémoire.</p>
+<p><code data-pkg="data.table">setDT</code> converti un tableaux de données en <em>data.table</em> tandis que <code data-pkg="data.table">setDF</code> fait l’opération opposée.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setDT</span>(iris)
+<span class="kw">class</span>(iris)</code></pre></div>
+<pre><code>[1] &quot;data.table&quot; &quot;data.frame&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setDF</span>(iris)
+<span class="kw">class</span>(iris)</code></pre></div>
+<pre><code>[1] &quot;data.frame&quot;</code></pre>
+</div>
+<div id="dplyr-et-data.table" class="section level2">
+<h2>dplyr et data.table</h2>
+<p>Pour ceux travaillant également avec les extension <code class="pkg">dplyr</code> et <code class="pkg">tibble</code>, il est possible de concilier <em>tibble</em> et <em>data.table</em> avec l’extension <code class="pkg">dtplyr</code> et sa fonction <code data-pkg="dtplyr">tbl_dt</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dtplyr)
+iris_dt &lt;-<span class="st"> </span><span class="kw">tbl_dt</span>(iris)
+<span class="kw">class</span>(iris_dt)</code></pre></div>
+<pre><code>[1] &quot;tbl_dt&quot;     &quot;tbl&quot;        &quot;data.table&quot;
+[4] &quot;data.frame&quot;</code></pre>
+<p>Le tableau de données est à la fois compatible avec <code class="pkg">data.table</code> (et notamment sa syntaxe particulière des crochets) et les verbes de <code class="pkg">dplyr</code>.</p>
+</div>
+</div>
+<div id="la-syntaxe-des-crochets" class="section level1">
+<h1>La syntaxe des crochets</h1>
+<p>La syntaxe des crochets change radicalement avec <code class="pkg">data.table</code>. Elle est de la forme <code>objet[i, j, by]</code> (dans sa forme la plus simple, pour une présentation exhaustive, voir le fichier d’aide de <code data-pkg="data.table">data.table-package</code>).</p>
+<div id="selectionner-des-observations" class="section level2">
+<h2>Sélectionner des observations</h2>
+<p>Cela se fait en indiquant une indiquant une condition au premier argument, à savoir <code>i</code>. Si l’on ne procède à une sélection en même temps sur les variables, il n’est pas nécessaire d’indiquer de virgule <code>,</code> dans les crochets.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[Sepal.Length &lt;<span class="st"> </span><span class="dv">5</span>]</code></pre></div>
+<pre><code>    Sepal.Length Sepal.Width Petal.Length
+ 1:          4.9         3.0          1.4
+ 2:          4.7         3.2          1.3
+ 3:          4.6         3.1          1.5
+ 4:          4.6         3.4          1.4
+ 5:          4.4         2.9          1.4
+ 6:          4.9         3.1          1.5
+ 7:          4.8         3.4          1.6
+ 8:          4.8         3.0          1.4
+ 9:          4.3         3.0          1.1
+10:          4.6         3.6          1.0
+11:          4.8         3.4          1.9
+12:          4.7         3.2          1.6
+13:          4.8         3.1          1.6
+14:          4.9         3.1          1.5
+15:          4.9         3.6          1.4
+16:          4.4         3.0          1.3
+17:          4.5         2.3          1.3
+18:          4.4         3.2          1.3
+19:          4.8         3.0          1.4
+20:          4.6         3.2          1.4
+21:          4.9         2.4          3.3
+22:          4.9         2.5          4.5
+    Sepal.Length Sepal.Width Petal.Length
+    Petal.Width    Species
+ 1:         0.2     setosa
+ 2:         0.2     setosa
+ 3:         0.2     setosa
+ 4:         0.3     setosa
+ 5:         0.2     setosa
+ 6:         0.1     setosa
+ 7:         0.2     setosa
+ 8:         0.1     setosa
+ 9:         0.1     setosa
+10:         0.2     setosa
+11:         0.2     setosa
+12:         0.2     setosa
+13:         0.2     setosa
+14:         0.2     setosa
+15:         0.1     setosa
+16:         0.2     setosa
+17:         0.3     setosa
+18:         0.2     setosa
+19:         0.3     setosa
+20:         0.2     setosa
+21:         1.0 versicolor
+22:         1.7  virginica
+    Petal.Width    Species</code></pre>
+<p>On notera que les noms indiquer entre les crochets sont évalués en fonction du contexte, en l’occurence la liste des variables de l’objet considéré. Ainsi, les noms des variables peuvent être indiqués tels quels, sans utilisation du symbole <code>$</code> ni des guillemets.</p>
+<div class="important">
+<p>Une différence de taille : lorsqu’il y a des observations pour lesquelles la condition indiquée en <code>i</code> renvoie <code>NA</code>, elles ne sont pas sélectionnées par `data.table``{.pkg} tandis que, pour un <em>data.frame</em> classique cela renvoie des lignes manquantes.</p>
+</div>
+</div>
+<div id="selectionner-des-variables" class="section level2">
+<h2>Sélectionner des variables</h2>
+<p>Pour sélectionner une variable, il suffit d’indiquer son nom dans la seconde partie, à savoir <code>j</code>. Noter la virgule qui permets d’indiquer que c’est une condition sur <code>j</code> et non sur <code>i</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, Sepal.Length]</code></pre></div>
+<pre><code>  [1] 5.1 4.9 4.7 4.6 5.0 5.4 4.6 5.0 4.4 4.9 5.4
+ [12] 4.8 4.8 4.3 5.8 5.7 5.4 5.1 5.7 5.1 5.4 5.1
+ [23] 4.6 5.1 4.8 5.0 5.0 5.2 5.2 4.7 4.8 5.4 5.2
+ [34] 5.5 4.9 5.0 5.5 4.9 4.4 5.1 5.0 4.5 4.4 5.0
+ [45] 5.1 4.8 5.1 4.6 5.3 5.0 7.0 6.4 6.9 5.5 6.5
+ [56] 5.7 6.3 4.9 6.6 5.2 5.0 5.9 6.0 6.1 5.6 6.7
+ [67] 5.6 5.8 6.2 5.6 5.9 6.1 6.3 6.1 6.4 6.6 6.8
+ [78] 6.7 6.0 5.7 5.5 5.5 5.8 6.0 5.4 6.0 6.7 6.3
+ [89] 5.6 5.5 5.5 6.1 5.8 5.0 5.6 5.7 5.7 6.2 5.1
+[100] 5.7 6.3 5.8 7.1 6.3 6.5 7.6 4.9 7.3 6.7 7.2
+[111] 6.5 6.4 6.8 5.7 5.8 6.4 6.5 7.7 7.7 6.0 6.9
+[122] 5.6 7.7 6.3 6.7 7.2 6.2 6.1 6.4 7.2 7.4 7.9
+[133] 6.4 6.3 6.1 7.7 6.3 6.4 6.0 6.9 6.7 6.9 5.8
+[144] 6.8 6.7 6.7 6.3 6.5 6.2 5.9</code></pre>
+<p>Pour sélectionner plusieurs variables, on fournira une liste définie avec <code data-pkg="base">list</code> (et non un vecteur défini avec <code data-pkg="base">c</code>).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, <span class="kw">list</span>(Sepal.Length, Sepal.Width)]</code></pre></div>
+<pre><code>     Sepal.Length Sepal.Width
+  1:          5.1         3.5
+  2:          4.9         3.0
+  3:          4.7         3.2
+  4:          4.6         3.1
+  5:          5.0         3.6
+ ---                         
+146:          6.7         3.0
+147:          6.3         2.5
+148:          6.5         3.0
+149:          6.2         3.4
+150:          5.9         3.0</code></pre>
+<p><code class="pkg">data.table</code> fourni un raccourci pour écrire une liste : <code>.()</code>. A l’intérieur des crochets (mais pas en dehors), <code>.()</code> sera compris comme <code>list()</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, .(Sepal.Length, Sepal.Width)]</code></pre></div>
+<pre><code>     Sepal.Length Sepal.Width
+  1:          5.1         3.5
+  2:          4.9         3.0
+  3:          4.7         3.2
+  4:          4.6         3.1
+  5:          5.0         3.6
+ ---                         
+146:          6.7         3.0
+147:          6.3         2.5
+148:          6.5         3.0
+149:          6.2         3.4
+150:          5.9         3.0</code></pre>
+<p>Il est possible de renommer une variable à la volée et même d’en calculer d’autres.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, .(<span class="dt">espece =</span> Species, <span class="dt">aire_petal =</span> Petal.Length *<span class="st"> </span>
+<span class="st">  </span>Petal.Width)]</code></pre></div>
+<pre><code>        espece aire_petal
+  1:    setosa       0.28
+  2:    setosa       0.28
+  3:    setosa       0.26
+  4:    setosa       0.30
+  5:    setosa       0.28
+ ---                     
+146: virginica      11.96
+147: virginica       9.50
+148: virginica      10.40
+149: virginica      12.42
+150: virginica       9.18</code></pre>
+<p>Seul le retour est ici affecté. Cela n’impacte pas le tableau d’origine. Nous verrons plus loin comment créer / modifier une variable.</p>
+<p>Attention : on ne peut pas directement sélectionner une variable par sa position ou en indiquant une chaîne de caractères. En effet, une valeur numérique ou textuelle est comprise comme une constante.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, .(<span class="st">&quot;Species&quot;</span>, <span class="dv">3</span>)]</code></pre></div>
+<pre><code>        V1 V2
+1: Species  3</code></pre>
+</div>
+<div id="grouper-les-results" class="section level2">
+<h2>Grouper les résults</h2>
+<p>Si en <code>j</code> on utilise des fonctions qui à partir d’un vecteur renvoient une valeur unique (telles que <code data-pkg="base">mean</code>, <code data-pkg="stats">median</code>, <code data-pkg="base" data-rdoc="Extremes">min</code>, <code data-pkg="base" data-rdoc="Extremes">max</code>, <code data-pkg="data.table">first</code>, <code data-pkg="data.table">last</code>, <code data-pkg="dplyr">nth</code>, etc.), on peut ainsi obtenir un résumé. On pourra également utiliser <code data-pkg="data.table" data-rdoc="special-symbols">.N</code> pour obtenir le nombre d’observations.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, .(<span class="dt">min_sepal_width =</span> <span class="kw">min</span>(Sepal.Width), <span class="dt">max_sepal_width =</span> <span class="kw">max</span>(Sepal.Width), 
+  <span class="dt">n_observations =</span> .N)]</code></pre></div>
+<pre><code>   min_sepal_width max_sepal_width n_observations
+1:               2             4.4            150</code></pre>
+<p>Cela devient particulièrement intéressant en calculant ces mêmes valeurs par sous-groupe, grace au troisième paramètre : <code>by</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, .(<span class="dt">min_sepal_width =</span> <span class="kw">min</span>(Sepal.Width), <span class="dt">max_sepal_width =</span> <span class="kw">max</span>(Sepal.Width), 
+  <span class="dt">n_observations =</span> .N), by =<span class="st"> </span>Species]</code></pre></div>
+<pre><code>      Species min_sepal_width max_sepal_width
+1:     setosa             2.3             4.4
+2: versicolor             2.0             3.4
+3:  virginica             2.2             3.8
+   n_observations
+1:             50
+2:             50
+3:             50</code></pre>
+</div>
+<div id="ajoutermodifiersupprimer-une-variable" class="section level2">
+<h2>Ajouter/Modifier/Supprimer une variable</h2>
+<p><code class="pkg">data.table</code> introduit un nouvel opérateur <code>:=</code> permettant de modifier une variable par assignation directe. Cela signifie que la modification a lieu directement en mémoire dans le tableau de données, sans qu’il soit besoin réaffecter le résultat avec <code>&lt;-</code>.</p>
+<p>On peut également combiner <code>:=</code> avec une sélection sur les observations en <code>i</code> pour ne modifier que certaines observations. De même, le recours à <code>by</code> permets des calculs par groupe.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(group, <span class="st">&quot;A&quot;</span>)]
+iris2[Species ==<span class="st"> &quot;virginica&quot;</span>, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(group, <span class="st">&quot;B&quot;</span>)]
+iris2[, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(n_obs_per_species, .N), by =<span class="st"> </span>Species]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2</code></pre></div>
+<pre><code>     Sepal.Length Sepal.Width Petal.Length
+  1:          5.1         3.5          1.4
+  2:          4.9         3.0          1.4
+  3:          4.7         3.2          1.3
+  4:          4.6         3.1          1.5
+  5:          5.0         3.6          1.4
+ ---                                      
+146:          6.7         3.0          5.2
+147:          6.3         2.5          5.0
+148:          6.5         3.0          5.2
+149:          6.2         3.4          5.4
+150:          5.9         3.0          5.1
+     Petal.Width   Species group
+  1:         0.2    setosa     A
+  2:         0.2    setosa     A
+  3:         0.2    setosa     A
+  4:         0.2    setosa     A
+  5:         0.2    setosa     A
+ ---                            
+146:         2.3 virginica     B
+147:         1.9 virginica     B
+148:         2.0 virginica     B
+149:         2.3 virginica     B
+150:         1.8 virginica     B
+     n_obs_per_species
+  1:                50
+  2:                50
+  3:                50
+  4:                50
+  5:                50
+ ---                  
+146:                50
+147:                50
+148:                50
+149:                50
+150:                50</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, .N, by =<span class="st"> </span>group]</code></pre></div>
+<pre><code>   group   N
+1:     A 100
+2:     B  50</code></pre>
+</div>
+</div>
+<div id="enchainer-les-operations" class="section level1">
+<h1>Enchaîner les opérations</h1>
+<p>Il est possible d’enchaîner les opérations avec une succession de crochets.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2[, .(<span class="dt">petal_area =</span> Petal.Width *<span class="st"> </span>Petal.Length, 
+  Species)][, .(<span class="dt">min_petal_area =</span> <span class="kw">min</span>(petal_area)), 
+  by =<span class="st"> </span>Species]</code></pre></div>
+<pre><code>      Species min_petal_area
+1:     setosa           0.11
+2: versicolor           3.30
+3:  virginica           7.50</code></pre>
 </div>
 
 </article>
