@@ -9,3 +9,149 @@ source("options_communes.R")
 <div class="important">
 Ce chapitre est en cours d'écriture.
 </div>
+
+L'extension `data.table`{.pkg} permets d'étendre les tableaux de données. Elle modifie radicalement la syntaxe des crochets, permettant un code plus court et surtout plus puissant. Par ailleurs, elle est particulièrement rapide pour opérer des opérations sur les données et permets d'effectuer des opérations par assignation directe sans avoir à copier les objets en mémoire. Autrement dit, elle est particulièrement utile lorsque l'on travaille sur des gros fichiers de données.
+
+Certes, l'apprentissage de cette nouvelle syntaxe peut faire peur au début, mais c'est un gain tellement notable une fois qu'on la maîtrise, qu'il est difficile de revenir en arrière.
+
+Pour un tutoriel (en anglais et en ligne) écrit par les développeurs de `data.table`{.pkg}, voir <https://www.datacamp.com/courses/data-table-data-manipulation-r-tutorial>. On pourra aussi se référer à la vignette officielle <https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html>.
+
+
+# Convertir un data.frame en data.table
+
+Il suffit d'avoir recours à la fonction `as.data.table`{data-pkg="data.table"}.
+
+```{r}
+library(data.table)
+iris2 <- as.data.table(iris)
+class(iris2)
+```
+
+Comme on le voit, cela ajoute plusieurs classes additionnelles au tableau de données, celui-ci restant malgré tout toujours un *data.frame*. Cependant, la syntaxe des crochets simples `[]` change radicalement, tandis que les crochets doubles `[[]]` restent inchangés. Par contre, comme il s'agit toujours d'un tableau de données classique, on pourra l'utiliser avec les fonctions des autres extensions de R. Si jamais vous rencontriez un problème, il est toujours possible de reconvertir en tableau de données classique avec `setDF`{data-pkg="data.table"} (voir ci-dessous).
+
+## setDT et setDF
+
+Lors de l'utilisation de `as.data.table`{data-pkg="data.table"}, le tableau de données original a d'abord été copié en mémoire, converti puis il a fallu le sauvegarder dans un objet avec `<-`. Lorsqu'on l'on manipule de gros tableaux, cela est gourmand en ressources système et prend du temps.
+
+C'est pour cela que `data.table`{.pkg} fournie plusieurs fonctions (commençant parle préfixe  `set`) qui modifient directement l'objet sélectionné en mémoire, ce qu'on appelle <q>modification par assignation</q>. Ce type de fonction est beaucoup plus rapide et efficace en termes de ressources système. On notera également qu'il est inutile de stocker le résultats dans un objet puisque l'objet a été modifié directement en mémoire.
+
+`setDT`{data-pkg="data.table"} converti un tableaux de données en *data.table* tandis que `setDF`{data-pkg="data.table"} fait l'opération opposée.
+
+
+```{r, echo=FALSE, results='hide'}
+# to copy iris to local memory
+iris <- iris
+```
+
+
+```{r}
+setDT(iris)
+class(iris)
+setDF(iris)
+class(iris)
+```
+
+
+## dplyr et data.table
+
+Pour ceux travaillant également avec les extension `dplyr`{.pkg} et `tibble`{.pkg}, il est possible de concilier *tibble* et *data.table* avec l'extension `dtplyr`{.pkg} et sa fonction `tbl_dt`{data-pkg="dtplyr"}.
+
+```{r}
+library(dtplyr)
+iris_dt <- tbl_dt(iris)
+class(iris_dt)
+```
+
+Le tableau de données est à la fois compatible avec `data.table`{.pkg} (et notamment sa syntaxe particulière des crochets) et les verbes de `dplyr`{.pkg}.
+
+# La syntaxe des crochets
+
+La syntaxe des crochets change radicalement avec `data.table`{.pkg}. Elle est de la forme `objet[i, j, by]` (dans sa forme la plus simple, pour une présentation exhaustive, voir le fichier d'aide de `data.table-package`{data-pkg="data.table"}).
+
+## Sélectionner des observations
+
+Cela se fait en indiquant une indiquant une condition au premier argument, à savoir `i`. Si l'on ne procède à une sélection en même temps sur les variables, il n'est pas nécessaire d'indiquer de virgule `,` dans les crochets. 
+
+```{r}
+iris2[Sepal.Length < 5]
+```
+
+On notera que les noms indiquer entre les crochets sont évalués en fonction du contexte, en l'occurence la liste des variables de l'objet considéré. Ainsi, les noms des variables peuvent être indiqués tels quels, sans utilisation du symbole `$` ni des guillemets.
+
+<div class="important">
+Une différence de taille : lorsqu'il y a des observations pour lesquelles la condition indiquée en `i` renvoie `NA`, elles ne sont pas sélectionnées par `data.table``{.pkg} tandis que, pour un *data.frame* classique cela renvoie des lignes manquantes.
+</div>
+
+## Sélectionner des variables
+
+Pour sélectionner une variable, il suffit d'indiquer son nom dans la seconde partie, à savoir `j`. Noter la virgule qui permets d'indiquer que c'est une condition sur `j` et non sur `i`.
+
+```{r}
+iris2[, Sepal.Length]
+```
+
+Pour sélectionner plusieurs variables, on fournira une liste définie avec `list`{data-pkg="base"} (et non un vecteur défini avec `c`{data-pkg="base"}).
+
+```{r}
+iris2[, list(Sepal.Length, Sepal.Width)]
+```
+
+`data.table`{.pkg} fourni un raccourci pour écrire une liste : `.()`. A l'intérieur des crochets (mais pas en dehors), `.()` sera compris comme `list()`.
+
+```{r}
+iris2[, .(Sepal.Length, Sepal.Width)]
+```
+
+Il est possible de renommer une variable à la volée et même d'en calculer d'autres.
+
+```{r}
+iris2[, .(espece = Species, aire_petal = Petal.Length * Petal.Width)]
+```
+
+Seul le retour est ici affecté. Cela n'impacte pas le tableau d'origine. Nous verrons plus loin comment créer / modifier une variable.
+
+Attention : on ne peut pas directement sélectionner une variable par sa position ou en indiquant une chaîne de caractères. En effet, une valeur numérique ou textuelle est comprise comme une constante.
+
+```{r}
+iris2[, .("Species", 3)]
+```
+
+## Grouper les résults
+
+Si en `j` on utilise des fonctions qui à partir d'un vecteur renvoient une valeur unique (telles que `mean`{data-pkg="base"}, `median`{data-pkg="stats"}, `min`{data-pkg="base" data-rdoc="Extremes"}, `max`{data-pkg="base" data-rdoc="Extremes"}, `first`{data-pkg="data.table"}, `last`{data-pkg="data.table"}, `nth`{data-pkg="dplyr"}, etc.), on peut ainsi obtenir un résumé. On pourra également utiliser `.N`{data-pkg="data.table" data-rdoc="special-symbols"} pour obtenir le nombre d'observations.
+
+```{r}
+iris2[, .(min_sepal_width = min(Sepal.Width), max_sepal_width = max(Sepal.Width), n_observations = .N)]
+```
+
+Cela devient particulièrement intéressant en calculant ces mêmes valeurs par sous-groupe, grace au troisième paramètre : `by`.
+
+```{r}
+iris2[, .(min_sepal_width = min(Sepal.Width), max_sepal_width = max(Sepal.Width), n_observations = .N), by = Species]
+```
+
+## Ajouter/Modifier/Supprimer une variable
+
+`data.table`{.pkg} introduit un nouvel opérateur `:=` permettant de modifier une variable par assignation directe. Cela signifie que la modification a lieu directement en mémoire dans le tableau de données, sans qu'il soit besoin réaffecter le résultat avec `<-`.
+
+On peut également combiner `:=` avec une sélection sur les observations en `i` pour ne modifier que certaines observations. De même, le recours à `by` permets des calculs par groupe.
+
+```{r, results='hide'}
+iris2[, group := "A"]
+iris2[Species == "virginica", group := "B"]
+iris2[, n_obs_per_species := .N, by = Species]
+```
+
+```{r}
+iris2
+iris2[, .N, by = group]
+```
+
+# Enchaîner les opérations
+
+Il est possible d'enchaîner les opérations avec une succession de crochets.
+
+```{r}
+iris2[, .(petal_area = Petal.Width * Petal.Length, Species)][, .(min_petal_area = min(petal_area)), by = Species]
+```
+
