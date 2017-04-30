@@ -260,6 +260,7 @@ $(document).ready(function () {
   	            <ul class="multi-column-dropdown">
                   <li class="dropdown-header">Divers</li>
                   <li><a href="calculer-un-age.html">Calculer un âge</a></li>
+                  <li class="dev"><a href="diagramme-de-lexis.html">Diagramme de Lexis</a></li>
                   <li class="dev"><a href="prevR-cartes-de-prevalence.html">prevR : cartes de prévalence à partir des EDS</a></li>
   	            </ul>
               </div>
@@ -311,6 +312,10 @@ $(document).ready(function () {
 <a href="# "> </a>
 </li>
 <li>
+<a href="#
+"> </a>
+</li>
+<li>
 <a href="#.">.</a>
 </li>
 <li>
@@ -339,6 +344,9 @@ $(document).ready(function () {
 </li>
 <li>
 <a href="#I">I</a>
+</li>
+<li>
+<a href="#K">K</a>
 </li>
 <li>
 <a href="#L">L</a>
@@ -381,9 +389,69 @@ $(document).ready(function () {
 <div id="index_concepts" class="liste_index">
 <h2 id=" ">
 </h2>
+<p><dfn> est <code class="pkg">survival</code>.</p>
+<p>Un très bon tutoriel (en anglais et en 3 étapes), introduisant les concepts de l’analyse de survie, des courbes de Kaplan-Meier et des modèles de Cox et leur mise en oeuvre pratique sous <strong>R</strong> est disponible en ligne :</p>
+<ul>
+<li></li>
+<li></li>
+<li></li>
+</ul>
+<p>Pour un autre exemple (toujours en anglais) d’analyse de survie avec <code class="pkg">survival</code>, on pourra se référer à .</p>
+<p>Pour représenter vos résultats avec <code class="pkg">ggplot2</code>, on pourra avoir recours à l’extension <code class="pkg">survminer</code> présentée en détails sur son site officiel (en anglais) : . On pourra également avoir recours à la fonction <code data-pkg="GGally">ggsurv</code> de l’extension <code class="pkg">GGally</code> présentée à l’adresse .</p>
+<p>A noter, il est possible d’utiliser la fonction <code data-pkg="stats">step</code> sur un modèle de Cox, pour une sélection pas à pas d’un meilleur modèle basé sur une minimisation de l’AIC (voir le chapitre sur la <a href="regression-logistique.html">régression logistique</a>).</p>
+<p>L’excellente extension <code class="pkg">broom</code> peut également être utilisée sur des modèles de survie (Kaplan-Meier ou Cox) pour en convertir les résultats sous la forme d’un tableau de données.</p>
+<p>Pour approfondir les possibilités offertes par l’extension <code class="pkg">survival</code>, on pourra également consulter les différentes vignettes fournies avec l’extension (voir ).</p>
+<h1 id="un-exemple-concret-mortalite-infanto-juvenile">Un exemple concret : mortalité infanto-juvénile</h1>
+<p>Dans cet exemple, nous allons utiliser le jeu de données <code>fecondite</code> fourni par l’extension <code class="pkg">questionr</code>. Ce jeu de données comporte trois tableaux de données : <code>menages</code>, <code>femmes</code> et <code>enfants</code>.</p>
+<p>Nous souhaitons étudier ici la survie des enfants entre la naissance et l’âge de 5 ans. Dans un premier temps, nous comparerons la survie des jeunes filles et des jeunes garçons. Dans un second temps, nous procéderons à une analyse multivariée en prenant en compte les variables suivantes :</p>
+<ul>
+<li>sexe de l’enfant</li>
+<li>milieu de résidence</li>
+<li>niveau de vie du ménage</li>
+<li>structure du ménage</li>
+<li>niveau d’éducation de la mère</li>
+<li>âge de la mère à la naissance de l’enfant</li>
+<li>enfin, une variable un peu plus compliquée, à savoir si le rang de naissance de l’enfant (second, troisième, quatrième, etc.) est supérieur au nombre idéal d’enfants selon la mère.</li>
+</ul>
+<p>Nous allons préparer les données selon deux approches : soit en utilisant l’extension <code class="pkg">data.table</code> (voir l’<a href="introduction-a-data-table.html">introduction à data.table</a>), soit en utilisant l’extension <code class="pkg">dplyr</code> (voir l’<a href="introduction-a-dplyr.html">introduction à dplyr</a>).</p>
+<p>Chargeons les données en mémoire et listons les variables disponibles.</p>
+<pre class="{r}"><code>library(questionr)
+data(fecondite)
+lookfor(menages)
+lookfor(femmes)
+lookfor(enfants)</code></pre>
+<h2 id="preparation-des-donnees-avec-data.table">Préparation des données avec data.table</h2>
+<p>Tout d’abord, regardons sous quel format elles sont stockées.</p>
+<pre class="{r}"><code>class(menages)
+describe(menages)</code></pre>
+<p>Les tableaux de données sont au format <em>tibble</em> (c’est-à-dire sont de la classe <code>tbl_df</code>) et les variables catégorielles sont du type <code>labelled</code> (voir le chapitre sur les <a href="facteurs-et-vecteurs-labellises.html#labelled">vecteurs labellisés</a>). Ce format correspond au format de données si on les avait importées depuis SPSS avec l’extension <code class="pkg">haven</code> (voir le chapitre sur l’<a href="import-de-donnees.html#spss">import de données</a>).</p>
+<p>En premier lieu, il nous faut convertir les tableaux de données au format <code>data.table</code>, ce qui peut se faire avec la fonction <code data-pkg="data.table">setDT</code><a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>. Par ailleurs, nous allons également charger en mémoire l’extension <code class="pkg">labelled</code> pour la gestion des vecteurs labellisés.</p>
+<p><code>{r, message=FALSE} library(labelled) library(data.table) setDT(menages) setDT(femmes) setDT(enfants)</code></p>
+<p>En premier lieu, il nous faut calculer la durée d’observation des enfants, à savoir le temps passé entre la date de naissance (variable du fichier <code>enfants</code>) et la date de passation de l’entretien (fournie par le tableau de données <code>femmes</code>). Pour récupérer des variables du fichier <code>femmes</code> dans le fichier <code>enfants</code>, nous allons procéder à une fusion de table (voir le <a href="fusion-de-tables.html">chapitre dédié</a>). Pour le calcul de la durée d’observation, nous allons utiliser le package <code class="pkg">lubridate</code> (voir le chapitre <a href="calculer-un-age.html">calculer un âge</a> et celui sur la <a href="gestion-des-dates.html">gestion des dates</a>). Nous effectuerons l’analyse en mois (puisque l’âge au décès est connu en mois). Dès lors, la durée d’observation sera calculée en mois.</p>
+<p>```{r, message=FALSE} enfants censure à droite</dfn></p>
+<ul>
+<li><a href="analyse-de-survie.html">Analyse de survie</a></li>
+</ul>
 <p><dfn> ou tagged missing value. Plus de détails sur ces données manquantes étiquettées, on se référera à la page d’aide de la fonction <code data-pkg="haven">tagged_na</code>. </dfn></p>
 <ul>
 <li><a href="import-de-donnees.html">Import de données</a></li>
+</ul>
+<h2 id="
+">
+</h2>
+<p><dfn lang="en>hazard ratio (HR)</dfn> en anglais.</p>
+<pre class="{r}"><code>library(broom)
+tidy(mod2, exponentiate = TRUE)</code></pre>
+<p>Pour représenter ces rapports de risque, on peut ici encore avoir recours à la fonction <code>ggcoef</code>{data-pkg=“&gt;</p>
+<pre class="{r}"><code>library(GGally)
+ggcoef(tidy(mod2, exponentiate = TRUE), exponentiate = TRUE)</code></pre>
+<p>NB : dû à un bug<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> en cours de résolution dans l’extension <code class="pkg">broom</code>, il est nécessaire d’appliquer <code>tidy</code> au modèle avant de le passer à <code>ggcoef</code>. En effet, si l’on fait directement <code>ggcoef(mod2, exponentiate = TRUE)</code>, les intervalles de confiance ne seront pas correctement représentés.</p>
+<p>Coefficients du modèle</p>
+<h2 id="verification-de-la-validite-du-modele">Vérification de la validité du modèle</h2>
+<p>Un modèle de Cox n’est valable que sous l’hypothèse de la proportionnalité des risques relatifs. Selon cette hypothèse les résidus de Schoenfeld ne dépendent pas du tout. Cette hypothèse peut être testée avec la fonction <code data-pkg="survival">cox.zph</code>.</p>
+<p>```{r} test </dfn></p>
+<ul>
+<li><a href="analyse-de-survie.html">Analyse de survie</a></li>
 </ul>
 <h2 id=".">
 .
@@ -437,6 +505,7 @@ A
 </ul>
 <p><dfn lang="en">Akaike Information Criterion</dfn></p>
 <ul>
+<li><a href="analyse-de-survie.html">Analyse de survie</a></li>
 <li><a href="regression-logistique.html">Régression logistique</a></li>
 </ul>
 <p><dfn>aléatoire, échantillonnage</dfn></p>
@@ -446,6 +515,162 @@ A
 <p><dfn>analyse de séquences</dfn></p>
 <ul>
 <li><a href="analyse-de-sequences.html">Analyse de séquences</a></li>
+</ul>
+<p><dfn>analyse de survie est <code class="pkg">survival</code>.</p>
+<p>Un très bon tutoriel (en anglais et en 3 étapes), introduisant les concepts de l’analyse de survie, des courbes de Kaplan-Meier et des modèles de Cox et leur mise en oeuvre pratique sous <strong>R</strong> est disponible en ligne :</p>
+<ul>
+<li></li>
+<li></li>
+<li></li>
+</ul>
+<p>Pour un autre exemple (toujours en anglais) d’analyse de survie avec <code class="pkg">survival</code>, on pourra se référer à .</p>
+<p>Pour représenter vos résultats avec <code class="pkg">ggplot2</code>, on pourra avoir recours à l’extension <code class="pkg">survminer</code> présentée en détails sur son site officiel (en anglais) : . On pourra également avoir recours à la fonction <code data-pkg="GGally">ggsurv</code> de l’extension <code class="pkg">GGally</code> présentée à l’adresse .</p>
+<p>A noter, il est possible d’utiliser la fonction <code data-pkg="stats">step</code> sur un modèle de Cox, pour une sélection pas à pas d’un meilleur modèle basé sur une minimisation de l’AIC (voir le chapitre sur la <a href="regression-logistique.html">régression logistique</a>).</p>
+<p>L’excellente extension <code class="pkg">broom</code> peut également être utilisée sur des modèles de survie (Kaplan-Meier ou Cox) pour en convertir les résultats sous la forme d’un tableau de données.</p>
+<p>Pour approfondir les possibilités offertes par l’extension <code class="pkg">survival</code>, on pourra également consulter les différentes vignettes fournies avec l’extension (voir ).</p>
+<h1 id="un-exemple-concret-mortalite-infanto-juvenile-1">Un exemple concret : mortalité infanto-juvénile</h1>
+<p>Dans cet exemple, nous allons utiliser le jeu de données <code>fecondite</code> fourni par l’extension <code class="pkg">questionr</code>. Ce jeu de données comporte trois tableaux de données : <code>menages</code>, <code>femmes</code> et <code>enfants</code>.</p>
+<p>Nous souhaitons étudier ici la survie des enfants entre la naissance et l’âge de 5 ans. Dans un premier temps, nous comparerons la survie des jeunes filles et des jeunes garçons. Dans un second temps, nous procéderons à une analyse multivariée en prenant en compte les variables suivantes :</p>
+<ul>
+<li>sexe de l’enfant</li>
+<li>milieu de résidence</li>
+<li>niveau de vie du ménage</li>
+<li>structure du ménage</li>
+<li>niveau d’éducation de la mère</li>
+<li>âge de la mère à la naissance de l’enfant</li>
+<li>enfin, une variable un peu plus compliquée, à savoir si le rang de naissance de l’enfant (second, troisième, quatrième, etc.) est supérieur au nombre idéal d’enfants selon la mère.</li>
+</ul>
+<p>Nous allons préparer les données selon deux approches : soit en utilisant l’extension <code class="pkg">data.table</code> (voir l’<a href="introduction-a-data-table.html">introduction à data.table</a>), soit en utilisant l’extension <code class="pkg">dplyr</code> (voir l’<a href="introduction-a-dplyr.html">introduction à dplyr</a>).</p>
+<p>Chargeons les données en mémoire et listons les variables disponibles.</p>
+<pre class="{r}"><code>library(questionr)
+data(fecondite)
+lookfor(menages)
+lookfor(femmes)
+lookfor(enfants)</code></pre>
+<h2 id="preparation-des-donnees-avec-data.table-1">Préparation des données avec data.table</h2>
+<p>Tout d’abord, regardons sous quel format elles sont stockées.</p>
+<pre class="{r}"><code>class(menages)
+describe(menages)</code></pre>
+<p>Les tableaux de données sont au format <em>tibble</em> (c’est-à-dire sont de la classe <code>tbl_df</code>) et les variables catégorielles sont du type <code>labelled</code> (voir le chapitre sur les <a href="facteurs-et-vecteurs-labellises.html#labelled">vecteurs labellisés</a>). Ce format correspond au format de données si on les avait importées depuis SPSS avec l’extension <code class="pkg">haven</code> (voir le chapitre sur l’<a href="import-de-donnees.html#spss">import de données</a>).</p>
+<p>En premier lieu, il nous faut convertir les tableaux de données au format <code>data.table</code>, ce qui peut se faire avec la fonction <code data-pkg="data.table">setDT</code><a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. Par ailleurs, nous allons également charger en mémoire l’extension <code class="pkg">labelled</code> pour la gestion des vecteurs labellisés.</p>
+<p><code>{r, message=FALSE} library(labelled) library(data.table) setDT(menages) setDT(femmes) setDT(enfants)</code></p>
+<p>En premier lieu, il nous faut calculer la durée d’observation des enfants, à savoir le temps passé entre la date de naissance (variable du fichier <code>enfants</code>) et la date de passation de l’entretien (fournie par le tableau de données <code>femmes</code>). Pour récupérer des variables du fichier <code>femmes</code> dans le fichier <code>enfants</code>, nous allons procéder à une fusion de table (voir le <a href="fusion-de-tables.html">chapitre dédié</a>). Pour le calcul de la durée d’observation, nous allons utiliser le package <code class="pkg">lubridate</code> (voir le chapitre <a href="calculer-un-age.html">calculer un âge</a> et celui sur la <a href="gestion-des-dates.html">gestion des dates</a>). Nous effectuerons l’analyse en mois (puisque l’âge au décès est connu en mois). Dès lors, la durée d’observation sera calculée en mois.</p>
+<p>``<code>{r, message=FALSE} enfants censure à droite). Par ailleurs, une seconde variable indiquant si les individus ont vécu l'évènement (0 pour non, 1 pour oui). Or, ici, la variable survie est codée 0 pour les décès et 1 pour ceux ayant survécu. Pour plus de détails, voir l'aide de la fonction</code>Surv`{data-pkg=“survival”}.</p>
+<p>``<code>{r} enfants[, deces := 0] enfants[survie == 0, deces := 1] var_label(enfants$deces) id_menage de la table</code>femmes<code>pour pouvoir fusionner ensuite la table</code>enfants<code>avec la table</code>menages<code>. Par ailleurs, pour éviter une confusion sur la variable date_naissance, nous renommons à la volée cette variable de la table</code>femmes` en date_naissance_mere.</p>
+<p>```{r} enfants structure.</p>
+<pre class="{r}"><code>freq(enfants$structure)</code></pre>
+<p>Tout d’abord, la modalité pas d’adulte n’est pas représentée dans l’échantillon. On aura donc recours à l’argument <code>drop_unused_labels</code> pour ne pas conserver cette modalité. Par ailleurs, nous considérons que la situation familiale à partir de laquelle nous voudrons comparer les autres dans notre modèle, donc celle qui doit être considérée comme la modalité de référence, est celle du ménage nucléaire. Cette modalité (deux adultes de sexe opposé) n’étant pas la première, nous aurons recours à la fonction <code>relevel</code>{data-pkg = “stats”}.</p>
+<pre class="{r}"><code>enfants[, structure := to_factor(structure)]
+enfants[, structure := relevel(structure, &quot;deux adultes de sexe opposé&quot;)]</code></pre>
+<p>Regardons la variable educ.</p>
+<pre class="{r}"><code>freq(enfants$educ)</code></pre>
+<p>La modalité supérieur est peu représentée dans notre échantillon. Nous allons la fusionner avec la modalité secondaire (voir la section <a href="recodage.html#regrouper_modalites">Regrouper les modalités d’une variable</a> du chapitre <a href="recodage.html">Recodage</a>).</p>
+<pre class="{r}"><code>enfants[, educ2 := educ]
+enfants[educ == 3, educ2 := 2]
+val_label(enfants$educ2, 2)  nb_enf_ideal, rang_apres_ideal := &quot;oui&quot;]
+enfants[, rang_apres_ideal := factor(rang_apres_ideal)]
+enfants[, rang_apres_ideal := relevel(rang_apres_ideal, &quot;non&quot;)]</code></pre>
+<h2 id="preparation-des-donnees-avec-dplyr">Préparation des données avec dplyr</h2>
+<p>Tout d’abord, regardons sous quel format elles sont stockées.</p>
+<pre class="{r}"><code>data(fecondite)
+class(menages)
+describe(menages)</code></pre>
+<p>Les tableaux de données sont déjà au format <em>tibble</em> (c’est-à-dire sont de la classe <code>tbl_df</code>)<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a> et les variables catégorielles sont du type <code>labelled</code> (voir le chapitre sur les <a href="facteurs-et-vecteurs-labellises.html#labelled">vecteurs labellisés</a>). Ce format correspond au format de données si on les avait importées depuis SPSS avec l’extension <code class="pkg">haven</code> (voir le chapitre sur l’<a href="import-de-donnees.html#spss">import de données</a>).</p>
+<p>Nous allons charger en mémoire l’extension <code class="pkg">labelled</code> pour la gestion des vecteurs labellisés en plus de <code class="pkg">dplyr</code>.</p>
+<p><code>{r, message=FALSE} library(dplyr) library(labelled)</code></p>
+<p>En premier lieu, il nous faut calculer la durée d’observation des enfants, à savoir le temps passé entre la date de naissance (variable du fichier <code>enfants</code>) et la date de passation de l’entretien (fournie par le tableau de données <code>femmes</code>). Pour récupérer des variables du fichier <code>femmes</code> dans le fichier <code>enfants</code>, nous allons procéder à une fusion de table (voir le <a href="fusion-de-tables.html">chapitre dédié</a>). Pour le calcul de la durée d’observation, nous allons utiliser le package <code class="pkg">lubridate</code> (voir le chapitre <a href="calculer-un-age.html">calculer un âge</a> et celui sur la <a href="gestion-des-dates.html">gestion des dates</a>). Nous effectuerons l’analyse en mois (puisque l’âge au décès est connu en mois). Dès lors, la durée d’observation sera calculée en mois.</p>
+<p><code>{r, message=FALSE} library(lubridate) enfants %   left_join(     femmes %&gt;% select(id_femme, date_entretien),     by = &quot;id_femme&quot;   ) %&gt;%   mutate(duree_observation = time_length(     interval(date_naissance, date_entretien),      unit = &quot;months&quot;   ))</code></p>
+<p>ATTENTION : il y <code>r enfants %&gt;% filter(duree_observation &lt; 0) %&gt;% nrow()</code> enfants soi-disant nés après la date d’enquête ! Quelle que soit l’enquête, il est rare de ne pas observer d’incohérences. Dans le cas présent, il est fort possible que la date d’entretien puisse parfois être erronnée (par exemple si l’enquêteur a inscrit une date sur le questionnaire papier le jour du recensement du ménage mais n’ai pu effectué le questionnaire individuel que plus tard). Nous décidons ici de procéder à une correction en ajoutant un mois aux dates d’entretien problématiques. D’autres approches auraient pu être envisagées, comme par exemple exclure ces observations problématiques. Cependant, cela aurait impacté le calcul du range de naissance pour les autres enfants issus de la même mère. Quoiqu’il en soit, il n’y a pas de réponse unique. À vous de vous adapter au contexte particulier de votre analyse.</p>
+<pre class="{r}"><code>enfants$date_entretien[enfants$duree_observation &lt; 0] %
+  mutate(duree_observation = time_length(
+    interval(date_naissance, date_entretien), 
+    unit = &quot;months&quot;
+  ))</code></pre>
+<p>Regardons maintenant comment les âges au décès ont été collectés.</p>
+<pre class="{r}"><code>freq(enfants$age_deces)</code></pre>
+<p>Les âges au décès sont ici exprimés en mois révolus. Les décès à un mois révolu correspondent à des décès entre 1 et 2 mois exacts. Par ailleurs, les durées d’observation que nous avons calculées avec <code data-pkg="lubridate">time_length</code> sont des durées exactes, c’est-à-dire avec la partie décimale. Pour une analyse de survie, on ne peut mélanger des durées exactes et des durées révolues. Trois approches peuvent être envisagées :</p>
+<ol style="list-style-type: decimal">
+<li>faire l’analyse en mois révolus, auquel cas on ne gardera que la partie entière des durées d’observations avec la fonction <code data-pkg="base" data-rdoc="Round">trunc</code> ;</li>
+<li>considérer qu’un âge au décès de 3 mois révolus correspond en moyenne à 3,5 mois exacts et donc ajouter 0,5 à tous les âges révolus ;</li>
+<li>imputer un âge au décès exact en distribuant aléatoirement les décès à 3 mois révolus entre 3 et 4 mois exacts, autrement dit en ajoutant aléatoirement une partie décimale aux âges révolus.</li>
+</ol>
+<p>Nous allons ici adopter la troisième approche en considérant que les décès se répartissent de manière uniforme au sein d’un même mois. Nous aurons donc recours à la fonction <code data-pkg="stats" data-rdoc="Uniform">runif</code> qui permets de générer des valeurs aléatoires entre 0 et 1 selon une distribustion uniforme.</p>
+<pre class="{r}"><code>enfants %
+  mutate(age_deces_impute = age_deces + runif(n()))</code></pre>
+<p>Pour définir notre objet de survie, il nous faudra deux variables. Une première, temporelle, indiquant la durée à laquelle survient l’évènement étudié (ici le décès) pour ceux ayant vécu l’évènement et la durée d’observation pour ceux n’ayant pas vécu l’évènement (censure à droite). Par ailleurs, une seconde variable indiquant si les individus ont vécu l’évènement (0 pour non, 1 pour oui). Or, ici, la variable survie est codée 0 pour les décès et 1 pour ceux ayant survécu. Pour plus de détails, voir l’aide de la fonction <code data-pkg="survival">Surv</code>.</p>
+<pre class="{r}"><code>enfants %
+  mutate(deces = if_else(survie == 0, 1, 0)) %&gt;%
+  set_variable_labels(deces = &quot;Est décédé ?&quot;) %&gt;%
+  set_value_labels(deces = c(non = 0, oui = 1)) %&gt;%
+  mutate(time = if_else(deces == 1, age_deces_impute, duree_observation))</code></pre>
+<p>Occupons-nous maintenant des variables explicatives que nous allons inclure dans l’analyse. Tout d’abord, ajoutons à la table <code>enfants</code> les variables nécessaires des tables <code>femmes</code> et <code>menages</code>. Notons qu’il nous faudra importer id_menage de la table <code>femmes</code> pour pouvoir fusionner ensuite la table <code>enfants</code> avec la table <code>menages</code>. Par ailleurs, pour éviter une confusion sur la variable date_naissance, nous renommons à la volée cette variable de la table <code>femmes</code> en date_naissance_mere.</p>
+<pre class="{r}"><code>enfants %
+  left_join(
+    select(femmes,
+      id_femme, id_menage, milieu, educ, 
+      date_naissance_mere = date_naissance, nb_enf_ideal
+    ),
+    by = &quot;id_femme&quot;
+  ) %&gt;%
+  left_join(
+    select(menages, id_menage, structure, richesse),
+    by = &quot;id_menage&quot;
+  )</code></pre>
+<p>Les variables catégorielles sont pour l’heure sous formes de vecteurs labellisés. Or, dans un modèle, il est impératif de les convertir en facteurs pour qu’elles soient bien traitées comme des variables catégorielles (autrement elles seraient traitées comme des variables continues). On aura donc recours à la fonction <code data-pkg="labelled">to_factor</code> de l’extension <code class="pkg">labelled</code>.</p>
+<pre class="{r}"><code>enfants %
+  mutate(sexe = to_factor(sexe), richesse = to_factor(richesse))</code></pre>
+<p>Regardons plus attentivement, la variable structure.</p>
+<pre class="{r}"><code>freq(enfants$structure)</code></pre>
+<p>Tout d’abord, la modalité pas d’adulte n’est pas représentée dans l’échantillon. On aura donc recours à l’argument <code>drop_unused_labels</code> pour ne pas conserver cette modalité. Par ailleurs, nous considérons que la situation familiale à partir de laquelle nous voudrons comparer les autres dans notre modèle, donc celle qui doit être considérée comme la modalité de référence, est celle du ménage nucléaire. Cette modalité (deux adultes de sexe opposé) n’étant pas la première, nous aurons recours à la fonction <code>relevel</code>{data-pkg = “stats”}.</p>
+<pre class="{r}"><code>enfants %
+  mutate(structure = relevel(
+    to_factor(structure, drop_unused_labels = TRUE),
+    &quot;deux adultes de sexe opposé&quot;
+  ))</code></pre>
+<p>Regardons la variable educ.</p>
+<pre class="{r}"><code>freq(enfants$educ)</code></pre>
+<p>La modalité supérieur est peu représentée dans notre échantillon. Nous allons la fusionner avec la modalité secondaire (voir la section <a href="recodage.html#regrouper_modalites">Regrouper les modalités d’une variable</a> du chapitre <a href="recodage.html">Recodage</a>).</p>
+<pre class="{r}"><code>enfants %
+  mutate(educ2 = ifelse(educ == 3, 2, educ)) %&gt;%
+  set_value_labels(educ2 = c(
+    aucun = 0,
+    primaire = 1,
+    &quot;secondaire ou plus&quot; = 2
+  )) %&gt;%
+  mutate(educ2 = to_factor(educ2))
+freq(enfants$educ2)</code></pre>
+<p>Calculons maintenant l’âge de la mère à la naissance de l’enfant (voir le chapitre <a href="calculer-un-age.html">Caluler un âge</a>) et découpons le en groupes d’âges (voir la section <a href="recodage.html#decouper_en_classes">Découper une variable numérique en classes</a> du chapitre <a href="recodage.html">Recodage</a>).</p>
+<pre class="{r}"><code>enfants %
+  mutate(
+    age_mere_naissance = time_length(
+      interval(date_naissance_mere, date_naissance), 
+      unit = &quot;years&quot;
+    ),
+    gpage_mere_naissance = cut(
+      age_mere_naissance, 
+      include.lowest = TRUE, right = FALSE,
+      breaks=c(13, 20, 30, 50)
+    )
+  )
+  
+levels(enfants$gpage_mere_naissance) %
+  arrange(id_femme, date_naissance) %&gt;%
+  group_by(id_femme) %&gt;%
+  mutate(
+    rang = rank(date_naissance, ties.method = &quot;max&quot;),
+    rang_apres_ideal = ifelse(rang &gt; nb_enf_ideal, &quot;oui&quot;, &quot;non&quot;),
+    rang_apres_ideal = factor(rang_apres_ideal, levels = c(&quot;non&quot;, &quot;oui&quot;))
+  )</code></pre>
+<h2 id="kaplan-meir">Kaplan-Meir</h2>
+<p>La courbe de survie de Kaplan-Meir s’obtient avec la fonction <code data-pkg="survival">survfit</code> de l’extension <code class="pkg">survival</code>.</p>
+<p><code>{r} library(survival) km_global</code>{r} library(survminer) ggsurvplot(km_global) ``` Courbe de survie de Kaplan-Meier</p>
+<p>On peut facilement représenter à la place la courbe cumulée des évènements (l’inverse de la courbe de survie) et la table des effectifs en fonction du temps.</p>
+<pre class="{r}"><code>ggsurvplot(km_global, fun = &quot;event&quot;, risk.table = TRUE, surv.scale = &quot;percent&quot;)</code></pre>
+<p>Courbe cumulée des évènements et table des effectifs</p>
+<p>Pour comparer deux groupes (ici les filles et les garçons), il suffit d’indiquer la variable de comparaison à <code data-pkg="survival">survfit</code>.</p>
+<p>```{r} km_sexe test du logrank</dfn></p>
+<ul>
+<li><a href="analyse-de-survie.html">Analyse de survie</a></li>
 </ul>
 <p><dfn>analyse des biographies</dfn></p>
 <ul>
@@ -583,6 +808,10 @@ C
 <ul>
 <li><a href="facteurs-et-vecteurs-labellises.html">Facteurs et vecteurs labellisés</a></li>
 </ul>
+<p><dfn>censure à droite</dfn></p>
+<ul>
+<li><a href="analyse-de-survie.html">Analyse de survie</a></li>
+</ul>
 <p><dfn>cercle de corrélation</dfn></p>
 <ul>
 <li><a href="analyse-des-correspondances-multiples.html">Analyse des correspondances multiples (ACM)</a></li>
@@ -658,6 +887,10 @@ C
 <ul>
 <li><a href="premier-travail-avec-les-donnees.html">Premier travail avec des données</a></li>
 </ul>
+<p><dfn>comparaison de courbes de survie (test du logrank)</dfn></p>
+<ul>
+<li><a href="analyse-de-survie.html">Analyse de survie</a></li>
+</ul>
 <p><dfn>comparaison de médianes, test</dfn></p>
 <ul>
 <li><a href="comparaisons-moyennes-et-proportions.html">Comparaisons (moyennes et proportions)</a></li>
@@ -716,6 +949,10 @@ C
 <p><dfn>courbe de densité</dfn></p>
 <ul>
 <li><a href="graphiques-bivaries-ggplot2.html">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><dfn>Cox, modèle</dfn></p>
+<ul>
+<li><a href="analyse-de-survie.html">Analyse de survie</a></li>
 </ul>
 <p><dfn>Cramer, coefficient de contingence</dfn></p>
 <ul>
@@ -776,6 +1013,10 @@ D
 <li><a href="graphiques-bivaries-ggplot2.html">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="statistique-univariee.html">Statistique univariée</a></li>
 </ul>
+<p><dfn>diagramme de Lexis</dfn></p>
+<ul>
+<li><a href="diagramme-de-lexis.html">Diagramme de Lexis</a></li>
+</ul>
 <p><dfn>diagramme en barres</dfn></p>
 <ul>
 <li><a href="graphiques-bivaries-ggplot2.html">Graphiques univariés et bivariés avec ggplot2</a></li>
@@ -834,6 +1075,10 @@ D
 <p><dfn>droite de régression</dfn></p>
 <ul>
 <li><a href="graphiques-bivaries-ggplot2.html">Graphiques univariés et bivariés avec ggplot2</a></li>
+</ul>
+<p><dfn>droite, censure</dfn></p>
+<ul>
+<li><a href="analyse-de-survie.html">Analyse de survie</a></li>
 </ul>
 <h2 id="E">
 E
@@ -1181,6 +1426,13 @@ I
 <ul>
 <li><a href="premier-contact.html">Premier contact</a></li>
 </ul>
+<h2 id="K">
+K
+</h2>
+<p><dfn>Kaplan-Meir</dfn></p>
+<ul>
+<li><a href="analyse-de-survie.html">Analyse de survie</a></li>
+</ul>
 <h2 id="L">
 L
 </h2>
@@ -1204,6 +1456,10 @@ L
 <p><dfn lang="en">level, factor</dfn></p>
 <ul>
 <li><a href="premier-travail-avec-les-donnees.html">Premier travail avec des données</a></li>
+</ul>
+<p><dfn>Lexis, diagramme</dfn></p>
+<ul>
+<li><a href="diagramme-de-lexis.html">Diagramme de Lexis</a></li>
 </ul>
 <p><dfn>libre, logiciel</dfn></p>
 <ul>
@@ -1242,6 +1498,10 @@ L
 <ul>
 <li><a href="donnees-ponderees.html">Données pondérées</a></li>
 <li><a href="regression-logistique.html">Régression logistique</a></li>
+</ul>
+<p><dfn>logrank, test (comparaison de courbes de survie)</dfn></p>
+<ul>
+<li><a href="analyse-de-survie.html">Analyse de survie</a></li>
 </ul>
 <p><dfn>loi normale</dfn></p>
 <ul>
@@ -1319,6 +1579,10 @@ M
 <p><dfn>modalité, facteur</dfn></p>
 <ul>
 <li><a href="premier-travail-avec-les-donnees.html">Premier travail avec des données</a></li>
+</ul>
+<p><dfn>modèle de Cox</dfn></p>
+<ul>
+<li><a href="analyse-de-survie.html">Analyse de survie</a></li>
 </ul>
 <p><dfn>modèle linéaire généralisé</dfn></p>
 <ul>
@@ -1624,6 +1888,10 @@ R
 <ul>
 <li><a href="organiser-ses-fichiers.html">Organiser ses fichiers</a></li>
 </ul>
+<p><dfn>résidus de Schoenfeld</dfn></p>
+<ul>
+<li><a href="analyse-de-survie.html">Analyse de survie</a></li>
+</ul>
 <p><dfn>résolution</dfn></p>
 <ul>
 <li><a href="export-de-graphiques.html">Export de graphiques</a></li>
@@ -1652,6 +1920,10 @@ S
 <ul>
 <li><a href="analyse-de-sequences.html">Analyse de séquences</a></li>
 <li><a href="classification-ascendante-hierarchique.html">Classification ascendante hiérarchique (CAH)</a></li>
+</ul>
+<p><dfn>Schoenfeld, résidus</dfn></p>
+<ul>
+<li><a href="analyse-de-survie.html">Analyse de survie</a></li>
 </ul>
 <p><dfn>scientifique, notation</dfn></p>
 <ul>
@@ -1742,6 +2014,10 @@ S
 <p><dfn>Student, test t</dfn></p>
 <ul>
 <li><a href="comparaisons-moyennes-et-proportions.html">Comparaisons (moyennes et proportions)</a></li>
+</ul>
+<p><dfn>survie, analyse</dfn></p>
+<ul>
+<li><a href="analyse-de-survie.html">Analyse de survie</a></li>
 </ul>
 <h2 id="T">
 T
@@ -2001,6 +2277,15 @@ W
 <ul>
 <li><a href="comparaisons-moyennes-et-proportions.html">Comparaisons (moyennes et proportions)</a></li>
 </ul>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Pour utiliser simultanément <code class="pkg">data.table</code> et <code class="pkg">dplyr</code>, nous aurions préféré la fonction <code data-pkg="dtplyr">tbl_dt</code> de l’extension <code>dtplyr</code>.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="https://github.com/tidyverse/broom/issues/219" class="uri">https://github.com/tidyverse/broom/issues/219</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>Pour utiliser simultanément <code class="pkg">data.table</code> et <code class="pkg">dplyr</code>, nous aurions préféré la fonction <code data-pkg="dtplyr">tbl_dt</code> de l’extension <code>dtplyr</code>.<a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>Si cela n’avait pas été le cas, nous aurions eu recours à la fonction <code data-pkg="dplyr">tbl_df</code>.<a href="#fnref4">↩</a></p></li>
+</ol>
 </div>
 
 </article>

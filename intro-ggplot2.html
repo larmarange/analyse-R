@@ -303,6 +303,7 @@ $(document).ready(function () {
   	            <ul class="multi-column-dropdown">
                   <li class="dropdown-header">Divers</li>
                   <li><a href="calculer-un-age.html">Calculer un âge</a></li>
+                  <li class="dev"><a href="diagramme-de-lexis.html">Diagramme de Lexis</a></li>
                   <li class="dev"><a href="prevR-cartes-de-prevalence.html">prevR : cartes de prévalence à partir des EDS</a></li>
   	            </ul>
               </div>
@@ -395,6 +396,15 @@ if(!<span class="kw">file.exists</span>(file))
 
 <span class="co"># charger les données dans l&#39;objet &#39;debt&#39;</span>
 debt &lt;-<span class="st"> </span><span class="kw">read_csv</span>(file)</code></pre></div>
+<pre><code>Warning: Missing column names filled in: &#39;X1&#39; [1]</code></pre>
+<pre><code>Parsed with column specification:
+cols(
+  X1 = col_integer(),
+  Country = col_character(),
+  Year = col_integer(),
+  growth = col_double(),
+  ratio = col_double()
+)</code></pre>
 <div class="note">
 <p>Le code ci-dessus utilise la fonction <code data-pkg="readr" data-rdoc="read_csv">read_csv</code> de l’extension <code class="pkg">readr</code>, dont on a recommandé l’utilisation dans un <a href="import-de-donnees.html">précédent chapitre</a>. En l’absence de cette extension, on aurait pu utiliser la fonction de base <code data-pkg="utils" data-rdoc="read.csv">read.csv</code>.</p>
 </div>
@@ -404,11 +414,26 @@ debt &lt;-<span class="st"> </span><span class="kw">read_csv</span>(file)</code>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># inspection du jeu de données</span>
 <span class="kw">str</span>(debt)</code></pre></div>
 <pre><code>Classes &#39;tbl_df&#39;, &#39;tbl&#39; and &#39;data.frame&#39;:   1171 obs. of  5 variables:
- $        : int  147 148 149 150 151 152 153 154 155 156 ...
+ $ X1     : int  147 148 149 150 151 152 153 154 155 156 ...
  $ Country: chr  &quot;Australia&quot; &quot;Australia&quot; &quot;Australia&quot; &quot;Australia&quot; ...
  $ Year   : int  1946 1947 1948 1949 1950 1951 1952 1953 1954 1955 ...
  $ growth : num  -3.56 2.46 6.44 6.61 6.92 ...
- $ ratio  : num  190 177 149 126 110 ...</code></pre>
+ $ ratio  : num  190 177 149 126 110 ...
+ - attr(*, &quot;spec&quot;)=List of 2
+  ..$ cols   :List of 5
+  .. ..$ X1     : list()
+  .. .. ..- attr(*, &quot;class&quot;)= chr  &quot;collector_integer&quot; &quot;collector&quot;
+  .. ..$ Country: list()
+  .. .. ..- attr(*, &quot;class&quot;)= chr  &quot;collector_character&quot; &quot;collector&quot;
+  .. ..$ Year   : list()
+  .. .. ..- attr(*, &quot;class&quot;)= chr  &quot;collector_integer&quot; &quot;collector&quot;
+  .. ..$ growth : list()
+  .. .. ..- attr(*, &quot;class&quot;)= chr  &quot;collector_double&quot; &quot;collector&quot;
+  .. ..$ ratio  : list()
+  .. .. ..- attr(*, &quot;class&quot;)= chr  &quot;collector_double&quot; &quot;collector&quot;
+  ..$ default: list()
+  .. ..- attr(*, &quot;class&quot;)= chr  &quot;collector_guess&quot; &quot;collector&quot;
+  ..- attr(*, &quot;class&quot;)= chr &quot;col_spec&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># suppression de la première colonne</span>
 debt &lt;-<span class="st"> </span>debt[, -<span class="dv">1</span>]</code></pre></div>
 <p>Il faut aussi noter d’emblée que certaines mesures sont manquantes : pour certains pays, on ne dispose pas d’une mesure fiable du PIB et/ou de la dette publique. En conséquence, le nombre d’observations par pays est différent, et va de 40 observations <q>pays-année</q> pour la Grèce à 64 observations <q>pays-année</q> pour plusieurs pays comme l’Australie ou les États-Unis :</p>
@@ -431,13 +456,15 @@ Netherlands New Zealand      Norway    Portugal
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">debt$Decade &lt;-<span class="st"> </span><span class="kw">factor</span>(<span class="dv">10</span> *<span class="st"> </span>debt$Year%/%<span class="dv">10</span>)</code></pre></div>
 <p>Voici, pour terminer, les premières lignes du jeu de données sur lequel on travaille :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(debt)</code></pre></div>
-<pre><code>    Country Year    growth     ratio Decade
-1 Australia 1946 -3.557951 190.41908   1940
-2 Australia 1947  2.459475 177.32137   1940
-3 Australia 1948  6.437534 148.92981   1940
-4 Australia 1949  6.611994 125.82870   1940
-5 Australia 1950  6.920201 109.80940   1950
-6 Australia 1951  4.272612  87.09448   1950</code></pre>
+<pre><code># A tibble: 6 × 5
+    Country  Year    growth     ratio Decade
+      &lt;chr&gt; &lt;int&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;fctr&gt;
+1 Australia  1946 -3.557951 190.41908   1940
+2 Australia  1947  2.459475 177.32137   1940
+3 Australia  1948  6.437534 148.92981   1940
+4 Australia  1949  6.611994 125.82870   1940
+5 Australia  1950  6.920201 109.80940   1950
+6 Australia  1951  4.272612  87.09448   1950</code></pre>
 </div>
 </div>
 <div id="visualisation-des-donnees" class="section level2">
