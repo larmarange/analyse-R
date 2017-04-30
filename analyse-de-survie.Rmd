@@ -4,15 +4,18 @@ title: "Analyse de survie"
 
 ```{r options_communes, include=FALSE}
 source("options_communes.R")
+knitr::opts_chunk$set(cache = FALSE, tidy = FALSE)
 ```
 
 <div class="important">
 Ce chapitre est en cours d'écriture.
 </div>
 
-L'extension centrale pour l'analyse de survie est `survival`{.pkg}.
+# Ressources en ligne
 
-Un très bon tutoriel (en anglais et en 3 étapes), introduisant les concepts de l'analyse de survie, des courbes de Kaplan-Meier et des modèles de Cox et leur mise en oeuvre pratique sous **R** est disponible en ligne :
+L'extension centrale pour l'<dfn>analyse de survie<dfn><dfn data-index="survie, analyse"></dfn> est `survival`{.pkg}.
+
+Un très bon tutoriel (en anglais et en 3 étapes), introduisant les concepts de l'analyse de survie, des courbes de Kaplan-Meier et des modèles de Cox et leur mise en oeuvre pratique sous **R** est disponible en ligne :
 
 - <http://www.sthda.com/english/wiki/survival-analysis-basics>
 - <http://www.sthda.com/english/wiki/cox-proportional-hazards-model>
@@ -20,12 +23,491 @@ Un très bon tutoriel (en anglais et en 3 étapes), introduisant les concepts de
 
 Pour un autre exemple (toujours en anglais) d'analyse de survie avec `survival`{.pkg}, on pourra se référer à <https://rpubs.com/vinubalan/hrsurvival>.
 
-Pour représenter vos résultats avec `ggplot2`{.pkg}, on pourra avoir recours à l'extension `survminer`{.pkg} présentée en détails sur son site officiel (en anglais) : <http://www.sthda.com/english/rpkgs/survminer/>. On pourra également avoir recours à la fonction `ggsurv`{data-pkg="GGally"} de l'extension `GGally`{.pkg} présentée à l'adresse <http://ggobi.github.io/ggally/#ggallyggsurv>.
+Pour représenter vos résultats avec `ggplot2`{.pkg}, on pourra avoir recours à l'extension `survminer`{.pkg} présentée en détails sur son site officiel (en anglais) : <http://www.sthda.com/english/rpkgs/survminer/>. On pourra également avoir recours à la fonction `ggsurv`{data-pkg="GGally"} de l'extension `GGally`{.pkg} présentée à l'adresse <http://ggobi.github.io/ggally/#ggallyggsurv>.
 
 A noter, il est possible d'utiliser la fonction `step`{data-pkg="stats"} sur un modèle de Cox, pour une sélection pas à pas d'un meilleur modèle basé sur une minimisation de l'AIC (voir le chapitre sur la [régression logistique](regression-logistique.html)). 
 
 L'excellente extension `broom`{.pkg} peut également être utilisée sur des modèles de survie (Kaplan-Meier ou Cox) pour en convertir les résultats sous la forme d'un tableau de données.
 
 Pour approfondir les possibilités offertes par l'extension `survival`{.pkg}, on pourra également consulter les différentes vignettes fournies avec l'extension (voir <https://cran.r-project.org/package=survival>).
+
+# Un exemple concret : mortalité infanto-juvénile
+
+Dans cet exemple, nous allons utiliser le jeu de données `fecondite` fourni par l'extension `questionr`{.pkg}. Ce jeu de données comporte trois tableaux de données : `menages`, `femmes` et `enfants`.
+
+Nous souhaitons étudier ici la survie des enfants entre la naissance et l'âge de 5 ans. Dans un premier temps, nous comparerons la survie des jeunes filles et des jeunes garçons. Dans un second temps, nous procéderons à une analyse multivariée en prenant en compte les variables suivantes :
+
+- sexe de l'enfant
+- milieu de résidence
+- niveau de vie du ménage
+- structure du ménage
+- niveau d'éducation de la mère
+- âge de la mère à la naissance de l'enfant
+- enfin, une variable un peu plus compliquée, à savoir si le rang de naissance de l'enfant (second, troisième, quatrième, etc.) est supérieur au nombre idéal d'enfants selon la mère.
+
+Nous allons préparer les données selon deux approches : soit en utilisant l'extension `data.table`{.pkg} (voir l'[introduction à data.table](introduction-a-data-table.html)), soit en utilisant l'extension `dplyr`{.pkg} (voir l'[introduction à dplyr](introduction-a-dplyr.html)).
+
+Chargeons les données en mémoire et listons les variables disponibles.
+
+```{r}
+library(questionr)
+data(fecondite)
+lookfor(menages)
+lookfor(femmes)
+lookfor(enfants)
+```
+
+
+## Préparation des données avec data.table
+
+Tout d'abord, regardons sous quel format elles sont stockées.
+
+```{r}
+class(menages)
+describe(menages)
+```
+
+Les tableaux de données sont au format *tibble* (c'est-à-dire sont de la classe `tbl_df`) et les variables catégorielles sont du type `labelled` (voir le chapitre sur les [vecteurs labellisés](facteurs-et-vecteurs-labellises.html#labelled)). Ce format correspond au format de données si on les avait importées depuis SPSS avec l'extension `haven`{.pkg} (voir le chapitre sur l'[import de données](import-de-donnees.html#spss)).
+
+En premier lieu, il nous faut convertir les tableaux de données au format `data.table`, ce qui peut se faire avec la fonction `setDT`{data-pkg="data.table"}^[Pour utiliser simultanément `data.table`{.pkg} et `dplyr`{.pkg}, nous aurions préféré la fonction `tbl_dt`{data-pkg="dtplyr"} de l'extension `dtplyr`.]. Par ailleurs, nous allons également charger en mémoire l'extension `labelled`{.pkg} pour la gestion des vecteurs labellisés.
+
+```{r, message=FALSE}
+library(labelled)
+library(data.table)
+setDT(menages)
+setDT(femmes)
+setDT(enfants)
+```
+
+En premier lieu, il nous faut calculer la durée d'observation des enfants, à savoir le temps passé entre la date de naissance (variable du fichier `enfants`) et la date de passation de l'entretien (fournie par le tableau de données `femmes`). Pour récupérer des variables du fichier `femmes` dans le fichier `enfants`, nous allons procéder à une fusion de table (voir le [chapitre dédié](fusion-de-tables.html)). Pour le calcul de la durée d'observation, nous allons utiliser le package `lubridate`{.pkg} (voir le chapitre [calculer un âge](calculer-un-age.html) et celui sur la [gestion des dates](gestion-des-dates.html)). Nous effectuerons l'analyse en mois (puisque l'âge au décès est connu en mois). Dès lors, la durée d'observation sera calculée en mois.
+
+```{r, message=FALSE}
+enfants <- merge(
+  enfants,
+  femmes[, .(id_femme, date_entretien)],
+  by = "id_femme",
+  all.x = TRUE
+)
+
+# duree observation en mois
+library(lubridate)
+enfants[, duree_observation := time_length(interval(date_naissance, date_entretien), unit = "months")]
+```
+
+ATTENTION : il y `r enfants[duree_observation < 0, .N]` enfants soi-disant nés après la date d'enquête ! Quelle que soit l'enquête, il est rare de ne pas observer d'incohérences. Dans le cas présent, il est fort possible que la date d'entretien puisse parfois être erronnée (par exemple si l'enquêteur a inscrit une date sur le questionnaire papier le jour du recensement du ménage mais n'ai pu effectué le questionnaire individuel que plus tard). Nous décidons ici de procéder à une correction en ajoutant un mois aux dates d'entretien problématiques. D'autres approches auraient pu être envisagées, comme par exemple exclure ces observations problématiques. Cependant, cela aurait impacté le calcul du range de naissance pour les autres enfants issus de la même mère. Quoiqu'il en soit, il n'y a pas de réponse unique. À vous de vous adapter au contexte particulier de votre analyse.
+
+```{r}
+enfants[duree_observation < 0, date_entretien := date_entretien %m+% months(1)]
+enfants[, duree_observation := time_length(interval(date_naissance, date_entretien), unit = "months")]
+```
+
+Regardons maintenant comment les âges au décès ont été collectés.
+
+```{r}
+freq(enfants$age_deces)
+```
+
+Les âges au décès sont ici exprimés en mois révolus. Les décès à un mois révolu correspondent à des décès entre 1 et 2 mois exacts. Par ailleurs, les durées d'observation que nous avons calculées avec `time_length`{data-pkg="lubridate"} sont des durées exactes, c'est-à-dire avec la partie décimale. Pour une analyse de survie, on ne peut mélanger des durées exactes et des durées révolues. Trois approches peuvent être envisagées :
+
+1. faire l'analyse en mois révolus, auquel cas on ne gardera que la partie entière des durées d'observations avec la fonction `trunc`{data-pkg="base" data-rdoc="Round"} ;
+2. considérer qu'un âge au décès de 3 mois révolus correspond en moyenne à 3,5 mois exacts et donc ajouter 0,5 à tous les âges révolus ;
+3. imputer un âge au décès exact en distribuant aléatoirement les décès à 3 mois révolus entre 3 et 4 mois exacts, autrement dit en ajoutant aléatoirement une partie décimale aux âges révolus.
+
+Nous allons ici adopter la troisième approche en considérant que les décès se répartissent de manière uniforme au sein d'un même mois. Nous aurons donc recours à la fonction `runif`{data-pkg="stats" data-rdoc="Uniform"} qui permets de générer des valeurs aléatoires entre 0 et 1 selon une distribustion uniforme.
+
+```{r}
+enfants[, age_deces_impute := age_deces + runif(.N)]
+```
+
+Pour définir notre objet de survie, il nous faudra deux variables. Une première, temporelle, indiquant la durée à laquelle survient l'évènement étudié (ici le décès) pour ceux ayant vécu l'évènement et la durée d'observation pour ceux n'ayant pas vécu l'évènement (<dfn>censure à droite</dfn><dfn data-index="droite, censure"></dfn>). Par ailleurs, une seconde variable indiquant si les individus ont vécu l'évènement (0 pour non, 1 pour oui). Or, ici, la variable <var>survie</var> est codée 0 pour les décès et 1 pour ceux ayant survécu. Pour plus de détails, voir l'aide de la fonction `Surv`{data-pkg="survival"}.
+
+
+```{r}
+enfants[, deces := 0]
+enfants[survie == 0, deces := 1]
+var_label(enfants$deces) <- "Est décédé ?"
+val_labels(enfants$deces) <- c(non = 0, oui = 1)
+
+enfants[, time := duree_observation]
+enfants[deces == 1, time := age_deces_impute]
+```
+
+Occupons-nous maintenant des variables explicatives que nous allons inclure dans l'analyse. Tout d'abord, ajoutons à la table `enfants` les variables nécessaires des tables `femmes` et `menages`. Notons qu'il nous faudra importer <var>id_menage</var> de la table `femmes` pour pouvoir fusionner ensuite la table `enfants` avec la table `menages`. Par ailleurs, pour éviter une confusion sur la variable <var>date_naissance</var>, nous renommons à la volée cette variable de la table `femmes` en <var>date_naissance_mere</var>.
+
+```{r}
+enfants <- merge(
+  enfants,
+  femmes[, .(
+    id_femme, id_menage, milieu, educ, 
+    date_naissance_mere = date_naissance, nb_enf_ideal
+  )],
+  by = "id_femme",
+  all.x = TRUE
+)
+enfants <- merge(
+  enfants,
+  menages[, .(id_menage, structure, richesse)],
+  by = "id_menage",
+  all.x = TRUE
+)
+```
+
+Les variables catégorielles sont pour l'heure sous formes de vecteurs labellisés. Or, dans un modèle, il est impératif de les convertir en facteurs pour qu'elles soient bien traitées comme des variables catégorielles (autrement elles seraient traitées comme des variables continues). On aura donc recours à la fonction `to_factor`{data-pkg="labelled"} de l'extension `labelled`{.pkg}.
+
+```{r}
+enfants[, sexe := to_factor(sexe)]
+enfants[, richesse := to_factor(richesse)]
+```
+
+Regardons plus attentivement, la variable <var>structure</var>.
+
+```{r}
+freq(enfants$structure)
+```
+
+Tout d'abord, la modalité <q>pas d'adulte</q> n'est pas représentée dans l'échantillon. On aura donc recours à l'argument `drop_unused_labels` pour ne pas conserver cette modalité. Par ailleurs, nous considérons que la situation familiale à partir de laquelle nous voudrons comparer les autres dans notre modèle, donc celle qui doit être considérée comme la modalité de référence, est celle du ménage nucléaire. Cette modalité (<q>deux adultes de sexe opposé</q>) n'étant pas la première, nous aurons recours à la fonction `relevel`{data-pkg = "stats"}.
+
+
+```{r}
+enfants[, structure := to_factor(structure)]
+enfants[, structure := relevel(structure, "deux adultes de sexe opposé")]
+```
+
+Regardons la variable <var>educ</var>.
+
+```{r}
+freq(enfants$educ)
+```
+
+La modalité <q>supérieur</q> est peu représentée dans notre échantillon. Nous allons la fusionner avec la modalité <q>secondaire</q> (voir la section [Regrouper les modalités d'une variable](recodage.html#regrouper_modalites) du chapitre [Recodage](recodage.html)).
+
+```{r}
+enfants[, educ2 := educ]
+enfants[educ == 3, educ2 := 2]
+val_label(enfants$educ2, 2) <- "secondaire ou plus"
+val_label(enfants$educ2, 3) <- NULL
+enfants[, educ2 := to_factor(educ2)]
+freq(enfants$educ2)
+```
+
+Calculons maintenant l'âge de la mère à la naissance de l'enfant (voir le chapitre [Caluler un âge](calculer-un-age.html)) et découpons le en groupes d'âges (voir la section [Découper une variable numérique en classes](recodage.html#decouper_en_classes) du chapitre [Recodage](recodage.html)).
+
+
+```{r}
+enfants[, age_mere_naissance := time_length(
+  interval(date_naissance_mere, date_naissance), 
+  unit = "years"
+  )]
+
+enfants$gpage_mere_naissance <- cut(
+  enfants$age_mere_naissance, 
+  include.lowest = TRUE, right = FALSE,
+  breaks=c(13, 20, 30, 50)
+)
+levels(enfants$gpage_mere_naissance) <- c(
+  "19 ou moins", "20-29", "30 et plus"
+)
+enfants$gpage_mere_naissance <- relevel(enfants$gpage_mere_naissance, "20-29")
+freq(enfants$gpage_mere_naissance)
+```
+
+Reste à calculer si le rang de naissance de l'enfant est supérieur au nombre idéal d'enfants tel que défini par la mère. On aura recours à la fonction `rank`{data-pkg="base"} appliquée par groupe (ici calculé séparément pour chaque mère). L'argument `ties.method` permet d'indiquer comment gérer les égalités (ici les naissances multiples, e.g. les jumeaux). Comme nous voulons comparer le rang de l'enfant au nombre idéal d'enfants, nous allons retenir la méthode `"max"` pour obtenir, dans le cas présent, le nombre total d'enfants déjà nés^[Ici, pour plus de simplicité, nous n'avons pas pris en compte les décès éventuels des enfants de rang inférieur avant la naissance considérée.]. Avant de calculer un rang, il est impératif de trier préalablement le tableau (voir le chapitre [Tris](tris.html)).
+
+
+```{r}
+setorder(enfants, id_femme, date_naissance)
+enfants[, rang := rank(date_naissance, ties.method = "max"), by = id_femme]
+enfants[, rang_apres_ideal := "non"]
+enfants[rang > nb_enf_ideal, rang_apres_ideal := "oui"]
+enfants[, rang_apres_ideal := factor(rang_apres_ideal)]
+enfants[, rang_apres_ideal := relevel(rang_apres_ideal, "non")]
+```
+
+
+## Préparation des données avec dplyr
+
+Tout d'abord, regardons sous quel format elles sont stockées.
+
+```{r}
+data(fecondite)
+class(menages)
+describe(menages)
+```
+
+Les tableaux de données sont déjà au format *tibble* (c'est-à-dire sont de la classe `tbl_df`)^[Si cela n'avait pas été le cas, nous aurions eu recours à la fonction `tbl_df`{data-pkg="dplyr"}.] et les variables catégorielles sont du type `labelled` (voir le chapitre sur les [vecteurs labellisés](facteurs-et-vecteurs-labellises.html#labelled)). Ce format correspond au format de données si on les avait importées depuis SPSS avec l'extension `haven`{.pkg} (voir le chapitre sur l'[import de données](import-de-donnees.html#spss)).
+
+Nous allons charger en mémoire l'extension `labelled`{.pkg} pour la gestion des vecteurs labellisés en plus de `dplyr`{.pkg}.
+
+```{r, message=FALSE}
+library(dplyr)
+library(labelled)
+```
+
+En premier lieu, il nous faut calculer la durée d'observation des enfants, à savoir le temps passé entre la date de naissance (variable du fichier `enfants`) et la date de passation de l'entretien (fournie par le tableau de données `femmes`). Pour récupérer des variables du fichier `femmes` dans le fichier `enfants`, nous allons procéder à une fusion de table (voir le [chapitre dédié](fusion-de-tables.html)). Pour le calcul de la durée d'observation, nous allons utiliser le package `lubridate`{.pkg} (voir le chapitre [calculer un âge](calculer-un-age.html) et celui sur la [gestion des dates](gestion-des-dates.html)). Nous effectuerons l'analyse en mois (puisque l'âge au décès est connu en mois). Dès lors, la durée d'observation sera calculée en mois.
+
+```{r, message=FALSE}
+library(lubridate)
+enfants <- enfants %>%
+  left_join(
+    femmes %>% select(id_femme, date_entretien),
+    by = "id_femme"
+  ) %>%
+  mutate(duree_observation = time_length(
+    interval(date_naissance, date_entretien), 
+    unit = "months"
+  ))
+```
+
+ATTENTION : il y `r enfants %>% filter(duree_observation < 0) %>% nrow()` enfants soi-disant nés après la date d'enquête ! Quelle que soit l'enquête, il est rare de ne pas observer d'incohérences. Dans le cas présent, il est fort possible que la date d'entretien puisse parfois être erronnée (par exemple si l'enquêteur a inscrit une date sur le questionnaire papier le jour du recensement du ménage mais n'ai pu effectué le questionnaire individuel que plus tard). Nous décidons ici de procéder à une correction en ajoutant un mois aux dates d'entretien problématiques. D'autres approches auraient pu être envisagées, comme par exemple exclure ces observations problématiques. Cependant, cela aurait impacté le calcul du range de naissance pour les autres enfants issus de la même mère. Quoiqu'il en soit, il n'y a pas de réponse unique. À vous de vous adapter au contexte particulier de votre analyse.
+
+```{r}
+enfants$date_entretien[enfants$duree_observation < 0] <-
+  enfants$date_entretien[enfants$duree_observation < 0] %m+% months(1)
+enfants <- enfants %>%
+  mutate(duree_observation = time_length(
+    interval(date_naissance, date_entretien), 
+    unit = "months"
+  ))
+```
+
+Regardons maintenant comment les âges au décès ont été collectés.
+
+```{r}
+freq(enfants$age_deces)
+```
+
+Les âges au décès sont ici exprimés en mois révolus. Les décès à un mois révolu correspondent à des décès entre 1 et 2 mois exacts. Par ailleurs, les durées d'observation que nous avons calculées avec `time_length`{data-pkg="lubridate"} sont des durées exactes, c'est-à-dire avec la partie décimale. Pour une analyse de survie, on ne peut mélanger des durées exactes et des durées révolues. Trois approches peuvent être envisagées :
+
+1. faire l'analyse en mois révolus, auquel cas on ne gardera que la partie entière des durées d'observations avec la fonction `trunc`{data-pkg="base" data-rdoc="Round"} ;
+2. considérer qu'un âge au décès de 3 mois révolus correspond en moyenne à 3,5 mois exacts et donc ajouter 0,5 à tous les âges révolus ;
+3. imputer un âge au décès exact en distribuant aléatoirement les décès à 3 mois révolus entre 3 et 4 mois exacts, autrement dit en ajoutant aléatoirement une partie décimale aux âges révolus.
+
+Nous allons ici adopter la troisième approche en considérant que les décès se répartissent de manière uniforme au sein d'un même mois. Nous aurons donc recours à la fonction `runif`{data-pkg="stats" data-rdoc="Uniform"} qui permets de générer des valeurs aléatoires entre 0 et 1 selon une distribustion uniforme.
+
+```{r}
+enfants <- enfants %>%
+  mutate(age_deces_impute = age_deces + runif(n()))
+```
+
+Pour définir notre objet de survie, il nous faudra deux variables. Une première, temporelle, indiquant la durée à laquelle survient l'évènement étudié (ici le décès) pour ceux ayant vécu l'évènement et la durée d'observation pour ceux n'ayant pas vécu l'évènement (<dfn>censure à droite</dfn><dfn data-index="droite, censure"></dfn>). Par ailleurs, une seconde variable indiquant si les individus ont vécu l'évènement (0 pour non, 1 pour oui). Or, ici, la variable <var>survie</var> est codée 0 pour les décès et 1 pour ceux ayant survécu. Pour plus de détails, voir l'aide de la fonction `Surv`{data-pkg="survival"}.
+
+
+```{r}
+enfants <- enfants %>%
+  mutate(deces = if_else(survie == 0, 1, 0)) %>%
+  set_variable_labels(deces = "Est décédé ?") %>%
+  set_value_labels(deces = c(non = 0, oui = 1)) %>%
+  mutate(time = if_else(deces == 1, age_deces_impute, duree_observation))
+```
+
+Occupons-nous maintenant des variables explicatives que nous allons inclure dans l'analyse. Tout d'abord, ajoutons à la table `enfants` les variables nécessaires des tables `femmes` et `menages`. Notons qu'il nous faudra importer <var>id_menage</var> de la table `femmes` pour pouvoir fusionner ensuite la table `enfants` avec la table `menages`. Par ailleurs, pour éviter une confusion sur la variable <var>date_naissance</var>, nous renommons à la volée cette variable de la table `femmes` en <var>date_naissance_mere</var>.
+
+```{r}
+enfants <- enfants %>%
+  left_join(
+    select(femmes,
+      id_femme, id_menage, milieu, educ, 
+      date_naissance_mere = date_naissance, nb_enf_ideal
+    ),
+    by = "id_femme"
+  ) %>%
+  left_join(
+    select(menages, id_menage, structure, richesse),
+    by = "id_menage"
+  )
+```
+
+Les variables catégorielles sont pour l'heure sous formes de vecteurs labellisés. Or, dans un modèle, il est impératif de les convertir en facteurs pour qu'elles soient bien traitées comme des variables catégorielles (autrement elles seraient traitées comme des variables continues). On aura donc recours à la fonction `to_factor`{data-pkg="labelled"} de l'extension `labelled`{.pkg}.
+
+```{r}
+enfants <- enfants %>%
+  mutate(sexe = to_factor(sexe), richesse = to_factor(richesse))
+```
+
+Regardons plus attentivement, la variable <var>structure</var>.
+
+```{r}
+freq(enfants$structure)
+```
+
+Tout d'abord, la modalité <q>pas d'adulte</q> n'est pas représentée dans l'échantillon. On aura donc recours à l'argument `drop_unused_labels` pour ne pas conserver cette modalité. Par ailleurs, nous considérons que la situation familiale à partir de laquelle nous voudrons comparer les autres dans notre modèle, donc celle qui doit être considérée comme la modalité de référence, est celle du ménage nucléaire. Cette modalité (<q>deux adultes de sexe opposé</q>) n'étant pas la première, nous aurons recours à la fonction `relevel`{data-pkg = "stats"}.
+
+
+```{r}
+enfants <- enfants %>%
+  mutate(structure = relevel(
+    to_factor(structure, drop_unused_labels = TRUE),
+    "deux adultes de sexe opposé"
+  ))
+```
+
+Regardons la variable <var>educ</var>.
+
+```{r}
+freq(enfants$educ)
+```
+
+La modalité <q>supérieur</q> est peu représentée dans notre échantillon. Nous allons la fusionner avec la modalité <q>secondaire</q> (voir la section [Regrouper les modalités d'une variable](recodage.html#regrouper_modalites) du chapitre [Recodage](recodage.html)).
+
+```{r}
+enfants <- enfants %>%
+  mutate(educ2 = ifelse(educ == 3, 2, educ)) %>%
+  set_value_labels(educ2 = c(
+    aucun = 0,
+    primaire = 1,
+    "secondaire ou plus" = 2
+  )) %>%
+  mutate(educ2 = to_factor(educ2))
+freq(enfants$educ2)
+```
+
+Calculons maintenant l'âge de la mère à la naissance de l'enfant (voir le chapitre [Caluler un âge](calculer-un-age.html)) et découpons le en groupes d'âges (voir la section [Découper une variable numérique en classes](recodage.html#decouper_en_classes) du chapitre [Recodage](recodage.html)).
+
+
+```{r}
+enfants <- enfants %>%
+  mutate(
+    age_mere_naissance = time_length(
+      interval(date_naissance_mere, date_naissance), 
+      unit = "years"
+    ),
+    gpage_mere_naissance = cut(
+      age_mere_naissance, 
+      include.lowest = TRUE, right = FALSE,
+      breaks=c(13, 20, 30, 50)
+    )
+  )
+  
+levels(enfants$gpage_mere_naissance) <- c(
+  "19 ou moins", "20-29", "30 et plus"
+)
+enfants$gpage_mere_naissance <- relevel(enfants$gpage_mere_naissance, "20-29")
+freq(enfants$gpage_mere_naissance)
+```
+
+Reste à calculer si le rang de naissance de l'enfant est supérieur au nombre idéal d'enfants tel que défini par la mère. On aura recours à la fonction `rank`{data-pkg="base"} appliquée par groupe (ici calculé séparément pour chaque mère). L'argument `ties.method` permet d'indiquer comment gérer les égalités (ici les naissances multiples, e.g. les jumeaux). Comme nous voulons comparer le rang de l'enfant au nombre idéal d'enfants, nous allons retenir la méthode `"max"` pour obtenir, dans le cas présent, le nombre total d'enfants déjà nés^[Ici, pour plus de simplicité, nous n'avons pas pris en compte les décès éventuels des enfants de rang inférieur avant la naissance considérée.]. Avant de calculer un rang, il est impératif de trier préalablement le tableau (voir le chapitre [Tris](tris.html)).
+
+
+```{r}
+enfants <- enfants %>%
+  arrange(id_femme, date_naissance) %>%
+  group_by(id_femme) %>%
+  mutate(
+    rang = rank(date_naissance, ties.method = "max"),
+    rang_apres_ideal = ifelse(rang > nb_enf_ideal, "oui", "non"),
+    rang_apres_ideal = factor(rang_apres_ideal, levels = c("non", "oui"))
+  )
+```
+
+## Kaplan-Meir
+
+La courbe de survie de <dfn>Kaplan-Meir</dfn> s'obtient avec la fonction `survfit`{data-pkg="survival"} de l'extension `survival`{.pkg}.
+
+```{r}
+library(survival)
+km_global <- survfit(Surv(time, deces) ~ 1, data = enfants)
+km_global
+```
+
+Pour la représenter, on pourra avoir recours à la fonction `ggsurvplot`{data-pkg="survminer"} de l'extension `survminer`.
+
+<figure>
+```{r}
+library(survminer)
+ggsurvplot(km_global)
+```
+<figcaption>Courbe de survie de Kaplan-Meier</figcaption>
+</figure>
+
+On peut facilement représenter à la place la courbe cumulée des évènements (l'inverse de la courbe de survie) et la table des effectifs en fonction du temps.
+
+<figure>
+```{r}
+ggsurvplot(km_global, fun = "event", risk.table = TRUE, surv.scale = "percent")
+```
+<figcaption>Courbe cumulée des évènements et table des effectifs</figcaption>
+</figure>
+
+Pour comparer deux groupes (ici les filles et les garçons), il suffit d'indiquer la variable de comparaison à `survfit`{data-pkg="survival"}.
+
+```{r}
+km_sexe <- survfit(Surv(time, deces) ~ sexe, data = enfants)
+km_sexe
+```
+
+La fonction `survdiff`{data-pkg="survival"} permets de calculer le <dfn data-index="test du logrank (comparaison de courbes de survie)">test du logrank</dfn><dfn data-index="logrank, test (comparaison de courbes de survie)"></dfn><dfn data-index="comparaison de courbes de survie (test du logrank)"></dfn> afin de comparer des courbes de survie. La mortalité infanto-juvénile diffère-t-elle significativement selon le sexe de l'enfant ?
+
+```{r}
+survdiff(Surv(time, deces) ~ sexe, data = enfants)
+```
+
+Une fois encore, on aura recours à `ggsurvplot`{data-pkg="survminer"} pour représenter les courbes de survie.
+
+<figure>
+```{r}
+ggsurvplot(km_sexe, conf.int = TRUE, risk.table = TRUE, pval = TRUE, data = enfants)
+```
+<figcaption>Courbes de Kaplan-Meier selon le sexe</figcaption>
+</figure>
+
+## Modèle de Cox
+
+Un <dfn>modèle de Cox</dfn><dfn data-index="Cox, modèle"></dfn> se calcule aisément avec `coxph`{survival}.
+
+```{r}
+mod1 <- coxph(
+  Surv(time, deces) ~ sexe + milieu + richesse + 
+  structure + educ2 + gpage_mere_naissance + rang_apres_ideal, 
+  data = enfants
+)
+mod1
+```
+
+De nombreuses variables ne sont pas significatives. Voyons si nous pouvons, avec la fonction `step`{data-pkg="stats"}, améliorer notre modèle par minimisation de l'<dfn>AIC</dfn> ou <dfn lang="en">Akaike Information Criterion</dfn> (voir la section [Sélection de modèles](regression-logistique.html#selection-de-modeles) du chapitre sur la [Régression logistique](regression-logistique.html)).
+
+```{r}
+mod2 <- step(mod1)
+```
+
+On peut obtenir facilement les coefficients du modèle avec l'excellente fonction `tidy`{data-pkg="broom"} de l'extension `broom`{.pkg}. Ne pas oublier de préciser `exponentiate = TRUE`. En effet, dans le cas d'un modèle de Cox, l'exponentiel des coefficients corresponds au <dfn>ratio des risques instantannés</dfn> ou <dfn lang="en>hazard ratio (HR)</dfn> en anglais.
+
+```{r}
+library(broom)
+tidy(mod2, exponentiate = TRUE)
+```
+
+Pour représenter ces rapports de risque, on peut ici encore avoir recours à la fonction `ggcoef`{data-pkg="GGally"} de l'extension `GGally`{.pkg}.
+
+<figure>
+```{r}
+library(GGally)
+ggcoef(tidy(mod2, exponentiate = TRUE), exponentiate = TRUE)
+```
+
+NB : dû à un bug^[https://github.com/tidyverse/broom/issues/219] en cours de résolution dans l'extension `broom`{.pkg}, il est nécessaire d'appliquer `tidy` au modèle avant de le passer à `ggcoef`. En effet, si l'on fait directement `ggcoef(mod2, exponentiate = TRUE)`, les intervalles de confiance ne seront pas correctement représentés.
+
+<figcaption>Coefficients du modèle</figcaption>
+</figure>
+
+## Vérification de la validité du modèle
+
+Un modèle de Cox n'est valable que sous l'hypothèse de la proportionnalité des risques relatifs. Selon cette hypothèse les <dfn>résidus de Schoenfeld</dfn><dfn data-index="Schoenfeld, résidus"</dfn> ne dépendent pas du tout. Cette hypothèse peut être testée avec la fonction `cox.zph`{data-pkg="survival"}.
+
+```{r}
+test <- cox.zph(mod2)
+test
+```
+
+Une valeur de p inférieure à 5 % indique que l'hypothèse n'est pas vérifiée. Il apparaît que p est supérieur à 5 % globalement et pour chaque variable prise individuellement. Notre modèle est donc valide.
+
+Il est possible de représenter la distribution des résidus de Schoenfeld à l'aide de `ggcoxzph`{data-pkg="survminer"} de l'extension `survminer`{.pkg}.
+
+```{r, fig.height=8}
+ggcoxzph(test)
+```
+
+
+
+
 
 
