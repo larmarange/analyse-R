@@ -372,14 +372,14 @@ $(document).ready(function () {
 d &lt;-<span class="st"> </span>hdv2003</code></pre></div>
 <p>À titre d’exemple, nous allons étudier l’effet de l’âge, du sexe, du niveau d’étude, de la pratique religieuse et du nombre moyen d’heures passées à regarder la télévision par jour.</p>
 <p>En premier lieu, il importe de vérifier que notre variable d’intérêt (ici <em>sport</em>) est correctement codée. Une possibilité consiste à créer une <dfn>variable booléenne</dfn><dfn data-index="booléenne, variable"></dfn> (vrai / faux) selon que l’individu a pratiqué du sport ou non :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d$sport2 &lt;-<span class="st"> </span><span class="ot">FALSE</span>
-d$sport2[d$sport ==<span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> </span><span class="ot">TRUE</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d<span class="op">$</span>sport2 &lt;-<span class="st"> </span><span class="ot">FALSE</span>
+d<span class="op">$</span>sport2[d<span class="op">$</span>sport <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> </span><span class="ot">TRUE</span></code></pre></div>
 <p>Dans le cas présent, cette variable n’a pas de <dfn>valeur manquante</dfn><dfn data-index="manquante, valeur"></dfn>. Mais, le cas échéant, il importe de bien coder les valeurs manquantes en <code>NA</code>, les individus en question étant alors exclu de l’analyse.</p>
 <p>Il n’est pas forcément nécessaire de transformer notre variable d’intérêt en variable booléenne. En effet, <strong>R</strong> accepte sans problème une variable de type <dfn>facteur</dfn>. Cependant, l’ordre des valeurs d’un facteur a de l’importance. En effet, <strong>R</strong> considère toujours la première modalité comme étant la <dfn>modalité de référence</dfn><dfn data-index="référence, modalité"></dfn>. Dans le cas de la variable d’intérêt, la modalité de référence correspond au fait de ne pas remplir le critère étudié, dans notre exemple au fait de ne pas avoir eu d’activité sportive au cours des douze derniers mois.</p>
 <p>Pour connaître l’ordre des modalités d’une variable de type facteur, on peut utiliser la fonction <code data-pkg="base">levels</code> ou bien encore tout simplement la fonction <code data-pkg="questionr">freq</code> de l’extension <code class="pkg">questionr</code> :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d$sport)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d<span class="op">$</span>sport)</code></pre></div>
 <pre><code>[1] &quot;Non&quot; &quot;Oui&quot;</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$sport)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d<span class="op">$</span>sport)</code></pre></div>
 <pre><code>       n    % val%
 Non 1277 63.8 63.8
 Oui  723 36.1 36.1</code></pre>
@@ -389,13 +389,13 @@ Oui  723 36.1 36.1</code></pre>
 </div>
 <p>La notion de modalité de référence s’applique également aux variables explicatives qualitatives. En effet, dans un modèle, tous les coefficients sont calculés par rapport à la modalité de référence. Il importe de choisir une modalité de référence qui fasse sens afin de faciliter l’interprétation. Par ailleurs, ce choix peut également dépendre de la manière dont on souhaite présenter les résultats. De manière générale on évitera de choisir comme référence une modalité peu représentée dans l’échantillon ou bien une modalité correspondant à une situation atypique.</p>
 <p>Prenons l’exemple de la variable <em>sexe</em>. Souhaite-t-on connaitre l’effet d’être une femme par rapport au fait d’être un homme ou bien l’effet d’être un homme par rapport au fait d’être une femme ? Si l’on opte pour le second, alors notre modalité de référence sera le sexe féminin. Comme est codée cette variable ?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$sexe)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d<span class="op">$</span>sexe)</code></pre></div>
 <pre><code>         n  % val%
 Homme  899 45   45
 Femme 1101 55   55</code></pre>
 <p>La modalité « Femme » s’avère ne pas être la première modalité. Nous devons appliquer la fonction <code data-pkg="stats">relevel</code> :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d$sexe &lt;-<span class="st"> </span><span class="kw">relevel</span>(d$sexe, <span class="st">&quot;Femme&quot;</span>)
-<span class="kw">freq</span>(d$sexe)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d<span class="op">$</span>sexe &lt;-<span class="st"> </span><span class="kw">relevel</span>(d<span class="op">$</span>sexe, <span class="st">&quot;Femme&quot;</span>)
+<span class="kw">freq</span>(d<span class="op">$</span>sexe)</code></pre></div>
 <pre><code>         n  % val%
 Femme 1101 55   55
 Homme  899 45   45</code></pre>
@@ -404,15 +404,15 @@ Homme  899 45   45</code></pre>
 <p>Si l’on utilise des données labellisées (voir le <a href="facteurs-et-vecteurs-labellises.html#labelled">chapitre dédié</a>), nos variables catégorielles seront stockées sous la forme d’un vecteur numérique avec des étiquettes. Il sera donc nécessaire de convertir ces variables en facteurs, tout simplement avec la fonction <code data-pkg="labelled">to_factor</code> de l’extension <code class="pkg">labelled</code> qui pourra utiliser les étiquettes de valeurs comme modalités du facteur.</p>
 </div>
 <p>Les variables <em>age</em> et <em>heures.tv</em> sont des variables quantitatives. Il importe de vérifier qu’elles sont bien enregistrées en tant que variables numériques. En effet, il arrive parfois que dans le fichier source les variables quantitatives soient renseignées sous forme de valeur textuelle et non sous forme numérique.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(d$age)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(d<span class="op">$</span>age)</code></pre></div>
 <pre><code> int [1:2000] 28 23 59 34 71 35 60 47 20 28 ...</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(d$heures.tv)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(d<span class="op">$</span>heures.tv)</code></pre></div>
 <pre><code> num [1:2000] 0 1 0 2 3 2 2.9 1 2 2 ...</code></pre>
 <p>Nos deux variables sont bien renseignées sous forme numérique.</p>
 <p>Cependant, l’effet de l’âge est rarement linéaire. Un exemple trivial est par exemple le fait d’occuper un emploi qui sera moins fréquent aux jeunes âges et aux âges élevés. Dès lors, on pourra transformer la variable <em>age</em> en groupe d’âges avec la fonction <code data-pkg="base">cut</code> (voir le chapitre <a href="pem_manipulation.html#decouper_en_classes">Manipulation de données</a>) :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d$grpage &lt;-<span class="st"> </span><span class="kw">cut</span>(d$age, <span class="kw">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">93</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d<span class="op">$</span>grpage &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">93</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, 
   <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)
-<span class="kw">freq</span>(d$grpage)</code></pre></div>
+<span class="kw">freq</span>(d<span class="op">$</span>grpage)</code></pre></div>
 <pre><code>          n    % val%
 [16,25) 169  8.5  8.5
 [25,45) 706 35.3 35.3
@@ -420,7 +420,7 @@ Homme  899 45   45</code></pre>
 [65,93] 378 18.9 18.9
 NA        2  0.1   NA</code></pre>
 <p>Jetons maintenant un oeil à la variable <em>nivetud</em> :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$nivetud)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d<span class="op">$</span>nivetud)</code></pre></div>
 <pre><code>                                                                  n
 N&#39;a jamais fait d&#39;etudes                                         39
 A arrete ses etudes, avant la derniere annee d&#39;etudes primaires  86
@@ -452,11 +452,11 @@ Enseignement technique ou professionnel long                     6.9
 Enseignement superieur y compris technique superieur            23.4
 NA                                                                NA</code></pre>
 <p>En premier lieu, cette variable est détaillée en pas moins de huit modalités dont certaines sont peu représentées (seulement 39 individus soit 2 % n’ont jamais fait d’études par exemple). Afin d’améliorier notre modèle logistique, il peut être pertinent de regrouper certaines modalités (voir le chapitre <a href="pem_manipulation.html#regrouper_modalites">Manipulation de données</a>) :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d$etud &lt;-<span class="st"> </span>d$nivetud
-<span class="kw">levels</span>(d$etud) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d<span class="op">$</span>etud &lt;-<span class="st"> </span>d<span class="op">$</span>nivetud
+<span class="kw">levels</span>(d<span class="op">$</span>etud) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, 
   <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, 
   <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Supérieur&quot;</span>)
-<span class="kw">freq</span>(d$etud)</code></pre></div>
+<span class="kw">freq</span>(d<span class="op">$</span>etud)</code></pre></div>
 <pre><code>                          n    % val%
 Primaire                466 23.3 24.7
 Secondaire              387 19.4 20.5
@@ -464,13 +464,13 @@ Technique/Professionnel 594 29.7 31.5
 Supérieur               441 22.1 23.4
 NA                      112  5.6   NA</code></pre>
 <p>Notre variable comporte également 112 individus avec une valeur manquante. Si nous conservons cette valeur manquante, ces 112 individus seront, par défaut, exclus de l’analyse. Ces valeurs manquantes n’étant pas négligeable (5,6 %), nous pouvons également faire le choix de considérer ces valeurs manquantes comme une modalité supplémentaire. Auquel cas, nous utiliserons la fonction <code data-pkg="base">add.NA</code> :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d$etud)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d<span class="op">$</span>etud)</code></pre></div>
 <pre><code>[1] &quot;Primaire&quot;               
 [2] &quot;Secondaire&quot;             
 [3] &quot;Technique/Professionnel&quot;
 [4] &quot;Supérieur&quot;              </code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d$etud &lt;-<span class="st"> </span><span class="kw">addNA</span>(d$etud)
-<span class="kw">levels</span>(d$etud)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d<span class="op">$</span>etud &lt;-<span class="st"> </span><span class="kw">addNA</span>(d<span class="op">$</span>etud)
+<span class="kw">levels</span>(d<span class="op">$</span>etud)</code></pre></div>
 <pre><code>[1] &quot;Primaire&quot;               
 [2] &quot;Secondaire&quot;             
 [3] &quot;Technique/Professionnel&quot;
@@ -481,7 +481,7 @@ NA                      112  5.6   NA</code></pre>
 <h2>Régression logistique binaire</h2>
 <p>La fonction <code data-pkg="stats">glm</code> (pour <dfn lang="en">generalized linear models</dfn> soit <dfn>modèle linéaire généralisé</dfn> en français) permet de calculer une grande variété de modèles statistiques. La régression logistique ordinaire correspond au modèle <em>logit</em> de la famille des modèles binomiaux, ce que l’on indique à <code data-pkg="stats">glm</code> avec l’argument <code>family=binomial(logit)</code>.</p>
 <p>Le modèle proprement dit sera renseigné sous la forme d’une <dfn>formule</dfn> (que nous avons déjà rencontrée dans le chapitre sur la <a href="statistique-bivariee.html">statistique bivariée</a> et présentée plus en détails dans un <a href="formules.html">chapitre dédié</a>). On indiquera d’abord la variable d’intérêt, suivie du signe <code>~</code> (que l’on obtient en appuyant sur les touches <kbd>Alt Gr</kbd> et <kbd>3</kbd> sur un clavier de type PC) puis de la liste des variables explicatives séparées par un signe <code>+</code>. Enfin, l’argument <code>data</code> permettra d’indiquer notre tableau de données.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">glm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>grpage +<span class="st"> </span>etud +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>relig <span class="op">+</span><span class="st"> </span>heures.tv, 
   <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>(logit))
 reg</code></pre></div>
 <pre><code>
@@ -803,9 +803,9 @@ tmp &lt;-<span class="st"> </span><span class="kw">tidy</span>(reg, <span class=
  $ conf.low : num  0.238 1.261 0.42 0.212 0.147 ...
  $ conf.high: num  0.848 1.911 1.028 0.538 0.43 ...</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)
-<span class="kw">ggplot</span>(tmp) +<span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> estimate, <span class="dt">y =</span> term, <span class="dt">xmin =</span> conf.low, 
-  <span class="dt">xmax =</span> conf.high) +<span class="st"> </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">1</span>) +<span class="st"> </span>
-<span class="st">  </span><span class="kw">geom_errorbarh</span>() +<span class="st"> </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">scale_x_log10</span>()</code></pre></div>
+<span class="kw">ggplot</span>(tmp) <span class="op">+</span><span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> estimate, <span class="dt">y =</span> term, <span class="dt">xmin =</span> conf.low, 
+  <span class="dt">xmax =</span> conf.high) <span class="op">+</span><span class="st"> </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_errorbarh</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_log10</span>()</code></pre></div>
 <img src="graphs/regression-logistique/unnamed-chunk-16-1.png" width="1050" />
 <figcaption>
 Représentation graphique des odds ratios
@@ -822,7 +822,7 @@ La fonction ggcoef
 </figure>
 <div class="note">
 <p>L’extension <code class="pkg">JLutils</code>, disponible uniquement sur GitHub, propose une fonction intéressante dans ce contexte. Pour l’installer ou la mettre à jour, si ce n’est déjà fait, on aura recours à la commande ci-après.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</code></pre></div>
 <p>La fonction <code data-pkg="JLutils">tidy_detailed</code> est une version <q>élargie</q> de <code data-pkg="broom">tidy</code> qui rajoute des colonnes supplémentaires avec le nom des variables et des modalités.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(<span class="kw">tidy</span>(reg))</code></pre></div>
 <pre><code>&#39;data.frame&#39;:   15 obs. of  5 variables:
@@ -847,7 +847,7 @@ La fonction ggcoef
  $ label         : chr  &quot;NA vs. Primaire&quot; &quot;Secondaire vs. Primaire&quot; &quot;Supérieur vs. Primaire&quot; &quot;Technique/Professionnel vs. Primaire&quot; ...</code></pre>
 <p>Il est possible de combiner <code data-pkg="JLutils">tidy_detailed</code> avec <code data-pkg="GGally">ggcoef</code> pour personnaliser un peu plus le résultat.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">td &lt;-<span class="st"> </span><span class="kw">tidy_detailed</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)
-td$label &lt;-<span class="st"> </span><span class="kw">factor</span>(td$label, <span class="kw">rev</span>(td$label))  <span class="co"># Pour fixer l&#39;ordre pour ggplot2</span>
+td<span class="op">$</span>label &lt;-<span class="st"> </span><span class="kw">factor</span>(td<span class="op">$</span>label, <span class="kw">rev</span>(td<span class="op">$</span>label))  <span class="co"># Pour fixer l&#39;ordre pour ggplot2</span>
 <span class="kw">ggcoef</span>(td, <span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">y =</span> level_detail, <span class="dt">x =</span> estimate, 
   <span class="dt">colour =</span> variable_label), <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <p><img src="graphs/regression-logistique/unnamed-chunk-20-1.png" width="1050" /></p>
@@ -870,7 +870,7 @@ Représentation graphique de l’effet de chaque variable du modèle logistique
          5          6 
 0.07318189 0.34841147 </code></pre>
 <p>Or notre variable étudiée est de type binaire. Nous devons donc transformer nos probabilités prédites en une variable du type « oui / non ». Usuellement, les probabilités prédites seront réunies en deux groupes selon qu’elles soient supérieures ou inférieures à la moitié. La matrice de confusion est alors égale à :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(sport.pred &gt;<span class="st"> </span><span class="fl">0.5</span>, d$sport)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(sport.pred <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span>, d<span class="op">$</span>sport)</code></pre></div>
 <pre><code>       
          Non  Oui
   FALSE 1074  384
@@ -910,20 +910,20 @@ sport ~ sexe + grpage + etud + heures.tv
 <h2>Régression logistique multinomiale</h2>
 <p>La <dfn>régression logistique multinomiale</dfn> est une extension de la régression logistique aux variables qualitatives à trois modalités ou plus. Dans ce cas de figure, chaque modalité de la variable d’intérêt sera comparée à la modalité de réference. Les <em>odds ratio</em> seront donc exprimés par rapport à cette dernière.</p>
 <p>Nous allons prendre pour exemple la variable <em>trav.satisf</em>, à savoir la satisfaction ou l’insatisfaction au travail.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d$trav.satisf)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d<span class="op">$</span>trav.satisf)</code></pre></div>
 <pre><code>                 n    % val%
 Satisfaction   480 24.0 45.8
 Insatisfaction 117  5.9 11.2
 Equilibre      451 22.6 43.0
 NA             952 47.6   NA</code></pre>
 <p>Nous allons choisir comme modalité de référence la position intermédiaire, à savoir l’« équilibre ».</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d$trav.satisf &lt;-<span class="st"> </span><span class="kw">relevel</span>(d$trav.satisf, <span class="st">&quot;Equilibre&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d<span class="op">$</span>trav.satisf &lt;-<span class="st"> </span><span class="kw">relevel</span>(d<span class="op">$</span>trav.satisf, <span class="st">&quot;Equilibre&quot;</span>)</code></pre></div>
 <p>Enfin, nous allons aussi en profiter pour raccourcir les étiquettes de la variable <em>trav.imp</em> :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d$trav.imp) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Le plus&quot;</span>, <span class="st">&quot;Aussi&quot;</span>, <span class="st">&quot;Moins&quot;</span>, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d<span class="op">$</span>trav.imp) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Le plus&quot;</span>, <span class="st">&quot;Aussi&quot;</span>, <span class="st">&quot;Moins&quot;</span>, 
   <span class="st">&quot;Peu&quot;</span>)</code></pre></div>
 <p>Pour calculer un modèle logistique multinomial, nous allons utiliser la fonction <code data-pkg="nnet">multinom</code> de l’extension <code class="pkg">nnet</code><a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. La syntaxe de <code data-pkg="nnet">multinom</code> est similaire à celle de <code data-pkg="stats">glm</code>, le paramètre <code>family</code> en moins.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(nnet)
-regm &lt;-<span class="st"> </span><span class="kw">multinom</span>(trav.satisf ~<span class="st"> </span>sexe +<span class="st"> </span>etud +<span class="st"> </span>grpage +<span class="st"> </span>
+regm &lt;-<span class="st"> </span><span class="kw">multinom</span>(trav.satisf <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>
 <span class="st">  </span>trav.imp, <span class="dt">data =</span> d)</code></pre></div>
 <pre><code># weights:  39 (24 variable)
 initial  value 1151.345679 
@@ -1169,7 +1169,7 @@ Insatisfaction/trav.impPeu                 *
 Signif. codes:  
 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>De même, il est possible de calculer la matrice de confusion :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(<span class="kw">predict</span>(regm2, <span class="dt">newdata =</span> d), d$trav.satisf)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(<span class="kw">predict</span>(regm2, <span class="dt">newdata =</span> d), d<span class="op">$</span>trav.satisf)</code></pre></div>
 <pre><code>                
                  Equilibre Satisfaction
   Equilibre            262          211
@@ -1186,13 +1186,13 @@ Signif. codes:
 <p>Lorsque l’on utilise des données pondérées, on aura recours à l’extension <code class="pkg">survey</code><a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>.</p>
 <p>Préparons des données d’exemple :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(survey)
-dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~<span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> ~poids)</code></pre></div>
+dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> <span class="op">~</span>poids)</code></pre></div>
 <p>L’extension <code class="pkg">survey</code> fournit une fonction <code data-pkg="survey">svyglm</code> permettant de calculer un modèle statistique tout en prenant en compte le plan d’échantillonnage spécifié. La syntaxe de <code data-pkg="survey">svyglm</code> est proche de celle de <code data-pkg="stats">glm</code>. Cependant, le cadre d’une régression logistique, il est nécessaire d’utiliser <code>family = quasibinomial()</code> afin d’éviter un message d’erreur indiquant un nombre non entier de succès :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>age +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>age <span class="op">+</span><span class="st"> </span>relig <span class="op">+</span><span class="st"> </span>heures.tv, 
   dw, <span class="dt">family =</span> <span class="kw">binomial</span>())</code></pre></div>
 <pre><code>Warning in eval(family$initialize): non-integer
 #successes in a binomial glm!</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport ~<span class="st"> </span>sexe +<span class="st"> </span>age +<span class="st"> </span>relig +<span class="st"> </span>heures.tv, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>age <span class="op">+</span><span class="st"> </span>relig <span class="op">+</span><span class="st"> </span>heures.tv, 
   dw, <span class="dt">family =</span> <span class="kw">quasibinomial</span>())
 reg</code></pre></div>
 <pre><code>Independent Sampling design (with replacement)

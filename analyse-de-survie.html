@@ -366,7 +366,7 @@ $(document).ready(function () {
 </div>
 <div id="ressources-en-ligne" class="section level1">
 <h1>Ressources en ligne</h1>
-<p>L’extension centrale pour l’<dfn>analyse de survie<dfn><dfn data-index="survie, analyse"></dfn> est <code class="pkg">survival</code>.</p>
+<p>L’extension centrale pour l’<dfn>analyse de survie</dfn><dfn data-index="survie, analyse"></dfn> est <code class="pkg">survival</code>.</p>
 <p>Un très bon tutoriel (en anglais et en 3 étapes), introduisant les concepts de l’analyse de survie, des courbes de Kaplan-Meier et des modèles de Cox et leur mise en oeuvre pratique sous <strong>R</strong> est disponible en ligne :</p>
 <ul>
 <li><a href="http://www.sthda.com/english/wiki/survival-analysis-basics" class="uri">http://www.sthda.com/english/wiki/survival-analysis-basics</a></li>
@@ -502,12 +502,12 @@ min: 1 - max: 5 - NAs: 0 (0%) - 5 unique values
 
 <span class="co"># duree observation en mois</span>
 <span class="kw">library</span>(lubridate)
-enfants[, duree_observation :<span class="er">=</span><span class="st"> </span><span class="kw">time_length</span>(<span class="kw">interval</span>(date_naissance, date_entretien), <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span>)]</code></pre></div>
+enfants[, duree_observation <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">time_length</span>(<span class="kw">interval</span>(date_naissance, date_entretien), <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span>)]</code></pre></div>
 <p>ATTENTION : il y 11 enfants soi-disant nés après la date d’enquête ! Quelle que soit l’enquête, il est rare de ne pas observer d’incohérences. Dans le cas présent, il est fort possible que la date d’entretien puisse parfois être erronnée (par exemple si l’enquêteur a inscrit une date sur le questionnaire papier le jour du recensement du ménage mais n’ai pu effectué le questionnaire individuel que plus tard). Nous décidons ici de procéder à une correction en ajoutant un mois aux dates d’entretien problématiques. D’autres approches auraient pu être envisagées, comme par exemple exclure ces observations problématiques. Cependant, cela aurait impacté le calcul du range de naissance pour les autres enfants issus de la même mère. Quoiqu’il en soit, il n’y a pas de réponse unique. À vous de vous adapter au contexte particulier de votre analyse.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[duree_observation &lt;<span class="st"> </span><span class="dv">0</span>, date_entretien :<span class="er">=</span><span class="st"> </span>date_entretien %m+%<span class="st"> </span><span class="kw">months</span>(<span class="dv">1</span>)]
-enfants[, duree_observation :<span class="er">=</span><span class="st"> </span><span class="kw">time_length</span>(<span class="kw">interval</span>(date_naissance, date_entretien), <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span>)]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[duree_observation <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>, date_entretien <span class="op">:</span><span class="er">=</span><span class="st"> </span>date_entretien <span class="op">%m+%</span><span class="st"> </span><span class="kw">months</span>(<span class="dv">1</span>)]
+enfants[, duree_observation <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">time_length</span>(<span class="kw">interval</span>(date_naissance, date_entretien), <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span>)]</code></pre></div>
 <p>Regardons maintenant comment les âges au décès ont été collectés.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(enfants$age_deces)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(enfants<span class="op">$</span>age_deces)</code></pre></div>
 <pre><code>       n    % val%
 0     62  3.9 43.7
 1      5  0.3  3.5
@@ -538,15 +538,15 @@ NaN 1442 91.0   NA</code></pre>
 <li>imputer un âge au décès exact en distribuant aléatoirement les décès à 3 mois révolus entre 3 et 4 mois exacts, autrement dit en ajoutant aléatoirement une partie décimale aux âges révolus.</li>
 </ol>
 <p>Nous allons ici adopter la troisième approche en considérant que les décès se répartissent de manière uniforme au sein d’un même mois. Nous aurons donc recours à la fonction <code data-pkg="stats" data-rdoc="Uniform">runif</code> qui permets de générer des valeurs aléatoires entre 0 et 1 selon une distribustion uniforme.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[, age_deces_impute :<span class="er">=</span><span class="st"> </span>age_deces +<span class="st"> </span><span class="kw">runif</span>(.N)]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[, age_deces_impute <span class="op">:</span><span class="er">=</span><span class="st"> </span>age_deces <span class="op">+</span><span class="st"> </span><span class="kw">runif</span>(.N)]</code></pre></div>
 <p>Pour définir notre objet de survie, il nous faudra deux variables. Une première, temporelle, indiquant la durée à laquelle survient l’évènement étudié (ici le décès) pour ceux ayant vécu l’évènement et la durée d’observation pour ceux n’ayant pas vécu l’évènement (<dfn>censure à droite</dfn><dfn data-index="droite, censure"></dfn>). Par ailleurs, une seconde variable indiquant si les individus ont vécu l’évènement (0 pour non, 1 pour oui). Or, ici, la variable <var>survie</var> est codée 0 pour les décès et 1 pour ceux ayant survécu. Pour plus de détails, voir l’aide de la fonction <code data-pkg="survival">Surv</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[, deces :<span class="er">=</span><span class="st"> </span><span class="dv">0</span>]
-enfants[survie ==<span class="st"> </span><span class="dv">0</span>, deces :<span class="er">=</span><span class="st"> </span><span class="dv">1</span>]
-<span class="kw">var_label</span>(enfants$deces) &lt;-<span class="st"> &quot;Est décédé ?&quot;</span>
-<span class="kw">val_labels</span>(enfants$deces) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">non =</span> <span class="dv">0</span>, <span class="dt">oui =</span> <span class="dv">1</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[, deces <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="dv">0</span>]
+enfants[survie <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, deces <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="dv">1</span>]
+<span class="kw">var_label</span>(enfants<span class="op">$</span>deces) &lt;-<span class="st"> &quot;Est décédé ?&quot;</span>
+<span class="kw">val_labels</span>(enfants<span class="op">$</span>deces) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">non =</span> <span class="dv">0</span>, <span class="dt">oui =</span> <span class="dv">1</span>)
 
-enfants[, time :<span class="er">=</span><span class="st"> </span>duree_observation]
-enfants[deces ==<span class="st"> </span><span class="dv">1</span>, time :<span class="er">=</span><span class="st"> </span>age_deces_impute]</code></pre></div>
+enfants[, time <span class="op">:</span><span class="er">=</span><span class="st"> </span>duree_observation]
+enfants[deces <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, time <span class="op">:</span><span class="er">=</span><span class="st"> </span>age_deces_impute]</code></pre></div>
 <p>Occupons-nous maintenant des variables explicatives que nous allons inclure dans l’analyse. Tout d’abord, ajoutons à la table <code>enfants</code> les variables nécessaires des tables <code>femmes</code> et <code>menages</code>. Notons qu’il nous faudra importer <var>id_menage</var> de la table <code>femmes</code> pour pouvoir fusionner ensuite la table <code>enfants</code> avec la table <code>menages</code>. Par ailleurs, pour éviter une confusion sur la variable <var>date_naissance</var>, nous renommons à la volée cette variable de la table <code>femmes</code> en <var>date_naissance_mere</var>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span><span class="kw">merge</span>(
   enfants,
@@ -564,10 +564,10 @@ enfants &lt;-<span class="st"> </span><span class="kw">merge</span>(
   <span class="dt">all.x =</span> <span class="ot">TRUE</span>
 )</code></pre></div>
 <p>Les variables catégorielles sont pour l’heure sous formes de vecteurs labellisés. Or, dans un modèle, il est impératif de les convertir en facteurs pour qu’elles soient bien traitées comme des variables catégorielles (autrement elles seraient traitées comme des variables continues). On aura donc recours à la fonction <code data-pkg="labelled">to_factor</code> de l’extension <code class="pkg">labelled</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[, sexe :<span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(sexe)]
-enfants[, richesse :<span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(richesse)]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[, sexe <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(sexe)]
+enfants[, richesse <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(richesse)]</code></pre></div>
 <p>Regardons plus attentivement, la variable <var>structure</var>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(enfants$structure)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(enfants<span class="op">$</span>structure)</code></pre></div>
 <pre><code>                                                 n
 [0] pas d&#39;adulte                                 0
 [1] un adulte                                   45
@@ -590,53 +590,53 @@ enfants[, richesse :<span class="er">=</span><span class="st"> </span><span clas
 [4] trois adultes ou plus avec lien de parenté 48.2
 [5] adultes sans lien de parenté               12.6</code></pre>
 <p>Tout d’abord, la modalité <q>pas d’adulte</q> n’est pas représentée dans l’échantillon. On aura donc recours à l’argument <code>drop_unused_labels</code> pour ne pas conserver cette modalité. Par ailleurs, nous considérons que la situation familiale à partir de laquelle nous voudrons comparer les autres dans notre modèle, donc celle qui doit être considérée comme la modalité de référence, est celle du ménage nucléaire. Cette modalité (<q>deux adultes de sexe opposé</q>) n’étant pas la première, nous aurons recours à la fonction <code>relevel</code>{data-pkg = “stats”}.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[, structure :<span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(structure)]
-enfants[, structure :<span class="er">=</span><span class="st"> </span><span class="kw">relevel</span>(structure, <span class="st">&quot;deux adultes de sexe opposé&quot;</span>)]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[, structure <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(structure)]
+enfants[, structure <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">relevel</span>(structure, <span class="st">&quot;deux adultes de sexe opposé&quot;</span>)]</code></pre></div>
 <p>Regardons la variable <var>educ</var>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(enfants$educ)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(enfants<span class="op">$</span>educ)</code></pre></div>
 <pre><code>                  n    % val%
 [0] aucun      1084 68.4 68.4
 [1] primaire    368 23.2 23.2
 [2] secondaire  115  7.3  7.3
 [3] supérieur    17  1.1  1.1</code></pre>
 <p>La modalité <q>supérieur</q> est peu représentée dans notre échantillon. Nous allons la fusionner avec la modalité <q>secondaire</q> (voir la section <a href="recodage.html#regrouper_modalites">Regrouper les modalités d’une variable</a> du chapitre <a href="recodage.html">Recodage</a>).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[, educ2 :<span class="er">=</span><span class="st"> </span>educ]
-enfants[educ ==<span class="st"> </span><span class="dv">3</span>, educ2 :<span class="er">=</span><span class="st"> </span><span class="dv">2</span>]
-<span class="kw">val_label</span>(enfants$educ2, <span class="dv">2</span>) &lt;-<span class="st"> &quot;secondaire ou plus&quot;</span>
-<span class="kw">val_label</span>(enfants$educ2, <span class="dv">3</span>) &lt;-<span class="st"> </span><span class="ot">NULL</span>
-enfants[, educ2 :<span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(educ2)]
-<span class="kw">freq</span>(enfants$educ2)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[, educ2 <span class="op">:</span><span class="er">=</span><span class="st"> </span>educ]
+enfants[educ <span class="op">==</span><span class="st"> </span><span class="dv">3</span>, educ2 <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="dv">2</span>]
+<span class="kw">val_label</span>(enfants<span class="op">$</span>educ2, <span class="dv">2</span>) &lt;-<span class="st"> &quot;secondaire ou plus&quot;</span>
+<span class="kw">val_label</span>(enfants<span class="op">$</span>educ2, <span class="dv">3</span>) &lt;-<span class="st"> </span><span class="ot">NULL</span>
+enfants[, educ2 <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(educ2)]
+<span class="kw">freq</span>(enfants<span class="op">$</span>educ2)</code></pre></div>
 <pre><code>                      n    % val%
 aucun              1084 68.4 68.4
 primaire            368 23.2 23.2
 secondaire ou plus  132  8.3  8.3</code></pre>
 <p>Calculons maintenant l’âge de la mère à la naissance de l’enfant (voir le chapitre <a href="calculer-un-age.html">Caluler un âge</a>) et découpons le en groupes d’âges (voir la section <a href="recodage.html#decouper_en_classes">Découper une variable numérique en classes</a> du chapitre <a href="recodage.html">Recodage</a>).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[, age_mere_naissance :<span class="er">=</span><span class="st"> </span><span class="kw">time_length</span>(
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[, age_mere_naissance <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">time_length</span>(
   <span class="kw">interval</span>(date_naissance_mere, date_naissance), 
   <span class="dt">unit =</span> <span class="st">&quot;years&quot;</span>
   )]
 
-enfants$gpage_mere_naissance &lt;-<span class="st"> </span><span class="kw">cut</span>(
-  enfants$age_mere_naissance, 
+enfants<span class="op">$</span>gpage_mere_naissance &lt;-<span class="st"> </span><span class="kw">cut</span>(
+  enfants<span class="op">$</span>age_mere_naissance, 
   <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>, <span class="dt">right =</span> <span class="ot">FALSE</span>,
   <span class="dt">breaks=</span><span class="kw">c</span>(<span class="dv">13</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">50</span>)
 )
-<span class="kw">levels</span>(enfants$gpage_mere_naissance) &lt;-<span class="st"> </span><span class="kw">c</span>(
+<span class="kw">levels</span>(enfants<span class="op">$</span>gpage_mere_naissance) &lt;-<span class="st"> </span><span class="kw">c</span>(
   <span class="st">&quot;19 ou moins&quot;</span>, <span class="st">&quot;20-29&quot;</span>, <span class="st">&quot;30 et plus&quot;</span>
 )
-enfants$gpage_mere_naissance &lt;-<span class="st"> </span><span class="kw">relevel</span>(enfants$gpage_mere_naissance, <span class="st">&quot;20-29&quot;</span>)
-<span class="kw">freq</span>(enfants$gpage_mere_naissance)</code></pre></div>
+enfants<span class="op">$</span>gpage_mere_naissance &lt;-<span class="st"> </span><span class="kw">relevel</span>(enfants<span class="op">$</span>gpage_mere_naissance, <span class="st">&quot;20-29&quot;</span>)
+<span class="kw">freq</span>(enfants<span class="op">$</span>gpage_mere_naissance)</code></pre></div>
 <pre><code>              n    % val%
 20-29       888 56.1 56.1
 19 ou moins 257 16.2 16.2
 30 et plus  439 27.7 27.7</code></pre>
 <p>Reste à calculer si le rang de naissance de l’enfant est supérieur au nombre idéal d’enfants tel que défini par la mère. On aura recours à la fonction <code data-pkg="base">rank</code> appliquée par groupe (ici calculé séparément pour chaque mère). L’argument <code>ties.method</code> permet d’indiquer comment gérer les égalités (ici les naissances multiples, e.g. les jumeaux). Comme nous voulons comparer le rang de l’enfant au nombre idéal d’enfants, nous allons retenir la méthode <code>&quot;max&quot;</code> pour obtenir, dans le cas présent, le nombre total d’enfants déjà nés<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>. Avant de calculer un rang, il est impératif de trier préalablement le tableau (voir le chapitre <a href="tris.html">Tris</a>).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setorder</span>(enfants, id_femme, date_naissance)
-enfants[, rang :<span class="er">=</span><span class="st"> </span><span class="kw">rank</span>(date_naissance, <span class="dt">ties.method =</span> <span class="st">&quot;max&quot;</span>), by =<span class="st"> </span>id_femme]
-enfants[, rang_apres_ideal :<span class="er">=</span><span class="st"> &quot;non&quot;</span>]
-enfants[rang &gt;<span class="st"> </span>nb_enf_ideal, rang_apres_ideal :<span class="er">=</span><span class="st"> &quot;oui&quot;</span>]
-enfants[, rang_apres_ideal :<span class="er">=</span><span class="st"> </span><span class="kw">factor</span>(rang_apres_ideal)]
-enfants[, rang_apres_ideal :<span class="er">=</span><span class="st"> </span><span class="kw">relevel</span>(rang_apres_ideal, <span class="st">&quot;non&quot;</span>)]</code></pre></div>
+enfants[, rang <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">rank</span>(date_naissance, <span class="dt">ties.method =</span> <span class="st">&quot;max&quot;</span>), by =<span class="st"> </span>id_femme]
+enfants[, rang_apres_ideal <span class="op">:</span><span class="er">=</span><span class="st"> &quot;non&quot;</span>]
+enfants[rang <span class="op">&gt;</span><span class="st"> </span>nb_enf_ideal, rang_apres_ideal <span class="op">:</span><span class="er">=</span><span class="st"> &quot;oui&quot;</span>]
+enfants[, rang_apres_ideal <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">factor</span>(rang_apres_ideal)]
+enfants[, rang_apres_ideal <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">relevel</span>(rang_apres_ideal, <span class="st">&quot;non&quot;</span>)]</code></pre></div>
 </div>
 <div id="preparation-des-donnees-avec-dplyr" class="section level2">
 <h2>Préparation des données avec dplyr</h2>
@@ -675,25 +675,27 @@ min: 1 - max: 5 - NAs: 0 (0%) - 5 unique values
 <span class="kw">library</span>(labelled)</code></pre></div>
 <p>En premier lieu, il nous faut calculer la durée d’observation des enfants, à savoir le temps passé entre la date de naissance (variable du fichier <code>enfants</code>) et la date de passation de l’entretien (fournie par le tableau de données <code>femmes</code>). Pour récupérer des variables du fichier <code>femmes</code> dans le fichier <code>enfants</code>, nous allons procéder à une fusion de table (voir le <a href="fusion-de-tables.html">chapitre dédié</a>). Pour le calcul de la durée d’observation, nous allons utiliser le package <code class="pkg">lubridate</code> (voir le chapitre <a href="calculer-un-age.html">calculer un âge</a> et celui sur la <a href="gestion-des-dates.html">gestion des dates</a>). Nous effectuerons l’analyse en mois (puisque l’âge au décès est connu en mois). Dès lors, la durée d’observation sera calculée en mois.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(lubridate)
-enfants &lt;-<span class="st"> </span>enfants %&gt;%
+enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">left_join</span>(
-    femmes %&gt;%<span class="st"> </span><span class="kw">select</span>(id_femme, date_entretien),
+    femmes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(id_femme, date_entretien),
     <span class="dt">by =</span> <span class="st">&quot;id_femme&quot;</span>
-  ) %&gt;%
+  ) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">duree_observation =</span> <span class="kw">time_length</span>(
     <span class="kw">interval</span>(date_naissance, date_entretien), 
     <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span>
   ))</code></pre></div>
+<pre><code>Warning: Column `id_femme` has different
+attributes on LHS and RHS of join</code></pre>
 <p>ATTENTION : il y 11 enfants soi-disant nés après la date d’enquête ! Quelle que soit l’enquête, il est rare de ne pas observer d’incohérences. Dans le cas présent, il est fort possible que la date d’entretien puisse parfois être erronnée (par exemple si l’enquêteur a inscrit une date sur le questionnaire papier le jour du recensement du ménage mais n’ai pu effectué le questionnaire individuel que plus tard). Nous décidons ici de procéder à une correction en ajoutant un mois aux dates d’entretien problématiques. D’autres approches auraient pu être envisagées, comme par exemple exclure ces observations problématiques. Cependant, cela aurait impacté le calcul du range de naissance pour les autres enfants issus de la même mère. Quoiqu’il en soit, il n’y a pas de réponse unique. À vous de vous adapter au contexte particulier de votre analyse.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants$date_entretien[enfants$duree_observation &lt;<span class="st"> </span><span class="dv">0</span>] &lt;-
-<span class="st">  </span>enfants$date_entretien[enfants$duree_observation &lt;<span class="st"> </span><span class="dv">0</span>] %m+%<span class="st"> </span><span class="kw">months</span>(<span class="dv">1</span>)
-enfants &lt;-<span class="st"> </span>enfants %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants<span class="op">$</span>date_entretien[enfants<span class="op">$</span>duree_observation <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>] &lt;-
+<span class="st">  </span>enfants<span class="op">$</span>date_entretien[enfants<span class="op">$</span>duree_observation <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>] <span class="op">%m+%</span><span class="st"> </span><span class="kw">months</span>(<span class="dv">1</span>)
+enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">duree_observation =</span> <span class="kw">time_length</span>(
     <span class="kw">interval</span>(date_naissance, date_entretien), 
     <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span>
   ))</code></pre></div>
 <p>Regardons maintenant comment les âges au décès ont été collectés.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(enfants$age_deces)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(enfants<span class="op">$</span>age_deces)</code></pre></div>
 <pre><code>       n    % val%
 0     62  3.9 43.7
 1      5  0.3  3.5
@@ -724,32 +726,34 @@ NaN 1442 91.0   NA</code></pre>
 <li>imputer un âge au décès exact en distribuant aléatoirement les décès à 3 mois révolus entre 3 et 4 mois exacts, autrement dit en ajoutant aléatoirement une partie décimale aux âges révolus.</li>
 </ol>
 <p>Nous allons ici adopter la troisième approche en considérant que les décès se répartissent de manière uniforme au sein d’un même mois. Nous aurons donc recours à la fonction <code data-pkg="stats" data-rdoc="Uniform">runif</code> qui permets de générer des valeurs aléatoires entre 0 et 1 selon une distribustion uniforme.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants %&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">age_deces_impute =</span> age_deces +<span class="st"> </span><span class="kw">runif</span>(<span class="kw">n</span>()))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">age_deces_impute =</span> age_deces <span class="op">+</span><span class="st"> </span><span class="kw">runif</span>(<span class="kw">n</span>()))</code></pre></div>
 <p>Pour définir notre objet de survie, il nous faudra deux variables. Une première, temporelle, indiquant la durée à laquelle survient l’évènement étudié (ici le décès) pour ceux ayant vécu l’évènement et la durée d’observation pour ceux n’ayant pas vécu l’évènement (<dfn>censure à droite</dfn><dfn data-index="droite, censure"></dfn>). Par ailleurs, une seconde variable indiquant si les individus ont vécu l’évènement (0 pour non, 1 pour oui). Or, ici, la variable <var>survie</var> est codée 0 pour les décès et 1 pour ceux ayant survécu. Pour plus de détails, voir l’aide de la fonction <code data-pkg="survival">Surv</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants %&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">deces =</span> <span class="kw">if_else</span>(survie ==<span class="st"> </span><span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>)) %&gt;%
-<span class="st">  </span><span class="kw">set_variable_labels</span>(<span class="dt">deces =</span> <span class="st">&quot;Est décédé ?&quot;</span>) %&gt;%
-<span class="st">  </span><span class="kw">set_value_labels</span>(<span class="dt">deces =</span> <span class="kw">c</span>(<span class="dt">non =</span> <span class="dv">0</span>, <span class="dt">oui =</span> <span class="dv">1</span>)) %&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">time =</span> <span class="kw">if_else</span>(deces ==<span class="st"> </span><span class="dv">1</span>, age_deces_impute, duree_observation))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">deces =</span> <span class="kw">if_else</span>(survie <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">set_variable_labels</span>(<span class="dt">deces =</span> <span class="st">&quot;Est décédé ?&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">set_value_labels</span>(<span class="dt">deces =</span> <span class="kw">c</span>(<span class="dt">non =</span> <span class="dv">0</span>, <span class="dt">oui =</span> <span class="dv">1</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">time =</span> <span class="kw">if_else</span>(deces <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, age_deces_impute, duree_observation))</code></pre></div>
 <p>Occupons-nous maintenant des variables explicatives que nous allons inclure dans l’analyse. Tout d’abord, ajoutons à la table <code>enfants</code> les variables nécessaires des tables <code>femmes</code> et <code>menages</code>. Notons qu’il nous faudra importer <var>id_menage</var> de la table <code>femmes</code> pour pouvoir fusionner ensuite la table <code>enfants</code> avec la table <code>menages</code>. Par ailleurs, pour éviter une confusion sur la variable <var>date_naissance</var>, nous renommons à la volée cette variable de la table <code>femmes</code> en <var>date_naissance_mere</var>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">left_join</span>(
     <span class="kw">select</span>(femmes,
       id_femme, id_menage, milieu, educ, 
       <span class="dt">date_naissance_mere =</span> date_naissance, nb_enf_ideal
     ),
     <span class="dt">by =</span> <span class="st">&quot;id_femme&quot;</span>
-  ) %&gt;%
+  ) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">left_join</span>(
     <span class="kw">select</span>(menages, id_menage, structure, richesse),
     <span class="dt">by =</span> <span class="st">&quot;id_menage&quot;</span>
   )</code></pre></div>
+<pre><code>Warning: Column `id_femme` has different
+attributes on LHS and RHS of join</code></pre>
 <p>Les variables catégorielles sont pour l’heure sous formes de vecteurs labellisés. Or, dans un modèle, il est impératif de les convertir en facteurs pour qu’elles soient bien traitées comme des variables catégorielles (autrement elles seraient traitées comme des variables continues). On aura donc recours à la fonction <code data-pkg="labelled">to_factor</code> de l’extension <code class="pkg">labelled</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">sexe =</span> <span class="kw">to_factor</span>(sexe), <span class="dt">richesse =</span> <span class="kw">to_factor</span>(richesse))</code></pre></div>
 <p>Regardons plus attentivement, la variable <var>structure</var>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(enfants$structure)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(enfants<span class="op">$</span>structure)</code></pre></div>
 <pre><code>                                                 n
 [0] pas d&#39;adulte                                 0
 [1] un adulte                                   45
@@ -772,34 +776,34 @@ NaN 1442 91.0   NA</code></pre>
 [4] trois adultes ou plus avec lien de parenté 48.2
 [5] adultes sans lien de parenté               12.6</code></pre>
 <p>Tout d’abord, la modalité <q>pas d’adulte</q> n’est pas représentée dans l’échantillon. On aura donc recours à l’argument <code>drop_unused_labels</code> pour ne pas conserver cette modalité. Par ailleurs, nous considérons que la situation familiale à partir de laquelle nous voudrons comparer les autres dans notre modèle, donc celle qui doit être considérée comme la modalité de référence, est celle du ménage nucléaire. Cette modalité (<q>deux adultes de sexe opposé</q>) n’étant pas la première, nous aurons recours à la fonction <code>relevel</code>{data-pkg = “stats”}.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">structure =</span> <span class="kw">relevel</span>(
     <span class="kw">to_factor</span>(structure, <span class="dt">drop_unused_labels =</span> <span class="ot">TRUE</span>),
     <span class="st">&quot;deux adultes de sexe opposé&quot;</span>
   ))</code></pre></div>
 <p>Regardons la variable <var>educ</var>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(enfants$educ)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(enfants<span class="op">$</span>educ)</code></pre></div>
 <pre><code>                  n    % val%
 [0] aucun      1084 68.4 68.4
 [1] primaire    368 23.2 23.2
 [2] secondaire  115  7.3  7.3
 [3] supérieur    17  1.1  1.1</code></pre>
 <p>La modalité <q>supérieur</q> est peu représentée dans notre échantillon. Nous allons la fusionner avec la modalité <q>secondaire</q> (voir la section <a href="recodage.html#regrouper_modalites">Regrouper les modalités d’une variable</a> du chapitre <a href="recodage.html">Recodage</a>).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants %&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">educ2 =</span> <span class="kw">ifelse</span>(educ ==<span class="st"> </span><span class="dv">3</span>, <span class="dv">2</span>, educ)) %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">educ2 =</span> <span class="kw">ifelse</span>(educ <span class="op">==</span><span class="st"> </span><span class="dv">3</span>, <span class="dv">2</span>, educ)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">set_value_labels</span>(<span class="dt">educ2 =</span> <span class="kw">c</span>(
     <span class="dt">aucun =</span> <span class="dv">0</span>,
     <span class="dt">primaire =</span> <span class="dv">1</span>,
     <span class="st">&quot;secondaire ou plus&quot;</span> =<span class="st"> </span><span class="dv">2</span>
-  )) %&gt;%
+  )) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">educ2 =</span> <span class="kw">to_factor</span>(educ2))
-<span class="kw">freq</span>(enfants$educ2)</code></pre></div>
+<span class="kw">freq</span>(enfants<span class="op">$</span>educ2)</code></pre></div>
 <pre><code>                      n    % val%
 aucun              1084 68.4 68.4
 primaire            368 23.2 23.2
 secondaire ou plus  132  8.3  8.3</code></pre>
 <p>Calculons maintenant l’âge de la mère à la naissance de l’enfant (voir le chapitre <a href="calculer-un-age.html">Caluler un âge</a>) et découpons le en groupes d’âges (voir la section <a href="recodage.html#decouper_en_classes">Découper une variable numérique en classes</a> du chapitre <a href="recodage.html">Recodage</a>).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(
     <span class="dt">age_mere_naissance =</span> <span class="kw">time_length</span>(
       <span class="kw">interval</span>(date_naissance_mere, date_naissance), 
@@ -812,22 +816,22 @@ secondaire ou plus  132  8.3  8.3</code></pre>
     )
   )
   
-<span class="kw">levels</span>(enfants$gpage_mere_naissance) &lt;-<span class="st"> </span><span class="kw">c</span>(
+<span class="kw">levels</span>(enfants<span class="op">$</span>gpage_mere_naissance) &lt;-<span class="st"> </span><span class="kw">c</span>(
   <span class="st">&quot;19 ou moins&quot;</span>, <span class="st">&quot;20-29&quot;</span>, <span class="st">&quot;30 et plus&quot;</span>
 )
-enfants$gpage_mere_naissance &lt;-<span class="st"> </span><span class="kw">relevel</span>(enfants$gpage_mere_naissance, <span class="st">&quot;20-29&quot;</span>)
-<span class="kw">freq</span>(enfants$gpage_mere_naissance)</code></pre></div>
+enfants<span class="op">$</span>gpage_mere_naissance &lt;-<span class="st"> </span><span class="kw">relevel</span>(enfants<span class="op">$</span>gpage_mere_naissance, <span class="st">&quot;20-29&quot;</span>)
+<span class="kw">freq</span>(enfants<span class="op">$</span>gpage_mere_naissance)</code></pre></div>
 <pre><code>              n    % val%
 20-29       888 56.1 56.1
 19 ou moins 257 16.2 16.2
 30 et plus  439 27.7 27.7</code></pre>
 <p>Reste à calculer si le rang de naissance de l’enfant est supérieur au nombre idéal d’enfants tel que défini par la mère. On aura recours à la fonction <code data-pkg="base">rank</code> appliquée par groupe (ici calculé séparément pour chaque mère). L’argument <code>ties.method</code> permet d’indiquer comment gérer les égalités (ici les naissances multiples, e.g. les jumeaux). Comme nous voulons comparer le rang de l’enfant au nombre idéal d’enfants, nous allons retenir la méthode <code>&quot;max&quot;</code> pour obtenir, dans le cas présent, le nombre total d’enfants déjà nés<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>. Avant de calculer un rang, il est impératif de trier préalablement le tableau (voir le chapitre <a href="tris.html">Tris</a>).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants %&gt;%
-<span class="st">  </span><span class="kw">arrange</span>(id_femme, date_naissance) %&gt;%
-<span class="st">  </span><span class="kw">group_by</span>(id_femme) %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">arrange</span>(id_femme, date_naissance) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">group_by</span>(id_femme) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(
     <span class="dt">rang =</span> <span class="kw">rank</span>(date_naissance, <span class="dt">ties.method =</span> <span class="st">&quot;max&quot;</span>),
-    <span class="dt">rang_apres_ideal =</span> <span class="kw">ifelse</span>(rang &gt;<span class="st"> </span>nb_enf_ideal, <span class="st">&quot;oui&quot;</span>, <span class="st">&quot;non&quot;</span>),
+    <span class="dt">rang_apres_ideal =</span> <span class="kw">ifelse</span>(rang <span class="op">&gt;</span><span class="st"> </span>nb_enf_ideal, <span class="st">&quot;oui&quot;</span>, <span class="st">&quot;non&quot;</span>),
     <span class="dt">rang_apres_ideal =</span> <span class="kw">factor</span>(rang_apres_ideal, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;non&quot;</span>, <span class="st">&quot;oui&quot;</span>))
   )</code></pre></div>
 </div>
@@ -835,7 +839,7 @@ enfants$gpage_mere_naissance &lt;-<span class="st"> </span><span class="kw">rele
 <h2>Kaplan-Meir</h2>
 <p>La courbe de survie de <dfn>Kaplan-Meir</dfn> s’obtient avec la fonction <code data-pkg="survival">survfit</code> de l’extension <code class="pkg">survival</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(survival)
-km_global &lt;-<span class="st"> </span><span class="kw">survfit</span>(<span class="kw">Surv</span>(time, deces) ~<span class="st"> </span><span class="dv">1</span>, <span class="dt">data =</span> enfants)
+km_global &lt;-<span class="st"> </span><span class="kw">survfit</span>(<span class="kw">Surv</span>(time, deces) <span class="op">~</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">data =</span> enfants)
 km_global</code></pre></div>
 <pre><code>Call: survfit(formula = Surv(time, deces) ~ 1, data = enfants)
 
@@ -846,18 +850,8 @@ km_global</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(survminer)</code></pre></div>
 <pre><code>Loading required package: ggplot2</code></pre>
 <pre><code>Loading required package: ggpubr</code></pre>
-<pre><code>
-Attaching package: &#39;survminer&#39;</code></pre>
-<pre><code>The following object is masked from &#39;package:ggpubr&#39;:
-
-    theme_classic2</code></pre>
-<pre><code>The following object is masked from &#39;package:ggplot2&#39;:
-
-    %+%</code></pre>
+<pre><code>Loading required package: magrittr</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggsurvplot</span>(km_global)</code></pre></div>
-<pre><code>Warning in .get_data(fit, data = data): The `data`
-argument is not provided. Data will be extracted
-from model fit.</code></pre>
 <img src="graphs/analyse-de-survie/unnamed-chunk-33-1.png" width="1050" />
 <figcaption>
 Courbe de survie de Kaplan-Meier
@@ -866,16 +860,13 @@ Courbe de survie de Kaplan-Meier
 <p>On peut facilement représenter à la place la courbe cumulée des évènements (l’inverse de la courbe de survie) et la table des effectifs en fonction du temps.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggsurvplot</span>(km_global, <span class="dt">fun =</span> <span class="st">&quot;event&quot;</span>, <span class="dt">risk.table =</span> <span class="ot">TRUE</span>, <span class="dt">surv.scale =</span> <span class="st">&quot;percent&quot;</span>)</code></pre></div>
-<pre><code>Warning in .get_data(fit, data = data): The `data`
-argument is not provided. Data will be extracted
-from model fit.</code></pre>
 <img src="graphs/analyse-de-survie/unnamed-chunk-34-1.png" width="1050" />
 <figcaption>
 Courbe cumulée des évènements et table des effectifs
 </figcaption>
 </figure>
 <p>Pour comparer deux groupes (ici les filles et les garçons), il suffit d’indiquer la variable de comparaison à <code data-pkg="survival">survfit</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">km_sexe &lt;-<span class="st"> </span><span class="kw">survfit</span>(<span class="kw">Surv</span>(time, deces) ~<span class="st"> </span>sexe, <span class="dt">data =</span> enfants)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">km_sexe &lt;-<span class="st"> </span><span class="kw">survfit</span>(<span class="kw">Surv</span>(time, deces) <span class="op">~</span><span class="st"> </span>sexe, <span class="dt">data =</span> enfants)
 km_sexe</code></pre></div>
 <pre><code>Call: survfit(formula = Surv(time, deces) ~ sexe, data = enfants)
 
@@ -883,7 +874,7 @@ km_sexe</code></pre></div>
 sexe=masculin 762     94     NA      NA      NA
 sexe=féminin  822     48     NA      NA      NA</code></pre>
 <p>La fonction <code data-pkg="survival">survdiff</code> permets de calculer le <dfn data-index="test du logrank (comparaison de courbes de survie)">test du logrank</dfn><dfn data-index="logrank, test (comparaison de courbes de survie)"></dfn><dfn data-index="comparaison de courbes de survie (test du logrank)"></dfn> afin de comparer des courbes de survie. La mortalité infanto-juvénile diffère-t-elle significativement selon le sexe de l’enfant ?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">survdiff</span>(<span class="kw">Surv</span>(time, deces) ~<span class="st"> </span>sexe, <span class="dt">data =</span> enfants)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">survdiff</span>(<span class="kw">Surv</span>(time, deces) <span class="op">~</span><span class="st"> </span>sexe, <span class="dt">data =</span> enfants)</code></pre></div>
 <pre><code>Call:
 survdiff(formula = Surv(time, deces) ~ sexe, data = enfants)
 
@@ -908,8 +899,8 @@ Courbes de Kaplan-Meier selon le sexe
 <h2>Modèle de Cox</h2>
 <p>Un <dfn>modèle de Cox</dfn><dfn data-index="Cox, modèle"></dfn> se calcule aisément avec <code>coxph</code>{survival}.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mod1 &lt;-<span class="st"> </span><span class="kw">coxph</span>(
-  <span class="kw">Surv</span>(time, deces) ~<span class="st"> </span>sexe +<span class="st"> </span>milieu +<span class="st"> </span>richesse +<span class="st"> </span>
-<span class="st">  </span>structure +<span class="st"> </span>educ2 +<span class="st"> </span>gpage_mere_naissance +<span class="st"> </span>rang_apres_ideal, 
+  <span class="kw">Surv</span>(time, deces) <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>milieu <span class="op">+</span><span class="st"> </span>richesse <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span>structure <span class="op">+</span><span class="st"> </span>educ2 <span class="op">+</span><span class="st"> </span>gpage_mere_naissance <span class="op">+</span><span class="st"> </span>rang_apres_ideal, 
   <span class="dt">data =</span> enfants
 )
 mod1</code></pre></div>
