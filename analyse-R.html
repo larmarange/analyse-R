@@ -198,7 +198,7 @@ pre:not([class]) {
 Introduction <br>à l’analyse d’enquêtes <br>avec R et RStudio
 </h1>
 <p>
-Dernière mise à jour : 26 septembre 2017
+Dernière mise à jour : 8 novembre 2017
 </p>
 </div>
 <div id="contributeurs" class="section level2">
@@ -4235,7 +4235,7 @@ mean&gt; c(xm, mean(x, trim = 0.10))
 <div class="important">
 <p>Ce chapitre est en cours d’écriture.</p>
 </div>
-<p>Pour une introduction à <code class="pkg">dplyr</code> en anglais, voir la vignette officielle : <a href="https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html" class="uri">https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html</a>. On pourra également se référer à <a href="https://rpubs.com/justmarkham/dplyr-tutorial" class="uri">https://rpubs.com/justmarkham/dplyr-tutorial</a>.</p>
+<p>Pour une introduction à <code class="pkg">dplyr</code> en anglais, voir la vignette officielle : <a href="https://cran.rstudio.com/web/packages/dplyr/vignettes/dplyr.html" class="uri">https://cran.rstudio.com/web/packages/dplyr/vignettes/dplyr.html</a>. On pourra également se référer à <a href="https://rpubs.com/justmarkham/dplyr-tutorial" class="uri">https://rpubs.com/justmarkham/dplyr-tutorial</a>.</p>
 <div id="introduction-a-dplyr_les-tibbles" class="section level1">
 <h1>Les tibbles</h1>
 <p>L’extension <code class="pkg">tibble</code> permet d’étendre les data.frame en améliorant la manière dont les tableaux sont affichés dans la console et ayant un comportement plus uniforme concernant les noms de colonnes et la manière d’extraire des éléments avec les crochets simples et doubles.</p>
@@ -10343,7 +10343,7 @@ Projection des catégories sur le plan factoriel
 <a href="#analyse-de-survie_un-exemple-concret-mortalite-infanto-juvenile">Un exemple concret : mortalité infanto-juvénile</a><ul>
 <li><a href="#analyse-de-survie_preparation-des-donnees-avec-data.table">Préparation des données avec data.table</a></li>
 <li><a href="#analyse-de-survie_preparation-des-donnees-avec-dplyr">Préparation des données avec dplyr</a></li>
-<li><a href="#analyse-de-survie_kaplan-meir">Kaplan-Meir</a></li>
+<li><a href="#analyse-de-survie_kaplan-meier">Kaplan-Meier</a></li>
 <li><a href="#analyse-de-survie_modele-de-cox">Modèle de Cox</a></li>
 <li><a href="#analyse-de-survie_verification-de-la-validite-du-modele">Vérification de la validité du modèle</a></li>
 </ul>
@@ -10661,8 +10661,10 @@ min: 1 - max: 5 - NAs: 0 (0%) - 5 unique values
 5 value labels: [1] très pauvre [2] pauvre [3] moyen [4] riche [5] très riche</code></pre>
 <p>Les tableaux de données sont déjà au format <em>tibble</em> (c’est-à-dire sont de la classe <code>tbl_df</code>)<a href="#analyse-de-survie_fn3" class="footnoteRef" id="analyse-de-survie_fnref3"><sup>3</sup></a> et les variables catégorielles sont du type <code>labelled</code> (voir le chapitre sur les <a href="#facteurs-et-vecteurs-labellises_labelled">vecteurs labellisés</a>). Ce format correspond au format de données si on les avait importées depuis SPSS avec l’extension <code class="pkg">haven</code> (voir le chapitre sur l’<a href="#import-de-donnees_spss">import de données</a>).</p>
 <p>Nous allons charger en mémoire l’extension <code class="pkg">labelled</code> pour la gestion des vecteurs labellisés en plus de <code class="pkg">dplyr</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)
-<span class="kw">library</span>(labelled)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)</code></pre></div>
+<pre><code>Warning: package 'dplyr' was built under R version
+3.4.2</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(labelled)</code></pre></div>
 <p>En premier lieu, il nous faut calculer la durée d’observation des enfants, à savoir le temps passé entre la date de naissance (variable du fichier <code>enfants</code>) et la date de passation de l’entretien (fournie par le tableau de données <code>femmes</code>). Pour récupérer des variables du fichier <code>femmes</code> dans le fichier <code>enfants</code>, nous allons procéder à une fusion de table (voir le <a href="#fusion-de-tables">chapitre dédié</a>). Pour le calcul de la durée d’observation, nous allons utiliser le package <code class="pkg">lubridate</code> (voir le chapitre <a href="#calculer-un-age">calculer un âge</a> et celui sur la <a href="#gestion-des-dates">gestion des dates</a>). Nous effectuerons l’analyse en mois (puisque l’âge au décès est connu en mois). Dès lors, la durée d’observation sera calculée en mois.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(lubridate)
 enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span>
@@ -10825,9 +10827,9 @@ enfants<span class="op">$</span>gpage_mere_naissance &lt;-<span class="st"> </sp
     <span class="dt">rang_apres_ideal =</span> <span class="kw">factor</span>(rang_apres_ideal, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">"non"</span>, <span class="st">"oui"</span>))
   )</code></pre></div>
 </div>
-<div id="analyse-de-survie_kaplan-meir" class="section level2">
-<h2>Kaplan-Meir</h2>
-<p>La courbe de survie de <dfn>Kaplan-Meir</dfn> s’obtient avec la fonction <code data-pkg="survival">survfit</code> de l’extension <code class="pkg">survival</code>.</p>
+<div id="analyse-de-survie_kaplan-meier" class="section level2">
+<h2>Kaplan-Meier</h2>
+<p>La courbe de survie de <dfn>Kaplan-Meier</dfn> s’obtient avec la fonction <code data-pkg="survival">survfit</code> de l’extension <code class="pkg">survival</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(survival)
 km_global &lt;-<span class="st"> </span><span class="kw">survfit</span>(<span class="kw">Surv</span>(time, deces) <span class="op">~</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">data =</span> enfants)
 km_global</code></pre></div>
@@ -11394,9 +11396,20 @@ X-squared = 12.032, df = 8, p-value = 0.1498</code></pre>
 
 </div>
 
+<div class="TOC">
+<ul>
+<li><a href="#ggplot2-la-grammaire-des-graphiques_ressources-essentielles">Ressources essentielles</a></li>
+</ul>
+</div>
 
 <div class="important">
 <p>Ce chapitre est en cours d’écriture.</p>
+</div>
+<div id="ggplot2-la-grammaire-des-graphiques_ressources-essentielles" class="section level1">
+<h1>Ressources essentielles</h1>
+<p>Pour tout ce qui concerne l’utilisation de <code class="pkg">ggplot2</code>, <a href="http://ggplot2.org/book/">l’ouvrage de Wickham</a>, <a href="https://github.com/hadley/ggplot2-book">en cours d’actualisation</a>, est la ressource essentielle à consulter. <a href="https://books.google.fr/books?id=ob0VAAAAQBAJ">L’ouvrage de Winston Chang</a>, qui contient des <a href="http://www.cookbook-r.com/Graphs/">dizaines d’exemples</a>, le complète utilement, de même que la <a href="http://docs.ggplot2.org/current/">documentation en ligne</a> de l’extension. Enfin, le site <a href="https://stackoverflow.com/questions/tagged/ggplot2">StackOverflow</a> contient de très nombreuses questions/réponses sur les subtilités de sa syntaxe.</p>
+<p>On trouve aussi très facilement, ailleurs sur Internet, des dizaines de <em>tutorials</em> et autres <em>cheatsheets</em> pour <code class="pkg">ggplot2</code>, <a href="http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/">ici</a> ou <a href="http://www.rstudio.com/wp-content/uploads/2015/04/ggplot2-cheatsheet.pdf">là</a> par exemple.</p>
+<p>A noter également une gallerie de graphiques sous <strong>R</strong> avec de très nombreux exemples de graphique <code class="pkg">ggplot2</code> : <a href="http://www.r-graph-gallery.com/portfolio/ggplot2-package/" class="uri">http://www.r-graph-gallery.com/portfolio/ggplot2-package/</a></p>
 </div>
 
 </article>
@@ -13141,7 +13154,7 @@ I
 <h2 id="index-des-concepts_K">
 K
 </h2>
-<p><dfn>Kaplan-Meir</dfn></p>
+<p><dfn>Kaplan-Meier</dfn></p>
 <ul>
 <li><a href="#analyse-de-survie">Analyse de survie</a></li>
 </ul>
@@ -16043,6 +16056,7 @@ G
 <li><a href="#export-de-graphiques">Export de graphiques</a></li>
 <li><a href="#extensions">Extensions</a></li>
 <li><a href="#formules">Formules</a></li>
+<li><a href="#ggplot2-la-grammaire-des-graphiques">ggplot2 : la grammaire des graphiques</a></li>
 <li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
 <li><a href="#intro-ggplot2">Introduction à ggplot2</a></li>
 <li><a href="#regression-logistique">Régression logistique</a></li>
