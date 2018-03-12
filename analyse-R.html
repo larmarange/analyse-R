@@ -198,7 +198,7 @@ pre:not([class]) {
 Introduction <br>à l’analyse d’enquêtes <br>avec R et RStudio
 </h1>
 <p>
-Dernière mise à jour : 22 février 2018
+Dernière mise à jour : 12 mars 2018
 </p>
 </div>
 <div id="contributeurs" class="section level2">
@@ -8599,8 +8599,10 @@ design.eds &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span
 <ul>
 <li><a href="#regression-logistique_preparation-des-donnees">Préparation des données</a></li>
 <li><a href="#regression-logistique_regression-logistique-binaire">Régression logistique binaire</a></li>
+<li><a href="#regression-logistique_identifier-les-variables-ayant-un-effet-significatif">Identifier les variables ayant un effet significatif</a></li>
 <li><a href="#regression-logistique_selection-de-modeles">Sélection de modèles</a></li>
 <li><a href="#regression-logistique_regression-logistique-multinomiale">Régression logistique multinomiale</a></li>
+<li><a href="#regression-logistique_regression-logistique-ordinale">Régression logistique ordinale</a></li>
 <li><a href="#regression-logistique_survey">Données pondérées et l’extension survey</a></li>
 </ul>
 </div>
@@ -9112,6 +9114,33 @@ Représentation graphique de l’effet de chaque variable du modèle logistique
   TRUE   199  336</code></pre>
 <p>Nous avons donc 583 (384+199) prédictions incorrectes sur un total de 1993, soit un taux de mauvais classement de 29,3 %.</p>
 </div>
+<div id="regression-logistique_identifier-les-variables-ayant-un-effet-significatif" class="section level2">
+<h2>Identifier les variables ayant un effet significatif</h2>
+<p>Les p-values associées aux odds ratios nous indique si un odd ratio est significativement différent de 1, par rapport à la modalité de référebce. Mais cela n’indique pas si globalement une variable a un effet significatif sur le modèle. Pour tester l’effet global sur un modèle, on peut avoir recours à la fonction <code>drop1</code> {data-pkg=“stats”}. Cette dernière va tour à tour supprimer chaque variable du modèle et réaliser une analyse de variance (ANOVA, voir fonction <code data-pkg="stats">anova</code>) pour voir si la variance change significativement.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">drop1</span>(reg, <span class="dt">test =</span> <span class="st">"Chisq"</span>)</code></pre></div>
+<pre><code>Single term deletions
+
+Model:
+sport ~ sexe + grpage + etud + relig + heures.tv
+          Df Deviance    AIC     LRT  Pr(&gt;Chi)
+&lt;none&gt;         2205.9 2235.9                  
+sexe       1   2223.2 2251.2  17.255 3.269e-05
+grpage     3   2258.7 2282.7  52.724 2.099e-11
+etud       4   2329.6 2351.6 123.665 &lt; 2.2e-16
+relig      5   2210.2 2230.2   4.214 0.5190457
+heures.tv  1   2219.3 2247.3  13.398 0.0002519
+             
+&lt;none&gt;       
+sexe      ***
+grpage    ***
+etud      ***
+relig        
+heures.tv ***
+---
+Signif. codes:  
+0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+<p>Ainsi, dans le cas présent, la suppression de la variable <var>relig</var> ne modifie significativement pas le modèle, indiquant l’absence d’effet de cette variable.</p>
+</div>
 <div id="regression-logistique_selection-de-modeles" class="section level2">
 <h2>Sélection de modèles</h2>
 <p>Il est toujours tentant lorsque l’on recherche les facteurs associés à un phénomène d’inclure un nombre important de variables explicatives potentielles dans un mmodèle logistique. Cependant, un tel modèle n’est pas forcément le plus efficace et certaines variables n’auront probablement pas d’effet significatif sur la variable d’intérêt.</p>
@@ -9140,10 +9169,55 @@ sport ~ sexe + grpage + etud + heures.tv
 - grpage     3   2260.3 2274.3
 - etud       4   2333.8 2345.8</code></pre>
 <p>Le modèle initial a un AIC de 2235,9. À la première étape, il apparait que la suppression de la variable religion permet diminuer l’AIC à 2230,2. Lors de la seconde étape, toute suppression d’une autre variable ferait augmenter l’AIC. La procédure s’arrête donc.</p>
+<p>Pour obtenir directement l’AIC d’un modèle donné, on peut utiliser la fonction <code data-pkg="stats">AIC</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">AIC</span>(reg)</code></pre></div>
+<pre><code>[1] 2235.937</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">AIC</span>(reg2)</code></pre></div>
+<pre><code>[1] 2230.151</code></pre>
+<p>On peut effectuer une <dfn>analyse de variance</dfn><dfn data-index="variance, analyse de"></dfn> ou <dfn lang="en">ANOVA</dfn> pour comparer les deux modèles avec la fonction <code data-pkg="stats">anova</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">anova</span>(reg, reg2, <span class="dt">test =</span> <span class="st">"Chisq"</span>)</code></pre></div>
+<pre><code>Analysis of Deviance Table
+
+Model 1: sport ~ sexe + grpage + etud + relig + heures.tv
+Model 2: sport ~ sexe + grpage + etud + heures.tv
+  Resid. Df Resid. Dev Df Deviance Pr(&gt;Chi)
+1      1978     2205.9                     
+2      1983     2210.2 -5  -4.2139    0.519</code></pre>
+<p>Il n’y a pas de différences significatives entre nos deux modèles. Autrement dit, notre second modèle explique tout autant de variance que notre premier modèle, tout en étant plus parcimonieux.</p>
+<div class="note">
+<p>Une alternative à la fonction <code data-pkg="stats">step</code> est la fonction <code data-pkg="MASS">stepAIC</code> de l’extension <strong class="pkg">MASS</strong> qui fonctionne de la même manière. Si cela ne change rien aux régressions logistiques classiques, il arrive que pour certains types de modèle la méthode <code data-pkg="stats">step</code> ne soit pas disponible, mais que <code data-pkg="MASS">stepAIC</code> puisse être utilisée à la place.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(MASS)</code></pre></div>
+<pre><code>
+Attaching package: 'MASS'</code></pre>
+<pre><code>The following object is masked from 'package:dplyr':
+
+    select</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg2bis &lt;-<span class="st"> </span><span class="kw">stepAIC</span>(reg)</code></pre></div>
+<pre><code>Start:  AIC=2235.94
+sport ~ sexe + grpage + etud + relig + heures.tv
+
+            Df Deviance    AIC
+- relig      5   2210.2 2230.2
+&lt;none&gt;           2205.9 2235.9
+- heures.tv  1   2219.3 2247.3
+- sexe       1   2223.2 2251.2
+- grpage     3   2258.7 2282.7
+- etud       4   2329.6 2351.6
+
+Step:  AIC=2230.15
+sport ~ sexe + grpage + etud + heures.tv
+
+            Df Deviance    AIC
+&lt;none&gt;           2210.2 2230.2
+- heures.tv  1   2223.7 2241.7
+- sexe       1   2226.1 2244.1
+- grpage     3   2260.3 2274.3
+- etud       4   2333.8 2345.8</code></pre>
+</div>
 </div>
 <div id="regression-logistique_regression-logistique-multinomiale" class="section level2">
 <h2>Régression logistique multinomiale</h2>
-<p>La <dfn>régression logistique multinomiale</dfn> est une extension de la régression logistique aux variables qualitatives à trois modalités ou plus. Dans ce cas de figure, chaque modalité de la variable d’intérêt sera comparée à la modalité de réference. Les <em>odds ratio</em> seront donc exprimés par rapport à cette dernière.</p>
+<p>La <dfn>régression logistique multinomiale</dfn><dfn data-index="multinomiale, régression logistique"></dfn> est une extension de la régression logistique aux variables qualitatives à trois modalités ou plus. Dans ce cas de figure, chaque modalité de la variable d’intérêt sera comparée à la modalité de réference. Les <em>odds ratio</em> seront donc exprimés par rapport à cette dernière.</p>
 <p>Nous allons prendre pour exemple la variable <em>trav.satisf</em>, à savoir la satisfaction ou l’insatisfaction au travail.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d<span class="op">$</span>trav.satisf)</code></pre></div>
 <pre><code>                 n    % val%
@@ -9416,6 +9490,13 @@ Signif. codes:
   Satisfaction               45
   Insatisfaction             23</code></pre>
 </div>
+<div id="regression-logistique_regression-logistique-ordinale" class="section level2">
+<h2>Régression logistique ordinale</h2>
+<p>La <dfn>régression logistique ordinale</dfn><dfn data-index="ordinale, régression logistique"></dfn> s’applique lorsque la variable à expliquer possède trois ou plus modalités qui sont ordonnées (par exemple : modéré, moyen, fort).</p>
+<p>L’extension la plus utilisée pour réaliser des modèles ordinaux est <strong class="pkg">ordinal</strong> et sa fonction <code data-pkg="ordinal">clm</code>. Il est même possible de réaliser des modèles ordinaux avec des effets aléatoires (modèles mixtes) à l’aide de la fonction <code data-pkg="ordinal">clmm</code>.</p>
+<p>Pour une bonne introduction à l’extension <strong class="pkg">ordinal</strong>, on pourra se référer au tutoriel officiel (en anglais) : <a href="https://cran.r-project.org/web/packages/ordinal/vignettes/clm_tutorial.pdf" class="uri">https://cran.r-project.org/web/packages/ordinal/vignettes/clm_tutorial.pdf</a>.</p>
+<p>Une autre introduction pertinente (en français) et utilisant cette fois-ci l’extention <strong class="pkg">VGAM</strong> et sa fonction <code data-pkg="VGAM">vglm</code> est disponible sur le site de l’université de Lyon : <a href="https://eric.univ-lyon2.fr/~ricco/cours/didacticiels/data-mining/didacticiel_Reg_Logistique_Polytomique_Ordinale.pdf" class="uri">https://eric.univ-lyon2.fr/~ricco/cours/didacticiels/data-mining/didacticiel_Reg_Logistique_Polytomique_Ordinale.pdf</a>.</p>
+</div>
 <div id="regression-logistique_survey" class="section level2">
 <h2>Données pondérées et l’extension survey</h2>
 <p>Lorsque l’on utilise des données pondérées, on aura recours à l’extension <code class="pkg">survey</code><a href="#regression-logistique_fn4" class="footnoteRef" id="regression-logistique_fnref4"><sup>4</sup></a>.</p>
@@ -9497,7 +9578,7 @@ Signif. codes:
 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <p>Dans ses dernières versions, <code class="pkg">survey</code> fournit une méthode <code data-pkg="survey" data-rdoc="anova.svyglm">AIC.svyglm</code> permettant d’estimer un <dfn>AIC</dfn> sur un modèle calculé avec <code data-pkg="survey">svyglm</code>. Il est dès lors possible d’utiliser la fonction <code data-pkg="stats">step</code> pour réaliser une <dfn>sélection descendante pas à pas</dfn><dfn data-index="pas à pas, sélection descendante"></dfn>.</p>
 <p>L’extension <code class="pkg">effects</code> n’est quant à elle pas compatible avec <code data-pkg="survey">svyglm</code><a href="#regression-logistique_fn5" class="footnoteRef" id="regression-logistique_fnref5"><sup>5</sup></a>.</p>
-<p>Pour un modèle multinomial ou ordina, on pourra se référer à <a href="https://rpubs.com/corey_sparks/58926" class="uri">https://rpubs.com/corey_sparks/58926</a>.</p>
+<p>Pour un modèle multinomial ou ordinal, on pourra se référer à <a href="https://rpubs.com/corey_sparks/58926" class="uri">https://rpubs.com/corey_sparks/58926</a>. Il existe cependant une version simplifier des modèles ordinaux disponible dans <strongclass>surevy via la fonction <code data-pkg="survey">svyolr</code>.</strongclass></p>
 </div>
 <div class="footnotes">
 <hr>
@@ -12378,6 +12459,10 @@ A
 <ul>
 <li><a href="#analyse-des-correspondances-multiples">Analyse des correspondances multiples (ACM)</a></li>
 </ul>
+<p><dfn lang="en">ANOVA</dfn></p>
+<ul>
+<li><a href="#regression-logistique">Régression logistique</a></li>
+</ul>
 <p><dfn>appariement optimal</dfn></p>
 <ul>
 <li><a href="#analyse-de-sequences">Analyse de séquences</a></li>
@@ -13402,6 +13487,10 @@ O
 <ul>
 <li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
+<p><dfn>ordinale, régression logistique</dfn></p>
+<ul>
+<li><a href="#regression-logistique">Régression logistique</a></li>
+</ul>
 <p><dfn>ordonner le tri à plat</dfn></p>
 <ul>
 <li><a href="#statistique-univariee">Statistique univariée</a></li>
@@ -13923,6 +14012,10 @@ V
 <li><a href="#comparaisons-moyennes-et-proportions">Comparaisons (moyennes et proportions)</a></li>
 <li><a href="#donnees-ponderees">Données pondérées</a></li>
 </ul>
+<p><dfn>variance, analyse de</dfn></p>
+<ul>
+<li><a href="#regression-logistique">Régression logistique</a></li>
+</ul>
 <p><dfn>variance, test d’égalité</dfn></p>
 <ul>
 <li><a href="#comparaisons-moyennes-et-proportions">Comparaisons (moyennes et proportions)</a></li>
@@ -14114,11 +14207,19 @@ A
 <li><a href="#classification-ascendante-hierarchique">Classification ascendante hiérarchique (CAH)</a></li>
 <li><a href="#classification-ascendante-hierarchique">Classification ascendante hiérarchique (CAH)</a></li>
 </ul>
+<p><code data-pkg="stats">AIC</code> (stats)</p>
+<ul>
+<li><a href="#regression-logistique">Régression logistique</a></li>
+</ul>
 <p><code data-pkg="survey" data-rdoc="anova.svyglm">AIC.svyglm</code> (survey)</p>
 <ul>
 <li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code data-pkg="effects" data-rdoc="effect">allEffects</code> (effects)</p>
+<ul>
+<li><a href="#regression-logistique">Régression logistique</a></li>
+</ul>
+<p><code data-pkg="stats">anova</code> (stats)</p>
 <ul>
 <li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
@@ -14225,6 +14326,14 @@ C
 <ul>
 <li><a href="#facteurs-et-vecteurs-labellises">Facteurs et vecteurs labellisés</a></li>
 <li><a href="#vecteurs-indexation-et-assignation">Vecteurs, indexation et assignation</a></li>
+</ul>
+<p><code data-pkg="ordinal">clm</code> (ordinal)</p>
+<ul>
+<li><a href="#regression-logistique">Régression logistique</a></li>
+</ul>
+<p><code data-pkg="ordinal">clmm</code> (ordinal)</p>
+<ul>
+<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code data-pkg="stats">cmdscale</code> (stats)</p>
 <ul>
@@ -15413,6 +15522,10 @@ S
 <li><a href="#analyse-de-survie">Analyse de survie</a></li>
 <li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
+<p><code data-pkg="MASS">stepAIC</code> (MASS)</p>
+<ul>
+<li><a href="#regression-logistique">Régression logistique</a></li>
+</ul>
 <p><code data-pkg="utils">str</code> (utils)</p>
 <ul>
 <li><a href="#listes-et-tableaux-de-donnes">Listes et Tableaux de données</a></li>
@@ -15499,6 +15612,10 @@ S
 <p><code data-pkg="survey" data-rdoc="surveysummary">svymean</code> (survey)</p>
 <ul>
 <li><a href="#donnees-ponderees">Données pondérées</a></li>
+</ul>
+<p><code data-pkg="survey">svyolr</code> (survey)</p>
+<ul>
+<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <p><code data-pkg="survey">svyplot</code> (survey)</p>
 <ul>
@@ -15669,6 +15786,10 @@ V
 <ul>
 <li><a href="#facteurs-et-vecteurs-labellises">Facteurs et vecteurs labellisés</a></li>
 </ul>
+<p><code data-pkg="VGAM">vglm</code> (VGAM)</p>
+<ul>
+<li><a href="#regression-logistique">Régression logistique</a></li>
+</ul>
 <p><code data-pkg="utils">View</code> (utils)</p>
 <ul>
 <li><a href="#listes-et-tableaux-de-donnes">Listes et Tableaux de données</a></li>
@@ -15815,6 +15936,9 @@ Y
 </li>
 <li>
 <a href="#index-des-extensions_N">N</a>
+</li>
+<li>
+<a href="#index-des-extensions_O">O</a>
 </li>
 <li>
 <a href="#index-des-extensions_P">P</a>
@@ -16124,6 +16248,7 @@ M
 <ul>
 <li><a href="#analyse-des-correspondances-multiples">Analyse des correspondances multiples (ACM)</a></li>
 <li><a href="#graphiques-bivaries-ggplot2">Graphiques univariés et bivariés avec ggplot2</a></li>
+<li><a href="#regression-logistique">Régression logistique</a></li>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
 </ul>
 <p><code class="pkg">memisc</code></p>
@@ -16142,6 +16267,13 @@ M
 N
 </h2>
 <p><code class="pkg">nnet</code></p>
+<ul>
+<li><a href="#regression-logistique">Régression logistique</a></li>
+</ul>
+<h2 id="index-des-extensions_O">
+O
+</h2>
+<p><code class="pkg">ordinal</code></p>
 <ul>
 <li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
@@ -16325,6 +16457,10 @@ V
 <p><code class="pkg">vcd</code></p>
 <ul>
 <li><a href="#statistique-bivariee">Statistique bivariée</a></li>
+</ul>
+<p><code class="pkg">VGAM</code></p>
+<ul>
+<li><a href="#regression-logistique">Régression logistique</a></li>
 </ul>
 <h2 id="index-des-extensions_X">
 X
