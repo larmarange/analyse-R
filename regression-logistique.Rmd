@@ -338,6 +338,17 @@ table(sport.pred > 0.5, d$sport)
 Nous avons donc 583 (384+199) prédictions incorrectes sur un total de 1993, soit un taux de mauvais
 classement de 29,3 %.
 
+## Identifier les variables ayant un effet significatif
+
+Les p-values associées aux odds ratios nous indique si un odd ratio est significativement différent de 1, par rapport à la modalité de référebce. Mais cela n'indique pas si globalement une variable a un effet significatif sur le modèle. Pour tester l'effet global sur un modèle, on peut avoir recours à la fonction `drop1`
+{data-pkg="stats"}. Cette dernière va tour à tour supprimer chaque variable du modèle et réaliser une analyse de variance (ANOVA, voir fonction `anova`{data-pkg="stats"}) pour voir si la variance change significativement.
+
+```{r}
+drop1(reg, test = "Chisq")
+```
+
+Ainsi, dans le cas présent, la suppression de la variable <var>relig</var> ne modifie significativement pas le modèle, indiquant l'absence d'effet de cette variable.
+
 ## Sélection de modèles
 
 Il est toujours tentant lorsque l'on recherche les facteurs associés à un phénomène d'inclure un nombre
@@ -371,9 +382,35 @@ Le modèle initial a un AIC de 2235,9. À la première étape, il apparait que l
 religion permet diminuer l'AIC à 2230,2. Lors de la seconde étape, toute suppression d'une autre variable
 ferait augmenter l'AIC. La procédure s'arrête donc.
 
+Pour obtenir directement l'AIC d'un modèle donné, on peut utiliser la fonction `AIC`{data-pkg="stats"}.
+
+```{r}
+AIC(reg)
+AIC(reg2)
+```
+
+On peut effectuer une <dfn>analyse de variance</dfn><dfn data-index="variance, analyse de"></dfn> ou <dfn lang="en">ANOVA</dfn> pour comparer les deux modèles avec la fonction `anova`{data-pkg="stats"}.
+
+```{r}
+anova(reg, reg2, test = "Chisq")
+```
+
+Il n'y a pas de différences significatives entre nos deux modèles. Autrement dit, notre second modèle explique tout autant de variance que notre premier modèle, tout en étant plus parcimonieux.
+
+<div class="note">
+Une alternative à la fonction `step`{data-pkg="stats"} est la fonction `stepAIC`{data-pkg="MASS"} de l'extension <strong class="pkg">MASS</strong> qui fonctionne de la même manière. Si cela ne change rien aux régressions logistiques classiques, il arrive que pour certains types de modèle la méthode `step`{data-pkg="stats"} ne soit pas disponible, mais que `stepAIC`{data-pkg="MASS"} puisse être utilisée à la place.
+
+```{r}
+library(MASS)
+reg2bis <- stepAIC(reg)
+```
+</div>
+
+
 ## Régression logistique multinomiale
 
-La <dfn>régression logistique multinomiale</dfn> est une extension de la régression logistique aux variables qualitatives
+La <dfn>régression logistique multinomiale</dfn><dfn data-index="multinomiale, régression logistique"></dfn> est une extension de 
+la régression logistique aux variables qualitatives
 à trois modalités ou plus. Dans ce cas de figure, chaque modalité de la variable d'intérêt sera
 comparée à la modalité de réference. Les *odds ratio* seront donc exprimés par rapport à cette dernière.
 
@@ -427,6 +464,16 @@ De même, il est possible de calculer la matrice de confusion :
 table(predict(regm2, newdata = d), d$trav.satisf)
 ```
 
+## Régression logistique ordinale
+
+La <dfn>régression logistique ordinale</dfn><dfn data-index="ordinale, régression logistique"></dfn> s'applique lorsque la variable à expliquer possède trois ou plus modalités qui sont ordonnées (par exemple : modéré, moyen, fort). 
+
+L'extension la plus utilisée pour réaliser des modèles ordinaux est <strong class="pkg">ordinal</strong> et sa fonction `clm`{data-pkg="ordinal"}. Il est même possible de réaliser des modèles ordinaux avec des effets aléatoires (modèles mixtes) à l'aide de la fonction `clmm`{data-pkg="ordinal"}.
+
+Pour une bonne introduction à l'extension <strong class="pkg">ordinal</strong>, on pourra se référer au tutoriel officiel (en anglais) : <https://cran.r-project.org/web/packages/ordinal/vignettes/clm_tutorial.pdf>.
+
+Une autre introduction pertinente (en français) et utilisant cette fois-ci l'extention <strong class="pkg">VGAM</strong> et sa fonction `vglm`{data-pkg="VGAM"} est disponible sur le site de l'université de Lyon : <https://eric.univ-lyon2.fr/~ricco/cours/didacticiels/data-mining/didacticiel_Reg_Logistique_Polytomique_Ordinale.pdf>.
+
 ## Données pondérées et l'extension survey{#survey}
 
 Lorsque l'on utilise des données pondérées, on aura recours à l'extension `survey`{.pkg}^[Voir le chapitre dédié aux [données pondérées](donnees-ponderees.html#survey).].
@@ -469,4 +516,4 @@ la fonction `step`{data-pkg="stats"} pour réaliser une
 L'extension `effects`{.pkg} n'est quant à elle pas compatible avec
 `svyglm`{data-pkg="survey"}^[Compatibilité qui pourra éventuellement être introduite dans une future version de l'extension.].
 
-Pour un modèle multinomial ou ordina, on pourra se référer à <https://rpubs.com/corey_sparks/58926>.
+Pour un modèle multinomial ou ordinal, on pourra se référer à <https://rpubs.com/corey_sparks/58926>. Il existe cependant une version simplifier des modèles ordinaux disponible dans <strongclass="pkg">surevy</survey> via la fonction `svyolr`{data-pkg="survey"}.
