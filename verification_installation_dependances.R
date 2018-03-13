@@ -43,6 +43,10 @@ library(lubridate)
 if (!exists("time_length"))
   install_github("tidyverse/lubridate")
 
+library(JLutils)
+if (!exists("tidy_model"))
+  install_github("larmarange/JLutils")
+
 library(questionr)
 if (is.null(getS3method("odds.ratio", "numeric", TRUE)))
   install_github("juba/questionr")
