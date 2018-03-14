@@ -242,6 +242,8 @@ library(questionr)
 odds.ratio(reg)
 ```
 
+### Représentation graphique du modèle
+
 Il est possible de représenter graphiquement les différents odds ratios. Pour cela, on va utiliser la fonction `tidy`{data-pkg="broom" data-rdoc="gm_tidiers"} de l'extension `broom`{.pkg} pour récupérer les coefficients du modèle sous la forme d'un tableau de données exploitable avec `ggplot2`{.pkg}. On précisera `conf.int = TRUE` pour obtenir les intervalles de confiance et `exponentiate = TRUE` pour avoir les odds ratio plutôt que les coefficients bruts. `geom_errorbarh`{data-pkg="ggplot2" data-rdoc="geom_crossbar"} permets de représenter les intervalles de confiance sous forme de barres d'erreurs, `geom_vline`{data-pkg="ggplot2" data-rdoc="geom_abline"} une ligne verticale au niveau `x = 1`, `scale_x_log10`{data-pkg="ggplot2" data-rdoc="scale_continuous"} pour afficher l'axe des `x` de manière logarithmique, les odds ratios étant de nature multiplicative et non additive.
 
 <figure>
@@ -297,9 +299,9 @@ ggcoef(
   exponentiate = TRUE
 )
 ```
-
-
 </div>
+
+### Représentation graphique des effets
 
 L'extension `effects`{.pkg} propose une représentation graphique résumant les effets de chaque variable du modèle. Pour cela, il suffit d'appliquer la méthode `plot`{data-pkg="effects" data-rdoc="summary.effect"} au résultat de la fonction `allEffects`{data-pkg="effects" data-rdoc="effect"}. Nous obtenons alors la [figure ci-dessous](#reglog_alleffects).
 
@@ -338,10 +340,9 @@ table(sport.pred > 0.5, d$sport)
 Nous avons donc 583 (384+199) prédictions incorrectes sur un total de 1993, soit un taux de mauvais
 classement de 29,3 %.
 
-## Identifier les variables ayant un effet significatif
+### Identifier les variables ayant un effet significatif
 
-Les p-values associées aux odds ratios nous indique si un odd ratio est significativement différent de 1, par rapport à la modalité de référebce. Mais cela n'indique pas si globalement une variable a un effet significatif sur le modèle. Pour tester l'effet global sur un modèle, on peut avoir recours à la fonction `drop1`
-{data-pkg="stats"}. Cette dernière va tour à tour supprimer chaque variable du modèle et réaliser une analyse de variance (ANOVA, voir fonction `anova`{data-pkg="stats"}) pour voir si la variance change significativement.
+Les p-values associées aux odds ratios nous indique si un odd ratio est significativement différent de 1, par rapport à la modalité de référebce. Mais cela n'indique pas si globalement une variable a un effet significatif sur le modèle. Pour tester l'effet global sur un modèle, on peut avoir recours à la fonction `drop1`{data-pkg="stats"}. Cette dernière va tour à tour supprimer chaque variable du modèle et réaliser une analyse de variance (ANOVA, voir fonction `anova`{data-pkg="stats"}) pour voir si la variance change significativement.
 
 ```{r}
 drop1(reg, test = "Chisq")
@@ -349,7 +350,7 @@ drop1(reg, test = "Chisq")
 
 Ainsi, dans le cas présent, la suppression de la variable <var>relig</var> ne modifie significativement pas le modèle, indiquant l'absence d'effet de cette variable.
 
-## Sélection de modèles
+### Sélection de modèles
 
 Il est toujours tentant lorsque l'on recherche les facteurs associés à un phénomène d'inclure un nombre
 important de variables explicatives potentielles dans un mmodèle logistique. Cependant, un tel modèle
@@ -464,15 +465,108 @@ De même, il est possible de calculer la matrice de confusion :
 table(predict(regm2, newdata = d), d$trav.satisf)
 ```
 
+La fonction `tidy`{data-pkg="broom"} peut s'appliquer au résultat de `multinom`{data-pkg="nnet"} :
+
+```{r}
+library(broom)
+tidy(regm2, exponentiate = TRUE, conf.int = TRUE)
+```
+
+On notera la présence d'une colonne supplémentaire, <var>y.level</var>. De fait, la fonction `ggcoef`{data-pkg="GGally"} ne peut s'appliquer directement, car les coefficients vont se supperposer.
+
+<figure>
+```{r}
+ggcoef(regm2, exponentiate = TRUE)
+```
+<figcaption>À ne pas faire : appliquer directment ggcoef</figcaption>
+</figure>
+
+On a deux solutions possibles. Pour la première, la plus simple, il suffit d'ajouter des facettes avec `facet_grid`{data-pkg="ggplot2"}.
+
+<figure>
+```{r}
+ggcoef(regm2, exponentiate = TRUE) + facet_grid(~y.level)
+```
+<figcaption>ggcoef avec facet_grid</figcaption>
+</figure>
+
+Pour la seconde, on va réaliser un graphique personnalisé, sur la même logique que `ggcoef`{data-pkg="GGally"}, décalant les points grâce à `position_dodge`{data-pkg="ggplot2"}.
+
+<figure>
+```{r}
+ggplot(tidy(regm2, exponentiate = T, conf.int = TRUE)) +
+  aes(x = term, y = estimate, ymin = conf.low, ymax = conf.high, color = y.level) +
+  geom_hline(yintercept = 1, color = "gray25", linetype = "dotted") +
+  geom_errorbar(position = position_dodge(0.5), width = 0) +
+  geom_point(position = position_dodge(width = 0.5)) +
+  scale_y_log10() +
+  coord_flip()
+```
+<figcaption>Odds ratio d'un modèle multinomial</figcaption>
+</figure>
+
+
 ## Régression logistique ordinale
 
 La <dfn>régression logistique ordinale</dfn><dfn data-index="ordinale, régression logistique"></dfn> s'applique lorsque la variable à expliquer possède trois ou plus modalités qui sont ordonnées (par exemple : modéré, moyen, fort). 
 
-L'extension la plus utilisée pour réaliser des modèles ordinaux est <strong class="pkg">ordinal</strong> et sa fonction `clm`{data-pkg="ordinal"}. Il est même possible de réaliser des modèles ordinaux avec des effets aléatoires (modèles mixtes) à l'aide de la fonction `clmm`{data-pkg="ordinal"}.
+L'extension la plus utilisée pour réaliser des modèles ordinaux est <strong class="pkg">ordinal</strong> et sa fonction `clm`{data-pkg="ordinal"}. Il est même possible de réaliser des modèles ordinaux avec des [effets aléatoires](modeles-a-effets-aleatoires.html) (modèles mixtes) à l'aide de la fonction `clmm`{data-pkg="ordinal"}.
 
 Pour une bonne introduction à l'extension <strong class="pkg">ordinal</strong>, on pourra se référer au tutoriel officiel (en anglais) : <https://cran.r-project.org/web/packages/ordinal/vignettes/clm_tutorial.pdf>.
 
 Une autre introduction pertinente (en français) et utilisant cette fois-ci l'extention <strong class="pkg">VGAM</strong> et sa fonction `vglm`{data-pkg="VGAM"} est disponible sur le site de l'université de Lyon : <https://eric.univ-lyon2.fr/~ricco/cours/didacticiels/data-mining/didacticiel_Reg_Logistique_Polytomique_Ordinale.pdf>.
+
+On va reprendre l'exemple précédent puisque la variable <var>trav.satisf</var> est une variable ordonnée. 
+
+```{r}
+freq(d$trav.satisf)
+```
+
+
+**ATTENTION :** Dans le cas d'une régression logistique ordinale, il importante que les niveaux du facteur soient classés selon leur ordre hiéarchique (du plus faible au plus fort). On va dès lors recoder notre variable à expliquer.
+
+```{r}
+d$trav.satisf <- factor(d$trav.satisf, c("Insatisfaction", "Equilibre", "Satisfaction"), ordered = TRUE)
+freq(d$trav.satisf)
+```
+
+
+
+
+```{r}
+library(ordinal)
+rego <- clm(trav.satisf ~ sexe + etud + trav.imp, data = d)
+summary(rego)
+```
+
+Une fois encore, il est possible de faire une sélection descendane pas à pas.
+
+```{r, message=FALSE}
+rego2 <- step(rego)
+```
+
+L'extension <strong class="pkg">broom</strong> ne propose pas de méthode `tidy`{data-pkg="broom"} pour les objets `clm`{data-pks="ordinal"}. Cependant, on pourra en trouver une dans l'extension <strong class="pkg">JLutils</strong>. Pour rappel, cette extension est disponible uniquement sur [GitHub](https://github.com/larmarange/JLutils) et s'installe donc ainsi :
+
+```{r, eval=FALSE}
+install_github("larmarange/JLutils")
+```
+
+
+```{r}
+library(JLutils)
+tidy(rego2, exponentiate = TRUE, conf.int = TRUE)
+```
+
+La méthode `tidy.clm`{data-pkg="JLutils" data-rdocumentation="tidy_model"} étant disponible, on peut utiliser `ggcoef`{data-pkg="GGally"}.
+
+<figure>
+```{r}
+library(JLutils)
+library(GGally)
+ggcoef(rego2, exponentiate = TRUE)
+```
+<figcaption>Coefficients du modèle ordinal</figcaption>
+</figure>
 
 ## Données pondérées et l'extension survey{#survey}
 
