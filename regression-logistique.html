@@ -350,9 +350,12 @@ $(document).ready(function () {
 <div id="TOC">
 <ul>
 <li><a href="#preparation-des-donnees">Préparation des données</a></li>
-<li><a href="#regression-logistique-binaire">Régression logistique binaire</a></li>
+<li><a href="#regression-logistique-binaire">Régression logistique binaire</a><ul>
+<li><a href="#representation-graphique-du-modele">Représentation graphique du modèle</a></li>
+<li><a href="#representation-graphique-des-effets">Représentation graphique des effets</a></li>
 <li><a href="#identifier-les-variables-ayant-un-effet-significatif">Identifier les variables ayant un effet significatif</a></li>
 <li><a href="#selection-de-modeles">Sélection de modèles</a></li>
+</ul></li>
 <li><a href="#regression-logistique-multinomiale">Régression logistique multinomiale</a></li>
 <li><a href="#regression-logistique-ordinale">Régression logistique ordinale</a></li>
 <li><a href="#survey">Données pondérées et l’extension survey</a></li>
@@ -790,6 +793,8 @@ heures.tv                        0.0003255 ***
 ---
 Signif. codes:  
 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div id="representation-graphique-du-modele" class="section level3">
+<h3>Représentation graphique du modèle</h3>
 <p>Il est possible de représenter graphiquement les différents odds ratios. Pour cela, on va utiliser la fonction <code data-pkg="broom" data-rdoc="gm_tidiers">tidy</code> de l’extension <code class="pkg">broom</code> pour récupérer les coefficients du modèle sous la forme d’un tableau de données exploitable avec <code class="pkg">ggplot2</code>. On précisera <code>conf.int = TRUE</code> pour obtenir les intervalles de confiance et <code>exponentiate = TRUE</code> pour avoir les odds ratio plutôt que les coefficients bruts. <code data-pkg="ggplot2" data-rdoc="geom_crossbar">geom_errorbarh</code> permets de représenter les intervalles de confiance sous forme de barres d’erreurs, <code data-pkg="ggplot2" data-rdoc="geom_abline">geom_vline</code> une ligne verticale au niveau <code>x = 1</code>, <code data-pkg="ggplot2" data-rdoc="scale_continuous">scale_x_log10</code> pour afficher l’axe des <code>x</code> de manière logarithmique, les odds ratios étant de nature multiplicative et non additive.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(broom)
@@ -853,6 +858,9 @@ td<span class="op">$</span>label &lt;-<span class="st"> </span><span class="kw">
   <span class="dt">colour =</span> variable_label), <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <p><img src="graphs/regression-logistique/unnamed-chunk-20-1.png" width="1050" /></p>
 </div>
+</div>
+<div id="representation-graphique-des-effets" class="section level3">
+<h3>Représentation graphique des effets</h3>
 <p>L’extension <code class="pkg">effects</code> propose une représentation graphique résumant les effets de chaque variable du modèle. Pour cela, il suffit d’appliquer la méthode <code data-pkg="effects" data-rdoc="summary.effect">plot</code> au résultat de la fonction <code data-pkg="effects" data-rdoc="effect">allEffects</code>. Nous obtenons alors la <a href="#reglog_alleffects">figure ci-dessous</a>.</p>
 <figure id="reglog_alleffects">
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(effects)
@@ -878,9 +886,9 @@ Représentation graphique de l’effet de chaque variable du modèle logistique
   TRUE   199  336</code></pre>
 <p>Nous avons donc 583 (384+199) prédictions incorrectes sur un total de 1993, soit un taux de mauvais classement de 29,3 %.</p>
 </div>
-<div id="identifier-les-variables-ayant-un-effet-significatif" class="section level2">
-<h2>Identifier les variables ayant un effet significatif</h2>
-<p>Les p-values associées aux odds ratios nous indique si un odd ratio est significativement différent de 1, par rapport à la modalité de référebce. Mais cela n’indique pas si globalement une variable a un effet significatif sur le modèle. Pour tester l’effet global sur un modèle, on peut avoir recours à la fonction <code>drop1</code> {data-pkg=“stats”}. Cette dernière va tour à tour supprimer chaque variable du modèle et réaliser une analyse de variance (ANOVA, voir fonction <code data-pkg="stats">anova</code>) pour voir si la variance change significativement.</p>
+<div id="identifier-les-variables-ayant-un-effet-significatif" class="section level3">
+<h3>Identifier les variables ayant un effet significatif</h3>
+<p>Les p-values associées aux odds ratios nous indique si un odd ratio est significativement différent de 1, par rapport à la modalité de référebce. Mais cela n’indique pas si globalement une variable a un effet significatif sur le modèle. Pour tester l’effet global sur un modèle, on peut avoir recours à la fonction <code data-pkg="stats">drop1</code>. Cette dernière va tour à tour supprimer chaque variable du modèle et réaliser une analyse de variance (ANOVA, voir fonction <code data-pkg="stats">anova</code>) pour voir si la variance change significativement.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">drop1</span>(reg, <span class="dt">test =</span> <span class="st">&quot;Chisq&quot;</span>)</code></pre></div>
 <pre><code>Single term deletions
 
@@ -905,8 +913,8 @@ Signif. codes:
 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>Ainsi, dans le cas présent, la suppression de la variable <var>relig</var> ne modifie significativement pas le modèle, indiquant l’absence d’effet de cette variable.</p>
 </div>
-<div id="selection-de-modeles" class="section level2">
-<h2>Sélection de modèles</h2>
+<div id="selection-de-modeles" class="section level3">
+<h3>Sélection de modèles</h3>
 <p>Il est toujours tentant lorsque l’on recherche les facteurs associés à un phénomène d’inclure un nombre important de variables explicatives potentielles dans un mmodèle logistique. Cependant, un tel modèle n’est pas forcément le plus efficace et certaines variables n’auront probablement pas d’effet significatif sur la variable d’intérêt.</p>
 <p>La technique de <dfn>sélection descendante pas à pas</dfn><dfn data-index="pas à pas, sélection descendante"></dfn> est une approche visant à améliorer son modèle explicatif<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>. On réalise un premier modèle avec toutes les variables spécifiées, puis on regarde s’il est possible d’améliorer le modèle en supprimant une des variables du modèle. Si plusieurs variables permettent d’améliorer le modèle, on supprimera la variable dont la suppression améliorera le plus le modèle. Puis on recommence le même procédé pour voir si la suppression d’une seconde variable peut encore améliorer le modèle et ainsi de suite. Lorsque le modèle ne peut plus être améliorer par la suppresion d’une variable, on s’arrête.</p>
 <p>Il faut également définir un critère pour déterminer la qualité d’un modèle. L’un des plus utilisés est le <dfn lang="en">Akaike Information Criterion</dfn> ou <dfn>AIC</dfn>. Plus l’AIC sera faible, meilleure sera le modèle.</p>
@@ -977,6 +985,7 @@ sport ~ sexe + grpage + etud + heures.tv
 - sexe       1   2226.1 2244.1
 - grpage     3   2260.3 2274.3
 - etud       4   2333.8 2345.8</code></pre>
+</div>
 </div>
 </div>
 <div id="regression-logistique-multinomiale" class="section level2">
@@ -1253,13 +1262,230 @@ Signif. codes:
   Equilibre                  49
   Satisfaction               45
   Insatisfaction             23</code></pre>
+<p>La fonction <code data-pkg="broom">tidy</code> peut s’appliquer au résultat de <code data-pkg="nnet">multinom</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(broom)
+<span class="kw">tidy</span>(regm2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre><code>                       y.level
+Satisfaction1     Satisfaction
+Satisfaction2     Satisfaction
+Satisfaction3     Satisfaction
+Satisfaction4     Satisfaction
+Satisfaction5     Satisfaction
+Satisfaction6     Satisfaction
+Satisfaction7     Satisfaction
+Satisfaction8     Satisfaction
+Insatisfaction1 Insatisfaction
+Insatisfaction2 Insatisfaction
+Insatisfaction3 Insatisfaction
+Insatisfaction4 Insatisfaction
+Insatisfaction5 Insatisfaction
+Insatisfaction6 Insatisfaction
+Insatisfaction7 Insatisfaction
+Insatisfaction8 Insatisfaction
+                                       term
+Satisfaction1                   (Intercept)
+Satisfaction2                etudSecondaire
+Satisfaction3   etudTechnique/Professionnel
+Satisfaction4                 etudSupérieur
+Satisfaction5                        etudNA
+Satisfaction6                 trav.impAussi
+Satisfaction7                 trav.impMoins
+Satisfaction8                   trav.impPeu
+Insatisfaction1                 (Intercept)
+Insatisfaction2              etudSecondaire
+Insatisfaction3 etudTechnique/Professionnel
+Insatisfaction4               etudSupérieur
+Insatisfaction5                      etudNA
+Insatisfaction6               trav.impAussi
+Insatisfaction7               trav.impMoins
+Insatisfaction8                 trav.impPeu
+                 estimate std.error   statistic
+Satisfaction1   0.8948496 0.4520902 -0.24574657
+Satisfaction2   1.0503906 0.2635573  0.18653289
+Satisfaction3   1.0810496 0.2408483  0.32357462
+Satisfaction4   2.0127473 0.2472571  2.82904174
+Satisfaction5   0.5836722 0.5910993 -0.91087200
+Satisfaction6   1.2942058 0.4260623  0.60530411
+Satisfaction7   0.8389362 0.4115818 -0.42669673
+Satisfaction8   0.5490833 0.5580115 -1.07435980
+Insatisfaction1 0.3258311 0.6516992 -1.72069573
+Insatisfaction2 0.9072155 0.3999875 -0.24344565
+Insatisfaction3 1.0875484 0.3579684  0.23445095
+Insatisfaction4 1.0806396 0.3831110  0.20242976
+Insatisfaction5 0.9572980 0.8407592 -0.05190612
+Insatisfaction6 0.7961422 0.6213781 -0.36689002
+Insatisfaction7 0.5868213 0.5941721 -0.89710529
+Insatisfaction8 3.8196198 0.6587383  2.03442089
+                    p.value   conf.low conf.high
+Satisfaction1   0.805878421 0.36891824  2.170551
+Satisfaction2   0.852026888 0.62662899  1.760724
+Satisfaction3   0.746260102 0.67427204  1.733230
+Satisfaction4   0.004668761 1.23972010  3.267795
+Satisfaction5   0.362362820 0.18324174  1.859146
+Satisfaction6   0.544976949 0.56148541  2.983103
+Satisfaction7   0.669600230 0.37444660  1.879611
+Satisfaction8   0.282661454 0.18393230  1.639149
+Insatisfaction1 0.085306052 0.09083751  1.168745
+Insatisfaction2 0.807660187 0.41422897  1.986920
+Insatisfaction3 0.814634911 0.53919437  2.193572
+Insatisfaction4 0.839580764 0.51000705  2.289737
+Insatisfaction5 0.958603498 0.18424328  4.973964
+Insatisfaction6 0.713701054 0.23554433  2.690969
+Insatisfaction7 0.369662736 0.18312418  1.880469
+Insatisfaction8 0.041909177 1.05027036 13.891181</code></pre>
+<p>On notera la présence d’une colonne supplémentaire, <var>y.level</var>. De fait, la fonction <code data-pkg="GGally">ggcoef</code> ne peut s’appliquer directement, car les coefficients vont se supperposer.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggcoef</span>(regm2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<img src="graphs/regression-logistique/unnamed-chunk-36-1.png" width="1050" />
+<figcaption>
+À ne pas faire : appliquer directment ggcoef
+</figcaption>
+</figure>
+<p>On a deux solutions possibles. Pour la première, la plus simple, il suffit d’ajouter des facettes avec <code data-pkg="ggplot2">facet_grid</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggcoef</span>(regm2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>) <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(<span class="op">~</span>y.level)</code></pre></div>
+<img src="graphs/regression-logistique/unnamed-chunk-37-1.png" width="1050" />
+<figcaption>
+ggcoef avec facet_grid
+</figcaption>
+</figure>
+<p>Pour la seconde, on va réaliser un graphique personnalisé, sur la même logique que <code data-pkg="GGally">ggcoef</code>, décalant les points grâce à <code data-pkg="ggplot2">position_dodge</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(<span class="kw">tidy</span>(regm2, <span class="dt">exponentiate =</span> T, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">aes</span>(<span class="dt">x =</span> term, <span class="dt">y =</span> estimate, <span class="dt">ymin =</span> conf.low, <span class="dt">ymax =</span> conf.high, 
+    <span class="dt">color =</span> y.level) <span class="op">+</span><span class="st"> </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> <span class="dv">1</span>, 
+  <span class="dt">color =</span> <span class="st">&quot;gray25&quot;</span>, <span class="dt">linetype =</span> <span class="st">&quot;dotted&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">geom_errorbar</span>(<span class="dt">position =</span> <span class="kw">position_dodge</span>(<span class="fl">0.5</span>), 
+  <span class="dt">width =</span> <span class="dv">0</span>) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">position =</span> <span class="kw">position_dodge</span>(<span class="dt">width =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_log10</span>() <span class="op">+</span><span class="st"> </span><span class="kw">coord_flip</span>()</code></pre></div>
+<img src="graphs/regression-logistique/unnamed-chunk-38-1.png" width="1050" />
+<figcaption>
+Odds ratio d’un modèle multinomial
+</figcaption>
+</figure>
 </div>
 <div id="regression-logistique-ordinale" class="section level2">
 <h2>Régression logistique ordinale</h2>
 <p>La <dfn>régression logistique ordinale</dfn><dfn data-index="ordinale, régression logistique"></dfn> s’applique lorsque la variable à expliquer possède trois ou plus modalités qui sont ordonnées (par exemple : modéré, moyen, fort).</p>
-<p>L’extension la plus utilisée pour réaliser des modèles ordinaux est <strong class="pkg">ordinal</strong> et sa fonction <code data-pkg="ordinal">clm</code>. Il est même possible de réaliser des modèles ordinaux avec des effets aléatoires (modèles mixtes) à l’aide de la fonction <code data-pkg="ordinal">clmm</code>.</p>
+<p>L’extension la plus utilisée pour réaliser des modèles ordinaux est <strong class="pkg">ordinal</strong> et sa fonction <code data-pkg="ordinal">clm</code>. Il est même possible de réaliser des modèles ordinaux avec des <a href="modeles-a-effets-aleatoires.html">effets aléatoires</a> (modèles mixtes) à l’aide de la fonction <code data-pkg="ordinal">clmm</code>.</p>
 <p>Pour une bonne introduction à l’extension <strong class="pkg">ordinal</strong>, on pourra se référer au tutoriel officiel (en anglais) : <a href="https://cran.r-project.org/web/packages/ordinal/vignettes/clm_tutorial.pdf" class="uri">https://cran.r-project.org/web/packages/ordinal/vignettes/clm_tutorial.pdf</a>.</p>
 <p>Une autre introduction pertinente (en français) et utilisant cette fois-ci l’extention <strong class="pkg">VGAM</strong> et sa fonction <code data-pkg="VGAM">vglm</code> est disponible sur le site de l’université de Lyon : <a href="https://eric.univ-lyon2.fr/~ricco/cours/didacticiels/data-mining/didacticiel_Reg_Logistique_Polytomique_Ordinale.pdf" class="uri">https://eric.univ-lyon2.fr/~ricco/cours/didacticiels/data-mining/didacticiel_Reg_Logistique_Polytomique_Ordinale.pdf</a>.</p>
+<p>On va reprendre l’exemple précédent puisque la variable <var>trav.satisf</var> est une variable ordonnée.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d<span class="op">$</span>trav.satisf)</code></pre></div>
+<pre><code>                 n    % val%
+Equilibre      451 22.6 43.0
+Satisfaction   480 24.0 45.8
+Insatisfaction 117  5.9 11.2
+NA             952 47.6   NA</code></pre>
+<p><strong>ATTENTION :</strong> Dans le cas d’une régression logistique ordinale, il importante que les niveaux du facteur soient classés selon leur ordre hiéarchique (du plus faible au plus fort). On va dès lors recoder notre variable à expliquer.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d<span class="op">$</span>trav.satisf &lt;-<span class="st"> </span><span class="kw">factor</span>(d<span class="op">$</span>trav.satisf, <span class="kw">c</span>(<span class="st">&quot;Insatisfaction&quot;</span>, 
+  <span class="st">&quot;Equilibre&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>), <span class="dt">ordered =</span> <span class="ot">TRUE</span>)
+<span class="kw">freq</span>(d<span class="op">$</span>trav.satisf)</code></pre></div>
+<pre><code>                 n    % val%
+Insatisfaction 117  5.9 11.2
+Equilibre      451 22.6 43.0
+Satisfaction   480 24.0 45.8
+NA             952 47.6   NA</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ordinal)</code></pre></div>
+<pre><code>
+Attaching package: &#39;ordinal&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:dplyr&#39;:
+
+    slice</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rego &lt;-<span class="st"> </span><span class="kw">clm</span>(trav.satisf <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>trav.imp, <span class="dt">data =</span> d)
+<span class="kw">summary</span>(rego)</code></pre></div>
+<pre><code>formula: trav.satisf ~ sexe + etud + trav.imp
+data:    d
+
+ link  threshold nobs logLik  AIC     niter
+ logit flexible  1048 -978.61 1977.23 5(0) 
+ max.grad cond.H 
+ 5.41e-09 3.9e+02
+
+Coefficients:
+                            Estimate Std. Error
+sexeHomme                   -0.16141    0.12215
+etudSecondaire               0.05558    0.23220
+etudTechnique/Professionnel  0.03373    0.21210
+etudSupérieur                0.61336    0.21972
+etudNA                      -0.45555    0.48761
+trav.impAussi                0.35104    0.38578
+trav.impMoins                0.02616    0.37174
+trav.impPeu                 -1.66062    0.46204
+                            z value Pr(&gt;|z|)    
+sexeHomme                    -1.321 0.186369    
+etudSecondaire                0.239 0.810819    
+etudTechnique/Professionnel   0.159 0.873660    
+etudSupérieur                 2.792 0.005245 ** 
+etudNA                       -0.934 0.350174    
+trav.impAussi                 0.910 0.362857    
+trav.impMoins                 0.070 0.943896    
+trav.impPeu                  -3.594 0.000325 ***
+---
+Signif. codes:  
+0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Threshold coefficients:
+                         Estimate Std. Error
+Insatisfaction|Equilibre  -2.0226     0.4189
+Equilibre|Satisfaction     0.3391     0.4113
+                         z value
+Insatisfaction|Equilibre  -4.829
+Equilibre|Satisfaction     0.825
+(952 observations deleted due to missingness)</code></pre>
+<p>Une fois encore, il est possible de faire une sélection descendane pas à pas.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rego2 &lt;-<span class="st"> </span><span class="kw">step</span>(rego)</code></pre></div>
+<pre><code>Start:  AIC=1977.23
+trav.satisf ~ sexe + etud + trav.imp
+
+           Df    AIC
+- sexe      1 1977.0
+&lt;none&gt;        1977.2
+- etud      4 1990.6
+- trav.imp  3 2013.2
+
+Step:  AIC=1976.97
+trav.satisf ~ etud + trav.imp
+
+           Df    AIC
+&lt;none&gt;        1977.0
+- etud      4 1990.6
+- trav.imp  3 2011.6</code></pre>
+<p>L’extension <strong class="pkg">broom</strong> ne propose pas de méthode <code data-pkg="broom">tidy</code> pour les objets <code data-pks="ordinal">clm</code>. Cependant, on pourra en trouver une dans l’extension <strong class="pkg">JLutils</strong>. Pour rappel, cette extension est disponible uniquement sur <a href="https://github.com/larmarange/JLutils">GitHub</a> et s’installe donc ainsi :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(JLutils)
+<span class="kw">tidy</span>(rego2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre><code>                         term  estimate std.error
+1      Equilibre|Satisfaction 1.5112340 0.4070527
+2                      etudNA 0.6595865 0.4870037
+3              etudSecondaire 1.0625486 0.2320661
+4               etudSupérieur 1.8404208 0.2196152
+5 etudTechnique/Professionnel 1.0140018 0.2114991
+6    Insatisfaction|Equilibre 0.1427923 0.4142977
+7               trav.impAussi 1.3939432 0.3849992
+8               trav.impMoins 1.0337601 0.3712009
+9                 trav.impPeu 0.1948513 0.4610260
+    statistic      p.value   conf.low conf.high
+1  1.01443002 3.103776e-01         NA        NA
+2 -0.85449501 3.928308e-01 0.25296915 1.7205700
+3  0.26143590 7.937564e-01 0.67374921 1.6747176
+4  2.77755928 5.476885e-03 1.19619139 2.8319521
+5  0.06574345 9.475821e-01 0.66917118 1.5346895
+6 -4.69798475 2.627410e-06         NA        NA
+7  0.86269411 3.883057e-01 0.65080539 2.9656810
+8  0.08944679 9.287268e-01 0.49540445 2.1402278
+9 -3.54756230 3.888138e-04 0.07837432 0.4798506</code></pre>
+<p>La méthode <code data-pkg="JLutils" data-rdocumentation="tidy_model">tidy.clm</code> étant disponible, on peut utiliser <code data-pkg="GGally">ggcoef</code>.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(JLutils)
+<span class="kw">library</span>(GGally)
+<span class="kw">ggcoef</span>(rego2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre><code>Warning: Removed 2 rows containing missing values
+(geom_errorbarh).</code></pre>
+<img src="graphs/regression-logistique/unnamed-chunk-45-1.png" width="1050" />
+<figcaption>
+Coefficients du modèle ordinal
+</figcaption>
+</figure>
 </div>
 <div id="survey" class="section level2">
 <h2>Données pondérées et l’extension survey</h2>
