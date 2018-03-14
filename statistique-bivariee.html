@@ -198,6 +198,7 @@ $(document).ready(function () {
               <div class="col-sm-4">
   	            <ul class="multi-column-dropdown">
   		            <li class="dropdown-header">Manipulation de données</li>
+  		            <li><a href="visualiser-ses-donnees.html">Visualiser ses données</a></li>
                   <li><a href="introduction-a-dplyr.html">Introduction à dplyr</a></li>
                   <li><a href="introduction-a-data-table.html">Introduction à data.table</a></li>
                   <li class="dev"><a href="doublons.html">Doublons</a></li>
@@ -245,7 +246,7 @@ $(document).ready(function () {
                   <li><a href="comparaisons-moyennes-et-proportions.html">Comparaisons (moyennes et proportions)</a></li>
                   <li><a href="definir-un-plan-d-echantillonnage-complexe.html">Définir un plan d'échantillonnage complexe</a></li>
                   <li class="dev"><a href="regression-lineaire.html">Régression linéaire</a></li>
-                  <li><a href="regression-logistique.html">Régression logistique</a></li>
+                  <li><a href="regression-logistique.html">Régression logistique binaire, multinomiale et ordinale</a></li>
                   <li><a href="analyse-des-correspondances-multiples.html">Analyse des correspondances multiples (ACM)</a></li>
                   <li><a href="classification-ascendante-hierarchique.html">Classification ascendante hiérarchique (CAH)</a></li>
   	            </ul>
@@ -353,11 +354,13 @@ $(document).ready(function () {
 </ul></li>
 <li><a href="#une-variable-quantitative-et-une-variable-qualitative">Une variable quantitative et une variable qualitative</a><ul>
 <li><a href="#representations-graphiques">Représentations graphiques</a></li>
+<li><a href="#tests-statistiques">Tests statistiques</a></li>
 </ul></li>
 <li><a href="#deux-variables-qualitatives">Deux variables qualitatives</a><ul>
 <li><a href="#tableau-croise">Tableau croisé</a></li>
 <li><a href="#pourcentages-en-ligne-et-en-colonne">Pourcentages en ligne et en colonne</a></li>
 <li><a href="#representation-graphique">Représentation graphique</a></li>
+<li><a href="#tests-statistiques-1">Tests statistiques</a></li>
 </ul></li>
 </ul>
 </div>
@@ -514,6 +517,90 @@ Boxplot de la répartition des âges (formule)
 </figure>
 <p>À première vue, ô surprise, la population écoutant du hard rock a l’air sensiblement plus jeune. Peut-on le tester mathématiquement ?</p>
 </div>
+<div id="tests-statistiques" class="section level3">
+<h3>Tests statistiques</h3>
+<p>On peut calculer la <dfn>moyenne</dfn> d’âge des deux groupes en utilisant la fonction <code data-pkg="base">tapply</code><a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">tapply</span>(d<span class="op">$</span>age, d<span class="op">$</span>hard.rock, mean)</code></pre></div>
+<pre><code>     Non      Oui 
+48.30211 27.57143 </code></pre>
+<p>L’écart est important. Est-il statistiquement significatif ? Pour cela on peut faire un <dfn>test t de Student</dfn><dfn data-index="Student, test t"></dfn> <dfn>comparaison de moyennes</dfn><dfn data-index="moyenne, comparaison"></dfn> à l’aide de la fonction <code data-pkg="stats">t.test</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">t.test</span>(d<span class="op">$</span>age <span class="op">~</span><span class="st"> </span>d<span class="op">$</span>hard.rock)</code></pre></div>
+<pre><code>
+    Welch Two Sample t-test
+
+data:  d$age by d$hard.rock
+t = 9.6404, df = 13.848, p-value = 1.611e-07
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ 16.11379 25.34758
+sample estimates:
+mean in group Non mean in group Oui 
+         48.30211          27.57143 </code></pre>
+<p>Le test est extrêmement significatif. L’<dfn>intervalle de confiance</dfn> à 95 % de la différence entre les deux moyennes va de 14,5 ans à 21,8 ans.</p>
+<div class="note">
+<p>La valeur affichée pour <em>p</em> est de <code>1.611e-07</code>. Cette valeur peut paraître étrange pour les non avertis. Cela signifie tout simplement 1,611 multiplié par 10 à la puissance -7, autrement dit 0,0000001611. Cette manière de représenter un nombre est couramment appelée <dfn>notation scientifique</dfn><dfn data-index="scientifique, notation"></dfn>.</p>
+<p>Pour plus de détails, voir <a href="http://fr.wikipedia.org/wiki/Notation_scientifique" class="uri">http://fr.wikipedia.org/wiki/Notation_scientifique</a>.</p>
+</div>
+<p>Nous sommes cependant allés un peu vite en besogne, car nous avons négligé une hypothèse fondamentale du test <em>t</em> : les ensembles de valeur comparés doivent suivre approximativement une <dfn>loi normale</dfn><dfn data-index="normale, loi"></dfn> et être de même <dfn>variance</dfn><a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. Comment le vérifier ?</p>
+<p>D’abord avec un petit graphique composés de deux <dfn data-index="histogramme">histogrammes</dfn> :</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))
+<span class="kw">hist</span>(d<span class="op">$</span>age[d<span class="op">$</span>hard.rock <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>], <span class="dt">main =</span> <span class="st">&quot;Hard rock&quot;</span>, 
+  <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)
+<span class="kw">hist</span>(d<span class="op">$</span>age[d<span class="op">$</span>hard.rock <span class="op">==</span><span class="st"> &quot;Non&quot;</span>], <span class="dt">main =</span> <span class="st">&quot;Sans hard rock&quot;</span>, 
+  <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)</code></pre></div>
+<img src="graphs/statistique-bivariee/unnamed-chunk-17-1.png" width="1050" />
+<figcaption>
+Distribution des âges pour appréciation de la normalité
+</figcaption>
+</figure>
+<div class="note">
+<p>La fonction <code data-pkg="graphics">par</code> permet de modifier de nombreux paramètres graphiques. <code>par(mfrow = c(1, 2))</code> sert à indiquer que l’on souhaite afficher deux graphiques sur une même fenêtre, plus précisément que la fenêtre doit comporter une ligne et deux colonnes.</p>
+</div>
+<p>Ça a l’air à peu près bon pour les « Sans hard rock », mais un peu plus limite pour les fans de <em>Metallica</em>, dont les effectifs sont d’ailleurs assez faibles. Si on veut en avoir le coeur net on peut utiliser le <dfn>test de normalité de Shapiro-Wilk</dfn><dfn data-index="normalité, test de Shapiro-Wilk"></dfn><dfn data-index="Shapiro-Wilk, test de normalité"></dfn> avec la fonction <code data-pkg="stats">shapiro.test</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">shapiro.test</span>(d<span class="op">$</span>age[d<span class="op">$</span>hard.rock <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>])</code></pre></div>
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  d$age[d$hard.rock == &quot;Oui&quot;]
+W = 0.86931, p-value = 0.04104</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">shapiro.test</span>(d<span class="op">$</span>age[d<span class="op">$</span>hard.rock <span class="op">==</span><span class="st"> &quot;Non&quot;</span>])</code></pre></div>
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  d$age[d$hard.rock == &quot;Non&quot;]
+W = 0.98141, p-value = 2.079e-15</code></pre>
+<p>Visiblement, le test estime que les distributions ne sont pas suffisamment proches de la normalité dans les deux cas.</p>
+<p>Et concernant l’égalité des variances ?</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">tapply</span>(d<span class="op">$</span>age, d<span class="op">$</span>hard.rock, var)</code></pre></div>
+<pre><code>      Non       Oui 
+285.62858  62.72527 </code></pre>
+<p>L’écart n’a pas l’air négligeable. On peut le vérifier avec le <dfn>test d’égalité des variances</dfn><dfn data-index="variance, test d'égalité"></dfn> fourni par la fonction <code data-pkg="stats">var.test</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">var.test</span>(d<span class="op">$</span>age <span class="op">~</span><span class="st"> </span>d<span class="op">$</span>hard.rock)</code></pre></div>
+<pre><code>
+    F test to compare two variances
+
+data:  d$age by d$hard.rock
+F = 4.5536, num df = 1985, denom df = 13,
+p-value = 0.003217
+alternative hypothesis: true ratio of variances is not equal to 1
+95 percent confidence interval:
+ 1.751826 8.694405
+sample estimates:
+ratio of variances 
+          4.553644 </code></pre>
+<p>La différence est très significative. En toute rigueur le test <em>t</em> n’aurait donc pas pu être utilisé.</p>
+<p><em>Damned</em> ! Ces maudits tests statistiques vont-ils nous empêcher de faire connaître au monde entier notre fabuleuse découverte sur l’âge des fans de <em>Sepultura</em> ? Non ! Car voici qu’approche à l’horizon un nouveau test, connu sous le nom de <dfn data-index="test de Wilcoxon/Mann-Whitney">Wilcoxon/Mann-Whitney</dfn><dfn data-index="Wilcoxon, test"></dfn><dfn data-index="Mann-Whitney, test"></dfn><dfn data-index="médiane, test de comparaison"></dfn><dfn data-index="comparaison de médianes, test"></dfn>. Celui-ci a l’avantage d’être non-paramétrique, c’est à dire de ne faire aucune hypothèse sur la distribution des échantillons comparés. Par contre il ne compare pas des différences de moyennes mais des différences de <dfn data-index="médiane">médianes</dfn> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">wilcox.test</span>(d<span class="op">$</span>age <span class="op">~</span><span class="st"> </span>d<span class="op">$</span>hard.rock)</code></pre></div>
+<pre><code>
+    Wilcoxon rank sum test with continuity
+    correction
+
+data:  d$age by d$hard.rock
+W = 23980, p-value = 2.856e-06
+alternative hypothesis: true location shift is not equal to 0</code></pre>
+<p>Ouf ! La différence est hautement significative<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>. Nous allons donc pouvoir entamer la rédaction de notre article pour la <em>Revue française de sociologie</em>.</p>
+</div>
 </div>
 <div id="deux-variables-qualitatives" class="section level2">
 <h2>Deux variables qualitatives</h2>
@@ -522,18 +609,18 @@ Boxplot de la répartition des âges (formule)
 <h3>Tableau croisé</h3>
 <p>La manière la plus simple d’obtenir un tableau croisé est d’utiliser la fonction <code data-pkg="base">table</code> en lui donnant en paramètres les deux variables à croiser. En l’occurrence nous allons croiser un recodage du niveau de qualification regroupé avec le fait de pratiquer un sport.</p>
 <p>On commence par calculer la variable recodée et par afficher le tri à plat des deux variables :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d<span class="op">$</span>qualreg &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>qualif)
-d<span class="op">$</span>qualreg[d<span class="op">$</span>qualif <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>)] &lt;-<span class="st"> &quot;Ouvrier&quot;</span>
-d<span class="op">$</span>qualreg[d<span class="op">$</span>qualif <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Profession intermediaire&quot;</span>, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d<span class="op">$</span>qualif2 &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>qualif)
+d<span class="op">$</span>qualif2[d<span class="op">$</span>qualif <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>)] &lt;-<span class="st"> &quot;Ouvrier&quot;</span>
+d<span class="op">$</span>qualif2[d<span class="op">$</span>qualif <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Profession intermediaire&quot;</span>, 
   <span class="st">&quot;Technicien&quot;</span>)] &lt;-<span class="st"> &quot;Intermediaire&quot;</span>
-<span class="kw">table</span>(d<span class="op">$</span>qualreg)</code></pre></div>
+<span class="kw">table</span>(d<span class="op">$</span>qualif2)</code></pre></div>
 <pre><code>
         Autre         Cadre       Employe 
            58           260           594 
 Intermediaire       Ouvrier 
           246           495 </code></pre>
 <p>Le tableau croisé des deux variables s’obtient de la manière suivante :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(d<span class="op">$</span>sport, d<span class="op">$</span>qualreg)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(d<span class="op">$</span>sport, d<span class="op">$</span>qualif2)</code></pre></div>
 <pre><code>     
       Autre Cadre Employe Intermediaire Ouvrier
   Non    38   117     401           127     381
@@ -607,8 +694,8 @@ educ: Niveau d&#39;éducation [4] Ouest
 <div id="pourcentages-en-ligne-et-en-colonne" class="section level3">
 <h3>Pourcentages en ligne et en colonne</h3>
 <p>On n’a cependant que les effectifs, ce qui rend difficile les comparaisons. L’extension <code class="pkg">questionr</code> fournit des fonctions permettant de calculer facilement les pourcentages lignes, colonnes et totaux d’un tableau croisé.</p>
-<p>Les pourcentages lignes s’obtiennent avec la fonction <code data-pkg="questionr" data-rdoc="rprop">lprop</code><a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>. Celle-ci s’applique au tableau croisé généré par <code data-pkg="base">table</code> ou <code data-pkg="stats">xtabs</code>  :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">table</span>(d<span class="op">$</span>sport, d<span class="op">$</span>qualreg)
+<p>Les pourcentages lignes s’obtiennent avec la fonction <code data-pkg="questionr" data-rdoc="rprop">lprop</code><a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a>. Celle-ci s’applique au tableau croisé généré par <code data-pkg="base">table</code> ou <code data-pkg="stats">xtabs</code>  :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">table</span>(d<span class="op">$</span>sport, d<span class="op">$</span>qualif2)
 <span class="kw">lprop</span>(tab)</code></pre></div>
 <pre><code>          
            Autre Cadre Employe Intermediaire
@@ -620,26 +707,26 @@ educ: Niveau d&#39;éducation [4] Ouest
   Non       35.8   100.0
   Oui       19.4   100.0
   Ensemble  29.9   100.0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">xtabs</span>(<span class="op">~</span>sport <span class="op">+</span><span class="st"> </span>qualreg, d)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">xtabs</span>(<span class="op">~</span>sport <span class="op">+</span><span class="st"> </span>qualif2, d)
 <span class="kw">lprop</span>(tab)</code></pre></div>
-<pre><code>          qualreg
+<pre><code>          qualif2
 sport      Autre Cadre Employe Intermediaire
   Non        3.6  11.0  37.7    11.9        
   Oui        3.4  24.3  32.8    20.2        
   Ensemble   3.5  15.7  35.9    14.9        
-          qualreg
+          qualif2
 sport      Ouvrier Total
   Non       35.8   100.0
   Oui       19.4   100.0
   Ensemble  29.9   100.0</code></pre>
 <p>Les pourcentages ligne ne nous intéressent guère ici. On ne cherche pas à voir quelle est la proportion de cadres parmi ceux qui pratiquent un sport, mais plutôt quelle est la proportion de sportifs chez les cadres. Il nous faut donc des pourcentages colonnes, que l’on obtient avec la fonction <code data-pkg="questionr">cprop</code> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cprop</span>(tab)</code></pre></div>
-<pre><code>       qualreg
+<pre><code>       qualif2
 sport   Autre Cadre Employe Intermediaire Ouvrier
   Non    65.5  45.0  67.5    51.6          77.0  
   Oui    34.5  55.0  32.5    48.4          23.0  
   Total 100.0 100.0 100.0   100.0         100.0  
-       qualreg
+       qualif2
 sport   Ensemble
   Non    64.4   
   Oui    35.6   
@@ -647,12 +734,12 @@ sport   Ensemble
 <p>Dans l’ensemble, le pourcentage de personnes ayant pratiqué un sport est de 35,6 %. Mais cette proportion varie fortement d’une catégorie professionnelle à l’autre : 55,0 % chez les cadres contre 23,0 % chez les ouvriers.</p>
 <p>Enfin, les pourcentage totaux s’obtiennent avec la fonction <code data-pkg="questionr">prop</code> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop</span>(tab)</code></pre></div>
-<pre><code>       qualreg
+<pre><code>       qualif2
 sport   Autre Cadre Employe Intermediaire Ouvrier
   Non     2.3   7.1  24.3     7.7          23.0  
   Oui     1.2   8.7  11.7     7.2           6.9  
   Total   3.5  15.7  35.9    14.9          29.9  
-       qualreg
+       qualif2
 sport   Total
   Non    64.4
   Oui    35.6
@@ -660,12 +747,12 @@ sport   Total
 <p>À noter qu’on peut personnaliser l’affichage de ces tableaux de pourcentages à l’aide de différentes options, dont <code>digits</code> qui règle le nombre de décimales à afficher et <code>percent</code> qui indique si on souhaite ou non rajouter un symbole <code>%</code> dans chaque case du tableau. Cette personnalisation peut se faire directement au moment de la génération du tableau et dans ce cas elle sera utilisée par défaut :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ctab &lt;-<span class="st"> </span><span class="kw">cprop</span>(tab, <span class="dt">digits =</span> <span class="dv">2</span>, <span class="dt">percent =</span> <span class="ot">TRUE</span>)
 ctab</code></pre></div>
-<pre><code>       qualreg
+<pre><code>       qualif2
 sport   Autre   Cadre   Employe Intermediaire
   Non    65.52%  45.00%  67.51%  51.63%      
   Oui    34.48%  55.00%  32.49%  48.37%      
   Total 100.00% 100.00% 100.00% 100.00%      
-       qualreg
+       qualif2
 sport   Ouvrier Ensemble
   Non    76.97%  64.37% 
   Oui    23.03%  35.63% 
@@ -673,12 +760,12 @@ sport   Ouvrier Ensemble
 <p>ou bien ponctuellement en passant les mêmes arguments à la fonction <code data-pkg="questionr" data-rdoc="print.proptab">print</code> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ctab &lt;-<span class="st"> </span><span class="kw">cprop</span>(tab)
 <span class="kw">print</span>(ctab, <span class="dt">percent =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<pre><code>       qualreg
+<pre><code>       qualif2
 sport   Autre  Cadre  Employe Intermediaire
   Non    65.5%  45.0%  67.5%   51.6%       
   Oui    34.5%  55.0%  32.5%   48.4%       
   Total 100.0% 100.0% 100.0%  100.0%       
-       qualreg
+       qualif2
 sport   Ouvrier Ensemble
   Non    77.0%   64.4%  
   Oui    23.0%   35.6%  
@@ -688,39 +775,45 @@ sport   Ouvrier Ensemble
 <h3>Représentation graphique</h3>
 <p>On peut obtenir une représentation graphique synthétisant l’ensemble des résultats obtenus sous la forme d’un <dfn>graphique en mosaïque</dfn><dfn data-index="mosaïque, graphique"></dfn><dfn data-index="tableau croisé, graphique en mosaïque"></dfn> grâce à la fonction <code data-pkg="graphics">mosaicplot</code>.</p>
 <figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mosaicplot</span>(qualreg <span class="op">~</span><span class="st"> </span>sport, <span class="dt">data =</span> d, <span class="dt">shade =</span> <span class="ot">TRUE</span>, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mosaicplot</span>(qualif2 <span class="op">~</span><span class="st"> </span>sport, <span class="dt">data =</span> d, <span class="dt">shade =</span> <span class="ot">TRUE</span>, 
   <span class="dt">main =</span> <span class="st">&quot;Graphe en mosaïque&quot;</span>)</code></pre></div>
-<img src="graphs/statistique-bivariee/unnamed-chunk-26-1.png" width="1050" />
+<img src="graphs/statistique-bivariee/unnamed-chunk-33-1.png" width="1050" />
 <figcaption>
 Exemple de graphe en mosaïque
 </figcaption>
 </figure>
-<p>Comment interpréter ce graphique haut en couleurs<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a> ? Chaque rectangle représente une case de tableau. Sa largeur correspond aux pourcentages en colonnes (il y a beaucoup d’employés et d’ouvriers et très peu d’« Autre »). Sa hauteur correspond aux pourcentages en lignes : la proportion de sportifs chez les cadres est plus élevée que chez les employés. Enfin, la couleur de la case correspond au résidu du test du χ² correspondant : les cases en rouge sont sous-représentées, les cases en bleu sur-représentées, et les cases blanches sont statistiquement proches de l’hypothèse d’<dfn>indépendance</dfn>.</p>
+<p>Comment interpréter ce graphique haut en couleurs<a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a> ? Chaque rectangle représente une case de tableau. Sa largeur correspond aux pourcentages en colonnes (il y a beaucoup d’employés et d’ouvriers et très peu d’« Autre »). Sa hauteur correspond aux pourcentages en lignes : la proportion de sportifs chez les cadres est plus élevée que chez les employés. Enfin, la couleur de la case correspond au résidu du test du χ² correspondant : les cases en rouge sont sous-représentées, les cases en bleu sur-représentées, et les cases blanches sont statistiquement proches de l’hypothèse d’<dfn>indépendance</dfn>.</p>
 <div class="note">
 <p>Les graphiques en mosaïque permettent notamment de représenter des tableaux croisés à 3 ou 4 dimensions, voire plus.</p>
 <p>L’extension <code class="pkg">vcd</code> fournie une fonction <code data-pkg="vcd">mosaic</code> fournissant plus d’options pour la création d’un graphique en mosaïque, permettant par exemple d’indiquer quelles variables doivent être affichées horizontalement ou verticalement, ou encore de colorier le contenu des rectangles en fonction d’une variable donnée, …</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(vcd)</code></pre></div>
-<pre><code>Loading required package: grid</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mosaic</span>(<span class="op">~</span>sport <span class="op">+</span><span class="st"> </span>cuisine <span class="op">+</span><span class="st"> </span>sexe, d, <span class="dt">highlighting =</span> <span class="st">&quot;sexe&quot;</span>, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(vcd)
+<span class="kw">mosaic</span>(<span class="op">~</span>sport <span class="op">+</span><span class="st"> </span>cuisine <span class="op">+</span><span class="st"> </span>sexe, d, <span class="dt">highlighting =</span> <span class="st">&quot;sexe&quot;</span>, 
   <span class="dt">main =</span> <span class="st">&quot;Exemple de graphique en mosaïque à 3 dimensions&quot;</span>)</code></pre></div>
-<p><img src="graphs/statistique-bivariee/unnamed-chunk-27-1.png" width="1050" /></p>
+<p><img src="graphs/statistique-bivariee/unnamed-chunk-34-1.png" width="1050" /></p>
 </div>
 <p>Lorsque l’on s’intéresse principalement aux variations d’une variable selon une autre, par exemple ici à la pratique du sport selon le niveau de qualification, il peut être intéressant de présenter les pourcentages en colonne sous la forme de <dfn data-index="barres cumulées, graphique">barres cumulées</dfn>.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">barplot</span>(<span class="kw">cprop</span>(tab, <span class="dt">total =</span> <span class="ot">FALSE</span>), <span class="dt">main =</span> <span class="st">&quot;Pratique du sport selon le niveau de qualification&quot;</span>)</code></pre></div>
-<img src="graphs/statistique-bivariee/unnamed-chunk-28-1.png" width="1050" />
+<img src="graphs/statistique-bivariee/unnamed-chunk-35-1.png" width="1050" />
 <figcaption>
 Exemple de barres cumulées
 </figcaption>
 </figure>
+</div>
+<div id="tests-statistiques-1" class="section level3">
+<h3>Tests statistiques</h3>
+<p>Pour un test de comparaison de proportions, un test du Chi² ou encore un test exact de Fisher, on pourra se référer au <a href="comparaisons-moyennes-et-proportions.html#comp_prop">chapitre dédié aux test statistiques de comparaison</a>.</p>
 </div>
 </div>
 <div class="footnotes">
 <hr />
 <ol>
 <li id="fn1"><p><code class="pkg">MASS</code> est installée par défaut avec la version de base de <strong>R</strong>.<a href="#fnref1">↩</a></p></li>
-<li id="fn2"><p>Il s’agit en fait d’un alias pour les francophones de la fonction <code data-pkg="questionr">rprop</code>.<a href="#fnref2">↩</a></p></li>
-<li id="fn3"><p>Sauf s’il est imprimé en noir et blanc…<a href="#fnref3">↩</a></p></li>
+<li id="fn2"><p>La fonction <code data-pkg="base">tapply</code> est présentée plus en détails dans le chapitre <a href="pem_manipulation.html#tapply">Manipulation de données</a>.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>Concernant cette seconde condition, <code data-pkg="stats">t.test</code> propose une option nommée <code>var.equal</code> qui permet d’utiliser une approximation dans le cas où les variances ne sont pas égales.<a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>Ce test peut également fournir un intervalle de confiance avec l’option <code>conf.int=TRUE</code>.<a href="#fnref4">↩</a></p></li>
+<li id="fn5"><p>Il s’agit en fait d’un alias pour les francophones de la fonction <code data-pkg="questionr">rprop</code>.<a href="#fnref5">↩</a></p></li>
+<li id="fn6"><p>Sauf s’il est imprimé en noir et blanc…<a href="#fnref6">↩</a></p></li>
 </ol>
 </div>
 
