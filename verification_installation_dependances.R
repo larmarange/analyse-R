@@ -29,7 +29,7 @@ thru_github <- c("tidyverse", "questionr", "JLutils", "hrbrmstr", "ropensci")
 repo_github <- c("hadley", "juba", "larmarange", "ggalt", "plotly")
 
 for (i in m[m %in% thru_github])
-  install_github(i, username = repo_github[which(thru_github == i)])
+  install_github(paste0(repo_github[which(thru_github == i)], "/", i))
 
 for (i in m[!m %in% thru_github])
   install.packages(i, dependencies = TRUE)
