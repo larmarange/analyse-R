@@ -1,7 +1,7 @@
 options(
   knitr.table.format = 'pandoc',
   formatR.indent = 2,
-  width = 50
+  width = 80
 )
 filename <- knitr::current_input()
 filename <- substr(filename, 1, nchar(filename)-4)
