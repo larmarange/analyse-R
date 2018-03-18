@@ -363,16 +363,8 @@ $(document).ready(function () {
 <p>L’extension <code class="pkg">tibble</code> permet d’étendre les data.frame en améliorant la manière dont les tableaux sont affichés dans la console et ayant un comportement plus uniforme concernant les noms de colonnes et la manière d’extraire des éléments avec les crochets simples et doubles.</p>
 <p>Voir <a href="https://cran.r-project.org/web/packages/tibble/vignettes/tibble.html" class="uri">https://cran.r-project.org/web/packages/tibble/vignettes/tibble.html</a> pour plus de détails.</p>
 <p>Cela ne modifie pas radicalement les tableaux de données, mais lorsque l’on travail avec <code class="pkg">dplyr</code>, il est préférable de convertir ses tableaux de données en <em>tibble</em> ce qui se fait aisément avec la fonction <code data_pkg="dplyr">tbl_df</code> fournie avec <code class="pkg">dplyr</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)</code></pre></div>
-<pre><code>
-Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>The following objects are masked from &#39;package:stats&#39;:
-
-    filter, lag</code></pre>
-<pre><code>The following objects are masked from &#39;package:base&#39;:
-
-    intersect, setdiff, setequal, union</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris2 &lt;-<span class="st"> </span><span class="kw">tbl_df</span>(iris)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)
+iris2 &lt;-<span class="st"> </span><span class="kw">tbl_df</span>(iris)
 <span class="kw">class</span>(iris2)</code></pre></div>
 <pre><code>[1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
 <p>Comme on le voit, cela ajoute plusieurs classes additionnelles au tableau de données, celui-ci restant malgré tout toujours un <em>data.frame</em>.</p>
@@ -380,11 +372,11 @@ Attaching package: &#39;dplyr&#39;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">glimpse</span>(iris2)</code></pre></div>
 <pre><code>Observations: 150
 Variables: 5
-$ Sepal.Length &lt;dbl&gt; 5.1, 4.9, 4.7, 4.6, 5.0,...
-$ Sepal.Width  &lt;dbl&gt; 3.5, 3.0, 3.2, 3.1, 3.6,...
-$ Petal.Length &lt;dbl&gt; 1.4, 1.4, 1.3, 1.5, 1.4,...
-$ Petal.Width  &lt;dbl&gt; 0.2, 0.2, 0.2, 0.2, 0.2,...
-$ Species      &lt;fctr&gt; setosa, setosa, setosa,...</code></pre>
+$ Sepal.Length &lt;dbl&gt; 5.1, 4.9, 4.7, 4.6, 5.0, 5.4, 4.6, 5.0, 4.4, 4.9, 5.4,...
+$ Sepal.Width  &lt;dbl&gt; 3.5, 3.0, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1, 3.7,...
+$ Petal.Length &lt;dbl&gt; 1.4, 1.4, 1.3, 1.5, 1.4, 1.7, 1.4, 1.5, 1.4, 1.5, 1.5,...
+$ Petal.Width  &lt;dbl&gt; 0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1, 0.2,...
+$ Species      &lt;fct&gt; setosa, setosa, setosa, setosa, setosa, setosa, setosa...</code></pre>
 <p>Il faut également noter que le format <em>tibble</em> est celui dans lequel les données sont importées lorsque l’on utilise les fonctions d’import des extensions <code class="pkg">readr</code>, <code class="pkg">haven</code> et <code class="pkg">readxl</code> (voir le chapitre <a href="import-de-donnees.html">Import de données</a>).</p>
 <div id="dplyr-et-data.table" class="section level2">
 <h2>dplyr et data.table</h2>
@@ -392,8 +384,7 @@ $ Species      &lt;fctr&gt; setosa, setosa, setosa,...</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dtplyr)
 iris_dt &lt;-<span class="st"> </span><span class="kw">tbl_dt</span>(iris)
 <span class="kw">class</span>(iris_dt)</code></pre></div>
-<pre><code>[1] &quot;tbl_dt&quot;     &quot;tbl&quot;        &quot;data.table&quot;
-[4] &quot;data.frame&quot;</code></pre>
+<pre><code>[1] &quot;tbl_dt&quot;     &quot;tbl&quot;        &quot;data.table&quot; &quot;data.frame&quot;</code></pre>
 <p>Le tableau de données est à la fois compatible avec <code class="pkg">data.table</code> (et notamment sa syntaxe particulière des crochets) et les verbes de <code class="pkg">dplyr</code>.</p>
 </div>
 </div>
@@ -417,17 +408,16 @@ iris_dt &lt;-<span class="st"> </span><span class="kw">tbl_dt</span>(iris)
 <div id="enchainer-les-operations" class="section level1">
 <h1>Enchaîner les opérations</h1>
 <p><code class="pkg">dplyr</code> importe automatiquement l’opérateur <code data-pkg="magrittr">%&gt;%</code> fourni par l’extension <code class="pkg">magrittr</code>. Cela permet d’enchaîner facilement les verbes de <code class="pkg">dplyr</code>. Cet opérateur ne fonctionne essentiellement qu’avec des fonctions dont le premier argument est un tableau de données et qui renvoient un tableau de données.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(Species) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">mean.sepal.width =</span> <span class="kw">mean</span>(Sepal.Width, 
-  <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="dt">mean.sepal.length =</span> <span class="kw">mean</span>(Sepal.Length, 
-  <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(mean.sepal.width <span class="op">&lt;</span><span class="st"> </span><span class="dv">3</span>)</code></pre></div>
-<pre><code># A tibble: 2 × 3
-     Species mean.sepal.width mean.sepal.length
-      &lt;fctr&gt;            &lt;dbl&gt;             &lt;dbl&gt;
-1 versicolor            2.770             5.936
-2  virginica            2.974             6.588</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(Species) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">mean.sepal.width =</span> <span class="kw">mean</span>(Sepal.Width, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), 
+  <span class="dt">mean.sepal.length =</span> <span class="kw">mean</span>(Sepal.Length, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(mean.sepal.width <span class="op">&lt;</span><span class="st"> </span>
+<span class="st">  </span><span class="dv">3</span>)</code></pre></div>
+<pre><code># A tibble: 2 x 3
+  Species    mean.sepal.width mean.sepal.length
+  &lt;fct&gt;                 &lt;dbl&gt;             &lt;dbl&gt;
+1 versicolor             2.77              5.94
+2 virginica              2.97              6.59</code></pre>
 <p><code data-pkg="magrittr">%&lt;&gt;%</code> permet quant à lui de renvoyer le résultat final dans le premier objet appelé. C’est une manière plus courte d’écrire une commande comme la suivante :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris &lt;-<span class="st"> </span>iris <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Sepal.Area =</span> Sepal.Length <span class="op">*</span><span class="st"> </span>
-<span class="st">  </span>Sepal.Width)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris &lt;-<span class="st"> </span>iris <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Sepal.Area =</span> Sepal.Length <span class="op">*</span><span class="st"> </span>Sepal.Width)</code></pre></div>
 <p>en</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(magrittr)
 iris <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Sepal.Area =</span> Sepal.Length <span class="op">*</span><span class="st"> </span>Sepal.Width)</code></pre></div>

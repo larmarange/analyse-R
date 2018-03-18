@@ -379,34 +379,27 @@ $(document).ready(function () {
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Échantillonnage aléatoire simple</span>
 plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> donnees)
 
-<span class="co"># Échantillonnage stratifié à un seul niveau (la</span>
-<span class="co"># taille de chaque strate est connue)</span>
+<span class="co"># Échantillonnage stratifié à un seul niveau (la taille de chaque strate est</span>
+<span class="co"># connue)</span>
 plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> donnees, <span class="dt">fpc =</span> <span class="op">~</span>taille)
 
-<span class="co"># Échantillonnage en grappes avec tirages à quatre</span>
-<span class="co"># degrés (departement, commune, quartier,</span>
-<span class="co"># individus). La probabilité de tirage de chaque</span>
-<span class="co"># niveau de cluster est connue.</span>
-plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span>id_departement <span class="op">+</span><span class="st"> </span>id_commune <span class="op">+</span><span class="st"> </span>
-<span class="st">  </span>id_quartier, <span class="dt">data =</span> donnees, <span class="dt">probs =</span> <span class="op">~</span>proba_departement <span class="op">+</span><span class="st"> </span>
-<span class="st">  </span>proba_commune <span class="op">+</span><span class="st"> </span>proba_quartier)
+<span class="co"># Échantillonnage en grappes avec tirages à quatre degrés (departement, commune,</span>
+<span class="co"># quartier, individus). La probabilité de tirage de chaque niveau de cluster est</span>
+<span class="co"># connue.</span>
+plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span>id_departement <span class="op">+</span><span class="st"> </span>id_commune <span class="op">+</span><span class="st"> </span>id_quartier, <span class="dt">data =</span> donnees, 
+  <span class="dt">probs =</span> <span class="op">~</span>proba_departement <span class="op">+</span><span class="st"> </span>proba_commune <span class="op">+</span><span class="st"> </span>proba_quartier)
 
-<span class="co"># Échantillonnage stratifié avec tirage à deux</span>
-<span class="co"># degrés (clusters et individus). Le poids</span>
-<span class="co"># statistiques de chaque observation est connu.</span>
-plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span>id_cluster, <span class="dt">data =</span> donnees, 
-  <span class="dt">strata =</span> <span class="op">~</span>id_strate, <span class="dt">weights =</span> <span class="op">~</span>poids)</code></pre></div>
+<span class="co"># Échantillonnage stratifié avec tirage à deux degrés (clusters et individus). Le</span>
+<span class="co"># poids statistiques de chaque observation est connu.</span>
+plan &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span>id_cluster, <span class="dt">data =</span> donnees, <span class="dt">strata =</span> <span class="op">~</span>id_strate, <span class="dt">weights =</span> <span class="op">~</span>poids)</code></pre></div>
 <p>Prenons l’exemple d’une <em>Enquête Démographique et de Santé</em>. Le nom des différentes variables est standardisé et commun quelle que soit l’enquête. Nous supposerons que vous avez importé le fichier <em>individus</em> dans un tableau de données nommés <code>eds</code>. Le poids statistique de chaque individu est fourni par la variable <em>V005</em> qui doit au préalable être divisée par un million. Les grappes d’échantillonnage au premier degré sont fournies par la variable <em>V021 (primary sample unit)</em>. Si elle n’est pas renseignée, on pourra utilisier le numéro de grappe <em>V001</em>. Enfin, le milieu de résidence (urbain / rural) est fourni par <em>V025</em> et la région par <em>V024</em>. Pour rappel, l’échantillon a été stratifié à la fois par région et par mileu de résidence. Certaines enquêtes fournissent directement un numéro de strate via <em>V022</em>. Si tel est le cas, on pourra préciser le plan d’échantillonnage ainsi :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eds<span class="op">$</span>poids &lt;-<span class="st"> </span>eds<span class="op">$</span>V005<span class="op">/</span><span class="fl">1e+06</span>
-design.eds &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span>V021, <span class="dt">data =</span> eds, <span class="dt">strata =</span> <span class="op">~</span>V022, 
-  <span class="dt">weights =</span> <span class="op">~</span>poids)</code></pre></div>
+design.eds &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span>V021, <span class="dt">data =</span> eds, <span class="dt">strata =</span> <span class="op">~</span>V022, <span class="dt">weights =</span> <span class="op">~</span>poids)</code></pre></div>
 <p>Si <em>V022</em> n’est pas fourni mais que l’enquête a bien été stratifiée par région et milieu de résidence (vérifiez toujours le premier chapitre du rapport d’enquête), on pourra créer une variable strate ainsi<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eds<span class="op">$</span>strate &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">as.integer</span>(eds<span class="op">$</span>V024) <span class="op">*</span><span class="st"> </span><span class="dv">10</span> <span class="op">+</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">as.integer</span>(eds<span class="op">$</span>V025))
-<span class="kw">levels</span>(eds<span class="op">$</span>strate) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">paste</span>(<span class="kw">levels</span>(eds<span class="op">$</span>V024), <span class="st">&quot;Urbain&quot;</span>), 
-  <span class="kw">paste</span>(<span class="kw">levels</span>(eds<span class="op">$</span>V024), <span class="st">&quot;Rural&quot;</span>))
-design.eds &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span>V021, <span class="dt">data =</span> eds, <span class="dt">strata =</span> <span class="op">~</span>strate, 
-  <span class="dt">weights =</span> <span class="op">~</span>poids)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eds<span class="op">$</span>strate &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">as.integer</span>(eds<span class="op">$</span>V024) <span class="op">*</span><span class="st"> </span><span class="dv">10</span> <span class="op">+</span><span class="st"> </span><span class="kw">as.integer</span>(eds<span class="op">$</span>V025))
+<span class="kw">levels</span>(eds<span class="op">$</span>strate) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">paste</span>(<span class="kw">levels</span>(eds<span class="op">$</span>V024), <span class="st">&quot;Urbain&quot;</span>), <span class="kw">paste</span>(<span class="kw">levels</span>(eds<span class="op">$</span>V024), 
+  <span class="st">&quot;Rural&quot;</span>))
+design.eds &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span>V021, <span class="dt">data =</span> eds, <span class="dt">strata =</span> <span class="op">~</span>strate, <span class="dt">weights =</span> <span class="op">~</span>poids)</code></pre></div>
 <div class="important">
 <p>Il n’est pas aisé de modifier des variables dans un objet <code>survey.design</code>. Il est donc préférable de procéder à l’ensemble des nettoyages, recodages de variables (et au besoin transformation des vecteurs labellisés en facteur), avant de convertir le tableau de données en objet <code>survey</code> et de procéder aux analyses.</p>
 </div>

@@ -437,20 +437,13 @@ $(document).ready(function () {
 16                                         Nombre idéal d&#39;enfants
 17                      A déjà fait un test de dépistage du VIH ?</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">lookfor</span>(enfants)</code></pre></div>
-<pre><code>        variable
-1      id_enfant
-2       id_femme
-3 date_naissance
-4           sexe
-5         survie
-6      age_deces
-                              label
-1           Identifiant de l&#39;enfant
-2            Identifiant de la mère
-3                 Date de naissance
-4                  Sexe de l&#39;enfant
-5 L&#39;enfant est-il toujours en vie ?
-6            Age au décès (en mois)</code></pre>
+<pre><code>        variable                             label
+1      id_enfant           Identifiant de l&#39;enfant
+2       id_femme            Identifiant de la mère
+3 date_naissance                 Date de naissance
+4           sexe                  Sexe de l&#39;enfant
+5         survie L&#39;enfant est-il toujours en vie ?
+6      age_deces            Age au décès (en mois)</code></pre>
 <div id="preparation-des-donnees-avec-data.table" class="section level2">
 <h2>Préparation des données avec data.table</h2>
 <p>Tout d’abord, regardons sous quel format elles sont stockées.</p>
@@ -564,27 +557,13 @@ enfants &lt;-<span class="st"> </span><span class="kw">merge</span>(
 enfants[, richesse <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(richesse)]</code></pre></div>
 <p>Regardons plus attentivement, la variable <var>structure</var>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(enfants<span class="op">$</span>structure)</code></pre></div>
-<pre><code>                                                 n
-[0] pas d&#39;adulte                                 0
-[1] un adulte                                   45
-[2] deux adultes de sexe opposé                505
-[3] deux adultes de même sexe                   71
-[4] trois adultes ou plus avec lien de parenté 764
-[5] adultes sans lien de parenté               199
-                                                  %
-[0] pas d&#39;adulte                                0.0
-[1] un adulte                                   2.8
-[2] deux adultes de sexe opposé                31.9
-[3] deux adultes de même sexe                   4.5
-[4] trois adultes ou plus avec lien de parenté 48.2
-[5] adultes sans lien de parenté               12.6
-                                               val%
-[0] pas d&#39;adulte                                0.0
-[1] un adulte                                   2.8
-[2] deux adultes de sexe opposé                31.9
-[3] deux adultes de même sexe                   4.5
-[4] trois adultes ou plus avec lien de parenté 48.2
-[5] adultes sans lien de parenté               12.6</code></pre>
+<pre><code>                                                 n    % val%
+[0] pas d&#39;adulte                                 0  0.0  0.0
+[1] un adulte                                   45  2.8  2.8
+[2] deux adultes de sexe opposé                505 31.9 31.9
+[3] deux adultes de même sexe                   71  4.5  4.5
+[4] trois adultes ou plus avec lien de parenté 764 48.2 48.2
+[5] adultes sans lien de parenté               199 12.6 12.6</code></pre>
 <p>Tout d’abord, la modalité <q>pas d’adulte</q> n’est pas représentée dans l’échantillon. On aura donc recours à l’argument <code>drop_unused_labels</code> pour ne pas conserver cette modalité. Par ailleurs, nous considérons que la situation familiale à partir de laquelle nous voudrons comparer les autres dans notre modèle, donc celle qui doit être considérée comme la modalité de référence, est celle du ménage nucléaire. Cette modalité (<q>deux adultes de sexe opposé</q>) n’étant pas la première, nous aurons recours à la fonction <code>relevel</code>{data-pkg = “stats”}.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[, structure <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(structure)]
 enfants[, structure <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">relevel</span>(structure, <span class="st">&quot;deux adultes de sexe opposé&quot;</span>)]</code></pre></div>
@@ -680,8 +659,7 @@ enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span>
     <span class="kw">interval</span>(date_naissance, date_entretien), 
     <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span>
   ))</code></pre></div>
-<pre><code>Warning: Column `id_femme` has different
-attributes on LHS and RHS of join</code></pre>
+<pre><code>Warning: Column `id_femme` has different attributes on LHS and RHS of join</code></pre>
 <p>ATTENTION : il y 11 enfants soi-disant nés après la date d’enquête ! Quelle que soit l’enquête, il est rare de ne pas observer d’incohérences. Dans le cas présent, il est fort possible que la date d’entretien puisse parfois être erronnée (par exemple si l’enquêteur a inscrit une date sur le questionnaire papier le jour du recensement du ménage mais n’ai pu effectué le questionnaire individuel que plus tard). Nous décidons ici de procéder à une correction en ajoutant un mois aux dates d’entretien problématiques. D’autres approches auraient pu être envisagées, comme par exemple exclure ces observations problématiques. Cependant, cela aurait impacté le calcul du range de naissance pour les autres enfants issus de la même mère. Quoiqu’il en soit, il n’y a pas de réponse unique. À vous de vous adapter au contexte particulier de votre analyse.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants<span class="op">$</span>date_entretien[enfants<span class="op">$</span>duree_observation <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>] &lt;-
 <span class="st">  </span>enfants<span class="op">$</span>date_entretien[enfants<span class="op">$</span>duree_observation <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>] <span class="op">%m+%</span><span class="st"> </span><span class="kw">months</span>(<span class="dv">1</span>)
@@ -743,34 +721,19 @@ NaN 1442 91.0   NA</code></pre>
     <span class="kw">select</span>(menages, id_menage, structure, richesse),
     <span class="dt">by =</span> <span class="st">&quot;id_menage&quot;</span>
   )</code></pre></div>
-<pre><code>Warning: Column `id_femme` has different
-attributes on LHS and RHS of join</code></pre>
+<pre><code>Warning: Column `id_femme` has different attributes on LHS and RHS of join</code></pre>
 <p>Les variables catégorielles sont pour l’heure sous formes de vecteurs labellisés. Or, dans un modèle, il est impératif de les convertir en facteurs pour qu’elles soient bien traitées comme des variables catégorielles (autrement elles seraient traitées comme des variables continues). On aura donc recours à la fonction <code data-pkg="labelled">to_factor</code> de l’extension <code class="pkg">labelled</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">sexe =</span> <span class="kw">to_factor</span>(sexe), <span class="dt">richesse =</span> <span class="kw">to_factor</span>(richesse))</code></pre></div>
 <p>Regardons plus attentivement, la variable <var>structure</var>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(enfants<span class="op">$</span>structure)</code></pre></div>
-<pre><code>                                                 n
-[0] pas d&#39;adulte                                 0
-[1] un adulte                                   45
-[2] deux adultes de sexe opposé                505
-[3] deux adultes de même sexe                   71
-[4] trois adultes ou plus avec lien de parenté 764
-[5] adultes sans lien de parenté               199
-                                                  %
-[0] pas d&#39;adulte                                0.0
-[1] un adulte                                   2.8
-[2] deux adultes de sexe opposé                31.9
-[3] deux adultes de même sexe                   4.5
-[4] trois adultes ou plus avec lien de parenté 48.2
-[5] adultes sans lien de parenté               12.6
-                                               val%
-[0] pas d&#39;adulte                                0.0
-[1] un adulte                                   2.8
-[2] deux adultes de sexe opposé                31.9
-[3] deux adultes de même sexe                   4.5
-[4] trois adultes ou plus avec lien de parenté 48.2
-[5] adultes sans lien de parenté               12.6</code></pre>
+<pre><code>                                                 n    % val%
+[0] pas d&#39;adulte                                 0  0.0  0.0
+[1] un adulte                                   45  2.8  2.8
+[2] deux adultes de sexe opposé                505 31.9 31.9
+[3] deux adultes de même sexe                   71  4.5  4.5
+[4] trois adultes ou plus avec lien de parenté 764 48.2 48.2
+[5] adultes sans lien de parenté               199 12.6 12.6</code></pre>
 <p>Tout d’abord, la modalité <q>pas d’adulte</q> n’est pas représentée dans l’échantillon. On aura donc recours à l’argument <code>drop_unused_labels</code> pour ne pas conserver cette modalité. Par ailleurs, nous considérons que la situation familiale à partir de laquelle nous voudrons comparer les autres dans notre modèle, donc celle qui doit être considérée comme la modalité de référence, est celle du ménage nucléaire. Cette modalité (<q>deux adultes de sexe opposé</q>) n’étant pas la première, nous aurons recours à la fonction <code>relevel</code>{data-pkg = “stats”}.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">structure =</span> <span class="kw">relevel</span>(
@@ -878,12 +841,9 @@ sexe=féminin  822     48     NA      NA      NA</code></pre>
 <pre><code>Call:
 survdiff(formula = Surv(time, deces) ~ sexe, data = enfants)
 
-                N Observed Expected (O-E)^2/E
-sexe=masculin 762       94     66.2      11.6
-sexe=féminin  822       48     75.8      10.2
-              (O-E)^2/V
-sexe=masculin      21.8
-sexe=féminin       21.8
+                N Observed Expected (O-E)^2/E (O-E)^2/V
+sexe=masculin 762       94     66.2      11.6      21.8
+sexe=féminin  822       48     75.8      10.2      21.8
 
  Chisq= 21.8  on 1 degrees of freedom, p= 3e-06 </code></pre>
 <p>Une fois encore, on aura recours à <code data-pkg="survminer">ggsurvplot</code> pour représenter les courbes de survie.</p>
@@ -909,86 +869,38 @@ coxph(formula = Surv(time, deces) ~ sexe + milieu + richesse +
     structure + educ2 + gpage_mere_naissance + rang_apres_ideal, 
     data = enfants)
 
-                                                        coef
-sexeféminin                                         -0.80957
-milieu                                               0.65624
-richessepauvre                                      -0.08222
-richessemoyen                                        0.31864
-richesseriche                                        0.35348
-richessetrès riche                                   0.46459
-structureun adulte                                  -0.15023
-structuredeux adultes de même sexe                   0.60459
-structuretrois adultes ou plus avec lien de parenté  0.04943
-structureadultes sans lien de parenté               -0.13137
-educ2primaire                                       -0.03025
-educ2secondaire ou plus                             -0.20390
-gpage_mere_naissance19 ou moins                     -0.31025
-gpage_mere_naissance30 et plus                      -0.00259
-rang_apres_idealoui                                  1.35511
-                                                    exp(coef)
-sexeféminin                                           0.44505
-milieu                                                1.92753
-richessepauvre                                        0.92107
-richessemoyen                                         1.37526
-richesseriche                                         1.42402
-richessetrès riche                                    1.59136
-structureun adulte                                    0.86051
-structuredeux adultes de même sexe                    1.83051
-structuretrois adultes ou plus avec lien de parenté   1.05067
-structureadultes sans lien de parenté                 0.87689
-educ2primaire                                         0.97020
-educ2secondaire ou plus                               0.81554
-gpage_mere_naissance19 ou moins                       0.73327
-gpage_mere_naissance30 et plus                        0.99742
-rang_apres_idealoui                                   3.87717
-                                                    se(coef)
-sexeféminin                                          0.17781
-milieu                                               0.26993
-richessepauvre                                       0.25042
-richessemoyen                                        0.24787
-richesseriche                                        0.29842
-richessetrès riche                                   0.42858
-structureun adulte                                   0.60033
-structuredeux adultes de même sexe                   0.37644
-structuretrois adultes ou plus avec lien de parenté  0.19667
-structureadultes sans lien de parenté                0.30548
-educ2primaire                                        0.20575
-educ2secondaire ou plus                              0.36689
-gpage_mere_naissance19 ou moins                      0.26806
-gpage_mere_naissance30 et plus                       0.19156
-rang_apres_idealoui                                  0.60240
-                                                        z
-sexeféminin                                         -4.55
-milieu                                               2.43
-richessepauvre                                      -0.33
-richessemoyen                                        1.29
-richesseriche                                        1.18
-richessetrès riche                                   1.08
-structureun adulte                                  -0.25
-structuredeux adultes de même sexe                   1.61
-structuretrois adultes ou plus avec lien de parenté  0.25
-structureadultes sans lien de parenté               -0.43
-educ2primaire                                       -0.15
-educ2secondaire ou plus                             -0.56
-gpage_mere_naissance19 ou moins                     -1.16
-gpage_mere_naissance30 et plus                      -0.01
-rang_apres_idealoui                                  2.25
-                                                          p
-sexeféminin                                         5.3e-06
-milieu                                                0.015
-richessepauvre                                        0.743
-richessemoyen                                         0.199
-richesseriche                                         0.236
-richessetrès riche                                    0.278
-structureun adulte                                    0.802
-structuredeux adultes de même sexe                    0.108
-structuretrois adultes ou plus avec lien de parenté   0.802
-structureadultes sans lien de parenté                 0.667
-educ2primaire                                         0.883
-educ2secondaire ou plus                               0.578
-gpage_mere_naissance19 ou moins                       0.247
-gpage_mere_naissance30 et plus                        0.989
-rang_apres_idealoui                                   0.024
+                                                        coef exp(coef) se(coef)
+sexeféminin                                         -0.80957   0.44505  0.17781
+milieu                                               0.65624   1.92753  0.26993
+richessepauvre                                      -0.08222   0.92107  0.25042
+richessemoyen                                        0.31864   1.37526  0.24787
+richesseriche                                        0.35348   1.42402  0.29842
+richessetrès riche                                   0.46459   1.59136  0.42858
+structureun adulte                                  -0.15023   0.86051  0.60033
+structuredeux adultes de même sexe                   0.60459   1.83051  0.37644
+structuretrois adultes ou plus avec lien de parenté  0.04943   1.05067  0.19667
+structureadultes sans lien de parenté               -0.13137   0.87689  0.30548
+educ2primaire                                       -0.03025   0.97020  0.20575
+educ2secondaire ou plus                             -0.20390   0.81554  0.36689
+gpage_mere_naissance19 ou moins                     -0.31025   0.73327  0.26806
+gpage_mere_naissance30 et plus                      -0.00259   0.99742  0.19156
+rang_apres_idealoui                                  1.35511   3.87717  0.60240
+                                                        z       p
+sexeféminin                                         -4.55 5.3e-06
+milieu                                               2.43   0.015
+richessepauvre                                      -0.33   0.743
+richessemoyen                                        1.29   0.199
+richesseriche                                        1.18   0.236
+richessetrès riche                                   1.08   0.278
+structureun adulte                                  -0.25   0.802
+structuredeux adultes de même sexe                   1.61   0.108
+structuretrois adultes ou plus avec lien de parenté  0.25   0.802
+structureadultes sans lien de parenté               -0.43   0.667
+educ2primaire                                       -0.15   0.883
+educ2secondaire ou plus                             -0.56   0.578
+gpage_mere_naissance19 ou moins                     -1.16   0.247
+gpage_mere_naissance30 et plus                      -0.01   0.989
+rang_apres_idealoui                                  2.25   0.024
 
 Likelihood ratio test=38.2  on 15 df, p=0.000855
 n= 1584, number of events= 142 </code></pre>
@@ -1054,14 +966,14 @@ Surv(time, deces) ~ sexe + milieu + rang_apres_ideal
 <p>On peut obtenir facilement les coefficients du modèle avec l’excellente fonction <code data-pkg="broom">tidy</code> de l’extension <code class="pkg">broom</code>. Ne pas oublier de préciser <code>exponentiate = TRUE</code>. En effet, dans le cas d’un modèle de Cox, l’exponentiel des coefficients corresponds au <dfn>ratio des risques instantannés</dfn> ou <dfn lang="en">hazard ratio (HR)</dfn> en anglais.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(broom)
 <span class="kw">tidy</span>(mod2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<pre><code>                 term  estimate std.error
-1         sexeféminin 0.4429992 0.1774811
-2              milieu 1.5206198 0.1987723
-3 rang_apres_idealoui 3.4410694 0.5840690
-  statistic      p.value  conf.low  conf.high
-1 -4.587459 4.486738e-06 0.3128461  0.6272998
-2  2.108533 3.498491e-02 1.0299718  2.2449981
-3  2.115816 3.436049e-02 1.0952998 10.8107009</code></pre>
+<pre><code>                 term  estimate std.error statistic      p.value  conf.low
+1         sexeféminin 0.4429992 0.1774811 -4.587459 4.486738e-06 0.3128461
+2              milieu 1.5206198 0.1987723  2.108533 3.498491e-02 1.0299718
+3 rang_apres_idealoui 3.4410694 0.5840690  2.115816 3.436049e-02 1.0952998
+   conf.high
+1  0.6272998
+2  2.2449981
+3 10.8107009</code></pre>
 <p>Pour représenter ces rapports de risque, on peut ici encore avoir recours à la fonction <code data-pkg="GGally">ggcoef</code> de l’extension <code class="pkg">GGally</code>.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(GGally)</code></pre></div>

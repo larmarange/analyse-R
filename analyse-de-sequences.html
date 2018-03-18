@@ -374,17 +374,12 @@ $(document).ready(function () {
 <p>Tout d’abord, à quoi ressemblent nos données ? On a reconstruit à partir de l’enquête les carrières de 1000 hommes. Pour chacune, on connaît la position professionnelle chaque année, de l’âge de 14 ans jusqu’à 50 ans. Cette position est codée de la manière suivante : les codes 1 à 6 correspondent aux groupes socioprofessionnels de la nomenclature des PCS de l’INSEE 13 (agriculteurs exploitants ; artisans, commerçants et chefs d’entreprise ; cadres et professions intellectuelles supérieures ; professions intermédiaires ; employés ; ouvriers) ; on y a ajouté « études » (code 7), « inactivité » (code 8) et « service militaire » (code 9). Le fichier de données comporte une ligne par individu et une colonne par année : la variable <em>csp1</em> correspond à la position à 14 ans, la variable <em>csp2</em> à la position à 15 ans, etc. Par ailleurs, les enquêtés étant tous nés entre 1930 et 1950, on ajoute à notre base une variable « génération » à trois modalités, prenant les valeurs suivantes : 1=“1930-1938” ; 2=“1939-1945” ; 3=“1946-1950”. Au final, la base est constituée de 500 lignes et de 37 + 1 = 38 colonnes et se présente sous la forme d’un fichier texte au format <strong>csv</strong> (téléchargeable à <a href="http://larmarange.github.io/analyse-R/data/trajpro.csv" class="uri">http://larmarange.github.io/analyse-R/data/trajpro.csv</a>).</p>
 <p>Une fois <strong>R</strong> ouvert, on commence par installer les extensions nécessaires à ce programme (opération à ne réaliser que lors de leur première utilisation) et par les charger en mémoire. L’extension <code class="pkg">TraMineR</code> propose de nombreuses fonctions pour l’analyse de séquences. L’extension <code class="pkg">cluster</code> comprend un certain nombre de méthodes de classification automatique<a href="#fn13" class="footnoteRef" id="fnref13"><sup>13</sup></a>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="kw">c</span>(<span class="st">&quot;TraMineR&quot;</span>))</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(TraMineR)</code></pre></div>
-<pre><code>
-TraMineR stable version 1.8-13 (Built: 2017-05-10)</code></pre>
-<pre><code>Website: http://traminer.unige.ch</code></pre>
-<pre><code>Please type &#39;citation(&quot;TraMineR&quot;)&#39; for citation information.</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(cluster)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(TraMineR)
+<span class="kw">library</span>(cluster)</code></pre></div>
 <p>On importe ensuite les données, on recode la variable « génération » pour lui donner des étiquettes plus explicites. On jette également un coup d’oeil à la structure du tableau de données :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">donnees &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;http://larmarange.github.io/analyse-R/data/trajpro.csv&quot;</span>, 
-  <span class="dt">header =</span> T)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">donnees<span class="op">$</span>generation &lt;-<span class="st"> </span><span class="kw">factor</span>(donnees<span class="op">$</span>generation, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;1930-38&quot;</span>, 
-  <span class="st">&quot;1939-45&quot;</span>, <span class="st">&quot;1946-50&quot;</span>))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">donnees &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;http://larmarange.github.io/analyse-R/data/trajpro.csv&quot;</span>, <span class="dt">header =</span> T)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">donnees<span class="op">$</span>generation &lt;-<span class="st"> </span><span class="kw">factor</span>(donnees<span class="op">$</span>generation, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;1930-38&quot;</span>, <span class="st">&quot;1939-45&quot;</span>, 
+  <span class="st">&quot;1946-50&quot;</span>))
 <span class="kw">str</span>(donnees)</code></pre></div>
 <pre><code>&#39;data.frame&#39;:   1000 obs. of  38 variables:
  $ csp1      : int  1 7 6 7 7 6 7 7 7 6 ...
@@ -426,8 +421,7 @@ TraMineR stable version 1.8-13 (Built: 2017-05-10)</code></pre>
  $ csp37     : int  4 6 6 6 5 6 6 3 4 4 ...
  $ generation: Factor w/ 3 levels &quot;1930-38&quot;,&quot;1939-45&quot;,..: 2 1 1 3 2 3 1 1 2 1 ...</code></pre>
 <p>On a bien 1000 observations et 38 variables. On définit maintenant des <em>labels</em> pour les différents états qui composent les séquences et on crée un objet « séquence » avec <code data-pkg="TraMineR">seqdef</code> :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">labels &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;agric&quot;</span>, <span class="st">&quot;acce&quot;</span>, <span class="st">&quot;cadr&quot;</span>, <span class="st">&quot;pint&quot;</span>, <span class="st">&quot;empl&quot;</span>, 
-  <span class="st">&quot;ouvr&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;inact&quot;</span>, <span class="st">&quot;smil&quot;</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">labels &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;agric&quot;</span>, <span class="st">&quot;acce&quot;</span>, <span class="st">&quot;cadr&quot;</span>, <span class="st">&quot;pint&quot;</span>, <span class="st">&quot;empl&quot;</span>, <span class="st">&quot;ouvr&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;inact&quot;</span>, <span class="st">&quot;smil&quot;</span>)
 seq &lt;-<span class="st"> </span><span class="kw">seqdef</span>(donnees[, <span class="dv">1</span><span class="op">:</span><span class="dv">37</span>], <span class="dt">states =</span> labels)</code></pre></div>
 <pre><code> [&gt;] state coding:</code></pre>
 <pre><code>       [alphabet]  [label]  [long label] </code></pre>
@@ -449,16 +443,15 @@ seq &lt;-<span class="st"> </span><span class="kw">seqdef</span>(donnees[, <span
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">couts &lt;-<span class="st"> </span><span class="kw">seqsubm</span>(seq, <span class="dt">method =</span> <span class="st">&quot;CONSTANT&quot;</span>, <span class="dt">cval =</span> <span class="dv">2</span>)</code></pre></div>
 <pre><code> [&gt;] creating 9x9 substitution-cost matrix using 2 as constant value</code></pre>
 <p>Ensuite, on calcule la <dfn>matrice de distances</dfn><dfn data-index="distance, matrice"></dfn> entre les séquences (i.e contenant les « dissimilarités » entre les séquences) avec <code data-pkg="TraMineR">seqdist</code>, avec un coût d’insertion/suppression (<em>indel</em>) que l’on fixe ici à 1,1 :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seq.om &lt;-<span class="st"> </span><span class="kw">seqdist</span>(seq, <span class="dt">method =</span> <span class="st">&quot;OM&quot;</span>, <span class="dt">indel =</span> <span class="fl">1.1</span>, 
-  <span class="dt">sm =</span> couts)</code></pre></div>
-<pre><code> [&gt;] 1000 sequences with 9 distinct events/states</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seq.om &lt;-<span class="st"> </span><span class="kw">seqdist</span>(seq, <span class="dt">method =</span> <span class="st">&quot;OM&quot;</span>, <span class="dt">indel =</span> <span class="fl">1.1</span>, <span class="dt">sm =</span> couts)</code></pre></div>
+<pre><code> [&gt;] 1000 sequences with 9 distinct states</code></pre>
+<pre><code> [&gt;] checking &#39;sm&#39; (one value for each state, triangle inequality)</code></pre>
 <pre><code> [&gt;] 818 distinct sequences</code></pre>
 <pre><code> [&gt;] min/max sequence length: 37/37</code></pre>
-<pre><code> [&gt;] computing distances using OM metric</code></pre>
-<pre><code> [&gt;] total time: 1.63 secs</code></pre>
+<pre><code> [&gt;] computing distances using the OM metric</code></pre>
+<pre><code> [&gt;] elapsed time: 1.79 secs</code></pre>
 <p>Cette matrice des distances ou des dissimilarités entre séquences peut ensuite être utilisée pour une <dfn>classification ascendante hiérarchique</dfn> (<dfn>CAH</dfn>), qui permet de regrouper les séquences en un certain nombre de « classes » en fonction de leur proximité :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seq.agnes &lt;-<span class="st"> </span><span class="kw">agnes</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">method =</span> <span class="st">&quot;ward&quot;</span>, 
-  <span class="dt">keep.diss =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seq.agnes &lt;-<span class="st"> </span><span class="kw">agnes</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">method =</span> <span class="st">&quot;ward&quot;</span>, <span class="dt">keep.diss =</span> <span class="ot">FALSE</span>)</code></pre></div>
 <p>Avec la fonction <code data-pkg="stats" data-rdoc="dendrogram">plot</code>, il est possible de tracer l’arbre de la classification (<dfn>dendrogramme</dfn>).</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">as.dendrogram</span>(seq.agnes), <span class="dt">leaflab =</span> <span class="st">&quot;none&quot;</span>)</code></pre></div>
@@ -469,8 +462,8 @@ Dendrogramme de la classification des séquences
 </figure>
 <p>De même, on peut représenter les <dfn data-index="saut d'inertie">sauts d’inertie</dfn><dfn data-index="inertie, saut"</dfn>.</p>
 <figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">sort</span>(seq.agnes<span class="op">$</span>height, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)[<span class="dv">1</span><span class="op">:</span><span class="dv">20</span>], 
-  <span class="dt">type =</span> <span class="st">&quot;s&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;nb de classes&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;inertie&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">sort</span>(seq.agnes<span class="op">$</span>height, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)[<span class="dv">1</span><span class="op">:</span><span class="dv">20</span>], <span class="dt">type =</span> <span class="st">&quot;s&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;nb de classes&quot;</span>, 
+  <span class="dt">ylab =</span> <span class="st">&quot;inertie&quot;</span>)</code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-11-1.png" width="1050" />
 <figcaption>
 Sauts d’inertie de la classification des séquences
@@ -480,15 +473,14 @@ Sauts d’inertie de la classification des séquences
 <p>On fait ici le choix d’une <dfn>partition</dfn> en 5 classes :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">nbcl &lt;-<span class="st"> </span><span class="dv">5</span>
 seq.part &lt;-<span class="st"> </span><span class="kw">cutree</span>(seq.agnes, nbcl)
-seq.part &lt;-<span class="st"> </span><span class="kw">factor</span>(seq.part, <span class="dt">labels =</span> <span class="kw">paste</span>(<span class="st">&quot;classe&quot;</span>, 
-  <span class="dv">1</span><span class="op">:</span>nbcl, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>))</code></pre></div>
+seq.part &lt;-<span class="st"> </span><span class="kw">factor</span>(seq.part, <span class="dt">labels =</span> <span class="kw">paste</span>(<span class="st">&quot;classe&quot;</span>, <span class="dv">1</span><span class="op">:</span>nbcl, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>))</code></pre></div>
 </div>
 <div id="representations-graphiques" class="section level2">
 <h2>Représentations graphiques</h2>
 <p>Pour se faire une première idée de la nature des classes de la typologie, il existe un certain nombre de représentations graphiques. Les chronogrammes (<em>state distribution plots</em>) présentent une série de coupes transversales : pour chaque âge, on a les proportions d’individus de la classe dans les différentes situations (agriculteur, étudiant, etc.). Ce graphique s’obtient avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqdplot</code> :</p>
 <figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqdplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">border =</span> <span class="ot">NA</span>, 
-  <span class="dt">withlegend =</span> T)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqdplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">border =</span> <span class="ot">NA</span>, <span class="dt">withlegend =</span> T)</code></pre></div>
+<pre><code> [!] In rmarkdown::render() : withlegend is deprecated, use with.legend instead.</code></pre>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-13-1.png" width="1050" />
 <figcaption>
 Chronogrammes
@@ -497,8 +489,14 @@ Chronogrammes
 <p>Chacune des classes semble caractérisée par un groupe professionnel principal : profession intermédiaire pour la classe 1, ouvrier pour la 2, employé pour la 3, cadre pour la 4 et indépendant pour la 5. Cependant, on aperçoit aussi des « couches » d’autres couleurs, indiquant que l’ensemble des carrières ne sont probablement pas stables.</p>
 <p>Les « <dfn dataindex="tapis des séquences">tapis</dfn><dfn data-index="séquence, tapis"></dfn> » (<dfn lang="en">index plots</dfn>), obtenus avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqiplot</code>, permettent de mieux visualiser la dimension individuelle des séquences. Chaque segment horizontal représente une séquence, découpée en sous-segments correspondant aux aux différents états successifs qui composent la séquence.</p>
 <figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqiplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">tlim =</span> <span class="dv">0</span>, 
-  <span class="dt">space =</span> <span class="dv">0</span>, <span class="dt">border =</span> <span class="ot">NA</span>, <span class="dt">withlegend =</span> T, <span class="dt">yaxis =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqiplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">tlim =</span> <span class="dv">0</span>, <span class="dt">space =</span> <span class="dv">0</span>, <span class="dt">border =</span> <span class="ot">NA</span>, 
+  <span class="dt">withlegend =</span> T, <span class="dt">yaxis =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<pre><code> [!] In rmarkdown::render() : withlegend is deprecated, use with.legend instead.</code></pre>
+<pre><code> [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
+ [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
+ [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
+ [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
+ [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.</code></pre>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-14-1.png" width="1050" />
 <figcaption>
 Tapis des séquences triés
@@ -507,9 +505,14 @@ Tapis des séquences triés
 <p>Il est possible de trier les séquences pour rendre les tapis plus lisibles (on trie ici par <dfn lang="en">multidimensional scaling</dfn> à l’aide de la fonction <code data-pkg="stats">cmdscale</code>).</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ordre &lt;-<span class="st"> </span><span class="kw">cmdscale</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">k =</span> <span class="dv">1</span>)
-<span class="kw">seqiplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">sortv =</span> ordre, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, 
-  <span class="dt">tlim =</span> <span class="dv">0</span>, <span class="dt">space =</span> <span class="dv">0</span>, <span class="dt">border =</span> <span class="ot">NA</span>, <span class="dt">withlegend =</span> T, 
-  <span class="dt">yaxis =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<span class="kw">seqiplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">sortv =</span> ordre, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">tlim =</span> <span class="dv">0</span>, <span class="dt">space =</span> <span class="dv">0</span>, 
+  <span class="dt">border =</span> <span class="ot">NA</span>, <span class="dt">withlegend =</span> T, <span class="dt">yaxis =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<pre><code> [!] In rmarkdown::render() : withlegend is deprecated, use with.legend instead.</code></pre>
+<pre><code> [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
+ [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
+ [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
+ [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
+ [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.</code></pre>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-15-1.png" width="1050" />
 <figcaption>
 Tapis des séquences triés par multidimensional scaling
@@ -522,23 +525,22 @@ Tapis des séquences triés par multidimensional scaling
 <span class="kw">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</code></pre></div>
 <p>On peut ensuite générer le graphique ainsi :</p>
 <figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(JLutils)</code></pre></div>
-<pre><code>Loading required package: ggplot2</code></pre>
-<pre><code>Loading required package: plyr</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seq_heatmap</span>(seq, seq.agnes, <span class="dt">labCol =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(JLutils)
+<span class="kw">seq_heatmap</span>(seq, seq.agnes, <span class="dt">labCol =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>)</code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-17-1.png" width="1050" />
 <figcaption>
 Tapis des séquences trié selon le dendrogramme
 </figcaption>
 </figure>
 <p>La distance moyenne des séquences d’une classe au centre de cette classe, obtenue avec <code data-pkg="TraMineR">disscenter</code>, permet de mesurer plus précisément l’<dfn>homogénéité des classes</dfn><dfn data-index="classe, homogénéité"></dfn> :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">round</span>(<span class="kw">aggregate</span>(<span class="kw">disscenter</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">group =</span> seq.part), 
-  <span class="kw">list</span>(seq.part), mean)[, <span class="op">-</span><span class="dv">1</span>], <span class="dv">1</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">round</span>(<span class="kw">aggregate</span>(<span class="kw">disscenter</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">group =</span> seq.part), <span class="kw">list</span>(seq.part), mean)[, 
+  <span class="op">-</span><span class="dv">1</span>], <span class="dv">1</span>)</code></pre></div>
 <pre><code>[1] 13.1  8.9 15.6  9.7 16.5</code></pre>
 <p>Cela nous confirme que les classes 1, 3 et 5 sont nettement plus hétérogènes que les autres, alors que la classe 2 est la plus homogène.</p>
 <p>D’autres représentations graphiques existent pour poursuivre l’examen de la typologie. On peut visualiser les 10 séquences les plus fréquentes de chaque classe avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqfplot</code>.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqfplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">withlegend =</span> T)</code></pre></div>
+<pre><code> [!] In rmarkdown::render() : withlegend is deprecated, use with.legend instead.</code></pre>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-19-1.png" width="1050" />
 <figcaption>
 Séquences les plus fréquentes de chaque classe
@@ -546,8 +548,9 @@ Séquences les plus fréquentes de chaque classe
 </figure>
 <p>On peut aussi visualiser avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqmsplot</code> l’état modal (celui qui correspond au plus grand nombre de séquences de la classe) à chaque âge.</p>
 <figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqmsplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">withlegend =</span> T, 
-  <span class="dt">title =</span> <span class="st">&quot;classe&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqmsplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">withlegend =</span> T, <span class="dt">title =</span> <span class="st">&quot;classe&quot;</span>)</code></pre></div>
+<pre><code> [!] In rmarkdown::render() : title is deprecated, use main instead.</code></pre>
+<pre><code> [!] In rmarkdown::render() : withlegend is deprecated, use with.legend instead.</code></pre>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-20-1.png" width="1050" />
 <figcaption>
 Statut modal à chaque âge
@@ -556,6 +559,7 @@ Statut modal à chaque âge
 <p>On peut également représenter avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqmtplot</code> les durées moyennes passées dans les différents états.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqmtplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">withlegend =</span> T)</code></pre></div>
+<pre><code> [!] In rmarkdown::render() : withlegend is deprecated, use with.legend instead.</code></pre>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-21-1.png" width="1050" />
 <figcaption>
 Durée moyenne dans chaque statut
@@ -564,6 +568,7 @@ Durée moyenne dans chaque statut
 <p>Enfin, l’<dfn>entropie transversale</dfn><dfn data-index="transversale, entropie"></dfn> décrit l’évolution de l’homogénéité de la classe. Pour un âge donné, une entropie proche de 0 signifie que tous les individus de la classe (ou presque) sont dans la même situation. À l’inverse, l’entropie est de 1 si les individus sont dispersés dans toutes les situations. Ce type de graphique produit par <code data-pkg="TraMineR" data-rdoc="seqplot">seqHtplot</code> peut être pratique pour localiser les moments de transition, l’insertion professionnelle ou une mobilité sociale ascendante.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqHtplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">withlegend =</span> T)</code></pre></div>
+<pre><code> [!] In rmarkdown::render() : withlegend is deprecated, use with.legend instead.</code></pre>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-22-1.png" width="1050" />
 <figcaption>
 Entropie transversale
