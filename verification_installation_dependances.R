@@ -25,8 +25,8 @@ if (!length(m)) {
 
 # 2. Installer les packages manquants (CRAN ou GitHub) ----------------
 
-thru_github <- c("tidyverse", "questionr", "JLutils", "hrbrmstr", "ropensci")
-repo_github <- c("hadley", "juba", "larmarange", "ggalt", "plotly")
+thru_github <- c("tidyverse", "questionr", "JLutils", "hrbrmstr", "ropensci", "svrepmisc")
+repo_github <- c("hadley", "juba", "larmarange", "ggalt", "plotly", "carlganz")
 
 for (i in m[m %in% thru_github])
   install_github(paste0(repo_github[which(thru_github == i)], "/", i))
