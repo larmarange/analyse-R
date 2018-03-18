@@ -1,0 +1,101 @@
+---
+title: "Combiner plusieurs graphiques"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+Vous savez réaliser des [graphiques avec **ggplot2**](intro-ggplot2.html) ? Il est très facile de combiner plusieurs graphiques en un seul.
+
+## multiplot (JLutils)
+
+Dans son ouvrage *Cookbook for R*, Winston Chang propose une fonction `multiplot`{data-pkg="JLutils"} pour combiner plusieurs graphiques^[Voir <http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/>.]
+
+L'extension <strong class="pkg">JLutils</strong> disponible sur [GitHub](https://github.com/larmarange/JLutils) propose une version améliorée de cette fonction.
+
+Pour installer <strong class="pkg">JLutils</strong> si non disponible sur votre PC, copier/coller le code ci-dessous.
+
+```{r, eval=FALSE}
+if (!require(devtools)){
+	install.packages('devtools')
+	library(devtools)
+}
+install_github("larmarange/JLutils")
+```
+
+Commençons par créer quelques graphiques avec <strong class="pkg">ggplot2</strong>.
+
+```{r}
+library(ggplot2)
+p1 <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
+p2 <- ggplot(mtcars, aes(factor(cyl))) + geom_bar()
+p3 <- ggplot(mtcars, aes(factor(cyl), mpg)) + geom_violin()
+p4 <- ggplot(mtcars, aes(factor(cyl), mpg)) + geom_boxplot()
+```
+
+Parce que quelques exemples valent mieux qu'un long discours.
+
+
+```{r}
+library(JLutils)
+multiplot(p1, p2, p3, p4)
+multiplot(p1, p2, p3, p4, cols = 2)
+multiplot(p1, p2, p3, layout = matrix(c(1,2,3,3), nrow = 2))
+multiplot(p1, p2, p3, layout = matrix(c(1,2,3,3), nrow = 2, byrow = TRUE))
+multiplot(p1, p2, p3, layout = matrix(c(1,2,3,3), nrow = 2, byrow = TRUE), heights = c(3, 1))
+```
+
+## plot_grid (cowplot)
+
+L'extension <strong class="pkg">cowplot</strong> propose une fonction équivalente, `plot_grid`{data-pkg="cowplot"}. Son usage est expliqué en détail dans la vignette dédiée inclue avec l'extension : <https://cran.r-project.org/web/packages/cowplot/vignettes/plot_grid.html>.
+
+```{r}
+library(cowplot, quietly = TRUE)
+# simple grid
+plot_grid(p1, p2, p3, p4)
+
+# simple grid with labels and aligned plots
+plot_grid(p1, p2, p3, p4, labels=c('A', 'B', 'C', 'D'), align="hv")
+
+# manually setting the number of rows, auto-generate upper-case labels
+plot_grid(p1, p2, p3, nrow=3, labels="AUTO", label_size=12, align="v")
+
+# making rows and columns of different widths/heights
+plot_grid(p1, p2, p3, p4, align='hv', rel_heights=c(2,1), rel_widths=c(1,2))
+```
+
+On notera en passant que le chargement de <strong class="pkg">cowplot</strong> modifie le style par défaut des graphiques <strong class="pkg">ggplot2</strong>. Voir <https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html>.
+
+## Légende partagée entre plusieurs graphiques
+
+<strong class="pkg">JLutils</strong> et <strong class="pkg">cowplot</strong> fournissent tous deux une fonction `get_legend`{data-pkg="cowplot"} permettant d'extraire la légende d'un graphique puis de l'utiliser avec `multiplot`{data-pkg="JLutils"} ou `plot_grid`{data-pkg="cowplot"}.
+
+Créons quelques graphiques.
+
+```{r}
+dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
+p1 <- qplot(carat, price, data=dsamp, colour=clarity) +
+  theme(plot.margin = unit(c(6,0,6,0), "pt"))
+p2 <- qplot(depth, price, data=dsamp, colour=clarity) +
+  theme(plot.margin = unit(c(6,0,6,0), "pt")) + ylab("")
+p3 <- qplot(color, price, data=dsamp, colour=clarity) +
+  theme(plot.margin = unit(c(6,0,6,0), "pt")) + ylab("")
+```
+
+Récupérons la légende du premier graphique graphique puis supprimons là dans les trois graphiques.
+
+```{r}
+leg <- get_legend(p1)
+p1 <- p1 + theme(legend.position = "none")
+p2 <- p2 + theme(legend.position = "none")
+p3 <- p3 + theme(legend.position = "none")
+```
+
+Combinons le tout.
+
+```{r}
+multiplot(p1, p2, p3, leg, cols = 2)
+plot_grid(p1, p2, p3, leg, ncol = 2)
+```
+
