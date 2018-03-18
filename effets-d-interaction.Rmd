@@ -1,0 +1,391 @@
+---
+title: "Effets d'interaction dans un modèle"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+Dans un modèle statistique classique, on fait l'hypothèse implicite que chaque variable explicative est indépendante des autres. Cependant, cela ne se vérifie pas toujours. Par exemple, l'effet de l'âge peut varier en fonction du sexe. Il est dès lors nécessaire de prendre en compte dans son modèle les <dfn data-index="effet d'interaction">effets d'interaction</dfn><dfn data-index="interaction"></dfn>^[Pour une présentation plus statistique et mathématique des effets d'interaction, on pourra se référer au [cours de Jean-François Bickel disponible en ligne](http://commonweb.unifr.ch/artsdean/pub/gestens/f/as/files/4665/9547_131825.pdf).].
+
+## Exemple d'interaction
+
+Reprenons le modèle que nous avons utilisé dans le chapitre sur la [régression logistique](regression-logistique.html).
+
+
+```{r}
+library(questionr)
+data(hdv2003)
+d <- hdv2003
+d$sexe <- relevel(d$sexe, "Femme")
+d$grpage <- cut(d$age, c(16, 25, 45, 65, 99), right = FALSE, include.lowest = TRUE)
+d$etud <- d$nivetud
+levels(d$etud) <- c(
+  "Primaire", "Primaire", "Primaire", 
+  "Secondaire", "Secondaire", "Technique/Professionnel", 
+  "Technique/Professionnel", "Supérieur"
+  )
+d$etud <- addNAstr(d$etud, "Manquant")
+```
+
+Nous avions alors exploré les facteurs associés au fait de pratiquer du sport.
+
+
+```{r}
+mod <- glm(sport ~ sexe + grpage + etud + heures.tv + relig, data = d, family = binomial())
+odds.ratio(mod)
+```
+
+Selon les résultats de notre modèle, les hommes pratiquent plus un sport que les femmes et la pratique du sport diminue avec l'âge. Pour représenter les effets différentes variables, on peut avoir recours à la fonction `allEffects`{data-pkg="effects" data-rdocumentation="effects"} de l'extension <strong class="pkg">effects</strong>.
+
+<figure>
+```{r}
+library(effects)
+plot(allEffects(mod))
+```
+<figcaption>Représentation graphique des effets du modèle</figcaption>
+</figure>
+
+Cependant, l'effet de l'âge est-il le même selon le sexe ? Nous allons donc introduire une interaction entre l'âge et le sexe dans notre modèle, ce qui sera représenté par `sexe * grpage` dans l'équation du modèle.
+
+```{r}
+mod2 <- glm(sport ~ sexe * grpage + etud + heures.tv + relig, data = d, family = binomial())
+```
+
+Commençons par regarder les effets du modèle.
+
+<figure>
+```{r}
+plot(allEffects(mod2))
+```
+<figcaption>Représentation graphique des effets du modèle avec interaction entre le sexe et le groupe d'âge</figcaption>
+</figure>
+
+Sur ce graphique, on voit que l'effet de l'âge sur la pratique d'un sport est surtout marqué chez les hommes. Chez les femmes, le même effet est observé, mais dans une moindre mesure et seulement à partir de 45 ans.
+
+On peut tester si l'ajout de l'interaction améliore significativement le modèle avec `anova`{data-pkg="stats"}.
+
+```{r}
+anova(mod2, test = "Chisq")
+```
+
+
+Jetons maintenant un oeil aux coefficients du modèle. Pour rendre les choses plus visuelles, nous aurons recours à `ggcoef`{data-pkg="GGally"} de l'extension <strong class="pkg">GGally</strong>.
+
+
+<figure>
+```{r}
+library(GGally)
+ggcoef(mod2, exponentiate = TRUE)
+```
+<figcaption>Représentation graphique des coefficients du modèle avec interaction entre le sexe et le groupe d'âge</figcaption>
+</figure>
+
+Concernant l'âge et le sexe, nous avons trois séries de coefficients : trois coefficients (*grpage[25,45)*, *grpage[45,65)* et *grpage[65,99]*) qui correspondent à l'effet global de la variable *âge*, un coefficient (*sexeHomme*)pour l'effet global du sexe et trois coefficients qui sont des moficateurs de l'effet d'âge pour les hommes (*grpage[25,45)*, *grpage[45,65)* et *grpage[65,99]*).
+
+Pour bien interpréter ces coefficients, il faut toujours avoir en tête les modalités choisies comme référence pour chaque variable. Supposons une femme de 60 ans, dont toutes lautres variables correspondent aux modalités de référence (c'est donc une pratiquante régulière, de niveau primaire, qui ne regarde pas la télévision). Regardons ce que prédit le modèle quant à sa probabilité de faire du sport au travers d'une représentation graphique
+
+```{r include=FALSE}
+# Custom version of broken
+broken2.glm <- function(model, new_observation, ..., baseline = 0) {
+  #ny <- predict.glm(model, newdata = new_observation, type = "terms")
+  ny <- betas(model, new_observation)
+  terms <- NULL
+
+  # add terms with :
+  labels <- attr(terms(model), "term.labels")
+  ilabels <- grep(labels, pattern = ":", value = TRUE)
+  for (interact in ilabels) {
+    vars <- strsplit(interact, split = ":")[[1]]
+    new_observation[,interact] <- apply(new_observation[,vars], 1, paste0, collapse = ":")
+  }
+
+  broken_obj <- data.frame(variable = paste(colnames(ny),  "=",
+                                            sapply(new_observation[colnames(ny)], as.character)),
+                           contribution = c(ny),
+                           variable_name = colnames(ny),
+                           variable_value = sapply(new_observation[colnames(ny)], as.character))
+  broken_sorted <- broken_obj[order(-abs(broken_obj$contribution)),]
+
+  # set the baseline to the model (Intercept)
+  if (tolower(baseline) == "intercept") {
+    baseline <- attributes(ny)$constant
+    broken_sorted <- rbind(
+      data.frame(variable = "(Intercept)",
+                 contribution = 0,
+                 variable_name = "Intercept",
+                 variable_value = 1),
+      broken_sorted)
+  } else {
+    broken_sorted <- rbind(
+      data.frame(variable = "(Intercept)",
+                 contribution = attributes(ny)$constant - baseline,
+                 variable_name = "Intercept",
+                 variable_value = 1),
+      broken_sorted)
+  }
+
+  breakDown:::create.broken(broken_sorted, baseline)
+}
+
+
+betas <- function (object, newdata)
+{
+  tt <- terms(object)
+  Terms <- delete.response(tt)
+  mm <- model.matrix(Terms, newdata)
+  ass <- attr(mm, "assign")
+  tl <- attr(Terms, "term.labels")
+
+  co <- coef(object)
+  pred <- co * mm
+
+  ret <- matrix(rep_len(NA, length.out = length(tl) * nrow(newdata)), nrow = nrow(newdata))
+  colnames(ret) <- tl
+  rownames(ret) <- rownames(ret)
+
+  for (i in 1:length(tl)) {
+    ret[, i] <- rowSums(pred[, ass == i, drop = FALSE], na.rm = TRUE)
+  }
+  attr(ret, "constant") <- rowSums(pred[, ass == 0, drop = FALSE], na.rm = TRUE)
+
+  ret
+}
+
+
+```
+
+
+<figure>
+```{r echo=FALSE, message=FALSE}
+library(breakDown)
+library(ggplot2)
+logit <- function(x) exp(x)/(1+exp(x))
+nouvelle_observation <- d[1, ]
+nouvelle_observation$sexe[1] = "Femme"
+nouvelle_observation$grpage[1] = "[45,65)"
+nouvelle_observation$etud[1] = "Primaire"
+nouvelle_observation$relig[1] = "Pratiquant regulier"
+nouvelle_observation$heures.tv[1] = 0
+plot(
+  broken2.glm(
+    mod2,
+    nouvelle_observation
+  ),
+  trans = logit
+) + ylim(0, 1) + ylab("Probabilité de faire du sport")
+```
+<figcaption>Représentation graphique de l'estimation de la probabilité de faire du sport pour une femme de 60 ans</figcaption>
+</figure>
+
+En premier lieu, l'intercept s'applique et permet de déterminer la probabilité de base de faire du sport (si toutes les variables sont à leur valeur de référence). <q>Femme</q> étant la modalité de référence pour la variable <var>sexe</var>, cela ne modifie pas le calcul de la probabilité de faire du sport. Par contre, il y a une modification induite par la modalité <q>45-65</q> de la variable <var>grpage</var>.
+
+Regardons maintenant la situation d'un homme de 20 ans.
+
+<figure>
+```{r echo=FALSE, message=FALSE}
+nouvelle_observation$sexe[1] = "Homme"
+nouvelle_observation$grpage[1] = "[16,25)"
+plot(
+  broken2.glm(
+    mod2,
+    nouvelle_observation
+  ),
+  trans = logit
+) + ylim(0, 1) + ylab("Probabilité de faire du sport")
+```
+<figcaption>Représentation graphique de l'estimation de la probabilité de faire du sport pour un homme de 20 ans</figcaption>
+</figure>
+
+
+Nous sommes à la modalité de référence pour l'âge par contre il y a un effet important du sexe. Le coefficient associé globalement à la variable <var>sexe</var> correspond donc à l'effet du sexe à la modalité de référence du groupe d'âges.
+
+La situation est différente pour un homme de 60 ans.
+
+<figure>
+```{r echo=FALSE, message=FALSE}
+nouvelle_observation$grpage[1] = "[45,65)"
+plot(
+  broken2.glm(
+    mod2,
+    nouvelle_observation
+  ),
+  trans = logit
+) + ylim(0, 1) + ylab("Probabilité de faire du sport")
+```
+<figcaption>Représentation graphique de l'estimation de la probabilité de faire du sport pour un homme de 60 ans</figcaption>
+</figure>
+
+Cette fois-ci, il y a plusieurs modifications d'effet. On applique en effet à la fois le coefficient <q>sexe = Homme</q> (effet du sexe pour les 15-24 ans), le coefficient <q>grpage = [45-65)</q> qui est l'effet de l'âge pour les femmes de 45-64 ans et le coefficient <q>sexe:grpage = Homme:[45-65)</q> qui indique l'effet spécifique qui s'applique aux hommes de 45-64, d'une part par rapport aux femmes du même et d'autre part par rapport aux hommes de 16-24 ans. L'effet des coefficients d'interaction doivent donc être interprétés par rapport aux autres coefficients du modèle qui s'appliquent, en tenant compte des modalités de référence.
+
+Il est cependant possible d'écrire le même modèle différemment. En effet, `sexe * grpage` dans la formule du modèle est équivalent à l'écriture `sexe + grpage + sexe:grpage`, c'est-à-dire à modéliser un coefficient global pour chaque variable plus un des coefficients d'interaction. On aurait pu demander juste des coefficients d'interaction, en ne mettant que `sexe:grpage`.
+
+```{r}
+mod3 <- glm(sport ~ sexe : grpage + etud + heures.tv + relig, data = d, family = binomial())
+```
+
+Au sens strict, ce modèle explique tout autant le phénomène étudié que le modèle précédent. On peut le vérifier facilement avec `anova`{data-pkg="stats"}.
+
+```{r}
+anova(mod2, mod3, test = "Chisq")
+```
+
+De même, les effets modélisés sont les mêmes.
+
+
+<figure>
+```{r}
+plot(allEffects(mod3))
+```
+<figcaption>Représentation graphique des effets du modèle avec interaction simple entre le sexe et le groupe d'âge</figcaption>
+</figure>
+
+Par contre, regardons d'un peu plus près les coefficients de ce nouveau modèle. Nous allons voir que leur interprétation est légèrement différente.
+
+<figure>
+```{r}
+ggcoef(mod3, exponentiate = TRUE)
+```
+<figcaption>Représentation graphique des coefficients du modèle avec interaction simple entre le sexe et le groupe d'âge</figcaption>
+</figure>
+
+Cette fois-ci, il n'y a plus de coefficients globaux pour la variable <var>sexe</var> ni pour <var>grpage</var> mais des coefficients pour chaque combinaison de ces deux variables.
+
+<figure>
+```{r echo=FALSE, message=FALSE}
+plot(
+  broken2.glm(
+    mod3,
+    nouvelle_observation
+  ),
+  trans = logit
+) + ylim(0, 1) + ylab("Probabilité de faire du sport")
+```
+<figcaption>Représentation graphique de l'estimation de la probabilité de faire du sport pour un homme de 40 ans</figcaption>
+</figure>
+
+Cette fois-ci, le coefficient d'interaction fourrnit l'effet global du sexe et de l'âge, et non plus la modification de cette combinaison par rapport aux coefficients globaux. Leur sens est donc différent et il faudra les interpréter en conséquence.
+
+## Un second exemple d'interaction
+
+Intéressons-nous maintenant à l'interaction entre le sexe et le niveau d'étude. L'effet du niveau d'étude diffère-t-il selon l'âge ?
+
+```{r}
+mod4 <- glm(sport ~ sexe * etud + grpage + heures.tv + relig, data = d, family = binomial())
+```
+
+Regardons d'abord les effets.
+
+<figure>
+```{r}
+plot(allEffects(mod4))
+```
+<figcaption>Représentation graphique des effets du modèle avec interaction entre le sexe et le niveau d'étude</figcaption>
+</figure>
+
+À première vue, l'effet du niveau d'étude semble être le même chez les hommes et chez les femmes. Ceci dit, cela serait peut être plus lisible si l'on superposait les deux sexe sur un même graphique. Nous allons utiliser la fonction `ggeffect`{data-pkg="ggeffects"} de l'extension <strong class="pkg">ggeffects</strong> qui permets de récupérer les effets calculés avec `effect`{data-pkg="effects"} dans un format utilisable avec <strong class="pkg">ggplot2</strong>.
+
+<figure>
+```{r}
+library(ggeffects)
+plot(ggeffect(mod4, c("etud", "sexe")))
+```
+<figcaption>Effets du niveau d'étude selon le sexe</figcaption>
+</figure>
+
+Cela confirme ce que l'on suppose. Regardons les coefficients du modèle.
+
+
+<figure>
+```{r}
+ggcoef(mod4, exponentiate = TRUE)
+```
+<figcaption>Représentation graphique des coefficients du modèle avec interaction simple entre le sexe et le niveau d'étude</figcaption>
+</figure>
+
+```{r}
+odds.ratio(mod4)
+```
+
+Si les coefficients associés au niveau d'étude sont significatifs, ceux de l'interaction ne le sont pas (sauf <q>sexeHomme:etudManquant</q>) et celui associé au sexe, précédemment significatif ne l'est plus. Testons avec `anova`{data-pkg="stats"} si l'interaction est belle et bien significative.
+
+```{r}
+anova(mod4, test = "Chisq")
+```
+
+L'interaction est bien significative mais faiblement. Vu que l'effet du niveau d'étude reste nénamoins très similaire selon le sexe, on peut se demander s'il est pertinent de la conserver.
+
+## Explorer les différentes interactions possibles
+
+Il peut y avoir de multiples interactions dans un modèle, d'ordre 2 (entre deux variables) ou plus (entre trois variables ou plus). Il est dès lors tentant de tester les multiples interactions possibles de manière itératives afin d'identifier celles à retenir. C'est justement le but de la fonction `glmulti`{data-pkg="ggmulti"} de l'extension du même nom. `glmulti`{data-pkg="ggmulti"} permets de tester toutes les combinaisons d'interactions d'ordre 2 dans un modèle, en retenant le meilleur modèle à partir d'un critère spécifié (par défaut l'<df>AIC</dfn>). ATTENTION : le temps de calcul de `glmulti`{data-pkg="ggmulti"} peut-être long.
+
+```{r, eval=FALSE}
+library(glmulti)
+glmulti(sport ~ sexe + grpage + etud + heures.tv + relig, data = d, family = binomial())
+```
+
+```
+Initialization...
+TASK: Exhaustive screening of candidate set.
+Fitting...
+
+After 50 models:
+Best model: sport~1+grpage+heures.tv+sexe:heures.tv+grpage:heures.tv+etud:heures.tv
+Crit= 2284.87861987263
+Mean crit= 2406.80086471225
+
+After 100 models:
+Best model: sport~1+etud+heures.tv+grpage:heures.tv
+Crit= 2267.79462883348
+Mean crit= 2360.46497457747
+
+After 150 models:
+Best model: sport~1+grpage+etud+heures.tv+sexe:heures.tv
+Crit= 2228.88574082404
+Mean crit= 2286.60589884071
+
+After 200 models:
+Best model: sport~1+grpage+etud+heures.tv+sexe:heures.tv
+Crit= 2228.88574082404
+Mean crit= 2254.99359340075
+
+After 250 models:
+Best model: sport~1+sexe+grpage+etud+heures.tv+etud:sexe+sexe:heures.tv
+Crit= 2226.00088609349
+Mean crit= 2241.76611580481
+
+After 300 models:
+Best model: sport~1+sexe+grpage+etud+heures.tv+grpage:sexe+sexe:heures.tv
+Crit= 2222.67161519005
+Mean crit= 2234.95020358944
+```
+
+On voit qu'au bout d'un moment, l'algorithme se statibilise autour d'un modèle comportant une interaction entre le sexe et l'âge d'une part et entre le sexe et le nombre d'heures passées quotidiennement devant la télé. On voit également que la variable religion a été retirée du modèle final.
+
+```{r}
+best <- glm(sport~1+sexe+grpage+etud+heures.tv+grpage:sexe+sexe:heures.tv, data = d, family = binomial())
+odds.ratio(best)
+```
+
+
+<figure>
+```{r}
+ggcoef(best, exponentiate = TRUE)
+```
+<figcaption>Représentation graphique des coefficients du modèle avec interaction entre le sexe, le niveau d'étude et le nombre d'heures passées devant la télévision</figcaption>
+</figure>
+
+
+<figure>
+```{r}
+plot(allEffects(best))
+```
+<figcaption>Représentation graphique des effets du modèle avec interaction entre le sexe, le niveau d'étude et le nombre d'heures passées devant la télévision</figcaption>
+</figure>
+
+
+## Pour aller plus loin
+
+Il y a d'autres extensions dédiées à l'analyse des interactions d'un modèle, de même que de nombreux supports de cours en ligne dédiés à cette question.
+
+On pourra en particulier se référer à la vignette inclue avec l'extension <strong class="pkg">phia</strong> : <https://cran.r-project.org/web/packages/phia/vignettes/phia.pdf>.
