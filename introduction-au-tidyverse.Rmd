@@ -1,0 +1,122 @@
+---
+title: "Introduction au tidyverse"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+<div class="note">
+La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre de son
+[Introduction à R et au *tidyverse*](https://juba.github.io/tidyverse/06-tidyverse.html).
+</div>
+
+
+## Extensions
+
+Le terme **tidyverse** est une contraction de *tidy* (qu'on pourrait traduire par "bien rangé") et de *universe*. Il s'agit en fait d'une collection d'extensions conçues pour travailler ensemble et basées sur une philosophie commune.
+
+Elles abordent un très grand nombre d'opérations courantes dans **R** (la liste n'est pas exhaustive) :
+
+- visualisation 
+- manipulation des tableaux de données
+- import/export de données 
+- manipulation de variables 
+- extraction de données du Web 
+- programmation
+
+Un des objectifs de ces extensions est de fournir des fonctions avec une syntaxe cohérente, qui fonctionnent bien ensemble, et qui retournent des résultats prévisibles. Elles sont en grande partie issues du travail d'[Hadley Wickham](http://hadley.nz/), qui travaille désormais pour [RStudio](https://www.rstudio.com).
+
+
+## Installation
+
+<strong class="pkg">tidyverse</strong> est également le nom d'une extension qu'on peut installer de manière classique, soit via le bouton *Install* de l'onglet *Packages* de **RStudio**, soit en utilisant la commande :
+
+```{r eval=FALSE}
+install.packages("tidyverse")
+```
+
+Cette commande va en fait installer plusieurs extensions qui constituent le <q>coeur</q> du <dfn lang="en">tidyverse</dfn>, à savoir :
+
+- <strong class="pkg">ggplot2</strong> (visualisation)
+- <strong class="pkg">dplyr</strong> (manipulation des données)
+- <strong class="pkg">tidyr</strong> (remise en forme des données)
+- <strong class="pkg">purrr</strong> (programmation)
+- <strong class="pkg">readr</strong> (importation de données)
+- <strong class="pkg">tibble</strong> (tableaux de données)
+- <strong class="pkg">forcats</strong> (variables qualitatives)
+- <strong class="pkg">stringr</strong> (chaînes de caractères)
+
+De la même manière, charger l'extension avec :
+
+```{r eval=FALSE}
+library(tidyverse)
+```
+
+Chargera l'ensemble des extensions précédentes.
+
+Il existe d'autres extensions qui font partie du <strong class="pkg">tidyverse</strong> mais qui doivent être chargées explicitement, comme par exemple <strong class="pkg">readxl</strong> (pour l'importation de données depuis des fichiers Excel).
+
+La liste complète des extensions se trouve sur [le site officiel du *tidyverse*](https://www.tidyverse.org/packages/).
+
+
+## tidy data {#tidydata}
+
+Le <strong class="pkg">tidyverse</strong> est en partie fondé sur le concept de <dfn lang="en">tidy data</dfn>, développé à l'origine par Hadley Wickham dans un [article de 2014](https://www.jstatsoft.org/article/view/v059i10) du *Journal of Statistical Software*.
+
+Il s'agit d'un modèle d'organisation des données qui vise à faciliter le travail souvent long et fastidieux de nettoyage et de préparation préalable à la mise en oeuvre de méthodes d'analyse.
+
+Les principes d'un jeu de données *tidy* sont les suivants :
+
+1. chaque variable est une colonne
+2. chaque observation est une ligne
+3. chaque type d'observation est dans une table différente
+
+Un [chapitre dédié à **tidyr**](reorganiser-ses-donnees-avec-tidyr.html) présente comment définir et rendre des données *tidy* avec l'extension <strong class="pkg">tidyr</strong>.
+
+Les extensions du <strong class="pkg">tidyverse</strong>, notamment <strong class="pkg">ggplot2</strong> et <strong class="pkg">dplyr</strong>, sont prévues pour fonctionner avec des données *tidy*. 
+
+
+## tibbles {#tibbles}
+
+Une autre particularité du *tidyverse* est que ces extensions travaillent avec des tableaux de données au format `tibble`{data-pkg="tibble"}, qui est une évolution plus moderne du classique *data frame* du **R** de base. Ce format est fourni est géré par l'extension du même nom (<strong class="pkg">tibble</strong>), qui fait partie du coeur du **tidyverse**. La plupart des fonctions des extensions du **tidyverse** acceptent des *data frames* en entrée, mais retournent un objet de classe `tibble`{data-pkg="tibble"}.
+
+Contrairement aux *data frames*, les *tibbles* :
+
+- n'ont pas de noms de lignes (*rownames*)
+- autorisent des noms de colonnes invalides pour les *data frames* (espaces, caractères spéciaux, nombres...) ^[Quand on veut utiliser des noms de ce type, on doit les entourer avec des *backticks* (`)]
+- s'affichent plus intelligemment que les *data frames* : seules les premières lignes sont affichées, ainsi que quelques informations supplémentaires utiles (dimensions, types des colonnes...)
+- ne font pas de *partial matching* sur les noms de colonnes ^[Dans **R** de base, si une table `d` contient une colonne `qualif`, `d$qual` retournera cette colonne.]
+- affichent un avertissement si on essaie d'accéder à une colonne qui n'existe pas
+
+Pour autant, les tibbles restent compatibles avec les *data frames*. On peut ainsi facilement convertir un *data frame* en tibble avec `as_tibble`{data-pkg="tibble"} :
+
+```{r paged.print=FALSE, warning=FALSE}
+library(tidyverse)
+as_tibble(mtcars)
+```
+
+Si le *data frame* d'origine a des *rownames*, on peut d'abord les convertir en colonnes avec `rownames_to_columns`{data-pkg="tibble"} :
+
+```{r warning=FALSE, paged.print=FALSE}
+d <- as_tibble(rownames_to_column(mtcars))
+d
+```
+
+À l'inverse, on peut à tout moment convertir un tibble en *data frame* avec `as.data.frame`{data-pkg="tibble" data-rdoc="tibble"} :
+
+```{r paged.print=FALSE}
+as.data.frame(d)
+```
+
+Là encore, on peut convertir la colonne *rowname* en "vrais" *rownames* avec `column_to_rownames`{data-pkg="tibble" data-rdoc="rownames"} :
+
+```{r warning=FALSE, paged.print=FALSE}
+column_to_rownames(as.data.frame(d))
+```
+
+<div class="note">
+Les deux fonctions `column_to_rownames`{data-pkg="tibble" data-rdoc="rownames"} et `rownames_to_column`{data-pkg="tibble"} acceptent un argument supplémentaire `var` qui permet d'indiquer un nom de colonne autre que le nom `rowname` utilisé par défaut pour créer ou identifier la colonne contenant les noms de lignes.
+</div>
+
+
