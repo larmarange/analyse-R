@@ -198,7 +198,7 @@ pre:not([class]) {
 Introduction <br>à l’analyse d’enquêtes <br>avec R et RStudio
 </h1>
 <p>
-Dernière mise à jour : 18 mars 2018
+Dernière mise à jour : 20 mars 2018
 </p>
 </div>
 <div id="contributeurs" class="section level2">
@@ -10641,15 +10641,39 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 Représentation graphique des coefficients du modèle avec interaction entre le sexe et le groupe d’âge
 </figcaption></figure><p>Concernant l’âge et le sexe, nous avons trois séries de coefficients : trois coefficients (<em>grpage[25,45)</em>, <em>grpage[45,65)</em> et <em>grpage[65,99]</em>) qui correspondent à l’effet global de la variable <em>âge</em>, un coefficient (<em>sexeHomme</em>)pour l’effet global du sexe et trois coefficients qui sont des moficateurs de l’effet d’âge pour les hommes (<em>grpage[25,45)</em>, <em>grpage[45,65)</em> et <em>grpage[65,99]</em>).</p>
 <p>Pour bien interpréter ces coefficients, il faut toujours avoir en tête les modalités choisies comme référence pour chaque variable. Supposons une femme de 60 ans, dont toutes lautres variables correspondent aux modalités de référence (c’est donc une pratiquante régulière, de niveau primaire, qui ne regarde pas la télévision). Regardons ce que prédit le modèle quant à sa probabilité de faire du sport au travers d’une représentation graphique</p>
-<figure><img src="graphs/effets-d-interaction/unnamed-chunk-9-1.png" width="1050"><figcaption>
+<figure><div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(breakDown)
+<span class="kw">library</span>(ggplot2)
+logit &lt;-<span class="st"> </span><span class="cf">function</span>(x) <span class="kw">exp</span>(x)<span class="op">/</span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="kw">exp</span>(x))
+nouvelle_observation &lt;-<span class="st"> </span>d[<span class="dv">1</span>, ]
+nouvelle_observation<span class="op">$</span>sexe[<span class="dv">1</span>] =<span class="st"> "Femme"</span>
+nouvelle_observation<span class="op">$</span>grpage[<span class="dv">1</span>] =<span class="st"> "[45,65)"</span>
+nouvelle_observation<span class="op">$</span>etud[<span class="dv">1</span>] =<span class="st"> "Primaire"</span>
+nouvelle_observation<span class="op">$</span>relig[<span class="dv">1</span>] =<span class="st"> "Pratiquant regulier"</span>
+nouvelle_observation<span class="op">$</span>heures.tv[<span class="dv">1</span>] =<span class="st"> </span><span class="dv">0</span>
+<span class="kw">plot</span>(<span class="kw">broken</span>(mod2, nouvelle_observation, <span class="dt">predict.function =</span> betas), <span class="dt">trans =</span> logit) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Probabilité de faire du sport"</span>)</code></pre></div>
+<pre><code>Scale for 'y' is already present. Adding another scale for 'y', which will
+replace the existing scale.</code></pre>
+<img src="graphs/effets-d-interaction/unnamed-chunk-8-1.png" width="1050"><figcaption>
 Représentation graphique de l’estimation de la probabilité de faire du sport pour une femme de 60 ans
 </figcaption></figure><p>En premier lieu, l’intercept s’applique et permet de déterminer la probabilité de base de faire du sport (si toutes les variables sont à leur valeur de référence). <q>Femme</q> étant la modalité de référence pour la variable <var>sexe</var>, cela ne modifie pas le calcul de la probabilité de faire du sport. Par contre, il y a une modification induite par la modalité <q>45-65</q> de la variable <var>grpage</var>.</p>
 <p>Regardons maintenant la situation d’un homme de 20 ans.</p>
-<figure><img src="graphs/effets-d-interaction/unnamed-chunk-10-1.png" width="1050"><figcaption>
+<figure><div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">nouvelle_observation<span class="op">$</span>sexe[<span class="dv">1</span>] =<span class="st"> "Homme"</span>
+nouvelle_observation<span class="op">$</span>grpage[<span class="dv">1</span>] =<span class="st"> "[16,25)"</span>
+<span class="kw">plot</span>(<span class="kw">broken</span>(mod2, nouvelle_observation, <span class="dt">predict.function =</span> betas), <span class="dt">trans =</span> logit) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Probabilité de faire du sport"</span>)</code></pre></div>
+<pre><code>Scale for 'y' is already present. Adding another scale for 'y', which will
+replace the existing scale.</code></pre>
+<img src="graphs/effets-d-interaction/unnamed-chunk-9-1.png" width="1050"><figcaption>
 Représentation graphique de l’estimation de la probabilité de faire du sport pour un homme de 20 ans
 </figcaption></figure><p>Nous sommes à la modalité de référence pour l’âge par contre il y a un effet important du sexe. Le coefficient associé globalement à la variable <var>sexe</var> correspond donc à l’effet du sexe à la modalité de référence du groupe d’âges.</p>
 <p>La situation est différente pour un homme de 60 ans.</p>
-<figure><img src="graphs/effets-d-interaction/unnamed-chunk-11-1.png" width="1050"><figcaption>
+<figure><div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">nouvelle_observation<span class="op">$</span>grpage[<span class="dv">1</span>] =<span class="st"> "[45,65)"</span>
+<span class="kw">plot</span>(<span class="kw">broken</span>(mod2, nouvelle_observation, <span class="dt">predict.function =</span> betas), <span class="dt">trans =</span> logit) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Probabilité de faire du sport"</span>)</code></pre></div>
+<pre><code>Scale for 'y' is already present. Adding another scale for 'y', which will
+replace the existing scale.</code></pre>
+<img src="graphs/effets-d-interaction/unnamed-chunk-10-1.png" width="1050"><figcaption>
 Représentation graphique de l’estimation de la probabilité de faire du sport pour un homme de 60 ans
 </figcaption></figure><p>Cette fois-ci, il y a plusieurs modifications d’effet. On applique en effet à la fois le coefficient <q>sexe = Homme</q> (effet du sexe pour les 15-24 ans), le coefficient <q>grpage = [45-65)</q> qui est l’effet de l’âge pour les femmes de 45-64 ans et le coefficient <q>sexe:grpage = Homme:[45-65)</q> qui indique l’effet spécifique qui s’applique aux hommes de 45-64, d’une part par rapport aux femmes du même et d’autre part par rapport aux hommes de 16-24 ans. L’effet des coefficients d’interaction doivent donc être interprétés par rapport aux autres coefficients du modèle qui s’appliquent, en tenant compte des modalités de référence.</p>
 <p>Il est cependant possible d’écrire le même modèle différemment. En effet, <code>sexe * grpage</code> dans la formule du modèle est équivalent à l’écriture <code>sexe + grpage + sexe:grpage</code>, c’est-à-dire à modéliser un coefficient global pour chaque variable plus un des coefficients d’interaction. On aurait pu demander juste des coefficients d’interaction, en ne mettant que <code>sexe:grpage</code>.</p>
@@ -10665,14 +10689,18 @@ Model 2: sport ~ sexe:grpage + etud + heures.tv + relig
 2      1977     2193.1  0        0         </code></pre>
 <p>De même, les effets modélisés sont les mêmes.</p>
 <figure><div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">allEffects</span>(mod3))</code></pre></div>
-<img src="graphs/effets-d-interaction/unnamed-chunk-14-1.png" width="1050"><figcaption>
+<img src="graphs/effets-d-interaction/unnamed-chunk-13-1.png" width="1050"><figcaption>
 Représentation graphique des effets du modèle avec interaction simple entre le sexe et le groupe d’âge
 </figcaption></figure><p>Par contre, regardons d’un peu plus près les coefficients de ce nouveau modèle. Nous allons voir que leur interprétation est légèrement différente.</p>
 <figure><div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggcoef</span>(mod3, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<img src="graphs/effets-d-interaction/unnamed-chunk-15-1.png" width="1050"><figcaption>
+<img src="graphs/effets-d-interaction/unnamed-chunk-14-1.png" width="1050"><figcaption>
 Représentation graphique des coefficients du modèle avec interaction simple entre le sexe et le groupe d’âge
 </figcaption></figure><p>Cette fois-ci, il n’y a plus de coefficients globaux pour la variable <var>sexe</var> ni pour <var>grpage</var> mais des coefficients pour chaque combinaison de ces deux variables.</p>
-<figure><img src="graphs/effets-d-interaction/unnamed-chunk-16-1.png" width="1050"><figcaption>
+<figure><div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">broken</span>(mod3, nouvelle_observation, <span class="dt">predict.function =</span> betas), <span class="dt">trans =</span> logit) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">"Probabilité de faire du sport"</span>)</code></pre></div>
+<pre><code>Scale for 'y' is already present. Adding another scale for 'y', which will
+replace the existing scale.</code></pre>
+<img src="graphs/effets-d-interaction/unnamed-chunk-15-1.png" width="1050"><figcaption>
 Représentation graphique de l’estimation de la probabilité de faire du sport pour un homme de 40 ans
 </figcaption></figure><p>Cette fois-ci, le coefficient d’interaction fourrnit l’effet global du sexe et de l’âge, et non plus la modification de cette combinaison par rapport aux coefficients globaux. Leur sens est donc différent et il faudra les interpréter en conséquence.</p>
 </div>
@@ -10682,16 +10710,16 @@ Représentation graphique de l’estimation de la probabilité de faire du sport
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mod4 &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">*</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>heures.tv <span class="op">+</span><span class="st"> </span>relig, <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>())</code></pre></div>
 <p>Regardons d’abord les effets.</p>
 <figure><div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">allEffects</span>(mod4))</code></pre></div>
-<img src="graphs/effets-d-interaction/unnamed-chunk-18-1.png" width="1050"><figcaption>
+<img src="graphs/effets-d-interaction/unnamed-chunk-17-1.png" width="1050"><figcaption>
 Représentation graphique des effets du modèle avec interaction entre le sexe et le niveau d’étude
 </figcaption></figure><p>À première vue, l’effet du niveau d’étude semble être le même chez les hommes et chez les femmes. Ceci dit, cela serait peut être plus lisible si l’on superposait les deux sexe sur un même graphique. Nous allons utiliser la fonction <code data-pkg="ggeffects">ggeffect</code> de l’extension <strong class="pkg">ggeffects</strong> qui permets de récupérer les effets calculés avec <code data-pkg="effects">effect</code> dans un format utilisable avec <strong class="pkg">ggplot2</strong>.</p>
 <figure><div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggeffects)
 <span class="kw">plot</span>(<span class="kw">ggeffect</span>(mod4, <span class="kw">c</span>(<span class="st">"etud"</span>, <span class="st">"sexe"</span>)))</code></pre></div>
-<img src="graphs/effets-d-interaction/unnamed-chunk-19-1.png" width="1050"><figcaption>
+<img src="graphs/effets-d-interaction/unnamed-chunk-18-1.png" width="1050"><figcaption>
 Effets du niveau d’étude selon le sexe
 </figcaption></figure><p>Cela confirme ce que l’on suppose. Regardons les coefficients du modèle.</p>
 <figure><div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggcoef</span>(mod4, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<img src="graphs/effets-d-interaction/unnamed-chunk-20-1.png" width="1050"><figcaption>
+<img src="graphs/effets-d-interaction/unnamed-chunk-19-1.png" width="1050"><figcaption>
 Représentation graphique des coefficients du modèle avec interaction simple entre le sexe et le niveau d’étude
 </figcaption></figure><div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">odds.ratio</span>(mod4)</code></pre></div>
 <pre><code>Waiting for profiling to be done...</code></pre>
@@ -10800,10 +10828,10 @@ sexeHomme:heures.tv         1.115351 0.979397  1.2705 0.0997266 .
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <figure><div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggcoef</span>(best, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<img src="graphs/effets-d-interaction/unnamed-chunk-25-1.png" width="1050"><figcaption>
+<img src="graphs/effets-d-interaction/unnamed-chunk-24-1.png" width="1050"><figcaption>
 Représentation graphique des coefficients du modèle avec interaction entre le sexe, le niveau d’étude et le nombre d’heures passées devant la télévision
 </figcaption></figure><figure><div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">allEffects</span>(best))</code></pre></div>
-<img src="graphs/effets-d-interaction/unnamed-chunk-26-1.png" width="1050"><figcaption>
+<img src="graphs/effets-d-interaction/unnamed-chunk-25-1.png" width="1050"><figcaption>
 Représentation graphique des effets du modèle avec interaction entre le sexe, le niveau d’étude et le nombre d’heures passées devant la télévision
 </figcaption></figure>
 </div>
