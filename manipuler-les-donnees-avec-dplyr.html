@@ -1,0 +1,2031 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>Manipuler les données avec dplyr</title>
+
+<script src="libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="libs/navigation-1.1/tabsets.js"></script>
+<meta name="robots" content="index, follow">
+<link rel="stylesheet" href="./include/analyse-R.css" />
+<script type="text/javascript" src="./libs/zeroclipboard-2.2.0/ZeroClipboard.js"></script>
+<link rel="stylesheet" href="./libs/colorbox-1.6.1/colorbox.css" />
+<script type="text/javascript" src="./libs/colorbox-1.6.1/jquery.colorbox-min.js"></script>
+<!--- favicon --->
+<link rel="apple-touch-icon" sizes="57x57" href="./images/favicon/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="./images/favicon/apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="./images/favicon/apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="./images/favicon/apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="./images/favicon/apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="./images/favicon/apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="./images/favicon/apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="./images/favicon/apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./images/favicon/apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192"  href="./images/favicon/android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="./images/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="./images/favicon/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./images/favicon/favicon-16x16.png">
+<link rel="manifest" href="./images/favicon/manifest.json">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="./images/favicon/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+<nav>
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href=".">analyse-R</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="manipuler" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Manipuler <span class="caret"></span></a>
+          <ul class="dropdown-menu multi-column columns-3" role="menu" id="menu_manipuler">
+            <div class="row">
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+  		            <li class="dropdown-header">Prise en main</li>
+                  <li><a href="presentation-et-philosophie.html">Présentation et Philosophie</a></li>
+                  <li><a href="installation-de-R-et-RStudio.html">Installation de R et RStudio</a></li>
+                  <li><a href="premier-contact.html">Premier contact</a></li>
+                  <li><a href="premier-travail-avec-les-donnees.html">Premier travail avec des données</a></li>
+                  <li><a href="extensions.html">Extensions (installation, mise à jour)</a></li>
+                  <li><a href="introduction-au-tidyverse.html">Introduction au tidyverse</a></li>
+                  <li><a href="vecteurs-indexation-et-assignation.html">Vecteurs, indexation et assignation</a></li>
+                  <li><a href="listes-et-tableaux-de-donnes.html">Listes et Tableaux de données</a></li>
+                  <li><a href="facteurs-et-vecteurs-labellises.html">Facteurs et vecteurs labellisés</a></li>
+                  <li><a href="organiser-ses-fichiers.html">Organiser ses fichiers</a></li>
+                  <li><a href="import-de-donnees.html">Import de données</a></li>
+                  <li><a href="ou-trouver-de-l-aide.html">Où trouver de l'aide ?</a></li>
+  	            </ul>
+              </div>
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+  		            <li class="dropdown-header">Manipulation de données</li>
+  		            <li><a href="visualiser-ses-donnees.html">Visualiser ses données</a></li>
+  		            <li><a href="recodage.html">Recodage de variables</a></li>
+                  <li><a href="manipuler-les-donnees-avec-dplyr.html">Manipuler les données avec dplyr</a></li>
+                  <li><a href="manipulations-avancees-avec-data-table.html">Manipulations avancées avec data.table</a></li>
+                  <li><a href="tris.html">Tris</a></li>
+                  <li><a href="sous-ensembles.html">Sous-ensembles</a></li>
+                  <li><a href="fusion-de-tables.html">Fusion de tables</a></li>
+                  <li class="dev"><a href="gestion-des-dates.html">Gestion des dates</a></li>
+                  <li class="dev"><a href="agregation.html">Agrégation</a></li>
+                  <li class="dev"><a href="fonctions-a-fenetre.html">Fonctions à fenêtre</a></li>
+                  <li class="dev"><a href="reorganiser-ses-donnees-avec-tidyr.html">Réorganiser ses données avec tidyr</a></li>
+                  <li class="dev"><a href="manipuler-du-texte.html">Manipuler du texte</a></li>
+                  <li><a href="scraping.html">Scraping</a></li>
+  	            </ul>
+              </div>
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+                  <li class="dropdown-header">Exporter</li>
+                  <li class="dev"><a href="export-de-donnees.html">Export de données</a></li>
+                  <li><a href="export-de-graphiques.html">Export de graphiques</a></li>
+                  <li class="dev"><a href="export-de-tableaux.html">Export de tableaux</a></li>
+  	            </ul>
+              </div>
+            </div>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="analyser" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Analyser <span class="caret"></span></a>
+          <ul class="dropdown-menu multi-column columns-3" role="menu" id="menu_analyser">
+            <div class="row">
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+  		            <li class="dropdown-header">Statistiques introductives</li>
+                  <li><a href="statistique-univariee.html">Statistique univariée</a></li>
+                  <li><a href="statistique-bivariee.html">Statistique bivariée</a></li>
+                  <li><a href="intro-ggplot2.html">Introduction à ggplot2, la grammaire des graphiques</a></li>
+                  <li><a href="graphiques-bivaries-ggplot2.html">Graphiques univariés et bivariés avec ggplot2</a></li>
+                  <li><a href="donnees-ponderees.html">Données pondérées</a></li>
+                  <li class="dev"><a href="graphiques-de-donnees-ponderees.html">Graphiques de données pondérées</a></li>
+  	            </ul>
+              </div>
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+  		            <li class="dropdown-header">Statistiques intermédiaires</li>
+  		            <li><a href="intervalles-de-confiance.html">Intervalles de confiance</a></li>
+                  <li><a href="comparaisons-moyennes-et-proportions.html">Comparaisons (moyennes et proportions)</a></li>
+                  <li><a href="definir-un-plan-d-echantillonnage-complexe.html">Définir un plan d'échantillonnage complexe</a></li>
+                  <li class="dev"><a href="regression-lineaire.html">Régression linéaire</a></li>
+                  <li><a href="regression-logistique.html">Régression logistique binaire, multinomiale et ordinale</a></li>
+                  <li><a href="analyse-des-correspondances-multiples.html">Analyse des correspondances multiples (ACM)</a></li>
+                  <li><a href="classification-ascendante-hierarchique.html">Classification ascendante hiérarchique (CAH)</a></li>
+  	            </ul>
+              </div>
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+                  <li class="dropdown-header">Statistiques avancées</li>
+                  <li><a href="effets-d-interaction.html">Effets d'interaction dans un modèle</a></li>
+                  <li class="dev"><a href="modeles-lineaires-a-effets-mixtes.html">Modèles linéaires à effets mixtes</a></li>
+                  <li class="dev"><a href="modeles-gee.html">Modèles GEE</a></li>
+                  <li class="dev"><a href="series-temporelles.html">Séries temporelles</a></li>
+                  <li class="dev"><a href="modeles-a-temps-discret.html">Modèles à temps discret</a></li>
+                  <li><a href="analyse-de-survie.html">Analyse de survie</a></li>
+                  <li><a href="analyse-de-sequences.html">Analyse de séquences</a></li>
+                  <li class="dev"><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
+                  <li class="dev"><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+  	            </ul>
+              </div>
+            </div>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="approfondir" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Approfondir <span class="caret"></span></a>
+          <ul class="dropdown-menu multi-column columns-3" role="menu" id="menu_approfondir">
+            <div class="row">
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+  		            <li class="dropdown-header">Graphiques</li>
+                  <li><a href="combiner-plusieurs-graphiques.html">Combiner plusieurs graphiques</a></li>
+                  <li><a href="graphiques-interactifs.html">Graphiques interactifs</a></li>
+                  <li class="dev"><a href="lattice-graphiques-et-formules.html">lattice : graphiques et formules</a></li>
+                  <li class="dev"><a href="diagrammes.html">Diagrammes</a></li>
+                  <li class="dev"><a href="representer-des-flux.html">Représenter des flux</a></li>
+                  <li class="dev"><a href="reseaux-dynamiques.html">Réseaux dynamiques</a></li>
+                  <li class="dev"><a href="htmlwidgets-la-puissance-du-javascript.html">htmlwidgets : la puissance de javascript</a></li>
+                  <li class="dev"><a href="cartes.html">Cartes</a></li>
+  	            </ul>
+              </div>
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+  		            <li class="dropdown-header">Programmation</li>
+  		            <li><a href="conditions-et-comparaisons.html">Conditions et comparaisons</a></li>
+                  <li><a href="formules.html">Formules</a></li>
+                  <li class="dev"><a href="structures-conditionnelles.html">Structures conditionnelles</a></li>
+                  <li class="dev"><a href="expressions-regulieres.html">Expressions régulières</a></li>
+                  <li class="dev"><a href="ecrire-ses-propres-fonctions.html">Écrire ses propres fonctions</a></li>
+                  <li class="dev"><a href="rmarkdown-les-rapports-automatises.html">R Markdown : les rapports automatisés</a></li>
+                  <li class="dev"><a href="shiny-les-interfaces-interactives.html">Shiny : les interfaces interactives</a></li>
+                  <li class="dev"><a href="git.html">Git</a></li>
+                  <li class="dev"><a href="developper-un-package.html">Développer un package</a></li>
+  	            </ul>
+              </div>
+              <div class="col-sm-4">
+  	            <ul class="multi-column-dropdown">
+                  <li class="dropdown-header">Divers</li>
+                  <li><a href="calculer-un-age.html">Calculer un âge</a></li>
+                  <li class="dev"><a href="diagramme-de-lexis.html">Diagramme de Lexis</a></li>
+  	            </ul>
+              </div>
+            </div>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="index" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Index <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu" id="menu_naviguer">
+            <li><a href="index-des-concepts.html">Index des concepts</a></li>
+            <li><a href="index-des-fonctions.html">Index des fonctions</a></li>
+            <li><a href="index-des-extensions.html">Index des extensions</a></li>
+          </ul>
+        </li>
+        <li><a href="analyse-R.pdf">PDF</a></li>
+      </ul>
+    <form id="rechercher" class="navbar-form navbar-right" role="search" style="padding-top: 5px;" method="get" action="https://tontonroger.org/">
+      <div class="form-group">
+        <input name="q" type="text" class="form-control input-sm" placeholder="Rechercher">
+      </div>
+      <button type="submit" class="btn btn-default btn-sm" name="Rechercher">
+        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+      </button>
+    </form>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+</nav>
+
+<div class="row">
+
+<a href="https://github.com/larmarange/analyse-R"><img style="position: absolute; top: 60px; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Contribuer sur GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
+
+<div class="col-sm-9" role="main">
+<article>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Manipuler les données avec dplyr</h1>
+
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#preparation">Préparation</a></li>
+<li><a href="#les-verbes-de-dplyr">Les verbes de dplyr</a><ul>
+<li><a href="#slice">slice</a></li>
+<li><a href="#filter">filter</a></li>
+<li><a href="#select-et-rename">select et rename</a></li>
+<li><a href="#arrange">arrange</a></li>
+<li><a href="#mutate">mutate</a></li>
+</ul></li>
+<li><a href="#pipe">Enchaîner les opérations avec le <q>pipe</q></a></li>
+<li><a href="#operations-groupees">Opérations groupées</a><ul>
+<li><a href="#group_by">group_by</a></li>
+<li><a href="#summarise-et-count">summarise et count</a></li>
+<li><a href="#grouper-selon-plusieurs-variables">Grouper selon plusieurs variables</a></li>
+</ul></li>
+<li><a href="#autres-fonctions-utiles">Autres fonctions utiles</a><ul>
+<li><a href="#sample_n-et-sample_frac">sample_n et sample_frac</a></li>
+<li><a href="#lead-et-lag">lead et lag</a></li>
+<li><a href="#tally">tally</a></li>
+<li><a href="#distinct">distinct</a></li>
+</ul></li>
+<li><a href="#tables-multiples">Tables multiples</a><ul>
+<li><a href="#concatenation-bind_rows-et-bind_cols">Concaténation : bind_rows et bind_cols</a></li>
+<li><a href="#jointures">Jointures</a></li>
+<li><a href="#types-de-jointures">Types de jointures</a></li>
+</ul></li>
+<li><a href="#ressources">Ressources</a></li>
+<li><a href="#dplyr-et-data.table">dplyr et data.table</a></li>
+</ul>
+</div>
+
+<div class="note">
+<p>La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre de son <a href="https://juba.github.io/tidyverse/10-dplyr.html">Introduction à R et au <em>tidyverse</em></a>.</p>
+</div>
+<p><code class="pkg">dplyr</code> est une extension facilitant le traitement et la manipulation de données contenues dans une ou plusieurs tables (qu’il s’agisse de <em>data frame</em> ou de <em>tibble</em>). Elle propose une syntaxe claire et cohérente, sous formes de verbes, pour la plupart des opérations de ce type.</p>
+<p>Par ailleurs, les fonctions de `<code class="pkg">dplyr</code> sont en général plus rapides que leur équivalent sous <strong>R</strong> de base, elles permettent donc de traiter des données de grande dimension.</p>
+<p><code class="pkg">dplyr</code> part du principe que les données sont <em>tidy</em> (voir la <a href="introduction-au-tidyverse.html#tidydata">section consacrée aux tidy data</a>). Les fonctions de l’extension peuvent s’appliquer à des tableaux de type <code data-pkg="base">data.frame</code> ou <code data-pkg="tibble">tibble</code>, et elles retournent systématiquement un <code data-pkg="tibble">tibble</code> (voir la <a href="introduction-au-tidyverse.html#tibbles">section dédiée</a>).</p>
+<div id="preparation" class="section level2">
+<h2>Préparation</h2>
+<p><code class="pkg">dplyr</code> fait partie du coeur du <strong>tidyverse</strong>, elle est donc chargée automatiquement avec :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tidyverse)</code></pre></div>
+<p>On peut également la charger individuellement avec :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)</code></pre></div>
+<p>Dans ce qui suit on va utiliser les données du jeu de données <code class="pkg">nycflights13</code>, contenu dans l’extension du même nom (qu’il faut donc avoir installé). Celui-ci correspond aux données de tous les vols au départ d’un des trois aéroports de New-York en 2013. Il a la particularité d’être réparti en trois tables :</p>
+<ul>
+<li><code data-pkg="nycflights13">flights</code> contient des informations sur les vols : date, départ, destination, horaires, retard…</li>
+<li><code data-pkg="nycflights13">airports</code> contient des informations sur les aéroports</li>
+<li><code data-pkg="nycflights13">airlines</code> contient des données sur les compagnies aériennes</li>
+</ul>
+<p>On va charger les trois tables du jeu de données :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(nycflights13)
+## Chargement des trois tables du jeu de données
+<span class="kw">data</span>(flights)
+<span class="kw">data</span>(airports)
+<span class="kw">data</span>(airlines)</code></pre></div>
+<p>Normalement trois objets correspondant aux trois tables ont dû apparaître dans votre environnement.</p>
+</div>
+<div id="les-verbes-de-dplyr" class="section level2">
+<h2>Les verbes de dplyr</h2>
+<p>La manipulation de données avec <code class="pkg">dplyr</code> se fait en utilisant un nombre réduit de verbes, qui correspondent chacun à une action différente appliquée à un tableau de données.</p>
+<div id="slice" class="section level3">
+<h3>slice</h3>
+<p>Le verbe <code data-pkg="dplyr">slice</code> sélectionne des lignes du tableau selon leur position. On lui passe un chiffre ou un vecteur de chiffres.</p>
+<p>Si on souhaite sélectionner la 345e ligne du tableau <code data-pkg="nycflights13">airports</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">slice</span>(airports, <span class="dv">345</span>)</code></pre></div>
+<pre><code># A tibble: 1 x 8
+  faa   name                lat   lon   alt    tz dst   tzone            
+  &lt;chr&gt; &lt;chr&gt;             &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;            
+1 CYF   Chefornak Airport  60.1 -164.    40   -9. A     America/Anchorage</code></pre>
+<p>Si on veut sélectionner les 5 premières lignes :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">slice</span>(airports, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>)</code></pre></div>
+<pre><code># A tibble: 5 x 8
+  faa   name                            lat   lon   alt    tz dst   tzone      
+  &lt;chr&gt; &lt;chr&gt;                         &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;      
+1 04G   Lansdowne Airport              41.1 -80.6  1044   -5. A     America/Ne~
+2 06A   Moton Field Municipal Airport  32.5 -85.7   264   -6. A     America/Ch~
+3 06C   Schaumburg Regional            42.0 -88.1   801   -6. A     America/Ch~
+4 06N   Randall Airport                41.4 -74.4   523   -5. A     America/Ne~
+5 09J   Jekyll Island Airport          31.1 -81.4    11   -5. A     America/Ne~</code></pre>
+</div>
+<div id="filter" class="section level3">
+<h3>filter</h3>
+<p><code data-pkg="dplyr">filter</code> sélectionne des lignes d’un tableau de données selon une condition. On lui passe en paramètre un test, et seules les lignes pour lesquelles ce test renvoit <code>TRUE</code> (vrai) sont conservées.</p>
+<p>Par exemple, si on veut sélectionner les vols du mois de janvier, on peut filtrer sur la variable <var>month</var> de la manière suivante :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">filter</span>(flights, month <span class="op">==</span><span class="st"> </span><span class="dv">1</span>)</code></pre></div>
+<pre><code># A tibble: 27,004 x 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     1      517            515        2.      830            819
+ 2  2013     1     1      533            529        4.      850            830
+ 3  2013     1     1      542            540        2.      923            850
+ 4  2013     1     1      544            545       -1.     1004           1022
+ 5  2013     1     1      554            600       -6.      812            837
+ 6  2013     1     1      554            558       -4.      740            728
+ 7  2013     1     1      555            600       -5.      913            854
+ 8  2013     1     1      557            600       -3.      709            723
+ 9  2013     1     1      557            600       -3.      838            846
+10  2013     1     1      558            600       -2.      753            745
+# ... with 26,994 more rows, and 11 more variables: arr_delay &lt;dbl&gt;,
+#   carrier &lt;chr&gt;, flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,
+#   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+<p>Si on veut uniquement les vols avec un retard au départ (variable <var>dep_delay</var>) compris entre 10 et 15 minutes :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">filter</span>(flights, dep_delay <span class="op">&gt;=</span><span class="st"> </span><span class="dv">10</span> <span class="op">&amp;</span><span class="st"> </span>dep_delay <span class="op">&lt;=</span><span class="st"> </span><span class="dv">15</span>)</code></pre></div>
+<pre><code># A tibble: 14,919 x 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     1      611            600       11.      945            931
+ 2  2013     1     1      623            610       13.      920            915
+ 3  2013     1     1      743            730       13.     1107           1100
+ 4  2013     1     1      743            730       13.     1059           1056
+ 5  2013     1     1      851            840       11.     1215           1206
+ 6  2013     1     1      912            900       12.     1241           1220
+ 7  2013     1     1      914            900       14.     1058           1043
+ 8  2013     1     1      920            905       15.     1039           1025
+ 9  2013     1     1     1011           1001       10.     1133           1128
+10  2013     1     1     1112           1100       12.     1440           1438
+# ... with 14,909 more rows, and 11 more variables: arr_delay &lt;dbl&gt;,
+#   carrier &lt;chr&gt;, flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,
+#   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+<p>Si on passe plusieurs arguments à <code data-pkg="dplyr">filter</code>, celui-ci rajoute automatiquement une condition <strong>et</strong> entre les conditions. La ligne ci-dessus peut donc également être écrite de la manière suivante, avec le même résultat :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">filter</span>(flights, dep_delay <span class="op">&gt;=</span><span class="st"> </span><span class="dv">10</span>, dep_delay <span class="op">&lt;=</span><span class="st"> </span><span class="dv">15</span>)</code></pre></div>
+<p>Enfin, on peut également placer des fonctions dans les tests, qui nous permettent par exemple de sélectionner les vols avec la plus grande distance :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">filter</span>(flights, distance <span class="op">==</span><span class="st"> </span><span class="kw">max</span>(distance))</code></pre></div>
+<pre><code># A tibble: 342 x 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     1      857            900       -3.     1516           1530
+ 2  2013     1     2      909            900        9.     1525           1530
+ 3  2013     1     3      914            900       14.     1504           1530
+ 4  2013     1     4      900            900        0.     1516           1530
+ 5  2013     1     5      858            900       -2.     1519           1530
+ 6  2013     1     6     1019            900       79.     1558           1530
+ 7  2013     1     7     1042            900      102.     1620           1530
+ 8  2013     1     8      901            900        1.     1504           1530
+ 9  2013     1     9      641            900     1301.     1242           1530
+10  2013     1    10      859            900       -1.     1449           1530
+# ... with 332 more rows, and 11 more variables: arr_delay &lt;dbl&gt;,
+#   carrier &lt;chr&gt;, flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,
+#   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+</div>
+<div id="select-et-rename" class="section level3">
+<h3>select et rename</h3>
+<p><code data-pkg="dplyr">select</code> permet de sélectionner des colonnes d’un tableau de données. Ainsi, si on veut extraire les colonnes <code>lat</code> et <code>lon</code> du tableau airports :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">select</span>(airports, lat, lon)</code></pre></div>
+<pre><code># A tibble: 1,458 x 2
+     lat    lon
+   &lt;dbl&gt;  &lt;dbl&gt;
+ 1  41.1  -80.6
+ 2  32.5  -85.7
+ 3  42.0  -88.1
+ 4  41.4  -74.4
+ 5  31.1  -81.4
+ 6  36.4  -82.2
+ 7  41.5  -84.5
+ 8  42.9  -76.8
+ 9  39.8  -76.6
+10  48.1 -123. 
+# ... with 1,448 more rows</code></pre>
+<p>Si on fait précéder le nom d’un <code>-</code>, la colonne est éliminée plutôt que sélectionnée :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">select</span>(airports, <span class="op">-</span>lat, <span class="op">-</span>lon)</code></pre></div>
+<pre><code># A tibble: 1,458 x 6
+   faa   name                             alt    tz dst   tzone              
+   &lt;chr&gt; &lt;chr&gt;                          &lt;int&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;              
+ 1 04G   Lansdowne Airport               1044   -5. A     America/New_York   
+ 2 06A   Moton Field Municipal Airport    264   -6. A     America/Chicago    
+ 3 06C   Schaumburg Regional              801   -6. A     America/Chicago    
+ 4 06N   Randall Airport                  523   -5. A     America/New_York   
+ 5 09J   Jekyll Island Airport             11   -5. A     America/New_York   
+ 6 0A9   Elizabethton Municipal Airport  1593   -5. A     America/New_York   
+ 7 0G6   Williams County Airport          730   -5. A     America/New_York   
+ 8 0G7   Finger Lakes Regional Airport    492   -5. A     America/New_York   
+ 9 0P2   Shoestring Aviation Airfield    1000   -5. U     America/New_York   
+10 0S9   Jefferson County Intl            108   -8. A     America/Los_Angeles
+# ... with 1,448 more rows</code></pre>
+<p><code data-pkg="dplyr">select</code> comprend toute une série de fonctions facilitant la sélection de multiples colonnes. Par exemple, <code data-pkg="dplyr" data-rdoc="select_helpers">starts_with</code>, <code data-pkg="dplyr" data-rdoc="select_helpers">ends_width</code>, <code data-pkg="dplyr" data-rdoc="select_helpers">contains</code> ou <code data-pkg="dplyr" data-rdoc="select_helpers">matches</code> permettent d’exprimer des conditions sur les noms de variables :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">select</span>(flights, <span class="kw">starts_with</span>(<span class="st">&quot;dep_&quot;</span>))</code></pre></div>
+<pre><code># A tibble: 336,776 x 2
+   dep_time dep_delay
+      &lt;int&gt;     &lt;dbl&gt;
+ 1      517        2.
+ 2      533        4.
+ 3      542        2.
+ 4      544       -1.
+ 5      554       -6.
+ 6      554       -4.
+ 7      555       -5.
+ 8      557       -3.
+ 9      557       -3.
+10      558       -2.
+# ... with 336,766 more rows</code></pre>
+<p>La syntaxe <code>colonne1:colonne2</code> permet de sélectionner toutes les colonnes situées entre <var>colonne1</var> et <var>colonne2</var> incluses<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">select</span>(flights, year<span class="op">:</span>day)</code></pre></div>
+<pre><code># A tibble: 336,776 x 3
+    year month   day
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;
+ 1  2013     1     1
+ 2  2013     1     1
+ 3  2013     1     1
+ 4  2013     1     1
+ 5  2013     1     1
+ 6  2013     1     1
+ 7  2013     1     1
+ 8  2013     1     1
+ 9  2013     1     1
+10  2013     1     1
+# ... with 336,766 more rows</code></pre>
+<p><code data-pkg="dplyr">select</code> peut être utilisée pour réordonner les colonnes d’une table en utilisant la fonction <code data-pkg="dplyr" data-rdoc="select_helpers">everything()</code>, qui sélectionne l’ensemble des colonnes non encore sélectionnées. Ainsi, si on souhaite faire passer la colonne <var>name</var> en première position de la table <code>airports</code>, on peut faire :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">select</span>(airports, name, <span class="kw">everything</span>())</code></pre></div>
+<pre><code># A tibble: 1,458 x 8
+   name                           faa     lat    lon   alt    tz dst   tzone   
+   &lt;chr&gt;                          &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   
+ 1 Lansdowne Airport              04G    41.1  -80.6  1044   -5. A     America~
+ 2 Moton Field Municipal Airport  06A    32.5  -85.7   264   -6. A     America~
+ 3 Schaumburg Regional            06C    42.0  -88.1   801   -6. A     America~
+ 4 Randall Airport                06N    41.4  -74.4   523   -5. A     America~
+ 5 Jekyll Island Airport          09J    31.1  -81.4    11   -5. A     America~
+ 6 Elizabethton Municipal Airport 0A9    36.4  -82.2  1593   -5. A     America~
+ 7 Williams County Airport        0G6    41.5  -84.5   730   -5. A     America~
+ 8 Finger Lakes Regional Airport  0G7    42.9  -76.8   492   -5. A     America~
+ 9 Shoestring Aviation Airfield   0P2    39.8  -76.6  1000   -5. U     America~
+10 Jefferson County Intl          0S9    48.1 -123.    108   -8. A     America~
+# ... with 1,448 more rows</code></pre>
+<p>Une variante de <code data-pkg="dplyr">select</code> est <code data-pkg="dplyr" data-rdoc="select">rename</code><a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>, qui permet de renommer facilement des colonnes. On l’utilise en lui passant des paramètres de la forme <code>nouveau_nom = ancien_nom</code>. Ainsi, si on veut renommer les colonnes <var>lon</var> et <var>lat</var> de <code>airports</code> en <var>longitude</var> et <var>latitude</var> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rename</span>(airports, <span class="dt">longitude =</span> lon, <span class="dt">latitude =</span> lat)</code></pre></div>
+<pre><code># A tibble: 1,458 x 8
+   faa   name                 latitude longitude   alt    tz dst   tzone       
+   &lt;chr&gt; &lt;chr&gt;                   &lt;dbl&gt;     &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;       
+ 1 04G   Lansdowne Airport        41.1     -80.6  1044   -5. A     America/New~
+ 2 06A   Moton Field Municip~     32.5     -85.7   264   -6. A     America/Chi~
+ 3 06C   Schaumburg Regional      42.0     -88.1   801   -6. A     America/Chi~
+ 4 06N   Randall Airport          41.4     -74.4   523   -5. A     America/New~
+ 5 09J   Jekyll Island Airpo~     31.1     -81.4    11   -5. A     America/New~
+ 6 0A9   Elizabethton Munici~     36.4     -82.2  1593   -5. A     America/New~
+ 7 0G6   Williams County Air~     41.5     -84.5   730   -5. A     America/New~
+ 8 0G7   Finger Lakes Region~     42.9     -76.8   492   -5. A     America/New~
+ 9 0P2   Shoestring Aviation~     39.8     -76.6  1000   -5. U     America/New~
+10 0S9   Jefferson County In~     48.1    -123.    108   -8. A     America/Los~
+# ... with 1,448 more rows</code></pre>
+<p>Si les noms de colonnes comportent des espaces ou des caractères spéciaux, on peut les entourer de guillemets (<code>&quot;</code>) ou de quotes inverses (<code>`</code>) :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tmp &lt;-<span class="st"> </span><span class="kw">rename</span>(flights, <span class="st">`</span><span class="dt">retard départ</span><span class="st">`</span> =<span class="st"> </span>dep_delay, <span class="st">`</span><span class="dt">retard arrivée</span><span class="st">`</span> =<span class="st"> </span>arr_delay)
+<span class="kw">select</span>(tmp, <span class="st">`</span><span class="dt">retard départ</span><span class="st">`</span>, <span class="st">`</span><span class="dt">retard arrivée</span><span class="st">`</span>)</code></pre></div>
+<pre><code># A tibble: 336,776 x 2
+   `retard départ` `retard arrivée`
+             &lt;dbl&gt;            &lt;dbl&gt;
+ 1              2.              11.
+ 2              4.              20.
+ 3              2.              33.
+ 4             -1.             -18.
+ 5             -6.             -25.
+ 6             -4.              12.
+ 7             -5.              19.
+ 8             -3.             -14.
+ 9             -3.              -8.
+10             -2.               8.
+# ... with 336,766 more rows</code></pre>
+</div>
+<div id="arrange" class="section level3">
+<h3>arrange</h3>
+<p><code data-pkg="dplyr">arrange</code> réordonne les lignes d’un tableau selon une ou plusieurs colonnes.</p>
+<p>Ainsi, si on veut trier le tableau <code>flights</code> selon le retard au départ croissant :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">arrange</span>(flights, dep_delay)</code></pre></div>
+<pre><code># A tibble: 336,776 x 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013    12     7     2040           2123      -43.       40           2352
+ 2  2013     2     3     2022           2055      -33.     2240           2338
+ 3  2013    11    10     1408           1440      -32.     1549           1559
+ 4  2013     1    11     1900           1930      -30.     2233           2243
+ 5  2013     1    29     1703           1730      -27.     1947           1957
+ 6  2013     8     9      729            755      -26.     1002            955
+ 7  2013    10    23     1907           1932      -25.     2143           2143
+ 8  2013     3    30     2030           2055      -25.     2213           2250
+ 9  2013     3     2     1431           1455      -24.     1601           1631
+10  2013     5     5      934            958      -24.     1225           1309
+# ... with 336,766 more rows, and 11 more variables: arr_delay &lt;dbl&gt;,
+#   carrier &lt;chr&gt;, flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,
+#   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+<p>On peut trier selon plusieurs colonnes. Par exemple selon le mois, puis selon le retard au départ :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">arrange</span>(flights, month, dep_delay)</code></pre></div>
+<pre><code># A tibble: 336,776 x 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1    11     1900           1930      -30.     2233           2243
+ 2  2013     1    29     1703           1730      -27.     1947           1957
+ 3  2013     1    12     1354           1416      -22.     1606           1650
+ 4  2013     1    21     2137           2159      -22.     2232           2316
+ 5  2013     1    20      704            725      -21.     1025           1035
+ 6  2013     1    12     2050           2110      -20.     2310           2355
+ 7  2013     1    12     2134           2154      -20.        4             50
+ 8  2013     1    14     2050           2110      -20.     2329           2355
+ 9  2013     1     4     2140           2159      -19.     2241           2316
+10  2013     1    11     1947           2005      -18.     2209           2230
+# ... with 336,766 more rows, and 11 more variables: arr_delay &lt;dbl&gt;,
+#   carrier &lt;chr&gt;, flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,
+#   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+<p>Si on veut trier selon une colonne par ordre décroissant, on lui applique la fonction <code data-pkg="dplyr">desc()</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">arrange</span>(flights, <span class="kw">desc</span>(dep_delay))</code></pre></div>
+<pre><code># A tibble: 336,776 x 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     9      641            900     1301.     1242           1530
+ 2  2013     6    15     1432           1935     1137.     1607           2120
+ 3  2013     1    10     1121           1635     1126.     1239           1810
+ 4  2013     9    20     1139           1845     1014.     1457           2210
+ 5  2013     7    22      845           1600     1005.     1044           1815
+ 6  2013     4    10     1100           1900      960.     1342           2211
+ 7  2013     3    17     2321            810      911.      135           1020
+ 8  2013     6    27      959           1900      899.     1236           2226
+ 9  2013     7    22     2257            759      898.      121           1026
+10  2013    12     5      756           1700      896.     1058           2020
+# ... with 336,766 more rows, and 11 more variables: arr_delay &lt;dbl&gt;,
+#   carrier &lt;chr&gt;, flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,
+#   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+<p>Combiné avec <code data-pkg="dplyr">slice</code>, <code data-pkg="dplyr">arrange</code> permet par exemple de sélectionner les trois vols ayant eu le plus de retard :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tmp &lt;-<span class="st"> </span><span class="kw">arrange</span>(flights, <span class="kw">desc</span>(dep_delay))
+<span class="kw">slice</span>(tmp, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>)</code></pre></div>
+<pre><code># A tibble: 3 x 19
+   year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+  &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+1  2013     1     9      641            900     1301.     1242           1530
+2  2013     6    15     1432           1935     1137.     1607           2120
+3  2013     1    10     1121           1635     1126.     1239           1810
+# ... with 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+</div>
+<div id="mutate" class="section level3">
+<h3>mutate</h3>
+<p><code data-pkg="dplyr">mutate</code> permet de créer de nouvelles colonnes dans le tableau de données, en général à partir de variables existantes.</p>
+<p>Par exemple, la table <code>airports</code> contient l’altitude de l’aéroport en pieds. Si on veut créer une nouvelle variable <var>alt_m</var> avec l’altitude en mètres, on peut faire :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">airports &lt;-<span class="st"> </span><span class="kw">mutate</span>(airports, <span class="dt">alt_m =</span> alt<span class="op">/</span><span class="fl">3.2808</span>)
+<span class="kw">select</span>(airports, name, alt, alt_m)</code></pre></div>
+<pre><code># A tibble: 1,458 x 3
+   name                             alt  alt_m
+   &lt;chr&gt;                          &lt;int&gt;  &lt;dbl&gt;
+ 1 Lansdowne Airport               1044 318.  
+ 2 Moton Field Municipal Airport    264  80.5 
+ 3 Schaumburg Regional              801 244.  
+ 4 Randall Airport                  523 159.  
+ 5 Jekyll Island Airport             11   3.35
+ 6 Elizabethton Municipal Airport  1593 486.  
+ 7 Williams County Airport          730 223.  
+ 8 Finger Lakes Regional Airport    492 150.  
+ 9 Shoestring Aviation Airfield    1000 305.  
+10 Jefferson County Intl            108  32.9 
+# ... with 1,448 more rows</code></pre>
+<p>On peut créer plusieurs nouvelles colonnes en une seule fois, et les expressions successives peuvent prendre en compte les résultats des calculs précédents. L’exemple suivant convertit d’abord la distance en kilomètres dans une variable <var>distance_km</var>, puis utilise cette nouvelle colonne pour calculer la vitesse en km/h.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights &lt;-<span class="st"> </span><span class="kw">mutate</span>(flights, <span class="dt">distance_km =</span> distance<span class="op">/</span><span class="fl">0.62137</span>, <span class="dt">vitesse =</span> distance_km<span class="op">/</span>air_time <span class="op">*</span><span class="st"> </span>
+<span class="st">  </span><span class="dv">60</span>)
+<span class="kw">select</span>(flights, distance, distance_km, vitesse)</code></pre></div>
+<pre><code># A tibble: 336,776 x 3
+   distance distance_km vitesse
+      &lt;dbl&gt;       &lt;dbl&gt;   &lt;dbl&gt;
+ 1    1400.       2253.    596.
+ 2    1416.       2279.    602.
+ 3    1089.       1753.    657.
+ 4    1576.       2536.    832.
+ 5     762.       1226.    634.
+ 6     719.       1157.    463.
+ 7    1065.       1714.    651.
+ 8     229.        369.    417.
+ 9     944.       1519.    651.
+10     733.       1180.    513.
+# ... with 336,766 more rows</code></pre>
+<p>À noter que <code data-pkg="dplyr">mutate</code> est évidemment parfaitement compatible avec les fonctions vues dans le chapitre @ref(vectorfactor) sur les recodages : fonctions de <code class="pkg">forcats</code>, <code data-pkg="dplyr">if_else</code>, <code data-pkg="dplyr">case_when</code>…</p>
+<p>L’avantage d’utiliser <code data-pkg="dplyr">mutate</code> est double. D’abord il permet d’éviter d’avoir à saisir le nom du tableau de données dans les conditions d’un <code data-pkg="dplyr">if_else</code> ou d’un <code data-pkg="dplyr">case_when</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights &lt;-<span class="st"> </span><span class="kw">mutate</span>(flights, <span class="dt">type_retard =</span> <span class="kw">case_when</span>(dep_delay <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>arr_delay <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">~</span><span class="st"> </span>
+<span class="st">  &quot;Retard départ et arrivée&quot;</span>, dep_delay <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>arr_delay <span class="op">&lt;=</span><span class="st"> </span><span class="dv">0</span> <span class="op">~</span><span class="st"> &quot;Retard départ&quot;</span>, 
+  dep_delay <span class="op">&lt;=</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>arr_delay <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">~</span><span class="st"> &quot;Retard arrivée&quot;</span>, <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> &quot;Aucun retard&quot;</span>))</code></pre></div>
+<p>Utiliser <code data-pkg="dplyr">mutate</code> pour les recodages permet aussi de les intégrer dans un <em>pipeline</em> de traitement de données, concept présenté dans la section suivante.</p>
+</div>
+</div>
+<div id="pipe" class="section level2">
+<h2>Enchaîner les opérations avec le <q>pipe</q></h2>
+<p>Quand on manipule un tableau de données, il est très fréquent d’enchaîner plusieurs opérations. On va par exemple filtrer pour extraire une sous-population, sélectionner des colonnes puis trier selon une variable.</p>
+<p>Dans ce cas on peut le faire de deux manières différentes. La première est d’effectuer toutes les opérations en une fois en les <q>emboîtant</q> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">arrange</span>(<span class="kw">select</span>(<span class="kw">filter</span>(flights, dest <span class="op">==</span><span class="st"> &quot;LAX&quot;</span>), dep_delay, arr_delay), dep_delay)</code></pre></div>
+<p>Cette notation a plusieurs inconvénients :</p>
+<ul>
+<li>elle est peu lisible</li>
+<li>les opérations apparaissent dans l’ordre inverse de leur réalisation. Ici on effectue d’abord le <code data-pkg="dplyr">filter</code>, puis le <code data-pkg="dplyr">select</code>, puis le <code data-pkg="dplyr">arrange</code>, alors qu’à la lecture du code c’est le <code data-pkg="dplyr">arrange</code> qui apparaît en premier.</li>
+<li>Il est difficile de voir quel paramètre se rapporte à quelle fonction</li>
+</ul>
+<p>Une autre manière de faire est d’effectuer les opérations les unes après les autres, en stockant les résultats intermédiaires dans un objet temporaire :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tmp &lt;-<span class="st"> </span><span class="kw">filter</span>(flights, dest <span class="op">==</span><span class="st"> &quot;LAX&quot;</span>)
+tmp &lt;-<span class="st"> </span><span class="kw">select</span>(tmp, dep_delay, arr_delay)
+<span class="kw">arrange</span>(tmp, dep_delay)</code></pre></div>
+<p>C’est nettement plus lisible, l’ordre des opérations est le bon, et les paramètres sont bien rattachés à leur fonction. Par contre, ça reste un peu “verbeux”, et on crée un objet temporaire <code>tmp</code> dont on n’a pas réellement besoin.</p>
+<p>Pour simplifier et améliorer encore la lisibilité du code, on va utiliser un nouvel opérateur, baptisé <em>pipe</em><a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. Le <em>pipe</em> se note <code data-pkg="magrittr">%&gt;%</code>, et son fonctionnement est le suivant : si j’exécute <code>expr %&gt;% f</code>, alors le résultat de l’expression <code>expr</code>, à gauche du <em>pipe</em>, sera passé comme premier argument à la fonction <code>f</code>, à droite du <em>pipe</em>, ce qui revient à exécuter <code>f(expr)</code>.</p>
+<p>Ainsi les deux expressions suivantes sont rigoureusement équivalentes :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">filter</span>(flights, dest <span class="op">==</span><span class="st"> &quot;LAX&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(dest <span class="op">==</span><span class="st"> &quot;LAX&quot;</span>)</code></pre></div>
+<p>Ce qui est intéressant dans cette histoire, c’est qu’on va pouvoir enchaîner les <em>pipes</em>. Plutôt que d’écrire :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">select</span>(<span class="kw">filter</span>(flights, dest <span class="op">==</span><span class="st"> &quot;LAX&quot;</span>), dep_delay, arr_delay)</code></pre></div>
+<p>On va pouvoir faire :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(dest <span class="op">==</span><span class="st"> &quot;LAX&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(dep_delay, arr_delay)</code></pre></div>
+<p>À chaque fois, le résultat de ce qui se trouve à gauche du <em>pipe</em> est passé comme premier argument à ce qui se trouve à droite : on part de l’objet <code>flights</code>, qu’on passe comme premier argument à la fonction <code data-pkg="dplyr">filter</code>, puis on passe le résultat de ce <code data-pkg="dplyr">filter</code> comme premier argument du <code data-pkg="dplyr">select</code>.</p>
+<p>Le résultat final est le même avec les deux syntaxes, mais avec le <em>pipe</em> l’ordre des opérations correspond à l’ordre naturel de leur exécution, et on n’a pas eu besoin de créer d’objet intermédiaire.</p>
+<p>Si la liste des fonctions enchaînées est longue, on peut les répartir sur plusieurs lignes à condition que l’opérateur <code data-pkg="magrittr">%&gt;%</code> soit en fin de ligne :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(dest <span class="op">==</span><span class="st"> &quot;LAX&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(dep_delay, arr_delay) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(dep_delay)</code></pre></div>
+<div class="note">
+<p>On appelle une suite d’instructions de ce type un <em>pipeline</em>.</p>
+</div>
+<p>Évidemment, il est naturel de vouloir récupérer le résultat final d’un <em>pipeline</em> pour le stocker dans un objet. Par exemple, on peut stocker le résultat du <em>pipeline</em> ci-dessus dans un nouveau tableau <code>delay_la</code> de la manière suivante :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">delay_la &lt;-<span class="st"> </span>flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(dest <span class="op">==</span><span class="st"> &quot;LAX&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(dep_delay, arr_delay) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">arrange</span>(dep_delay)</code></pre></div>
+<p>Dans ce cas, <code>delay_la</code> contiendra le tableau final, obtenu après application des trois instructions <code data-pkg="dplyr">filter</code>, <code data-pkg="dplyr">select</code> et <code data-pkg="dplyr">arrange</code>.</p>
+<p>Cette notation n’est pas forcément très intuitive au départ. Il faut bien comprendre que c’est le résultat final, une fois application de toutes les opérations du <em>pipeline</em>, qui est renvoyé et stocké dans l’objet en début de ligne.</p>
+<p>Une manière de le comprendre peut être de voir que la notation suivante :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">delay_la &lt;-<span class="st"> </span>flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(dest <span class="op">==</span><span class="st"> &quot;LAX&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(dep_delay, arr_delay)</code></pre></div>
+<p>est équivalente à :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">delay_la &lt;-<span class="st"> </span>(flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(dest <span class="op">==</span><span class="st"> &quot;LAX&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(dep_delay, arr_delay))</code></pre></div>
+<div class="note">
+<p>L’utilisation du <em>pipe</em> n’est pas obligatoire, mais elle rend les scripts plus lisibles et plus rapides à saisir. On l’utilisera donc dans ce qui suit.</p>
+</div>
+</div>
+<div id="operations-groupees" class="section level2">
+<h2>Opérations groupées</h2>
+<div id="group_by" class="section level3">
+<h3>group_by</h3>
+<p>Un élément très important de <code class="pkg">dplyr</code> est la fonction <code data-pkg="dplyr">group_by</code>. Elle permet de définir des groupes de lignes à partir des valeurs d’une ou plusieurs colonnes. Par exemple, on peut grouper les vols selon leur mois :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(month)</code></pre></div>
+<pre><code># A tibble: 336,776 x 21
+# Groups:   month [12]
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     1      517            515        2.      830            819
+ 2  2013     1     1      533            529        4.      850            830
+ 3  2013     1     1      542            540        2.      923            850
+ 4  2013     1     1      544            545       -1.     1004           1022
+ 5  2013     1     1      554            600       -6.      812            837
+ 6  2013     1     1      554            558       -4.      740            728
+ 7  2013     1     1      555            600       -5.      913            854
+ 8  2013     1     1      557            600       -3.      709            723
+ 9  2013     1     1      557            600       -3.      838            846
+10  2013     1     1      558            600       -2.      753            745
+# ... with 336,766 more rows, and 13 more variables: arr_delay &lt;dbl&gt;,
+#   carrier &lt;chr&gt;, flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,
+#   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;,
+#   distance_km &lt;dbl&gt;, vitesse &lt;dbl&gt;</code></pre>
+<p>Par défaut ceci ne fait rien de visible, à part l’apparition d’une mention <var>Groups</var> dans l’affichage du résultat. Mais à partir du moment où des groupes ont été définis, les verbes comme <code data-pkg="dplyr">slice</code>, <code data-pkg="dplyr">mutate</code> ou <code data-pkg="dplyr">summarise</code> vont en tenir compte lors de leurs opérations.</p>
+<p>Par exemple, si on applique <code data-pkg="dplyr">slice</code> à un tableau préalablement groupé, il va sélectionner les lignes aux positions indiquées <em>pour chaque groupe</em>. Ainsi la commande suivante affiche le premier vol de chaque mois, selon leur ordre d’apparition dans le tableau :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(month) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">slice</span>(<span class="dv">1</span>)</code></pre></div>
+<pre><code># A tibble: 12 x 21
+# Groups:   month [12]
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     1      517            515        2.      830            819
+ 2  2013     2     1      456            500       -4.      652            648
+ 3  2013     3     1        4           2159      125.      318             56
+ 4  2013     4     1      454            500       -6.      636            640
+ 5  2013     5     1        9           1655      434.      308           2020
+ 6  2013     6     1        2           2359        3.      341            350
+ 7  2013     7     1        1           2029      212.      236           2359
+ 8  2013     8     1       12           2130      162.      257             14
+ 9  2013     9     1        9           2359       10.      343            340
+10  2013    10     1      447            500      -13.      614            648
+11  2013    11     1        5           2359        6.      352            345
+12  2013    12     1       13           2359       14.      446            445
+# ... with 13 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;, distance_km &lt;dbl&gt;,
+#   vitesse &lt;dbl&gt;</code></pre>
+<p>Idem pour <code data-pkg="dplyr">mutate</code> : les opérations appliquées lors du calcul des valeurs des nouvelles colonnes sont aplliquée groupe de lignes par groupe de lignes. Dans l’exemple suivant, on ajoute une nouvelle colonne qui contient le retard moyen <em>du mois correspondant</em> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(month) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">mean_delay_month =</span> <span class="kw">mean</span>(dep_delay, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(dep_delay, month, mean_delay_month)</code></pre></div>
+<pre><code># A tibble: 336,776 x 3
+# Groups:   month [12]
+   dep_delay month mean_delay_month
+       &lt;dbl&gt; &lt;int&gt;            &lt;dbl&gt;
+ 1        2.     1             10.0
+ 2        4.     1             10.0
+ 3        2.     1             10.0
+ 4       -1.     1             10.0
+ 5       -6.     1             10.0
+ 6       -4.     1             10.0
+ 7       -5.     1             10.0
+ 8       -3.     1             10.0
+ 9       -3.     1             10.0
+10       -2.     1             10.0
+# ... with 336,766 more rows</code></pre>
+<p>Ceci peut permettre, par exemple, de déterminer si un retard donné est supérieur ou inférieur au retard moyen du mois en cours.</p>
+<p><code data-pkg="dplyr">group_by</code> peut aussi être utile avec <code data-pkg="dplyr">filter</code>, par exemple pour sélectionner les vols avec le retard au départ le plus important <em>pour chaque mois</em> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(month) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(dep_delay <span class="op">==</span><span class="st"> </span><span class="kw">max</span>(dep_delay, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))</code></pre></div>
+<pre><code># A tibble: 12 x 21
+# Groups:   month [12]
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     9      641            900     1301.     1242           1530
+ 2  2013    10    14     2042            900      702.     2255           1127
+ 3  2013    11     3      603           1645      798.      829           1913
+ 4  2013    12     5      756           1700      896.     1058           2020
+ 5  2013     2    10     2243            830      853.      100           1106
+ 6  2013     3    17     2321            810      911.      135           1020
+ 7  2013     4    10     1100           1900      960.     1342           2211
+ 8  2013     5     3     1133           2055      878.     1250           2215
+ 9  2013     6    15     1432           1935     1137.     1607           2120
+10  2013     7    22      845           1600     1005.     1044           1815
+11  2013     8     8     2334           1454      520.      120           1710
+12  2013     9    20     1139           1845     1014.     1457           2210
+# ... with 13 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;, distance_km &lt;dbl&gt;,
+#   vitesse &lt;dbl&gt;</code></pre>
+<div class="important">
+<p><strong>Attention :</strong> la clause <code>group_by</code> marche pour les verbes déjà vus précédemment, <em>sauf</em> pour <code data-pkg="dplyr">arrange</code>, qui par défaut trie la table sans tenir compte des groupes. Pour obtenir un tri par groupe, il faut lui ajouter l’argument <code>.by_group = TRUE</code>.</p>
+</div>
+<p>On peut voir la différence en comparant les deux résultats suivants :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(month) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(dep_delay))</code></pre></div>
+<pre><code># A tibble: 336,776 x 21
+# Groups:   month [12]
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     9      641            900     1301.     1242           1530
+ 2  2013     6    15     1432           1935     1137.     1607           2120
+ 3  2013     1    10     1121           1635     1126.     1239           1810
+ 4  2013     9    20     1139           1845     1014.     1457           2210
+ 5  2013     7    22      845           1600     1005.     1044           1815
+ 6  2013     4    10     1100           1900      960.     1342           2211
+ 7  2013     3    17     2321            810      911.      135           1020
+ 8  2013     6    27      959           1900      899.     1236           2226
+ 9  2013     7    22     2257            759      898.      121           1026
+10  2013    12     5      756           1700      896.     1058           2020
+# ... with 336,766 more rows, and 13 more variables: arr_delay &lt;dbl&gt;,
+#   carrier &lt;chr&gt;, flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,
+#   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;,
+#   distance_km &lt;dbl&gt;, vitesse &lt;dbl&gt;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(month) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(dep_delay), <span class="dt">.by_group =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre><code># A tibble: 336,776 x 21
+# Groups:   month [12]
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     9      641            900     1301.     1242           1530
+ 2  2013     1    10     1121           1635     1126.     1239           1810
+ 3  2013     1     1      848           1835      853.     1001           1950
+ 4  2013     1    13     1809            810      599.     2054           1042
+ 5  2013     1    16     1622            800      502.     1911           1054
+ 6  2013     1    23     1551            753      478.     1812           1006
+ 7  2013     1    10     1525            900      385.     1713           1039
+ 8  2013     1     1     2343           1724      379.      314           1938
+ 9  2013     1     2     2131           1512      379.     2340           1741
+10  2013     1     7     2021           1415      366.     2332           1724
+# ... with 336,766 more rows, and 13 more variables: arr_delay &lt;dbl&gt;,
+#   carrier &lt;chr&gt;, flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,
+#   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;,
+#   distance_km &lt;dbl&gt;, vitesse &lt;dbl&gt;</code></pre>
+</div>
+<div id="summarise-et-count" class="section level3">
+<h3>summarise et count</h3>
+<p><code data-pkg="dplyr">summarise</code> permet d’agréger les lignes du tableau en effectuant une opération “résumée” sur une ou plusieurs colonnes. Par exemple, si on souhaite connaître les retards moyens au départ et à l’arrivée pour l’ensemble des vols du tableau <code>flights</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">retard_dep =</span> <span class="kw">mean</span>(dep_delay, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="dt">retard_arr =</span> <span class="kw">mean</span>(arr_delay, 
+  <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))</code></pre></div>
+<pre><code># A tibble: 1 x 2
+  retard_dep retard_arr
+       &lt;dbl&gt;      &lt;dbl&gt;
+1       12.6       6.90</code></pre>
+<p>Cette fonction est en général utilisée avec <code data-pkg="dplyr">group_by</code>, puisqu’elle permet du coup d’agréger et résumer les lignes du tableau groupe par groupe. Si on souhaite calculer le délai maximum, le délai minimum et le délai moyen au départ pour chaque mois, on pourra faire :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(month) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">max_delay =</span> <span class="kw">max</span>(dep_delay, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), 
+  <span class="dt">min_delay =</span> <span class="kw">min</span>(dep_delay, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="dt">mean_delay =</span> <span class="kw">mean</span>(dep_delay, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))</code></pre></div>
+<pre><code># A tibble: 12 x 4
+   month max_delay min_delay mean_delay
+   &lt;int&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+ 1     1     1301.      -30.      10.0 
+ 2     2      853.      -33.      10.8 
+ 3     3      911.      -25.      13.2 
+ 4     4      960.      -21.      13.9 
+ 5     5      878.      -24.      13.0 
+ 6     6     1137.      -21.      20.8 
+ 7     7     1005.      -22.      21.7 
+ 8     8      520.      -26.      12.6 
+ 9     9     1014.      -24.       6.72
+10    10      702.      -25.       6.24
+11    11      798.      -32.       5.44
+12    12      896.      -43.      16.6 </code></pre>
+<p><code data-pkg="dplyr">summarise</code> dispose d’un opérateur spécial, <code data-pkg="dplyr">n()</code>, qui retourne le nombre de lignes du groupe. Ainsi si on veut le nombre de vols par destination, on peut utiliser :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(dest) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">nb =</span> <span class="kw">n</span>())</code></pre></div>
+<pre><code># A tibble: 105 x 2
+   dest     nb
+   &lt;chr&gt; &lt;int&gt;
+ 1 ABQ     254
+ 2 ACK     265
+ 3 ALB     439
+ 4 ANC       8
+ 5 ATL   17215
+ 6 AUS    2439
+ 7 AVL     275
+ 8 BDL     443
+ 9 BGR     375
+10 BHM     297
+# ... with 95 more rows</code></pre>
+<p><code data-pkg="dplyr">n()</code> peut aussi être utilisée avec <code data-pkg="dplyr">filter</code> et <code data-pkg="dplyr">mutate</code>.</p>
+<p>À noter que quand on veut compter le nombre de lignes par groupe, on peut utiliser directement la fonction <code data-pkg="dplyr" data-rdoc="tally">count</code>. Ainsi le code suivant est identique au précédent :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">count</span>(dest)</code></pre></div>
+<pre><code># A tibble: 105 x 2
+   dest      n
+   &lt;chr&gt; &lt;int&gt;
+ 1 ABQ     254
+ 2 ACK     265
+ 3 ALB     439
+ 4 ANC       8
+ 5 ATL   17215
+ 6 AUS    2439
+ 7 AVL     275
+ 8 BDL     443
+ 9 BGR     375
+10 BHM     297
+# ... with 95 more rows</code></pre>
+</div>
+<div id="grouper-selon-plusieurs-variables" class="section level3">
+<h3>Grouper selon plusieurs variables</h3>
+<p>On peut grouper selon plusieurs variables à la fois, il suffit de les indiquer dans la clause du <code data-pkg="dplyr">group_by</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(month, dest) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">nb =</span> <span class="kw">n</span>()) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(nb))</code></pre></div>
+<pre><code># A tibble: 1,113 x 3
+# Groups:   month [12]
+   month dest     nb
+   &lt;int&gt; &lt;chr&gt; &lt;int&gt;
+ 1     8 ORD    1604
+ 2    10 ORD    1604
+ 3     5 ORD    1582
+ 4     9 ORD    1582
+ 5     7 ORD    1573
+ 6     6 ORD    1547
+ 7     7 ATL    1511
+ 8     8 ATL    1507
+ 9     8 LAX    1505
+10     7 LAX    1500
+# ... with 1,103 more rows</code></pre>
+<p>On peut également compter selon plusieurs variables :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">count</span>(origin, dest) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(n))</code></pre></div>
+<pre><code># A tibble: 224 x 3
+   origin dest      n
+   &lt;chr&gt;  &lt;chr&gt; &lt;int&gt;
+ 1 JFK    LAX   11262
+ 2 LGA    ATL   10263
+ 3 LGA    ORD    8857
+ 4 JFK    SFO    8204
+ 5 LGA    CLT    6168
+ 6 EWR    ORD    6100
+ 7 JFK    BOS    5898
+ 8 LGA    MIA    5781
+ 9 JFK    MCO    5464
+10 EWR    BOS    5327
+# ... with 214 more rows</code></pre>
+<p>On peut utiliser plusieurs opérations de groupage dans le même <em>pipeline</em>. Ainsi, si on souhaite déterminer le couple origine/destination ayant le plus grand nombre de vols selon le mois de l’année, on devra procéder en deux étapes :</p>
+<ul>
+<li>d’abord grouper selon mois, origine et destination pour calculer le nombre de vols</li>
+<li>puis grouper uniquement selon le mois pour sélectionner la ligne avec la valeur maximale.</li>
+</ul>
+<p>Au final, on obtient le code suivant :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(month, origin, dest) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">nb =</span> <span class="kw">n</span>()) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(month) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">filter</span>(nb <span class="op">==</span><span class="st"> </span><span class="kw">max</span>(nb))</code></pre></div>
+<pre><code># A tibble: 12 x 4
+# Groups:   month [12]
+   month origin dest     nb
+   &lt;int&gt; &lt;chr&gt;  &lt;chr&gt; &lt;int&gt;
+ 1     1 JFK    LAX     937
+ 2     2 JFK    LAX     834
+ 3     3 JFK    LAX     960
+ 4     4 JFK    LAX     935
+ 5     5 JFK    LAX     960
+ 6     6 JFK    LAX     928
+ 7     7 JFK    LAX     985
+ 8     8 JFK    LAX     979
+ 9     9 JFK    LAX     925
+10    10 JFK    LAX     965
+11    11 JFK    LAX     907
+12    12 JFK    LAX     947</code></pre>
+<p>Lorsqu’on effectue un <code data-pkg="dplyr">group_by</code> suivi d’un <code data-pkg="dplyr">summarise</code>, le tableau résultat est automatiquement dégroupé <em>de la dernière variable de regroupement</em>. Ainsi le tableau généré par le code suivant est groupé par <var>month</var> et <var>origin</var> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(month, origin, dest) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">nb =</span> <span class="kw">n</span>())</code></pre></div>
+<pre><code># A tibble: 2,313 x 4
+# Groups:   month, origin [?]
+   month origin dest     nb
+   &lt;int&gt; &lt;chr&gt;  &lt;chr&gt; &lt;int&gt;
+ 1     1 EWR    ALB      64
+ 2     1 EWR    ATL     362
+ 3     1 EWR    AUS      51
+ 4     1 EWR    AVL       2
+ 5     1 EWR    BDL      37
+ 6     1 EWR    BNA     111
+ 7     1 EWR    BOS     430
+ 8     1 EWR    BQN      31
+ 9     1 EWR    BTV     100
+10     1 EWR    BUF     119
+# ... with 2,303 more rows</code></pre>
+<p>Cela peut permettre “d’enchaîner” les opérations groupées. Dans l’exemple suivant on calcule le pourcentage des trajets pour chaque destination par rapport à tous les trajets du mois :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(month, dest) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">nb =</span> <span class="kw">n</span>()) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pourcentage =</span> nb<span class="op">/</span><span class="kw">sum</span>(nb) <span class="op">*</span><span class="st"> </span>
+<span class="st">  </span><span class="dv">100</span>)</code></pre></div>
+<pre><code># A tibble: 1,113 x 4
+# Groups:   month [12]
+   month dest     nb pourcentage
+   &lt;int&gt; &lt;chr&gt; &lt;int&gt;       &lt;dbl&gt;
+ 1     1 ALB      64     0.237  
+ 2     1 ATL    1396     5.17   
+ 3     1 AUS     169     0.626  
+ 4     1 AVL       2     0.00741
+ 5     1 BDL      37     0.137  
+ 6     1 BHM      25     0.0926 
+ 7     1 BNA     399     1.48   
+ 8     1 BOS    1245     4.61   
+ 9     1 BQN      93     0.344  
+10     1 BTV     223     0.826  
+# ... with 1,103 more rows</code></pre>
+<p>On peut à tout moment “dégrouper” un tableau à l’aide de <code data-pkg="dplyr" data-rdoc="group_by">ungroup</code>. Ce serait par exemple nécessaire, dans l’exemple précédent, si on voulait calculer le pourcentage sur le nombre total de vols plutôt que sur le nombre de vols par mois :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(month, dest) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">nb =</span> <span class="kw">n</span>()) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pourcentage =</span> nb<span class="op">/</span><span class="kw">sum</span>(nb) <span class="op">*</span><span class="st"> </span>
+<span class="st">  </span><span class="dv">100</span>)</code></pre></div>
+<pre><code># A tibble: 1,113 x 4
+   month dest     nb pourcentage
+   &lt;int&gt; &lt;chr&gt; &lt;int&gt;       &lt;dbl&gt;
+ 1     1 ALB      64    0.0190  
+ 2     1 ATL    1396    0.415   
+ 3     1 AUS     169    0.0502  
+ 4     1 AVL       2    0.000594
+ 5     1 BDL      37    0.0110  
+ 6     1 BHM      25    0.00742 
+ 7     1 BNA     399    0.118   
+ 8     1 BOS    1245    0.370   
+ 9     1 BQN      93    0.0276  
+10     1 BTV     223    0.0662  
+# ... with 1,103 more rows</code></pre>
+<p>À noter que <code data-pkg="dplyr" data-rdoc="tally">count</code>, par contre, renvoit un tableau non groupé :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">count</span>(month, dest)</code></pre></div>
+<pre><code># A tibble: 1,113 x 3
+   month dest      n
+   &lt;int&gt; &lt;chr&gt; &lt;int&gt;
+ 1     1 ALB      64
+ 2     1 ATL    1396
+ 3     1 AUS     169
+ 4     1 AVL       2
+ 5     1 BDL      37
+ 6     1 BHM      25
+ 7     1 BNA     399
+ 8     1 BOS    1245
+ 9     1 BQN      93
+10     1 BTV     223
+# ... with 1,103 more rows</code></pre>
+</div>
+</div>
+<div id="autres-fonctions-utiles" class="section level2">
+<h2>Autres fonctions utiles</h2>
+<p><code class="pkg">dplyr</code> contient beaucoup d’autres fonctions utiles pour la manipulation de données.</p>
+<div id="sample_n-et-sample_frac" class="section level3">
+<h3>sample_n et sample_frac</h3>
+<p><code data-pkg="dplyr" data-rdoc="sample">sample_n</code> et <code data-pkg="dplyr" data-rdoc="sample">sample_frac</code> permettent de sélectionner un nombre de lignes ou une fraction des lignes d’un tableau aléatoirement. Ainsi si on veut choisir 5 lignes au hasard dans le tableau <code>airports</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">airports <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">sample_n</span>(<span class="dv">5</span>)</code></pre></div>
+<pre><code># A tibble: 5 x 9
+  faa   name                         lat    lon   alt    tz dst   tzone   alt_m
+  &lt;chr&gt; &lt;chr&gt;                      &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt;
+1 SYB   Seal Bay Seaplane Base      58.2 -152.      0   -9. A     Americ~    0.
+2 MGE   Dobbins Arb                 33.9  -84.5  1068   -5. A     Americ~  326.
+3 CPR   Natrona Co Intl             42.9 -106.   5347   -7. A     Americ~ 1630.
+4 PRC   Ernest A Love Fld           34.7 -112.   5045   -7. A     Americ~ 1538.
+5 C91   Dowagiac Municipal Airport  42.0  -86.1   748   -5. U     Americ~  228.</code></pre>
+<p>Si on veut tirer au hasard 10% des lignes de <code>flights</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">sample_frac</span>(<span class="fl">0.1</span>)</code></pre></div>
+<pre><code># A tibble: 33,678 x 21
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     3    15     2027           2030       -3.     2241           2251
+ 2  2013     3     1      601            600        1.      827            815
+ 3  2013    11     9     1555           1605      -10.     1825           1827
+ 4  2013     6     5     1726           1730       -4.     2027           2051
+ 5  2013     1    19      626            630       -4.     1131           1140
+ 6  2013     1    28      720            705       15.     1009            948
+ 7  2013     3    23     1647           1650       -3.     1833           1853
+ 8  2013     7    23      613            610        3.      718            725
+ 9  2013     6    17     1026           1029       -3.     1338           1348
+10  2013    12     2     1329           1315       14.     1623           1630
+# ... with 33,668 more rows, and 13 more variables: arr_delay &lt;dbl&gt;,
+#   carrier &lt;chr&gt;, flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,
+#   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;,
+#   distance_km &lt;dbl&gt;, vitesse &lt;dbl&gt;</code></pre>
+<p>Ces fonctions sont utiles notamment pour faire de “l’échantillonnage” en tirant au hasard un certain nombre d’observations du tableau.</p>
+</div>
+<div id="lead-et-lag" class="section level3">
+<h3>lead et lag</h3>
+<p><code data-pkg="dplyr" data-rdoc="lead-lag">lead</code> et <code data-pkg="dplyr" data-rdoc="lead-lag">lag</code> permettent de décaler les observations d’une variable d’un cran vers l’arrière (pour <code data-pkg="dplyr" data-rdoc="lead-lag">lead</code>) ou vers l’avant (pour <code data-pkg="dplyr" data-rdoc="lead-lag">lag</code>).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">lead</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>)</code></pre></div>
+<pre><code>[1]  2  3  4  5 NA</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">lag</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>)</code></pre></div>
+<pre><code>[1] NA  1  2  3  4</code></pre>
+<p>Ceci peut être utile pour des données de type “séries temporelles”. Par exemple, on peut facilement calculer l’écart entre le retard au départ de chaque vol et celui du vol précédent :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">dep_delay_prev =</span> <span class="kw">lead</span>(dep_delay), <span class="dt">dep_delay_diff =</span> dep_delay <span class="op">-</span><span class="st"> </span>
+<span class="st">  </span>dep_delay_prev) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(dep_delay_prev, dep_delay, dep_delay_diff)</code></pre></div>
+<pre><code># A tibble: 336,776 x 3
+   dep_delay_prev dep_delay dep_delay_diff
+            &lt;dbl&gt;     &lt;dbl&gt;          &lt;dbl&gt;
+ 1             4.        2.            -2.
+ 2             2.        4.             2.
+ 3            -1.        2.             3.
+ 4            -6.       -1.             5.
+ 5            -4.       -6.            -2.
+ 6            -5.       -4.             1.
+ 7            -3.       -5.            -2.
+ 8            -3.       -3.             0.
+ 9            -2.       -3.            -1.
+10            -2.       -2.             0.
+# ... with 336,766 more rows</code></pre>
+</div>
+<div id="tally" class="section level3">
+<h3>tally</h3>
+<p><code data-pkg="dplyr">tally</code> est une fonction qui permet de compter le nombre d’observations d’un groupe :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(month, origin, dest) <span class="op">%&gt;%</span><span class="st"> </span>tally</code></pre></div>
+<pre><code># A tibble: 2,313 x 4
+# Groups:   month, origin [?]
+   month origin dest      n
+   &lt;int&gt; &lt;chr&gt;  &lt;chr&gt; &lt;int&gt;
+ 1     1 EWR    ALB      64
+ 2     1 EWR    ATL     362
+ 3     1 EWR    AUS      51
+ 4     1 EWR    AVL       2
+ 5     1 EWR    BDL      37
+ 6     1 EWR    BNA     111
+ 7     1 EWR    BOS     430
+ 8     1 EWR    BQN      31
+ 9     1 EWR    BTV     100
+10     1 EWR    BUF     119
+# ... with 2,303 more rows</code></pre>
+<p>Lors de son premier appel, elle sera équivalente à un <code>summarise(n = n())</code> ou à un <code>count()</code>. Là où la fonction est intelligente, c’est que si on l’appelle plusieurs fois successivement, elle prendra en compte l’existence d’un <code>n</code> déjà calculé et effectuera automatiquement un <code>summarise(n = sum(n))</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(month, origin, dest) <span class="op">%&gt;%</span><span class="st"> </span>tally <span class="op">%&gt;%</span><span class="st"> </span>tally</code></pre></div>
+<pre><code>Using `n` as weighting variable</code></pre>
+<pre><code># A tibble: 36 x 3
+# Groups:   month [?]
+   month origin    nn
+   &lt;int&gt; &lt;chr&gt;  &lt;int&gt;
+ 1     1 EWR     9893
+ 2     1 JFK     9161
+ 3     1 LGA     7950
+ 4     2 EWR     9107
+ 5     2 JFK     8421
+ 6     2 LGA     7423
+ 7     3 EWR    10420
+ 8     3 JFK     9697
+ 9     3 LGA     8717
+10     4 EWR    10531
+# ... with 26 more rows</code></pre>
+</div>
+<div id="distinct" class="section level3">
+<h3>distinct</h3>
+<p><code data-pkg="dplyr">distinct</code> filtre les lignes du tableau pour ne conserver que les lignes distinctes, en supprimant toutes les lignes en double.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(day, month) <span class="op">%&gt;%</span><span class="st"> </span>distinct</code></pre></div>
+<pre><code># A tibble: 365 x 2
+     day month
+   &lt;int&gt; &lt;int&gt;
+ 1     1     1
+ 2     2     1
+ 3     3     1
+ 4     4     1
+ 5     5     1
+ 6     6     1
+ 7     7     1
+ 8     8     1
+ 9     9     1
+10    10     1
+# ... with 355 more rows</code></pre>
+<p>On peut lui spécifier une liste de variables : dans ce cas, pour toutes les observations ayant des valeurs identiques pour les variables en question, <code data-pkg="dplyr">distinct</code> ne conservera que la première d’entre elles.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">distinct</span>(month, day)</code></pre></div>
+<pre><code># A tibble: 365 x 2
+   month   day
+   &lt;int&gt; &lt;int&gt;
+ 1     1     1
+ 2     1     2
+ 3     1     3
+ 4     1     4
+ 5     1     5
+ 6     1     6
+ 7     1     7
+ 8     1     8
+ 9     1     9
+10     1    10
+# ... with 355 more rows</code></pre>
+<p>L’option <code>.keep_all</code> permet, dans l’opération précédente, de conserver l’ensemble des colonnes du tableau :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">distinct</span>(month, day, <span class="dt">.keep_all =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre><code># A tibble: 365 x 21
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     1      517            515        2.      830            819
+ 2  2013     1     2       42           2359       43.      518            442
+ 3  2013     1     3       32           2359       33.      504            442
+ 4  2013     1     4       25           2359       26.      505            442
+ 5  2013     1     5       14           2359       15.      503            445
+ 6  2013     1     6       16           2359       17.      451            442
+ 7  2013     1     7       49           2359       50.      531            444
+ 8  2013     1     8      454            500       -6.      625            648
+ 9  2013     1     9        2           2359        3.      432            444
+10  2013     1    10        3           2359        4.      426            437
+# ... with 355 more rows, and 13 more variables: arr_delay &lt;dbl&gt;,
+#   carrier &lt;chr&gt;, flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,
+#   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;,
+#   distance_km &lt;dbl&gt;, vitesse &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<div id="tables-multiples" class="section level2">
+<h2>Tables multiples</h2>
+<p>Le jeu de données <code class="pkg">nycflights13</code> est un exemple de données réparties en plusieurs tables. Ici on en a trois : les informations sur les vols, celles sur les aéroports et celles sur les compagnies aériennes sont dans trois tables distinctes.</p>
+<p><code class="pkg">dplyr</code> propose différentes fonctions permettant de travailler avec des données structurées de cette manière.</p>
+<div id="concatenation-bind_rows-et-bind_cols" class="section level3">
+<h3>Concaténation : bind_rows et bind_cols</h3>
+<p>Les fonctions <code data-pkg="dplyr" data-rdoc="bind">bind_rows</code> et <code data-pkg="dplyr" data-rdoc="bind">bind_cols</code> permettent d’ajouter des lignes (respectivement des colonnes) à une table à partir d’une ou plusieurs autres tables.</p>
+<p>L’exemple suivant (certes très artificiel) montre l’utilisation de <code data-pkg="dplyr" data-rdoc="bind">bind_rows</code>. On commence par créer trois tableaux <code>t1</code>, <code>t2</code> et <code>t3</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">t1 &lt;-<span class="st"> </span>airports <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(faa, name, lat, lon) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">slice</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)
+t1</code></pre></div>
+<pre><code># A tibble: 2 x 4
+  faa   name                            lat   lon
+  &lt;chr&gt; &lt;chr&gt;                         &lt;dbl&gt; &lt;dbl&gt;
+1 04G   Lansdowne Airport              41.1 -80.6
+2 06A   Moton Field Municipal Airport  32.5 -85.7</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">t2 &lt;-<span class="st"> </span>airports <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(faa, name, lat, lon) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">slice</span>(<span class="dv">5</span><span class="op">:</span><span class="dv">6</span>)
+
+t2</code></pre></div>
+<pre><code># A tibble: 2 x 4
+  faa   name                             lat   lon
+  &lt;chr&gt; &lt;chr&gt;                          &lt;dbl&gt; &lt;dbl&gt;
+1 09J   Jekyll Island Airport           31.1 -81.4
+2 0A9   Elizabethton Municipal Airport  36.4 -82.2</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">t3 &lt;-<span class="st"> </span>airports <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(faa, name) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">slice</span>(<span class="dv">100</span><span class="op">:</span><span class="dv">101</span>)
+t3</code></pre></div>
+<pre><code># A tibble: 2 x 2
+  faa   name             
+  &lt;chr&gt; &lt;chr&gt;            
+1 ADW   Andrews Afb      
+2 AET   Allakaket Airport</code></pre>
+<p>On concaténe ensuite les trois tables avec <code data-pkg="dplyr" data-rdoc="bind">bind_rows</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">bind_rows</span>(t1, t2, t3)</code></pre></div>
+<pre><code># A tibble: 6 x 4
+  faa   name                             lat   lon
+  &lt;chr&gt; &lt;chr&gt;                          &lt;dbl&gt; &lt;dbl&gt;
+1 04G   Lansdowne Airport               41.1 -80.6
+2 06A   Moton Field Municipal Airport   32.5 -85.7
+3 09J   Jekyll Island Airport           31.1 -81.4
+4 0A9   Elizabethton Municipal Airport  36.4 -82.2
+5 ADW   Andrews Afb                     NA    NA  
+6 AET   Allakaket Airport               NA    NA  </code></pre>
+<p>On remarquera que si des colonnes sont manquantes pour certaines tables, comme les colonnes <var>lat</var> et <var>lon</var> de <code>t3</code>, des <code>NA</code> sont automatiquement insérées.</p>
+<p>Il peut être utile, quand on concatène des lignes, de garder une trace du tableau d’origine de chacune des lignes dans le tableau final. C’est possible grâce à l’argument <code>.id</code> de <code data-pkg="dplyr" data-rdoc="bind">bind_rows</code>. On passe à cet argument le nom d’une colonne qui contiendra l’indicateur d’origine des lignes :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">bind_rows</span>(t1, t2, t3, <span class="dt">.id =</span> <span class="st">&quot;source&quot;</span>)</code></pre></div>
+<pre><code># A tibble: 6 x 5
+  source faa   name                             lat   lon
+  &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;                          &lt;dbl&gt; &lt;dbl&gt;
+1 1      04G   Lansdowne Airport               41.1 -80.6
+2 1      06A   Moton Field Municipal Airport   32.5 -85.7
+3 2      09J   Jekyll Island Airport           31.1 -81.4
+4 2      0A9   Elizabethton Municipal Airport  36.4 -82.2
+5 3      ADW   Andrews Afb                     NA    NA  
+6 3      AET   Allakaket Airport               NA    NA  </code></pre>
+<p>Par défaut la colonne <code>.id</code> ne contient qu’un nombre, différent pour chaque tableau. On peut lui spécifier des valeurs plus explicites en “nommant” les tables dans <code data-pkg="dplyr" data-rdoc="bind">bind_rows</code> de la manière suivante :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">bind_rows</span>(<span class="dt">table1 =</span> t1, <span class="dt">table2 =</span> t2, <span class="dt">table3 =</span> t3, <span class="dt">.id =</span> <span class="st">&quot;source&quot;</span>)</code></pre></div>
+<pre><code># A tibble: 6 x 5
+  source faa   name                             lat   lon
+  &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;                          &lt;dbl&gt; &lt;dbl&gt;
+1 table1 04G   Lansdowne Airport               41.1 -80.6
+2 table1 06A   Moton Field Municipal Airport   32.5 -85.7
+3 table2 09J   Jekyll Island Airport           31.1 -81.4
+4 table2 0A9   Elizabethton Municipal Airport  36.4 -82.2
+5 table3 ADW   Andrews Afb                     NA    NA  
+6 table3 AET   Allakaket Airport               NA    NA  </code></pre>
+<p><code data-pkg="dplyr" data-rdoc="bind">bind_cols</code> permet de concaténer des colonnes et fonctionne de manière similaire :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">t1 &lt;-<span class="st"> </span>flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">slice</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(dep_delay, dep_time)
+t2 &lt;-<span class="st"> </span>flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">slice</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(origin, dest)
+t3 &lt;-<span class="st"> </span>flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">slice</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(arr_delay, arr_time)
+<span class="kw">bind_cols</span>(t1, t2, t3)</code></pre></div>
+<pre><code># A tibble: 5 x 6
+  dep_delay dep_time origin dest  arr_delay arr_time
+      &lt;dbl&gt;    &lt;int&gt; &lt;chr&gt;  &lt;chr&gt;     &lt;dbl&gt;    &lt;int&gt;
+1        2.      517 EWR    IAH         11.      830
+2        4.      533 LGA    IAH         20.      850
+3        2.      542 JFK    MIA         33.      923
+4       -1.      544 JFK    BQN        -18.     1004
+5       -6.      554 LGA    ATL        -25.      812</code></pre>
+<p>À noter que <code data-pkg="dplyr" data-rdoc="bind">bind_cols</code> associe les lignes uniquement <em>par position</em>. Les lignes des différents tableaux associés doivent donc correspondre (et leur nombre doit être identique). Pour associer des tables <em>par valeur</em>, on doit utiliser les jointures.</p>
+</div>
+<div id="jointures" class="section level3">
+<h3>Jointures</h3>
+<div id="cles-implicites" class="section level4">
+<h4>Clés implicites</h4>
+<p>Très souvent, les données relatives à une analyse sont réparties dans plusieurs tables différentes. Dans notre exemple, on peut voir que la table <code>flights</code> contient seulement le code de la compagnie aérienne du vol dans la variable <var>carrier</var> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(carrier)</code></pre></div>
+<pre><code># A tibble: 336,776 x 1
+   carrier
+   &lt;chr&gt;  
+ 1 UA     
+ 2 UA     
+ 3 AA     
+ 4 B6     
+ 5 DL     
+ 6 UA     
+ 7 B6     
+ 8 EV     
+ 9 B6     
+10 AA     
+# ... with 336,766 more rows</code></pre>
+<p>Et que par ailleurs la table <code>airlines</code> contient une information supplémentaire relative à ces compagnies, à savoir le nom complet.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">airlines</code></pre></div>
+<pre><code># A tibble: 16 x 2
+   carrier name                       
+   &lt;chr&gt;   &lt;chr&gt;                      
+ 1 9E      Endeavor Air Inc.          
+ 2 AA      American Airlines Inc.     
+ 3 AS      Alaska Airlines Inc.       
+ 4 B6      JetBlue Airways            
+ 5 DL      Delta Air Lines Inc.       
+ 6 EV      ExpressJet Airlines Inc.   
+ 7 F9      Frontier Airlines Inc.     
+ 8 FL      AirTran Airways Corporation
+ 9 HA      Hawaiian Airlines Inc.     
+10 MQ      Envoy Air                  
+11 OO      SkyWest Airlines Inc.      
+12 UA      United Air Lines Inc.      
+13 US      US Airways Inc.            
+14 VX      Virgin America             
+15 WN      Southwest Airlines Co.     
+16 YV      Mesa Airlines Inc.         </code></pre>
+<p>Il est donc naturel de vouloir associer les deux, en l’occurrence pour ajouter les noms complets des compagnies à la table <code>flights</code>. Dans ce cas on va faire une <em>jointure</em> : les lignes d’une table seront associées à une autre en se basant non pas sur leur position, mais sur les valeurs d’une ou plusieurs colonnes. Ces colonnes sont appelées des <em>clés</em>.</p>
+<p>Pour faire une jointure de ce type, on va utiliser la fonction <code data-pkg="dplyr" data-rdoc="join">left_join</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">left_join</span>(flights, airlines)</code></pre></div>
+<p>Pour faciliter la lecture, on va afficher seulement certaines colonnes du résultat :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">left_join</span>(flights, airlines) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(month, day, carrier, name)</code></pre></div>
+<pre><code>Joining, by = &quot;carrier&quot;</code></pre>
+<pre><code># A tibble: 336,776 x 4
+   month   day carrier name                    
+   &lt;int&gt; &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;                   
+ 1     1     1 UA      United Air Lines Inc.   
+ 2     1     1 UA      United Air Lines Inc.   
+ 3     1     1 AA      American Airlines Inc.  
+ 4     1     1 B6      JetBlue Airways         
+ 5     1     1 DL      Delta Air Lines Inc.    
+ 6     1     1 UA      United Air Lines Inc.   
+ 7     1     1 B6      JetBlue Airways         
+ 8     1     1 EV      ExpressJet Airlines Inc.
+ 9     1     1 B6      JetBlue Airways         
+10     1     1 AA      American Airlines Inc.  
+# ... with 336,766 more rows</code></pre>
+<p>On voit que la table résultat est bien la fusion des deux tables d’origine selon les valeurs des deux colonnes clés <var>carrier</var>. On est parti de la table <code>flights</code>, et pour chaque ligne on a ajouté les colonnes de <code>airlines</code> pour lesquelles la valeur de <var>carrier</var> est la même. On a donc bien une nouvelle colonne <code>name</code> dans notre table résultat, avec le nom complet de la compagnie aérienne.</p>
+<div class="note">
+<p>À noter qu’on peut tout à fait utiliser le <em>pipe</em> avec les fonctions de jointure :</p>
+<p><code>flights %&gt;% left_join(airlines)</code>.</p>
+</div>
+<p>Nous sommes ici dans le cas le plus simple concernant les clés de jointure : les deux clés sont uniques et portent le même nom dans les deux tables. Par défaut, si on ne lui spécifie pas explicitement les clés, <code class="pkg">dplyr</code> fusionne en utilisant l’ensemble des colonnes communes aux deux tables. On peut d’ailleurs voir dans cet exemple qu’un message a été affiché précisant que la jointure s’est faite sur la variable <var>carrier</var>.</p>
+</div>
+<div id="cles-explicites" class="section level4">
+<h4>Clés explicites</h4>
+<p>La table <code>airports</code>, elle, contient des informations supplémentaires sur les aéroports : nom complet, altitude, position géographique, etc. Chaque aéroport est identifié par un code contenu dans la colonne <var>faa</var>.</p>
+<p>Si on regarde la table <code>flights</code>, on voit que le code d’identification des aéroports apparaît à deux endroits différents : pour l’aéroport de départ dans la colonne <var>origin</var>, et pour celui d’arrivée dans la colonne <var>dest</var>. On a donc deux clés de jointures possibles, et qui portent un nom différent de la clé de <code>airports</code>.</p>
+<p>On va commencer par fusionner les données concernant l’aéroport de départ. Pour simplifier l’affichage des résultats, on va se contenter d’un sous-ensemble des deux tables :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights_ex &lt;-<span class="st"> </span>flights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(month, day, origin, dest)
+airports_ex &lt;-<span class="st"> </span>airports <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(faa, alt, name)</code></pre></div>
+<p>Si on se contente d’un <code data-pkg="dplyr" data-rdoc="join">left_join</code> comme à l’étape précédente, on obtient un message d’erreur car aucune colonne commune ne peut être identifiée comme clé de jointure :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">left_join</span>(flights_ex, airports_ex)</code></pre></div>
+<pre><code>Error: `by` required, because the data sources have no common variables</code></pre>
+<p>On doit donc spécifier explicitement les clés avec l’argument <code>by</code> de <code data-pkg="dplyr" data-rdoc="join">left_join</code>. Ici la clé est nommée <code>origin</code> dans la première table, et <code>faa</code> dans la seconde. La syntaxe est donc la suivante :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">left_join</span>(flights_ex, airports_ex, <span class="dt">by =</span> <span class="kw">c</span>(<span class="dt">origin =</span> <span class="st">&quot;faa&quot;</span>))</code></pre></div>
+<pre><code># A tibble: 336,776 x 6
+   month   day origin dest    alt name               
+   &lt;int&gt; &lt;int&gt; &lt;chr&gt;  &lt;chr&gt; &lt;int&gt; &lt;chr&gt;              
+ 1     1     1 EWR    IAH      18 Newark Liberty Intl
+ 2     1     1 LGA    IAH      22 La Guardia         
+ 3     1     1 JFK    MIA      13 John F Kennedy Intl
+ 4     1     1 JFK    BQN      13 John F Kennedy Intl
+ 5     1     1 LGA    ATL      22 La Guardia         
+ 6     1     1 EWR    ORD      18 Newark Liberty Intl
+ 7     1     1 EWR    FLL      18 Newark Liberty Intl
+ 8     1     1 LGA    IAD      22 La Guardia         
+ 9     1     1 JFK    MCO      13 John F Kennedy Intl
+10     1     1 LGA    ORD      22 La Guardia         
+# ... with 336,766 more rows</code></pre>
+<p>On constate que les deux nouvelles colonnes <var>name</var> et <var>alt</var> contiennent bien les données correspondant à l’aéroport de départ.</p>
+<p>On va stocker le résultat de cette jointure dans <code>flights_ex</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights_ex &lt;-<span class="st"> </span>flights_ex <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">left_join</span>(airports_ex, <span class="dt">by =</span> <span class="kw">c</span>(<span class="dt">origin =</span> <span class="st">&quot;faa&quot;</span>))</code></pre></div>
+<p>Supposons qu’on souhaite maintenant fusionner à nouveau les informations de la table <code>airports</code>, mais cette fois pour les aéroports d’arrivée de notre nouvelle table <code>flights_ex</code>. Les deux clés sont donc désormais <var>dest</var> dans la première table, et <var>faa</var> dans la deuxième. La syntaxe est donc la suivante :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">left_join</span>(flights_ex, airports_ex, <span class="dt">by =</span> <span class="kw">c</span>(<span class="dt">dest =</span> <span class="st">&quot;faa&quot;</span>))</code></pre></div>
+<pre><code># A tibble: 336,776 x 8
+   month   day origin dest  alt.x name.x              alt.y name.y             
+   &lt;int&gt; &lt;int&gt; &lt;chr&gt;  &lt;chr&gt; &lt;int&gt; &lt;chr&gt;               &lt;int&gt; &lt;chr&gt;              
+ 1     1     1 EWR    IAH      18 Newark Liberty Intl    97 George Bush Interc~
+ 2     1     1 LGA    IAH      22 La Guardia             97 George Bush Interc~
+ 3     1     1 JFK    MIA      13 John F Kennedy Intl     8 Miami Intl         
+ 4     1     1 JFK    BQN      13 John F Kennedy Intl    NA &lt;NA&gt;               
+ 5     1     1 LGA    ATL      22 La Guardia           1026 Hartsfield Jackson~
+ 6     1     1 EWR    ORD      18 Newark Liberty Intl   668 Chicago Ohare Intl 
+ 7     1     1 EWR    FLL      18 Newark Liberty Intl     9 Fort Lauderdale Ho~
+ 8     1     1 LGA    IAD      22 La Guardia            313 Washington Dulles ~
+ 9     1     1 JFK    MCO      13 John F Kennedy Intl    96 Orlando Intl       
+10     1     1 LGA    ORD      22 La Guardia            668 Chicago Ohare Intl 
+# ... with 336,766 more rows</code></pre>
+<p>Cela fonctionne, les informations de l’aéroport d’arrivée ont bien été ajoutées, mais on constate que les colonnes ont été renommées. En effet, ici les deux tables fusionnées contenaient toutes les deux des colonnes <var>name</var> et <var>alt</var>. Comme on ne peut pas avoir deux colonnes avec le même nom dans un tableau, <code class="pkg">dplyr</code> a renommé les colonnes de la première table en <code>name.x</code> et <code>alt.x</code>, et celles de la deuxième en <code>name.y</code> et <code>alt.y</code>.</p>
+<p>C’est pratique, mais pas forcément très parlant. On pourrait renommer manuellement les colonnes pour avoir des intitulés plus explicites avec <code data-pkg="dplyr" data-rdoc="select">rename</code>, mais on peut aussi utiliser l’argument <code>suffix</code> de <code data-pkg="dplyr" data-rdoc="join">left_join</code>, qui permet d’indiquer les suffixes à ajouter aux colonnes. Ainsi, on peut faire :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">left_join</span>(flights_ex, airports_ex, <span class="dt">by =</span> <span class="kw">c</span>(<span class="dt">dest =</span> <span class="st">&quot;faa&quot;</span>), <span class="dt">suffix =</span> <span class="kw">c</span>(<span class="st">&quot;_depart&quot;</span>, <span class="st">&quot;_arrivee&quot;</span>))</code></pre></div>
+<pre><code># A tibble: 336,776 x 8
+   month   day origin dest  alt_depart name_depart   alt_arrivee name_arrivee  
+   &lt;int&gt; &lt;int&gt; &lt;chr&gt;  &lt;chr&gt;      &lt;int&gt; &lt;chr&gt;               &lt;int&gt; &lt;chr&gt;         
+ 1     1     1 EWR    IAH           18 Newark Liber~          97 George Bush I~
+ 2     1     1 LGA    IAH           22 La Guardia             97 George Bush I~
+ 3     1     1 JFK    MIA           13 John F Kenne~           8 Miami Intl    
+ 4     1     1 JFK    BQN           13 John F Kenne~          NA &lt;NA&gt;          
+ 5     1     1 LGA    ATL           22 La Guardia           1026 Hartsfield Ja~
+ 6     1     1 EWR    ORD           18 Newark Liber~         668 Chicago Ohare~
+ 7     1     1 EWR    FLL           18 Newark Liber~           9 Fort Lauderda~
+ 8     1     1 LGA    IAD           22 La Guardia            313 Washington Du~
+ 9     1     1 JFK    MCO           13 John F Kenne~          96 Orlando Intl  
+10     1     1 LGA    ORD           22 La Guardia            668 Chicago Ohare~
+# ... with 336,766 more rows</code></pre>
+<p>On obtient ainsi directement des noms de colonnes nettement plus clairs.</p>
+</div>
+</div>
+<div id="types-de-jointures" class="section level3">
+<h3>Types de jointures</h3>
+<p>Jusqu’à présent nous avons utilisé la fonction <code data-pkg="dplyr" data-rdoc="join">left_join</code>, mais il existe plusieurs types de jointures.</p>
+<p>Partons de deux tables d’exemple, <code>personnes</code> et <code>voitures</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">personnes &lt;-<span class="st"> </span><span class="kw">data_frame</span>(<span class="dt">nom =</span> <span class="kw">c</span>(<span class="st">&quot;Sylvie&quot;</span>, <span class="st">&quot;Sylvie&quot;</span>, <span class="st">&quot;Monique&quot;</span>, <span class="st">&quot;Gunter&quot;</span>, <span class="st">&quot;Rayan&quot;</span>, 
+  <span class="st">&quot;Rayan&quot;</span>), <span class="dt">voiture =</span> <span class="kw">c</span>(<span class="st">&quot;Twingo&quot;</span>, <span class="st">&quot;Ferrari&quot;</span>, <span class="st">&quot;Scenic&quot;</span>, <span class="st">&quot;Lada&quot;</span>, <span class="st">&quot;Twingo&quot;</span>, <span class="st">&quot;Clio&quot;</span>))</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">nom</th>
+<th align="left">voiture</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sylvie</td>
+<td align="left">Twingo</td>
+</tr>
+<tr class="even">
+<td align="left">Sylvie</td>
+<td align="left">Ferrari</td>
+</tr>
+<tr class="odd">
+<td align="left">Monique</td>
+<td align="left">Scenic</td>
+</tr>
+<tr class="even">
+<td align="left">Gunter</td>
+<td align="left">Lada</td>
+</tr>
+<tr class="odd">
+<td align="left">Rayan</td>
+<td align="left">Twingo</td>
+</tr>
+<tr class="even">
+<td align="left">Rayan</td>
+<td align="left">Clio</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">voitures &lt;-<span class="st"> </span><span class="kw">data_frame</span>(<span class="dt">voiture =</span> <span class="kw">c</span>(<span class="st">&quot;Twingo&quot;</span>, <span class="st">&quot;Ferrari&quot;</span>, <span class="st">&quot;Clio&quot;</span>, <span class="st">&quot;Lada&quot;</span>, <span class="st">&quot;208&quot;</span>), <span class="dt">vitesse =</span> <span class="kw">c</span>(<span class="st">&quot;140&quot;</span>, 
+  <span class="st">&quot;280&quot;</span>, <span class="st">&quot;160&quot;</span>, <span class="st">&quot;85&quot;</span>, <span class="st">&quot;160&quot;</span>))</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">voiture</th>
+<th align="left">vitesse</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Twingo</td>
+<td align="left">140</td>
+</tr>
+<tr class="even">
+<td align="left">Ferrari</td>
+<td align="left">280</td>
+</tr>
+<tr class="odd">
+<td align="left">Clio</td>
+<td align="left">160</td>
+</tr>
+<tr class="even">
+<td align="left">Lada</td>
+<td align="left">85</td>
+</tr>
+<tr class="odd">
+<td align="left">208</td>
+<td align="left">160</td>
+</tr>
+</tbody>
+</table>
+<div id="left_join" class="section level4">
+<h4>left_join</h4>
+<p>Si on fait un <code data-pkg="dplyr" data-rdoc="join">left_join</code> de <code>voitures</code> sur <code>personnes</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">left_join</span>(personnes, voitures)</code></pre></div>
+<pre><code>Joining, by = &quot;voiture&quot;</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">nom</th>
+<th align="left">voiture</th>
+<th align="left">vitesse</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sylvie</td>
+<td align="left">Twingo</td>
+<td align="left">140</td>
+</tr>
+<tr class="even">
+<td align="left">Sylvie</td>
+<td align="left">Ferrari</td>
+<td align="left">280</td>
+</tr>
+<tr class="odd">
+<td align="left">Monique</td>
+<td align="left">Scenic</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Gunter</td>
+<td align="left">Lada</td>
+<td align="left">85</td>
+</tr>
+<tr class="odd">
+<td align="left">Rayan</td>
+<td align="left">Twingo</td>
+<td align="left">140</td>
+</tr>
+<tr class="even">
+<td align="left">Rayan</td>
+<td align="left">Clio</td>
+<td align="left">160</td>
+</tr>
+</tbody>
+</table>
+<p>On voit que chaque ligne de <code>personnes</code> est bien présente, et qu’on lui a ajouté une ligne de <code>voitures</code> correspondante si elle existe. Dans le cas du <code>Scenic</code>, il n’y a avait pas de ligne dans <code>voitures</code>, donc <code>vitesse</code> a été mise à <code>NA</code>. Dans le cas de <code>208</code>, présente dans <code>voitures</code> mais pas dans <code>personnes</code>, la ligne n’apparaît pas.</p>
+<p>Si on fait un <code data-pkg="dplyr" data-rdoc="join">left_join</code> cette fois de <code>personnes</code> sur <code>voitures</code>, c’est l’inverse :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">left_join</span>(voitures, personnes)</code></pre></div>
+<pre><code>Joining, by = &quot;voiture&quot;</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">voiture</th>
+<th align="left">vitesse</th>
+<th align="left">nom</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Twingo</td>
+<td align="left">140</td>
+<td align="left">Sylvie</td>
+</tr>
+<tr class="even">
+<td align="left">Twingo</td>
+<td align="left">140</td>
+<td align="left">Rayan</td>
+</tr>
+<tr class="odd">
+<td align="left">Ferrari</td>
+<td align="left">280</td>
+<td align="left">Sylvie</td>
+</tr>
+<tr class="even">
+<td align="left">Clio</td>
+<td align="left">160</td>
+<td align="left">Rayan</td>
+</tr>
+<tr class="odd">
+<td align="left">Lada</td>
+<td align="left">85</td>
+<td align="left">Gunter</td>
+</tr>
+<tr class="even">
+<td align="left">208</td>
+<td align="left">160</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
+<p>La ligne <code>208</code> est là, mais <code>nom</code> est à <code>NA</code>. Par contre <code>Monique</code> est absente. Et on remarquera que la ligne <code>Twingo</code>, présente deux fois dans <code>personnes</code>, a été dupliquée pour être associée aux deux lignes de données de <code>Sylvie</code> et <code>Rayan</code>.</p>
+<p>En résumé, quand on fait un <code>left_join(x, y)</code>, toutes les lignes de <code>x</code> sont présentes, et dupliquées si nécessaire quand elles apparaissent plusieurs fois dans <code>y</code>. Les lignes de <code>y</code> non présentes dans <code>x</code> disparaissent. Les lignes de <code>x</code> non présentes dans <code>y</code> se voient attribuer des <code>NA</code> pour les nouvelles colonnes.</p>
+<p>Intuitivement, on pourrait considérer que <code>left_join(x, y)</code> signifie “ramener l’information de la table <code>y</code> sur la table <code>x</code>”.</p>
+<p>En général, <code data-pkg="dplyr" data-rdoc="join">left_join</code> sera le type de jointures le plus fréquemment utilisé.</p>
+</div>
+<div id="right_join" class="section level4">
+<h4>right_join</h4>
+<p>La jointure <code data-pkg="dplyr" data-rdoc="join">right_join</code> est l’exacte symétrique de <code data-pkg="dplyr" data-rdoc="join">left_join</code>, c’est-à dire que <code>right_join(x, y)</code> est équivalent à <code>left_join(x,y)</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">right_join</span>(personnes, voitures)</code></pre></div>
+<pre><code>Joining, by = &quot;voiture&quot;</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">nom</th>
+<th align="left">voiture</th>
+<th align="left">vitesse</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sylvie</td>
+<td align="left">Twingo</td>
+<td align="left">140</td>
+</tr>
+<tr class="even">
+<td align="left">Rayan</td>
+<td align="left">Twingo</td>
+<td align="left">140</td>
+</tr>
+<tr class="odd">
+<td align="left">Sylvie</td>
+<td align="left">Ferrari</td>
+<td align="left">280</td>
+</tr>
+<tr class="even">
+<td align="left">Rayan</td>
+<td align="left">Clio</td>
+<td align="left">160</td>
+</tr>
+<tr class="odd">
+<td align="left">Gunter</td>
+<td align="left">Lada</td>
+<td align="left">85</td>
+</tr>
+<tr class="even">
+<td align="left">NA</td>
+<td align="left">208</td>
+<td align="left">160</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="inner_join" class="section level4">
+<h4>inner_join</h4>
+<p>Dans le cas de <code data-pkg="dplyr" data-rdoc="join">inner_join</code>, seules les lignes présentes à la fois dans <code>x</code> et <code>y</code> sont présentes (et si nécessaire dupliquées) dans la table résultat :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">inner_join</span>(personnes, voitures)</code></pre></div>
+<pre><code>Joining, by = &quot;voiture&quot;</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">nom</th>
+<th align="left">voiture</th>
+<th align="left">vitesse</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sylvie</td>
+<td align="left">Twingo</td>
+<td align="left">140</td>
+</tr>
+<tr class="even">
+<td align="left">Sylvie</td>
+<td align="left">Ferrari</td>
+<td align="left">280</td>
+</tr>
+<tr class="odd">
+<td align="left">Gunter</td>
+<td align="left">Lada</td>
+<td align="left">85</td>
+</tr>
+<tr class="even">
+<td align="left">Rayan</td>
+<td align="left">Twingo</td>
+<td align="left">140</td>
+</tr>
+<tr class="odd">
+<td align="left">Rayan</td>
+<td align="left">Clio</td>
+<td align="left">160</td>
+</tr>
+</tbody>
+</table>
+<p>Ici la ligne <code>208</code> est absente, ainsi que la ligne <code>Monique</code>, qui dans le cas d’un <code data-pkg="dplyr" data-rdoc="join">left_join</code> avait été conservée et s’était vue attribuer une <code>vitesse</code> à <code>NA</code>.</p>
+</div>
+<div id="full_join" class="section level4">
+<h4>full_join</h4>
+<p>Dans le cas de <code data-pkg="dplyr" data-rdoc="join">full_join</code>, toutes les lignes de <code>x</code> et toutes les lignes de <code>y</code> sont conservées (avec des <code>NA</code> ajoutés si nécessaire) même si elles sont absentes de l’autre table :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">full_join</span>(personnes, voitures)</code></pre></div>
+<pre><code>Joining, by = &quot;voiture&quot;</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">nom</th>
+<th align="left">voiture</th>
+<th align="left">vitesse</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sylvie</td>
+<td align="left">Twingo</td>
+<td align="left">140</td>
+</tr>
+<tr class="even">
+<td align="left">Sylvie</td>
+<td align="left">Ferrari</td>
+<td align="left">280</td>
+</tr>
+<tr class="odd">
+<td align="left">Monique</td>
+<td align="left">Scenic</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Gunter</td>
+<td align="left">Lada</td>
+<td align="left">85</td>
+</tr>
+<tr class="odd">
+<td align="left">Rayan</td>
+<td align="left">Twingo</td>
+<td align="left">140</td>
+</tr>
+<tr class="even">
+<td align="left">Rayan</td>
+<td align="left">Clio</td>
+<td align="left">160</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">208</td>
+<td align="left">160</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="semi_join-et-anti_join" class="section level4">
+<h4>semi_join et anti_join</h4>
+<p><code data-pkg="dplyr" data-rdoc="join">semi_join</code> et <code data-pkg="dplyr" data-rdoc="join">anti_join</code> sont des jointures <em>filtrantes</em>, c’est-à-dire qu’elles sélectionnent les lignes de <code>x</code> sans ajouter les colonnes de <code>y</code>.</p>
+<p>Ainsi, <code data-pkg="dplyr" data-rdoc="join">semi_join</code> ne conservera que les lignes de <code>x</code> pour lesquelles une ligne de <code>y</code> existe également, et supprimera les autres. Dans notre exemple, la ligne <code>Monique</code> est donc supprimée :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">semi_join</span>(personnes, voitures)</code></pre></div>
+<pre><code>Joining, by = &quot;voiture&quot;</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">nom</th>
+<th align="left">voiture</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sylvie</td>
+<td align="left">Twingo</td>
+</tr>
+<tr class="even">
+<td align="left">Sylvie</td>
+<td align="left">Ferrari</td>
+</tr>
+<tr class="odd">
+<td align="left">Gunter</td>
+<td align="left">Lada</td>
+</tr>
+<tr class="even">
+<td align="left">Rayan</td>
+<td align="left">Twingo</td>
+</tr>
+<tr class="odd">
+<td align="left">Rayan</td>
+<td align="left">Clio</td>
+</tr>
+</tbody>
+</table>
+<p>Un <code data-pkg="dplyr" data-rdoc="join">anti_join</code> fait l’inverse, il ne conserve que les lignes de <code>x</code> absentes de <code>y</code>. Dans notre exemple, on ne garde donc que la ligne <code>Monique</code> :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">anti_join</span>(personnes, voitures)</code></pre></div>
+<pre><code>Joining, by = &quot;voiture&quot;</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">nom</th>
+<th align="left">voiture</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Monique</td>
+<td align="left">Scenic</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="chapitre-sur-les-jointures" class="section level4">
+<h4>Chapitre sur les jointures</h4>
+<p>Pour aller plus loin (notamment avec les fonctions de base de <strong>R</strong> ou avec l’extension <strong>data.table</strong>), on pourra se référer au chapitre <a href="fusion-de-tables.html">Fusion de tables</a>.</p>
+</div>
+</div>
+</div>
+<div id="ressources" class="section level2">
+<h2>Ressources</h2>
+<p>Toutes les ressources ci-dessous sont en anglais…</p>
+<p>Le livre <em>R for data science</em>, librement accessible en ligne, contient plusieurs chapitres très complets sur la manipulation des données, notamment :</p>
+<ul>
+<li><a href="http://r4ds.had.co.nz/transform.html">Data transformation</a> pour les manipulations</li>
+<li><a href="http://r4ds.had.co.nz/relational-data.html">Relational data</a> pour les tables multiples</li>
+</ul>
+<p>Le <a href="http://dplyr.tidyverse.org/">site de l’extension</a> comprend une <a href="http://dplyr.tidyverse.org/reference/index.html">liste des fonctions</a> et les pages d’aide associées, mais aussi une <a href="http://dplyr.tidyverse.org/articles/dplyr.html">introduction</a> au package et plusieurs articles dont un spécifiquement sur les <a href="http://dplyr.tidyverse.org/articles/two-table.html">jointures</a>.</p>
+<p>Une “antisèche” très synthétique est également accessible depuis RStudio, en allant dans le menu <em>Help</em> puis <em>Cheatsheets</em> et <em>Data Transformation with dplyr</em>.</p>
+<p>Enfin, on trouvera des exercices dans l’<a href="https://juba.github.io/tidyverse/10-dplyr.html#exercices-5">Introduction à R et au tidyverse</a> de Julien Barnier.</p>
+</div>
+<div id="dplyr-et-data.table" class="section level2">
+<h2>dplyr et data.table</h2>
+<p>Pour ceux travaillant également avec l’extension <code class="pkg">data.table</code>, il est possible de concilier <em>tibble</em> et <em>data.table</em> avec l’extension <code class="pkg">dtplyr</code> et sa fonction <code data-pkg="dtplyr">tbl_dt</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dtplyr)
+iris_dt &lt;-<span class="st"> </span><span class="kw">tbl_dt</span>(iris)
+<span class="kw">class</span>(iris_dt)</code></pre></div>
+<pre><code>[1] &quot;tbl_dt&quot;     &quot;tbl&quot;        &quot;data.table&quot; &quot;data.frame&quot;</code></pre>
+<p>Le tableau de données est à la fois compatible avec <code class="pkg">data.table</code> (et notamment sa syntaxe particulière des crochets) et les verbes de <code class="pkg">dplyr</code>.</p>
+<p>Pour décrouvrir <code class="pkg">data.table</code>, voir le <a href="manipulations-avancees-avec-data-table.html">chapitre dédié</a>.</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>À noter que cette opération est un peu plus “fragile” que les autres, car si l’ordre des colonnes change elle peut renvoyer un résultat différent.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>Il est également possible de renommer des colonnes directement avec <code>select</code>, avec la même syntaxe que pour <code>rename</code>.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>Le <em>pipe</em> a été introduit à l’origine par l’extension <code class="pkg">magrittr</code>, et repris par <code class="pkg">dplyr</code><a href="#fnref3">↩</a></p></li>
+</ol>
+</div>
+
+</article>
+</div>
+
+<div class="col-sm-3" role="complementary">
+<nav class="hidden-print hidden-xs" id="nav_sidebar">
+</nav>
+</div>
+
+</div>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+
+    // active menu
+    href = window.location.pathname;
+    href = href.substr(href.lastIndexOf('/') + 1);
+    if (href=='') href = 'index.html';
+    $('a[href="' + href + '"]').parent().addClass('active');
+    $('a[href="' + href + '"]').parent().parents('li').addClass('active');
+
+    // élargir la page d'accueil
+    if (href=='index.html') $('.col-sm-9').attr('class','col-sm-12');
+
+    // rechercher
+    $("#rechercher").submit(function(event) {
+      $('input[name="q"]').val($('input[name="q"]').val() + ' site:larmarange.github.io/analyse-R');
+    });
+
+    // sidebar
+    $("#nav_sidebar").append($("#TOC").html());
+    $("#nav_sidebar ul").addClass("nav nav-stacked");
+    $("#TOC").addClass("visible-xs-block");
+    $('body').scrollspy({
+      target: '#nav_sidebar',
+      offset: 40
+    });
+
+    // Identifier les <pre> fermant
+    $('pre').next("*:not(pre)").prev().addClass('last'); // Dernier <pre> de chaque groupe contigu de <pre>
+    $('pre').parent().each(function (){
+      $(this).children('pre').last().addClass('last');
+    }); // Si <pre> est le dernier enfant de son parent
+
+    // Ajout liens rdocumentation et tooltip
+    $("code[data-pkg]").each(function( index ) {
+      pkg = $(this).attr('data-pkg');
+      if ($(this).attr('data-rdoc') !== undefined) {
+        rdocumentation = $(this).attr('data-rdoc');
+      } else {
+        rdocumentation = $(this).text();
+      }
+      fonction = $(this).text();
+      $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+pkg+'/functions/'+rdocumentation+'">');
+      $(this).attr('data-toggle','tooltip');
+      $(this).attr('data-placement','top');
+      $(this).attr('title','package : ' + pkg);
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+
+    $("code.pkg").each(function( index ) {
+      $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+$(this).text()+'">');
+    });
+
+    // Figures
+    $("figure").each(function( index ) {
+      if ($(this).children("figcaption").length > 0)
+        $(this).children("figcaption:first").prepend('<span class="figure-number">Figure '+(index+1)+'.</span> ');
+      else
+        $(this).append($("<figcaption>").append('<span class="figure-number">Figure '+(index+1)+'</span>'));
+    });
+
+    // Colorbox
+    jQuery('article div img').colorbox({
+      maxWidth: '90%',
+      maxHeight: '90%',
+      rel: 'figures',
+      current: "",
+      href: function(){
+        return $(this).attr('src');
+      },
+      title: function(){
+        return $(this).attr('alt');
+      }
+    });
+    jQuery('article div img').css('cursor', 'pointer');
+    jQuery('figure img').colorbox({
+      maxWidth: '90%',
+      maxHeight: '90%',
+      rel: 'figures',
+      current: "",
+      href: function(){
+        return $(this).attr('src');
+      },
+      title: function(){
+        return $(this).parent().children("figcaption").text();
+      }
+    });
+    jQuery('figure img').css('cursor', 'pointer');
+
+    // ZeroClipboard
+    $('pre.r').parent().each(function(){
+      $(this).children('pre.r').first().before('<div class="zero-clipboard hidden-print hidden-xs"><button class="btn-clipboard">Copier</button></div>');
+    }); // Il peut arriver que le pre ne soit pas précédé (cf. figures)
+    $('*:not(pre):not(.zero-clipboard) + pre.r').before('<div class="zero-clipboard hidden-print hidden-xs"><button class="btn-clipboard">Copier</button></div>');
+    $('pre.last').after(function() {
+      if ($(this).hasClass("r")) res = $(this).text(); else res = "";
+      $(this).prevUntil('*:not(pre)','pre.r').each(function() {
+        res = $(this).text() + '\n' + res;
+      });
+      return '<div class="clipboard">' + res + '</div>';
+    });
+    $('.zero-clipboard').each(function(index){
+      $(this).children('.btn-clipboard').attr('data-clipboard-target','clipboard_'+index);
+      $(this).nextAll("div.clipboard").first().attr('id','clipboard_'+index);
+    });
+    var client = new ZeroClipboard( $(".btn-clipboard") );
+    client.on( "ready", function( readyEvent ) {
+      // alert( "ZeroClipboard SWF is ready!" );
+      client.on( "aftercopy", function( event ) {
+        // `this` === `client`
+        // `event.target` === the element that was clicked
+        //event.target.style.display = "none";
+        $(event.target).parent().before('<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>Le code <strong>R</strong> de l’exemple a été copié dans le presse-papier.</div>');
+      } );
+    } );
+
+});
+</script>
+
+<!-- disqus -->
+<div class="row">
+  <div id="disqus_thread" class="col-sm-9" role="complementary"></div>
+</div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'analyse-r'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Veuillez activer JavaScript pour voir les <a href="http://disqus.com/?ref_noscript">les commentaires gérés avec Disqus.</a></noscript>
+    <!--<a href="http://disqus.com" class="dsq-brlink">Les commentaires sont hébergés par <span class="logo-disqus">Disqus</span>.</a>-->
+
+<footer>
+  <div class="row">
+    <div class="col-lg-12">
+      <p>Contenus sous licence <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/" rel="nofollow">Creative Commons Attribution - Pas d’utilisation commerciale - Partage dans les mêmes conditions</a>.<br />
+      Propulsé par <a href="http://www.r-project.org/" rel="nofollow">R</a>, </a><a href="http://www.rstudio.com/" rel="nofollow">RStudio</a>, <a href="http://rmarkdown.rstudio.com/" rel="nofollow">R Markdown</a>, <a href="http://yihui.name/knitr/" rel="nofollow">knitr</a>, <a href="http://pandoc.org/" rel="nofollow">pandoc</a> et <a href="http://www.princexml.com/" rel="nofollow">Prince XML</a>. Hébergé par <a href="https://github.com/" rel="nofollow">GitHub</a>.</p>
+    </div>
+  </div>
+</footer>
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+
+</body>
+</html>
