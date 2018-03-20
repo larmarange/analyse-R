@@ -419,17 +419,143 @@ en mémoire.
 Pour plus d'informations, voir les fonctions `raster`{data-pkg="raster"} et
 `getValues`{data-pkg="raster"}.
 
+
+## Connexion à des bases de données
+
+
+### Interfaçage via l'extension DBI
+
+**R** est capable de s'interfacer avec différents systèmes de bases de données relationnelles, dont **SQLite**, **MS SQL Server**, **PostgreSQL**, **MariaDB**, etc.
+
+Pour illustrer rapidement l'utilisation de bases de données, on va créer une base SQLite d'exemple à l'aide du code R suivant, qui copie la table du jeu de données `mtcars` dans une base de données `bdd.sqlite` :
+
+```{r, echo=FALSE, warning=FALSE}
+if (file.exists("bdd.sqlite")) file.remove("bdd.sqlite")
+```
+
+
+```{r}
+library(DBI)
+library(RSQLite)
+con <- DBI::dbConnect(RSQLite::SQLite(), dbname = "bdd.sqlite")
+data(mtcars)
+mtcars$name <- rownames(mtcars)
+dbWriteTable(con, "mtcars", mtcars)
+dbDisconnect(con)
+```
+
+Si on souhaite se connecter à cette base de données par la suite, on peut utiliser l'extension <strong class="pkg">DBI</strong>, qui propose une interface générique entre **R// et différents systèmes de bases de données. On doit aussi avoir installé et chargé l'extension spécifique à notre base, ici <strong class="pkg">RSQLite</strong>. On commence par ouvrir une connexion à l'aide de la fonction `dbConnect`{data-pkg="DBI"} de <strong class="pkg">DBI</strong> :
+
+```{r}
+library(DBI)
+library(RSQLite)
+con <- DBI::dbConnect(RSQLite::SQLite(), dbname = "bdd.sqlite")
+```
+
+La connexion est stockée dans un objet `con`, qu'on va utiliser à chaque fois qu'on voudra interroger la base.
+
+On peut vérifier la liste des tables présentes et les champs de ces tables avec `dbListTables`{data-pkg="DBI"} et `dbListFields`{data-pkg="DBI"} :
+
+```{r}
+dbListTables(con)
+```
+```{r}
+dbListFields(con, "mtcars")
+```
+
+On peut également lire le contenu d'une table dans un objet de notre environnement avec `dbReadTable`{data-pkg="DBI"} :
+
+```{r}
+cars <- dbReadTable(con, "mtcars")
+```
+
+On peut également envoyer une requête SQL directement à la base et récupérer le résultat avec `dbGetQuery`{data-pkg="DBI"} :
+
+```{r}
+dbGetQuery(con, "SELECT * FROM mtcars WHERE cyl = 4")
+```
+
+Enfin, quand on a terminé, on peut se déconnecter à l'aide de `dbDisconnect`{data-pkg="DBI"} :
+
+```{r, eval = FALSE}
+dbDisconnect(con)
+```
+
+Ceci n'est évidemment qu'un tout petit aperçu des fonctionnalités de <strong class="pkg">DBI</strong>.
+
+### Utilisation de dplyr et dbplyr
+
+L'extension <strong class="pkg">dplyr</strong> est dédiée à la manipulation de données, elle est présentée dans un [chapitre dédié](introduction-a-dplyr.html). En installant l'extension complémentaire <strong class="pkg">dbplyr</strong>, on peut utiliser <strong class="pkg">dplyr</strong> directement sur une connection à une base de données générée par <strong class="pkg">DBI</strong> :
+
+```{r}
+library(DBI)
+library(RSQLite)
+library(dplyr)
+con <- DBI::dbConnect(RSQLite::SQLite(), dbname = "bdd.sqlite")
+```
+
+La fonction `tbl`{data-pkg="dplyr"} notamment permet de créer un nouvel objet qui représente une table de la base de données :
+
+```{r}
+cars_tbl <- tbl(con, "mtcars")
+```
+
+<div class="important">
+Ici l'objet `cars_tbl` n'est *pas* un tableau de données, c'est juste un objet permettant d'interroger la table de notre base de données.
+</div>
+
+On peut utiliser cet objet avec les [verbes](manipuler-les-donnees-avec-dplyr.html) de <strong class="pkg">dplyr</strong> :
+
+```{r}
+cars_tbl %>% 
+  filter(cyl == 4) %>% 
+  select(name, mpg, cyl)
+```
+
+<strong class="pkg">dbplyr</strong> s'occupe, de manière transparente, de transformer les instructions <strong class="pkg">dplyr</strong> en requête SQL, d'interroger la base de données et de renvoyer le résultat. De plus, tout est fait pour qu'un minimum d'opérations sur la base, parfois coûteuses en temps de calcul, ne soient effectuées.
+
+
+<div class="important">
+Il est possible de modifier des objets de type `tbl`, par exemple avec `mutate`{data-pkg="dplyr"} :
+
+`cars_tbl <- cars_tbl %>% mutate(type = "voiture")`
+
+Dans ce cas la nouvelle colonne `type` est bien créée et on peut y accéder par la suite. Mais **cette création se fait dans une table temporaire** : elle n'existe que le temps de la connexion à la base de données. À la prochaine connexion, cette nouvelle colonne n'apparaîtra pas dans la table.
+</div>
+
+Bien souvent on utilisera une base de données quand les données sont trop volumineuses pour être gérées par un ordinateur de bureau. Mais si les données ne sont pas trop importantes, il sera toujours plus rapide de récupérer l'intégralité de la table dans notre session R pour pouvoir la manipuler comme les tableaux de données habituels. Ceci se fait grâce à la fonction `collect`{data-pkg="dplyr" data-rdoc="compute"} de <strong class="pkg">dplyr</strong> :
+
+```{r}
+cars <- cars_tbl %>% collect
+```
+
+Ici, `cars` est bien un tableau de données classique, copie de la table de la base au moment du `collect`{data-pkg="dplyr" data-rdoc="compute"}.
+
+Et dans tous les cas, on n'oubliera pas de se déconnecter avec :
+
+```{r, eval = FALSE}
+dbDisconnect(con)
+```
+
+
+
+### Ressources
+
+Pour plus d'informations, voir la [documentation très complète](https://db.rstudio.com/) (en anglais) proposée par RStudio.
+
+Par ailleurs, depuis la version 1.1, RStudio facilite la connexion à certaines bases de données grâce à l'onglet *Connections*. Pour plus d'informations on pourra se référer à l'article (en anglais) [Using RStudio Connections](https://support.rstudio.com/hc/en-us/articles/115010915687-Using-RStudio-Connections).
+
+
+
 ## Autres sources
 
 **R** offre de très nombreuses autres possibilités pour accéder aux données. Il est ainsi possible d'importer
-des données depuis d'autres applications qui n'ont pas été évoquées (**Epi Info**, **S-Plus**, etc.), 
-de se connecter à un système de base de données relationelle type **MySQL**, de lire des données 
+des données depuis d'autres applications qui n'ont pas été évoquées (**Epi Info**, **S-Plus**, etc.), de lire des données 
 via **ODBC** ou des connexions réseau, etc.
 
 Pour plus d'informations on consultera le manuel *R Data Import/Export* :<br />
 <http://cran.r-project.org/manuals.html>.
 
-Pour les données **SQL**, on pourra utiliser les fonctionnalités de `dplyr`{.pkg} dans ce domaine, voir <https://cran.rstudio.com/web/packages/dplyr/vignettes/databases.html>.
 
 ## Sauver ses données
 
@@ -466,4 +592,8 @@ souhaitez enregistrer votre session. Si vous répondez *Oui*, c'est cette foncti
 
 ```{r, eval=FALSE}
 save.image()
+```
+
+```{r, echo=FALSE, warning=FALSE}
+if (file.exists("bdd.sqlite")) file.remove("bdd.sqlite")
 ```
