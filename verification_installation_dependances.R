@@ -47,6 +47,10 @@ library(JLutils)
 if (!exists("tidy_model"))
   install_github("larmarange/JLutils")
 
+library(JLutils)
+if (!exists("betas"))
+  install_github("pbiecek/breakDown")
+
 library(questionr)
 if (is.null(getS3method("odds.ratio", "numeric", TRUE)))
   install_github("juba/questionr")

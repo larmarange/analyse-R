@@ -85,79 +85,10 @@ Concernant l'âge et le sexe, nous avons trois séries de coefficients : trois 
 
 Pour bien interpréter ces coefficients, il faut toujours avoir en tête les modalités choisies comme référence pour chaque variable. Supposons une femme de 60 ans, dont toutes lautres variables correspondent aux modalités de référence (c'est donc une pratiquante régulière, de niveau primaire, qui ne regarde pas la télévision). Regardons ce que prédit le modèle quant à sa probabilité de faire du sport au travers d'une représentation graphique
 
-```{r include=FALSE}
-# Custom version of broken
-broken2.glm <- function(model, new_observation, ..., baseline = 0) {
-  #ny <- predict.glm(model, newdata = new_observation, type = "terms")
-  ny <- betas(model, new_observation)
-  terms <- NULL
-
-  # add terms with :
-  labels <- attr(terms(model), "term.labels")
-  ilabels <- grep(labels, pattern = ":", value = TRUE)
-  for (interact in ilabels) {
-    vars <- strsplit(interact, split = ":")[[1]]
-    new_observation[,interact] <- apply(new_observation[,vars], 1, paste0, collapse = ":")
-  }
-
-  broken_obj <- data.frame(variable = paste(colnames(ny),  "=",
-                                            sapply(new_observation[colnames(ny)], as.character)),
-                           contribution = c(ny),
-                           variable_name = colnames(ny),
-                           variable_value = sapply(new_observation[colnames(ny)], as.character))
-  broken_sorted <- broken_obj[order(-abs(broken_obj$contribution)),]
-
-  # set the baseline to the model (Intercept)
-  if (tolower(baseline) == "intercept") {
-    baseline <- attributes(ny)$constant
-    broken_sorted <- rbind(
-      data.frame(variable = "(Intercept)",
-                 contribution = 0,
-                 variable_name = "Intercept",
-                 variable_value = 1),
-      broken_sorted)
-  } else {
-    broken_sorted <- rbind(
-      data.frame(variable = "(Intercept)",
-                 contribution = attributes(ny)$constant - baseline,
-                 variable_name = "Intercept",
-                 variable_value = 1),
-      broken_sorted)
-  }
-
-  breakDown:::create.broken(broken_sorted, baseline)
-}
-
-
-betas <- function (object, newdata)
-{
-  tt <- terms(object)
-  Terms <- delete.response(tt)
-  mm <- model.matrix(Terms, newdata)
-  ass <- attr(mm, "assign")
-  tl <- attr(Terms, "term.labels")
-
-  co <- coef(object)
-  pred <- co * mm
-
-  ret <- matrix(rep_len(NA, length.out = length(tl) * nrow(newdata)), nrow = nrow(newdata))
-  colnames(ret) <- tl
-  rownames(ret) <- rownames(ret)
-
-  for (i in 1:length(tl)) {
-    ret[, i] <- rowSums(pred[, ass == i, drop = FALSE], na.rm = TRUE)
-  }
-  attr(ret, "constant") <- rowSums(pred[, ass == 0, drop = FALSE], na.rm = TRUE)
-
-  ret
-}
-
-
-```
 
 
 <figure>
-```{r echo=FALSE, message=FALSE}
+```{r}
 library(breakDown)
 library(ggplot2)
 logit <- function(x) exp(x)/(1+exp(x))
@@ -168,10 +99,7 @@ nouvelle_observation$etud[1] = "Primaire"
 nouvelle_observation$relig[1] = "Pratiquant regulier"
 nouvelle_observation$heures.tv[1] = 0
 plot(
-  broken2.glm(
-    mod2,
-    nouvelle_observation
-  ),
+  broken(mod2, nouvelle_observation, predict.function = betas),
   trans = logit
 ) + ylim(0, 1) + ylab("Probabilité de faire du sport")
 ```
@@ -183,14 +111,11 @@ En premier lieu, l'intercept s'applique et permet de déterminer la probabilité
 Regardons maintenant la situation d'un homme de 20 ans.
 
 <figure>
-```{r echo=FALSE, message=FALSE}
+```{r}
 nouvelle_observation$sexe[1] = "Homme"
 nouvelle_observation$grpage[1] = "[16,25)"
 plot(
-  broken2.glm(
-    mod2,
-    nouvelle_observation
-  ),
+  broken(mod2, nouvelle_observation, predict.function = betas),
   trans = logit
 ) + ylim(0, 1) + ylab("Probabilité de faire du sport")
 ```
@@ -203,13 +128,10 @@ Nous sommes à la modalité de référence pour l'âge par contre il y a un effe
 La situation est différente pour un homme de 60 ans.
 
 <figure>
-```{r echo=FALSE, message=FALSE}
+```{r}
 nouvelle_observation$grpage[1] = "[45,65)"
 plot(
-  broken2.glm(
-    mod2,
-    nouvelle_observation
-  ),
+  broken(mod2, nouvelle_observation, predict.function = betas),
   trans = logit
 ) + ylim(0, 1) + ylab("Probabilité de faire du sport")
 ```
@@ -252,12 +174,9 @@ ggcoef(mod3, exponentiate = TRUE)
 Cette fois-ci, il n'y a plus de coefficients globaux pour la variable <var>sexe</var> ni pour <var>grpage</var> mais des coefficients pour chaque combinaison de ces deux variables.
 
 <figure>
-```{r echo=FALSE, message=FALSE}
+```{r}
 plot(
-  broken2.glm(
-    mod3,
-    nouvelle_observation
-  ),
+  broken(mod3, nouvelle_observation, predict.function = betas),
   trans = logit
 ) + ylim(0, 1) + ylab("Probabilité de faire du sport")
 ```
