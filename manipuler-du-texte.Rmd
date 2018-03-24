@@ -1,11 +1,285 @@
 ---
-title: "Manipuler du texte"
+title: "Manipuler du texte avec stringr"
 ---
 
 ```{r options_communes, include=FALSE}
 source("options_communes.R")
 ```
 
-<div class="important">
-Ce chapitre est en cours d'écriture.
+<div class="note">
+La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre de son
+[Introduction à R et au *tidyverse*](https://juba.github.io/tidyverse/11-stringr.html).
 </div>
+
+Les fonctions de `forcats`{.pkg} vues précédemment permettent de modifier des modalités d'une variables qualitative globalement. Mais parfois on a besoin de manipuler le contenu même du texte d'une variable de type chaîne de caractères : combiner, rechercher, remplacer...
+
+On va utiliser ici les fonctions de l'extension `stringr`{.pkg}. Celle-ci fait partie du coeur du **tidyverse**, elle est donc automatiquement chargée avec :
+
+```{r}
+library(tidyverse)
+```
+
+<div class="note">
+`stringr`{.pkg} est en fait une interface simplifiée aux fonctions d'une autre extension, `stringi`{.pkg}. Si les fonctions de `stringr`{.pkg} ne sont pas suffisantes ou si on manipule beaucoup de chaînes de caractères, ne pas hésiter à se reporter à la documentation de `stringi`{.pkg}.
+</div>
+
+Dans ce qui suit on va utiliser le court tableau d'exemple `d` suivant :
+
+```{r}
+d <- tibble(
+  nom = c("Mr Félicien Machin", "Mme Raymonde Bidule", "M. Martial Truc", "Mme Huguette Chose"),
+  adresse = c("3 rue des Fleurs", "47 ave de la Libération", "12 rue du 17 octobre 1961", "221 avenue de la Libération"),
+  ville = c("Nouméa", "Marseille", "Vénissieux", "Marseille") 
+)
+```
+
+```{r echo=FALSE}
+knitr::kable(d)
+```
+
+## Expressions régulières
+
+Les fonctions présentées ci-dessous sont pour la plupart prévues pour fonctionner avec des <dfn data-index="expression régulière">expressions régulières</dfn><dfn data-index="régulière, expression"></dfn>. Celles-ci constituent un mini-langage, qui peut paraître assez cryptique, mais qui est très puissant pour spécifier des motifs de chaînes de caractères. 
+
+Elles permettent par exemple de sélectionner le dernier mot avant la fin d'une chaîne, l'ensemble des suites alphanumériques commençant par une majuscule, des nombres de 3 ou 4 chiffres situés en début de chaîne, et beaucoup beaucoup d'autres choses encore bien plus complexes.
+
+Pour donner un exemple concret, l'expression régulière suivante permet de détecter une adresse de courrier électronique^[Il s'agit en fait d'une version très simplifiée, la <q>véritable</q> expression permettant de tester si une adresse mail est valide fait plus de 80 lignes...] :
+
+`[\w\d+.-_]+@[\w\d.-]+\.[a-zA-Z]{2,}`
+
+Par souci de simplicité, dans ce qui suit les exemples seront donnés autant que possible avec de simples chaînes, sans expression régulière. Mais si vous pensez manipuler des données textuelles, il peut être très utile de s'intéresser à cette syntaxe.
+
+
+## Concaténer des chaînes
+
+La première opération de base consiste à concaténer des chaînes de caractères entre elles. On peut le faire avec la fonction `paste`{data-pkg="base"}.
+
+Par exemple, si on veut concaténer l'adresse et la ville :
+
+```{r}
+paste(d$adresse, d$ville)
+```
+
+Par défaut, `paste`{data-pkg="base"} concatène en ajoutant un espace entre les différentes chaînes. On peut spécifier un autre séparateur avec son argument `sep` :
+
+```{r}
+paste(d$adresse, d$ville, sep = " - ")
+```
+
+Il existe une variante, `paste0`{data-pkg="base" data-rdoc="paste"}, qui concatène sans mettre de séparateur, et qui est légèrement plus rapide :
+
+```{r}
+paste0(d$adresse, d$ville)
+```
+
+<div class="note">
+À noter que `paste`{data-pkg="base"} et `paste0`{data-pkg="base" data-rdoc="paste"} sont des fonctions R de base. L'équivalent pour `stringr`{.pkg} se nomme `str_c`{data-pkg="stringr"}.
+</div>
+
+Parfois on cherche à concaténer les différents éléments d'un vecteur non pas avec ceux d'un autre vecteur, comme on l'a fait précédemment, mais *entre eux*. Dans ce cas `paste`{data-pkg="base"} seule ne fera rien :
+
+```{r}
+paste(d$ville)
+```
+
+Il faut lui ajouter un argument `collapse`, avec comme valeur la chaîne à utiliser pour concaténer les éléments :
+
+```{r}
+paste(d$ville, collapse = ", ")
+```
+
+## Convertir en majuscules / minuscules
+
+Les fonctions `str_to_lower`{data-pkg="stringr" data-rdoc="case"}, `str_to_upper`{data-pkg="stringr" data-rdoc="case"} et `str_to_title`{data-pkg="stringr" data-rdoc="case"} permettent respectivement de mettre en minuscules, mettre en majuscules, ou de capitaliser les éléments d'un vecteur de chaînes de caractères :
+
+```{r}
+str_to_lower(d$nom)
+```
+
+```{r}
+str_to_upper(d$nom)
+```
+```{r}
+str_to_title(d$nom)
+```
+
+
+
+## Découper des chaînes
+
+La fonction `str_split`{data-pkg="stringr"} permet de "découper" une chaîne de caractère en fonction d'un délimiteur. On passe la chaîne en premier argument, et le délimiteur en second :
+
+```{r}
+str_split("un-deux-trois", "-") 
+```
+
+On peut appliquer la fonction à un vecteur, dans ce cas le résultat sera une liste :
+
+```{r}
+str_split(d$nom, " ")
+```
+
+Ou un tableau (plus précisément une matrice) si on ajoute `simplify = TRUE`.
+
+```{r}
+str_split(d$nom, " ", simplify = TRUE)
+```
+
+Si on souhaite créer de nouvelles colonnes dans un tableau de données en découpant une colonne de type texte, on pourra utiliser la fonction `separate`{data-pkg="tidyr"} de l'extension `tidyr`{.pkg}. Celle-ci est expliquée section \@ref(separate).
+
+Voici juste un exemple de son utilisation :
+
+```{r}
+library(tidyr)
+d %>% separate(nom, c("genre", "prenom", "nom"))
+```
+
+
+## Extraire des sous-chaînes par position
+
+La fonction `str_sub`{data-pkg="stringr"} permet d'extraire des sous-chaînes par position, en indiquant simplement les positions des premier et dernier caractères : 
+
+```{r}
+str_sub(d$ville, 1, 3)
+```
+
+
+## Détecter des motifs
+
+`str_detect`{data-pkg="stringr"} permet de détecter la présence d'un motif parmi les élements d'un vecteur. Par exemple, si on souhaite identifier toutes les adresses contenant <q>Libération</q> :
+
+```{r}
+str_detect(d$adresse, "Libération")
+```
+
+`str_detect`{data-pkg="stringr"} renvoit un vecteur de valeurs logiques et peut donc être utilisée, par exemple, avec le verbe `filter`{data-pkg="dplyr"} de `dplyr`{.pkg} pour extraire des sous-populations.
+
+Une variante, `str_count`{data-pkg="stringr"}, compte le nombre d'occurrences d'une chaîne pour chaque élément d'un vecteur :
+
+```{r}
+str_count(d$ville, "s")
+```
+
+<div class="important">
+Attention, les fonctions de `stringr`{.pkg} étant prévues pour fonctionner avec des expressions régulières, certains caractères n'auront pas le sens habituel dans la chaîne indiquant le motif à rechercher. Par exemple, le `.` ne sera pas un point mais le symbole représentant <q>n'importe quel caractère</q>.
+
+La section sur les modificateurs de motifs explique comment utiliser des chaîne <q>classiques</q> au lieu d'expressions régulières.
+</div>
+
+
+On peut aussi utiliser `str_subset`{data-pkg="stringr"} pour ne garder d'un vecteur que les éléments correspondant au motif :
+
+```{r}
+str_subset(d$adresse, "Libération")
+```
+
+
+## Extraire des motifs
+
+`str_extract`{data-pkg="stringr"} permet d'extraire les valeurs correspondant à un motif. Si on lui passe comme motif une chaîne de caractère, cela aura peu d'intérêt :
+
+```{r}
+str_extract(d$adresse, "Libération")
+```
+
+C'est tout de suite plus intéressant si on utilise des expressions régulières. Par exemple la commande suivante permet d'isoler les numéros de rue.
+
+```{r}
+str_extract(d$adresse, "^\\d+")
+```
+
+`str_extract`{data-pkg="stringr"} ne récupère que la première occurrence du motif. Si on veut toutes les extraire on peut utiliser `str_extract_all`{data-pkg="stringr" data-rdoc="str_extract"}. Ainsi, si on veut extraire l'ensemble des nombres présents dans les adresses :
+
+
+```{r}
+str_extract_all(d$adresse, "\\d+")
+```
+
+<div class="note>"
+Si on veut faire de l'extraction de groupes dans des expressions régulières (identifiés avec des parenthèses), on pourra utiliser `str_match`.
+</div>
+
+À noter que si on souhaite extraire des valeurs d'une colonne texte d'un tableau de données pour créer de nouvelles variables, on pourra utiliser la fonction `extract`{data-pkg="tidyr"} de l'extension `tidyr`{.pkg}, décrite plus haut.
+
+Par exemple :
+
+```{r}
+library(tidyr)
+d %>% extract(adresse, "type_rue", "^\\d+ (.*?) ", remove = FALSE)
+```
+
+
+## Remplacer des motifs
+
+La fonction `str_replace`{data-pkg="stringr"} permet de remplacer une chaîne ou un motif par une autre.
+
+Par exemple, on peut remplace les occurrence de "Mr" par "M." dans les noms de notre tableau :
+
+```{r}
+str_replace(d$nom, "Mr", "M.")
+```
+
+La variante `str_replace_all`{data-pkg="stringr" data-rdoc="str_replace"} permet de spécifier plusieurs remplacements d'un coup :
+
+```{r}
+str_replace_all(d$adresse, c("avenue"="Avenue", "ave"="Avenue", "rue"="Rue"))
+```
+
+## Modificateurs de motifs {#modificateurs}
+
+Par défaut, les motifs passés aux fonctions comme `str_detect`{data-pkg="stringr"}, `str_extract`{data-pkg="stringr"} ou `str_replace`{data-pkg="stringr"} sont des expressions régulières classiques. 
+
+On peut spécifier qu'un motif n'est pas une expression régulière mais une chaîne de caractères normale en lui appliquant la fonction `fixed`{data-pkg="stringr"}. Par exemple, si on veut compter le nombre de points dans les noms de notre tableau, le paramétrage par défaut ne fonctionnera pas car dans une expression régulière le `.` est un symbole signifiant "n'importe quel caractère" :
+
+```{r}
+str_count(d$nom, ".")
+```
+
+Il faut donc spécifier que notre point est bien un point avec `fixed`{data-pkg="stringr"} :
+
+```{r}
+str_count(d$nom, fixed("."))
+```
+
+On peut aussi modifier le comportement des expressions régulières à l'aide de la fonction `regex`{data-pkg="stringr"}. On peut ainsi rendre les motifs insensibles à la casse avec `ignore_case` :
+
+```{r}
+str_detect(d$nom, "mme")
+```
+
+```{r}
+str_detect(d$nom, regex("mme", ignore_case = TRUE))
+```
+
+On peut également permettre aux regex d'être multilignes avec l'option `multiline = TRUE`, etc.
+
+## Insérer une variable dans une chaîne de caractères
+
+La fonction `str_glue`{data-pkg=stringr} repose sur l'extension `glue`{.pkg}. Elle permet, à l'aide d'une syntaxe un peu spécifique, de pouvoir insérer facilement les valeurs d'une ou plusieurs variables dans une chaîne de caractères. Prenons un exemple :
+
+```{r}
+prenom <- "Fred"
+age <- 28
+anniversaire <- as.Date("1991-10-12")
+str_glue(
+  "Je m'appelle {prenom}. ",
+  "L'année prochaine j'aurai {age + 1} ans, ",
+  "car je suis né le {format(anniversaire, '%A %d %B %Y')}."
+)
+```
+
+Sa variante `str_glue_data`{data-pkg="stringr" data-rdoc="str_glue"} est adaptée lorsque l'on travaille sur un tableau de données avec `dplyr`{.pkg}.
+
+```{r, tidy=FALSE}
+d %>% mutate(phrase = str_glue_data(d, "{nom} habite à {ville}."))
+```
+
+
+## Ressources
+
+L'ouvrage *R for Data Science*, accessible en ligne, contient [un chapitre entier](http://r4ds.had.co.nz/strings.html) sur les chaînes de caractères et les expressions régulières (en anglais).
+
+Le [site officiel de stringr](http://stringr.tidyverse.org/) contient une [liste des fonctions](http://stringr.tidyverse.org/reference/index.html) et les pages d'aide associées, ainsi qu'un [article dédié aux expressions régulières](http://stringr.tidyverse.org/articles/regular-expressions.html).
+
+Pour des besoins plus pointus, on pourra aussi utiliser [l'extension stringi](http://www.gagolewski.com/software/stringi/) sur laquelle est elle-même basée `stringr`{.pkg}.
+
