@@ -211,6 +211,7 @@ $(document).ready(function () {
   	            <ul class="multi-column-dropdown">
                   <li class="dropdown-header">Statistiques avancées</li>
                   <li><a href="effets-d-interaction.html">Effets d'interaction dans un modèle</a></li>
+                  <li><a href="multicolinearite.html">Multicolinéarité dans la régression</a></li>
                   <li><a href="analyse-de-survie.html">Analyse de survie</a></li>
                   <li><a href="analyse-de-sequences.html">Analyse de séquences</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
@@ -299,6 +300,9 @@ $(document).ready(function () {
 <a href="#"></a>
 </li>
 <li>
+<a href="# "> </a>
+</li>
+<li>
 <a href="#A">A</a>
 </li>
 <li>
@@ -369,6 +373,25 @@ $(document).ready(function () {
 <div id="index_concepts" class="liste_index">
 <ul>
 <li><a href="rmarkdown-les-rapports-automatises.html">R Markdown : les rapports automatisés</a></li>
+</ul>
+<h2 id=" ">
+</h2>
+<p><dfn> et corrélation. Si des variables colinéaires sont <em>de facto</em> fortement corrélées entre elles, deux variables corrélées ne sont pas forcément colinéaires. En termes non statistiques, il y a colinéarité lorsque deux ou plusieurs variables mesurent la même chose.</p>
+<p>Prenons un exemple. Nous étudions les complications après l’accouchement dans différentes maternités d’un pays en développement. On souhaite mettre dans le modèle, à la fois le milieu de résidence (urbain ou rural) et le fait qu’il y ait ou non un médecin dans la clinique. Or, dans la zone d’enquête, les maternités rurales sont dirigées seulement par des sage-femmes tandis que l’on trouve un médecin dans toutes les maternités urbaines sauf une. Dès lors, dans ce contexte précis, le milieu de résidence prédit presque totalement la présence d’un médecin et on se retrouve face à une multicolinéarité (qui serait même parfaite s’il n’y avait pas une clinique urbaine sans médecin). On ne peut donc distinguer l’effet de la présence d’un médecin de celui du milieu de résidence et il ne faut mettre qu’une seule de ces deux variables dans le modèle, sachant que du point de vue de l’interprétation elle capturera à la fois l’effet de la présence d’un médecin et celui du milieu de résidence.</p>
+<p>Par contre, si dans notre région d’étude, seule la moitié des maternités urbaines disposait d’un médecin, alors le milieu de résidence n’aurait pas été suffisant pour prédire la présence d’un médecin. Certes, les deux variables seraient corrélées mais pas colinéaires. Un autre exemple de corrélation sans colinéarité, c’est la relation entre milieu de résidence et niveau d’instruction. Il y a une corrélation entre ces deux variables, les personnes résidant en ville étant généralement plus instruites. Cependant, il existe également des personnes non instruites en ville et des personnes instruites en milieu rural. Le milieu de résidence n’est donc pas suffisant pour prédire le niveau d’instruction.</p>
+<h2 id="mesure-de-la-colinearite">Mesure de la colinéarité</h2>
+<p>Il existe différentes mesures de la multicolinéarité. L’extension <code class="pkg">mctest</code> en fournie plusieurs, mais elle n’est utilisable que si l’ensemble des variables explicatives sont de type numérique.</p>
+<p>L’approche la plus classique consiste à examiner les facteurs d’inflation de la variance (FIV) ou variance inflation factor (VIF) en anglais. Les FIV estimenent de combien la variance d’un coefficient est augmentée en raison d’une relation linéaire avec d’autres prédicteurs. Ainsi, un FIV de 1,8 nous dit que la variance de ce coefficient particulier est supérieure de 80 % à la variance que l’on aurait dû observer si ce facteur n’est absolument pas corrélé aux autres prédicteurs.</p>
+<p>Si tous les FIV sont égaux à 1, il n’existe pas de multicolinéarité, mais si certains FIV sont supérieurs à 1, les prédicteurs sont corrélés. Il n’y a pas de consensus sur la valeur au-delà de laquelle on doit considérer qu’il y a multicolinéarité. Certains auteurs, comme Paul Allison<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>, disent regarder plus en détail les variables avec un FIV supérieur à 2,5. D’autres ne s’inquiètent qu’à partir de 5. Il n’existe pas de test statistique qui permettrait de dire s’il y a colinéarité ou non<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>.</p>
+<p>L’extension <code class="pkg">car</code> fournit une fonction <code data-pkg="car">vif</code> permettant de calculer les FIV à partir d’un modèle. Elle implémente même une version généralisée permettant de considérer des facteurs catégoriels et des modèles lénaires généralisés comme la régression logistique.</p>
+<p>Reprenons, pour exemple, un modèle logistique que nous avons déjà abordé dans d’autres chapitres.</p>
+<p>```{r} library(questionr) data(hdv2003) d centrant les variables (c’est-à-dire en soustrayant leurs moyennes) avant de créer les puissances ou les produits. Mais la valeur <em>p</em> pour <em>x<sup>2</sup></em> ou pour <em>xz</em> sera exactement la même, que l’on centre ou non. Et tous les résultats pour les autres variables (y compris le R<sup>2</sup> mais sans les termes d’ordre inférieur) seront les mêmes dans les deux cas. La multicollinéarité n’a donc pas de conséquences négatives.</p>
+<p><strong>3. Les variables avec des FIV élevés sont des variables indicatrices (factices) qui représentent une variable catégorielle avec trois catégories ou plus.</strong></p>
+<p>Si la proportion de cas dans la catégorie de référence est faible, les variables indicatrices auront nécessairement des FIV élevés, même si la variable catégorielle n’est pas associée à d’autres variables dans le modèle de régression.</p>
+<p>Supposons, par exemple, qu’une variable de l’état matrimonial comporte trois catégories : actuellement marié, jamais marié et anciennement marié. Vous choisissez anciennement marié comme catégorie de référence, avec des variables d’indicateur pour les deux autres. Ce qui se passe, c’est que la corrélation entre ces deux indicateurs devient plus négative à mesure que la fraction de personnes dans la catégorie de référence diminue. Par exemple, si 45 % des personnes ne sont jamais mariées, 45 % sont mariées et 10 % sont anciennement mariées, les valeurs du FIV pour les personnes mariées et les personnes jamais mariées seront d’au moins 3,0.</p>
+<p>Est-ce un problème ? Eh bien, cela signifie que les valeurs <em>p</em> des variables indicatrices peuvent être élevées. Mais le test global selon lequel tous les indicateurs ont des coefficients de zéro n’est pas affecté par des FIV élevés. Et rien d’autre dans la régression n’est affecté. Si vous voulez vraiment éviter des FIV élevés, il suffit de choisir une catégorie de référence avec une plus grande fraction des cas. Cela peut être souhaitable pour éviter les situations où aucun des indicateurs individuels n’est statistiquement significatif, même si l’ensemble des indicateurs est significatif. </dfn></p>
+<ul>
+<li><a href="multicolinearite.html">Multicolinéarité dans la régression</a></li>
 </ul>
 <h2 id="A">
 A
@@ -648,6 +671,10 @@ C
 <ul>
 <li><a href="modeles-a-effets-aleatoires.html">Modèles à effets aléatoires (modèles mixtes et GEE)</a></li>
 </ul>
+<p><dfn>colinéarité</dfn></p>
+<ul>
+<li><a href="multicolinearite.html">Multicolinéarité dans la régression</a></li>
+</ul>
 <p><dfn>coloration syntaxique</dfn></p>
 <ul>
 <li><a href="premier-contact.html">Premier contact</a></li>
@@ -697,6 +724,10 @@ C
 <p><dfn>console</dfn></p>
 <ul>
 <li><a href="premier-contact.html">Premier contact</a></li>
+</ul>
+<p><dfn>corrélation</dfn></p>
+<ul>
+<li><a href="multicolinearite.html">Multicolinéarité dans la régression</a></li>
 </ul>
 <p><dfn>corrélation, cercle</dfn></p>
 <ul>
@@ -987,6 +1018,10 @@ F
 <li><a href="premier-travail-avec-les-donnees.html">Premier travail avec des données</a></li>
 <li><a href="regression-logistique.html">Régression logistique binaire, multinomiale et ordinale</a></li>
 </ul>
+<p><dfn>facteurs d’inflation de la variance</dfn></p>
+<ul>
+<li><a href="multicolinearite.html">Multicolinéarité dans la régression</a></li>
+</ul>
 <p><dfn lang="en">factor</dfn></p>
 <ul>
 <li><a href="facteurs-et-vecteurs-labellises.html">Facteurs et vecteurs labellisés</a></li>
@@ -1019,6 +1054,10 @@ F
 <p><dfn>Fisher, test exact</dfn></p>
 <ul>
 <li><a href="comparaisons-moyennes-et-proportions.html">Comparaisons (moyennes et proportions)</a></li>
+</ul>
+<p><dfn>FIV</dfn></p>
+<ul>
+<li><a href="multicolinearite.html">Multicolinéarité dans la régression</a></li>
 </ul>
 <p><dfn>fonction</dfn></p>
 <ul>
@@ -1417,6 +1456,31 @@ M
 <p><dfn>moyenne, intervalle de confiance</dfn></p>
 <ul>
 <li><a href="intervalles-de-confiance.html">Intervalles de confiance</a></li>
+</ul>
+<p><dfn>multicolinéarité</dfn></p>
+<ul>
+<li><a href="multicolinearite.html">Multicolinéarité dans la régression</a></li>
+</ul>
+<p><dfn>multicolinéarité et corrélation. Si des variables colinéaires sont <em>de facto</em> fortement corrélées entre elles, deux variables corrélées ne sont pas forcément colinéaires. En termes non statistiques, il y a colinéarité lorsque deux ou plusieurs variables mesurent la même chose.</p>
+<p>Prenons un exemple. Nous étudions les complications après l’accouchement dans différentes maternités d’un pays en développement. On souhaite mettre dans le modèle, à la fois le milieu de résidence (urbain ou rural) et le fait qu’il y ait ou non un médecin dans la clinique. Or, dans la zone d’enquête, les maternités rurales sont dirigées seulement par des sage-femmes tandis que l’on trouve un médecin dans toutes les maternités urbaines sauf une. Dès lors, dans ce contexte précis, le milieu de résidence prédit presque totalement la présence d’un médecin et on se retrouve face à une multicolinéarité (qui serait même parfaite s’il n’y avait pas une clinique urbaine sans médecin). On ne peut donc distinguer l’effet de la présence d’un médecin de celui du milieu de résidence et il ne faut mettre qu’une seule de ces deux variables dans le modèle, sachant que du point de vue de l’interprétation elle capturera à la fois l’effet de la présence d’un médecin et celui du milieu de résidence.</p>
+<p>Par contre, si dans notre région d’étude, seule la moitié des maternités urbaines disposait d’un médecin, alors le milieu de résidence n’aurait pas été suffisant pour prédire la présence d’un médecin. Certes, les deux variables seraient corrélées mais pas colinéaires. Un autre exemple de corrélation sans colinéarité, c’est la relation entre milieu de résidence et niveau d’instruction. Il y a une corrélation entre ces deux variables, les personnes résidant en ville étant généralement plus instruites. Cependant, il existe également des personnes non instruites en ville et des personnes instruites en milieu rural. Le milieu de résidence n’est donc pas suffisant pour prédire le niveau d’instruction.</p>
+<h2 id="mesure-de-la-colinearite-1">Mesure de la colinéarité</h2>
+<p>Il existe différentes mesures de la multicolinéarité. L’extension <code class="pkg">mctest</code> en fournie plusieurs, mais elle n’est utilisable que si l’ensemble des variables explicatives sont de type numérique.</p>
+<p>L’approche la plus classique consiste à examiner les facteurs d’inflation de la variance (FIV) ou variance inflation factor (VIF) en anglais. Les FIV estimenent de combien la variance d’un coefficient est augmentée en raison d’une relation linéaire avec d’autres prédicteurs. Ainsi, un FIV de 1,8 nous dit que la variance de ce coefficient particulier est supérieure de 80 % à la variance que l’on aurait dû observer si ce facteur n’est absolument pas corrélé aux autres prédicteurs.</p>
+<p>Si tous les FIV sont égaux à 1, il n’existe pas de multicolinéarité, mais si certains FIV sont supérieurs à 1, les prédicteurs sont corrélés. Il n’y a pas de consensus sur la valeur au-delà de laquelle on doit considérer qu’il y a multicolinéarité. Certains auteurs, comme Paul Allison<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>, disent regarder plus en détail les variables avec un FIV supérieur à 2,5. D’autres ne s’inquiètent qu’à partir de 5. Il n’existe pas de test statistique qui permettrait de dire s’il y a colinéarité ou non<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>.</p>
+<p>L’extension <code class="pkg">car</code> fournit une fonction <code data-pkg="car">vif</code> permettant de calculer les FIV à partir d’un modèle. Elle implémente même une version généralisée permettant de considérer des facteurs catégoriels et des modèles lénaires généralisés comme la régression logistique.</p>
+<p>Reprenons, pour exemple, un modèle logistique que nous avons déjà abordé dans d’autres chapitres.</p>
+<p>```{r} library(questionr) data(hdv2003) d centrant les variables (c’est-à-dire en soustrayant leurs moyennes) avant de créer les puissances ou les produits. Mais la valeur <em>p</em> pour <em>x<sup>2</sup></em> ou pour <em>xz</em> sera exactement la même, que l’on centre ou non. Et tous les résultats pour les autres variables (y compris le R<sup>2</sup> mais sans les termes d’ordre inférieur) seront les mêmes dans les deux cas. La multicollinéarité n’a donc pas de conséquences négatives.</p>
+<p><strong>3. Les variables avec des FIV élevés sont des variables indicatrices (factices) qui représentent une variable catégorielle avec trois catégories ou plus.</strong></p>
+<p>Si la proportion de cas dans la catégorie de référence est faible, les variables indicatrices auront nécessairement des FIV élevés, même si la variable catégorielle n’est pas associée à d’autres variables dans le modèle de régression.</p>
+<p>Supposons, par exemple, qu’une variable de l’état matrimonial comporte trois catégories : actuellement marié, jamais marié et anciennement marié. Vous choisissez anciennement marié comme catégorie de référence, avec des variables d’indicateur pour les deux autres. Ce qui se passe, c’est que la corrélation entre ces deux indicateurs devient plus négative à mesure que la fraction de personnes dans la catégorie de référence diminue. Par exemple, si 45 % des personnes ne sont jamais mariées, 45 % sont mariées et 10 % sont anciennement mariées, les valeurs du FIV pour les personnes mariées et les personnes jamais mariées seront d’au moins 3,0.</p>
+<p>Est-ce un problème ? Eh bien, cela signifie que les valeurs <em>p</em> des variables indicatrices peuvent être élevées. Mais le test global selon lequel tous les indicateurs ont des coefficients de zéro n’est pas affecté par des FIV élevés. Et rien d’autre dans la régression n’est affecté. Si vous voulez vraiment éviter des FIV élevés, il suffit de choisir une catégorie de référence avec une plus grande fraction des cas. Cela peut être souhaitable pour éviter les situations où aucun des indicateurs individuels n’est statistiquement significatif, même si l’ensemble des indicateurs est significatif. </dfn></p>
+<ul>
+<li><a href="multicolinearite.html">Multicolinéarité dans la régression</a></li>
+</ul>
+<p><dfn>multicolinéarité parfaite</dfn></p>
+<ul>
+<li><a href="multicolinearite.html">Multicolinéarité dans la régression</a></li>
 </ul>
 <p><dfn lang="en">multidimensional scaling</dfn></p>
 <ul>
@@ -2084,6 +2148,10 @@ V
 <li><a href="donnees-ponderees.html">Données pondérées</a></li>
 <li><a href="statistique-bivariee.html">Statistique bivariée</a></li>
 </ul>
+<p><dfn lang="en">variance inflation factor</dfn></p>
+<ul>
+<li><a href="multicolinearite.html">Multicolinéarité dans la régression</a></li>
+</ul>
 <p><dfn>variance, analyse de</dfn></p>
 <ul>
 <li><a href="regression-logistique.html">Régression logistique binaire, multinomiale et ordinale</a></li>
@@ -2111,6 +2179,10 @@ V
 <li><a href="premier-travail-avec-les-donnees.html">Premier travail avec des données</a></li>
 <li><a href="visualiser-ses-donnees.html">Visualiser ses données</a></li>
 </ul>
+<p><dfn lang="en">VIF</dfn></p>
+<ul>
+<li><a href="multicolinearite.html">Multicolinéarité dans la régression</a></li>
+</ul>
 <p><dfn lang="en">violin plot</dfn></p>
 <ul>
 <li><a href="graphiques-bivaries-ggplot2.html">Graphiques univariés et bivariés avec ggplot2</a></li>
@@ -2135,6 +2207,15 @@ W
 <li><a href="comparaisons-moyennes-et-proportions.html">Comparaisons (moyennes et proportions)</a></li>
 <li><a href="statistique-bivariee.html">Statistique bivariée</a></li>
 </ul>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://statisticalhorizons.com/multicollinearity" class="uri">https://statisticalhorizons.com/multicollinearity</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>Pour plus de détails, voir ce <a href="http://davegiles.blogspot.be/2013/06/can-you-actually-test-for.html">post de Davig Giles</a> qui explique pourquoi ce n’est pas possible.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p><a href="https://statisticalhorizons.com/multicollinearity" class="uri">https://statisticalhorizons.com/multicollinearity</a><a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>Pour plus de détails, voir ce <a href="http://davegiles.blogspot.be/2013/06/can-you-actually-test-for.html">post de Davig Giles</a> qui explique pourquoi ce n’est pas possible.<a href="#fnref4">↩</a></p></li>
+</ol>
 </div>
 
 </article>
