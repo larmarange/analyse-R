@@ -1,0 +1,474 @@
+---
+title: "Vectorisation"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+<div class="note">
+La version originale de ce chapitre a été écrite par Ewen Gallic dans le cadre de son support de cours d'Ewen Gallic intitulé [Logiciel R et programmation](http://egallic.fr/Enseignement/R/m1_stat_eco_logiciel_R.pdf), chapitre 4 <q>Boucles et calculs vectoriels</q>.
+</div>
+
+Les [boucles](structures-conditionnelles.html) sont des opérations lentes en **R**. Il est cependant possible,
+dans de nombreux cas, d’éviter de les employer, en ayant recours à la vectorisation : au lieu
+d’appliquer une fonction à un scalaire, on l’applique à un vecteur. En fait, nous avons déjà eu
+recours à maintes reprises aux calculs vectoriels. En effet, lorsque nous avons procédé à des
+additions, des multiplications, etc. sur des vecteurs, nous avons effectué des calculs vectoriels.
+
+Empruntons un exemple à Burns (2011) : dans des langages comme le **C**, pour effectuer la somme
+des logarithmes naturels des n premiers entiers, voici une manière de faire :
+
+```{r}
+# Somme des logarithmes des 10 premiers entiers
+somme_log <- 0
+for(i in seq_len(10)){
+  somme_log <- somme_log + log(i)
+}
+somme_log
+```
+
+Il est possible d’obtenir le même résultat, à la fois d’une manière plus élégante, mais surtout
+plus efficace en vectorisant le calcul :
+
+```{r}
+sum(log(seq_len(10)))
+```
+
+Derrière ce code, la fonction `log`{data-pkg="base"} applique la fonction logarithme sur toutes les valeurs du
+vecteur donné en paramètre. La fonction `sum`{data-pkg="base"}, quant à elle, se charge d’additionner tous les
+éléments du vecteur qui lui est donné en paramètre. Ces deux fonctions utilisent la vectorisation,
+mais d’une manière différente : la fonction `log`{data-pkg="base"} applique une opération à chaque élément
+d’un vecteur, tandis que la fonction `sum`{data-pkg="base"} produit un résultat basé sur l'ensemble du vecteur.
+L’avantage d’utiliser des fonctions vectorielles plutôt que d’écrire une boucle pour effectuer le
+calcul, est que ces premières font appel à des fonctions rédigées en **C** ou **FORTRAN**, qui utilisent
+aussi des boucles, mais comme ce sont des langages compilés et non pas interprétés, les itérations
+sont réalisées dans un temps réduit.
+
+Il existe des fonctions, rédigées en **C** qui effectuent des boucles `for`. On leur donne souvent le
+nom de “fonctions de la famille apply”. Il ne s’agit pas de la vectorisation, mais ces fonctions
+sont souvent mentionnées dès que l’on parle de ce sujet. Ce sont des fonctionnelles qui prennent
+une fonction en input et retournent un vecteur en output (Wickham, 2014). Ces fonctions sont
+très utilisées, mais elles souffrent d’un manque d’uniformité. En effet, elles ont été rédigées par
+des personnes différentes, ayant chacune leur convention. L'extension `plyr`{.pkg} remédie à ce problème,
+et ajoute par la même occasion des fonctions supplémentaires, pour couvrir plus de cas
+que les “fonctions de la famille apply”.
+
+Nous allons donc présenter dans un premier temps les fonctions du package `plyr`{.pkg}. Les fonctions
+du même type du package `base`{.pkg} seront tout de même présentées par la suite.
+
+## Les fonctions de l'extension plyr
+
+Les fonctions que nous allons aborder dans cette section possèdent des noms faciles à se remémorer : la première lettre correspond au format d’entrée des données, la seconde au format de sortie souhaité, et la fin du nom se termine par le suffixe `ply`. Ainsi, la fonction `llpply`{data-pkg="plyr"} prend en entrée une liste, effectue une opération sur les éléments, et retourne une liste (Anderson, 2012).
+
+Les différentes fonctions que nous allons passer en revue sont consignées dans le tableau ci-après,
+où les lignes correspondent aux formats d’entrée, et les lignes aux formats de sortie. Pour y avoir
+accès, il faut charger le package :
+
+```{r}
+library(plyr)
+```
+
+```{r, echo=FALSE, results="asis"}
+tab <- tibble::tibble(
+  group = "Format d'entée",
+  source = c("array", "data.frame", "list"),
+  array = c("aaply", "daply", "laply"),
+  data.frame = c("adply", "ddply", "ldply"),
+  list = c("alply", "dlply", "llply")
+)
+tab$array <- glue::glue('`{tab$array}`{{data-pkg="plyr"}}')
+tab$data.frame <- glue::glue('`{tab$data.frame}`{{data-pkg="plyr"}}')
+tab$list <- glue::glue('`{tab$list}`{{data-pkg="plyr"}}')
+library(kableExtra)
+knitr::kable(tab, format = "html", col.names = c("", "", "array", "data.frame", "list"), align = "llccc") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  column_spec(1, bold = T) %>%
+  column_spec(2, bold = T) %>%
+  collapse_rows(columns = 1) %>%
+  add_header_above(c(" " = 2, "Format de sortie" = 3))
+```
+
+Il est possible d’avoir plusieurs paramètres en input au lieu d’un seul objet. Les fonctions
+`mlply`{data-pkg="plyr"}, `mdply`{data-pkg="plyr"} et `maply`{data-pkg="plyr"}. Si à la place du `m`, la première lettre est
+un `r`, il s’agit alors de fonction de réplications. Enfin, si la seconde lettre est un trait de
+soulignement (`_`), alors le résultat retourné n’est pas affiché (le code utilise la fonction
+`invisible`{data-pkg="base"}.
+
+Tous les paramètres de ces fonctions commencent par un point (`.`), afin d’éviter des incompatibilités
+avec la fonction à appliquer.
+
+### Array en input : `a*ply`
+
+Les fonctions `aaply`{data-pkg="plyr"}, `adply`{data-pkg="plyr"} et `alply`{data-pkg="plyr"} appliquent une fonction à chaque portion d’un
+*array* et ensuitent joignent le résultat sous forme d’un *array*, d’un *data.frame* ou d’une *list*
+respectivement.
+
+</div class="note">
+Un `array`{data-pkg="base"} peut être vu comme un vecteur à plusieurs dimensions. Comme pour un vecteur, toutes les valeurs doivent être du même type. Un vecteur n'est finalement qu'un *array* à une seule dimension. De même, un *array* à deux dimensions correspond à ce qu'on appelle usuelement une matrice.
+</div>
+
+Le paramètre `.margins` détermine la manière de découper le tableau. Il y en a quatre pour un
+tableau en deux dimensions :
+
+1. `.margins = 1` : par lignes ;
+2. `.margins = 2` : par colonnes ;
+3. `.margins = c(1,2)` : par cellule ;
+4. `.margins = c()` : ne pas faire de découpement.
+
+Pour un tableau en trois dimensions, il y a trois découpages possibles en deux dimensions, trois
+en une dimension et une en zéro dimension (voir (Wickham, 2011)) au besoin.
+
+```{r}
+tableau <- array(
+  1:24, 
+  dim = c(3, 4, 2),
+  dimnames = list(
+    ligne = letters[1:3],
+    colonne = LETTERS[1:4],
+    annee = 2001:2002
+  )
+)
+tableau
+
+# La moyenne des valeurs pour chaque ligne
+aaply(tableau, 1, mean) # résultat sous forme de tableau
+adply(tableau, 1, mean) # résultat sous forme de data.frame
+alply(tableau, 1, mean) # résultat sous forme de liste
+
+# La moyenne des valeurs pour chaque colonne
+# en ne simplifiant pas le résultat
+aaply(tableau, 2, mean, .drop = FALSE)
+
+# Par lignes et colonnes
+aaply(tableau, c(1,2), mean)
+adply(tableau, c(1,2), mean)
+
+# Avec une fonction définie par l'utilisateur
+standardise <- function(x) (x - min(x)) / (max(x) - min(x))
+# Standardiser les valeurs par colonne
+aaply(tableau, 2, standardise)
+```
+
+### Data.frame en input : `d*ply`
+
+Dans le cas de l'analyse d'enquêtes, on utilise principalement des tableaux de données ou *data.frame*. Aussi, la connaissance des fonction `daply`{data-pkg="plyr"}, `ddply`{data-pkg="plyr"} et `dlply`{data-pkg="plyr"} peut être utile. En effet, elles sont très utiles pour appliquer des fonctions à des groupes basés sur des combinaisons de variables, même si dans la majorité des cas il est maintenant plus facile de passer par les extensions `dplyr`{.pkg} ou `data.table`{.pkg} avec les opérations groupées (voir la section sur [groub_by de dplyr](manipuler-les-donnees-avec-dplyr.html#operations-groupees) ou encore celle sur le [paramètre by de data.table](manipulations-avancees-avec-data-table.html#grouper-les-resultats).
+
+Avec les fonctions `d*ply`, il est nécessaire d’indiquer quelles variables, ou fonctions de variables
+on souhaite utiliser, en l’indiquant au paramètre `.variables`. Elles peuvent être contenue dans
+le data frame fourni au paramètre `.data`, ou bien provenir de l’environnement global. **R** cherchera
+dans un premier temps si la variable est contenue dans le *data.frame* et, s’il ne trouve pas, ira
+chercher dans l’environnement global.
+
+Pour indiquer que l’on désire faire le regroupement selon une variable -- mettons `variable_1` -- il faudra fournir l’expression `.(variable_1)` au paramètre `.variables`. Si on souhaite effectuer
+les regroupement selon les interactions de plusieurs variables -- `variable_1`, `variable_2` et
+`variable_3`, il faut alors utiliser l’expression suivante : `.(variable_1, variable_2, variable_3)`.
+
+```{r}
+chomage <- data.frame(
+  region = rep(c(rep("Bretagne", 4), rep("Corse", 2)), 2),
+  departement = rep(c("Cotes-d'Armor", "Finistere",
+    "Ille-et-Vilaine", "Morbihan",
+    "Corse-du-Sud", "Haute-Corse"), 2),
+  annee = rep(c(2011, 2010), each = 6),
+  ouvriers = c(8738, 12701, 11390, 10228, 975, 1297,
+    8113, 12258, 10897, 9617, 936, 1220),
+  ingenieurs = c(1420, 2530, 3986, 2025, 259, 254,
+    1334, 2401, 3776, 1979, 253, 241))
+chomage
+
+# Total chomeurs en Bretagne et en Corse pour les années 2010 et 2011
+# sous forme de data.frame
+ddply(chomage, .(annee), summarise, total_chomeurs = sum(ouvriers + ingenieurs))
+
+# sous forme de array
+daply(chomage, .(annee), summarise, total_chomeurs = sum(ouvriers + ingenieurs))
+
+# sous forme de list
+dlply(chomage, .(annee), summarise, total_chomeurs = sum(ouvriers + ingenieurs))
+
+# Total chomeurs pour les années 2010 et 2011, par région du data frame
+ddply(chomage, .(annee, region), summarise,
+total_chomeurs = sum(ouvriers + ingenieurs))
+
+# Nombre d'observations pour chaque groupe
+ddply(chomage, .(annee, region), nrow)
+
+# En utilisant une fonction définie par l'utilisateur
+ddply(chomage, .(annee, region), function(x){
+  moy_ouvriers <- mean(x$ouvriers)
+  moy_ingenieurs <- mean(x$ingenieurs)
+  data.frame(moy_ouvriers = moy_ouvriers, moy_ingenieurs = moy_ingenieurs)
+})
+```
+
+
+### List en input : `l*ply`
+
+Les fonctions du type `l*ply` prennent une liste en entrée. Il n’y a donc pas de paramétrage
+à effectuer pour choisir un découpage, il est déjà fait.
+
+```{r}
+set.seed(1)
+liste <-list(normale =rnorm(10), logiques =c(TRUE, TRUE, FALSE), x =c(0,NA, 3))
+# Obtenir la longueur de chaque élément de la liste
+laply(liste, length)
+ldply(liste, length)
+llply(liste, length)
+
+# Calculer la moyenne pour chaque élément
+unlist(llply(liste, mean, na.rm = TRUE))
+
+# Appliquer une fonction définie par l'utilisateur
+llply(liste,function(x, y) x /mean(x, na.rm = TRUE) + y, y = 2)
+```
+
+### Calcul parallèle
+
+En utilisant plusieurs processeurs, on peut effectuer des calculs parallèles, ce qui accélère les
+calculs dans certains cas. En effet, quand il est possible de fractionner les opérations à effectuer en
+morceaux, on peut en réaliser une partie sur un processeur, une autre sur un second processeur,
+et ainsi de suite. Les résultats obtenus sont ensuite rassemblés avant d’être retournés. Le package
+`doMC`{.pkg} (ou `doSMP`{.pkg} sur **Windows**) peut être chargé pour utiliser la fonction de calcul parallèle
+proposé par les fonctions `**ply`. Il suffit de préciser le nombre de coeurs souhaité en faisant
+appel à la fonction `registerDoMC`{data-pkg="doMC"}, et de fixer la valeur `TRUE` au paramètre `.parallel` de la
+fonction `**ply`.
+
+## Les fonctions de la famille apply du package base
+
+Le tableau ci-après recense les fonctions principales de la famille `apply` du package `base`{data-pkg="base"}.
+
+| **Fonction** | **Input** | **Output** |
+|:---|:---:|:---:|
+| `apply`{data-pkg="base"} | Matrice ou tableau | Vecteur ou tableau ou liste |
+| `lapply`{data-pkg="base" data-rdoc="lapply"} | Liste ou vecteur | Liste |
+| `sapply`{data-pkg="base" data-rdoc="lapply"} | Liste ou vecteur | Vecteur ou matrice ou liste |
+| `vapply`{data-pkg="base" data-rdoc="lapply"} | Liste ou vecteur | Vecteur ou matrice ou liste |
+| `tapply`{data-pkg="base"} | Tableau et facteurs | Tableau ou liste |
+| `mapply`{data-pkg="base"} | Listes et/ou vecteurs | Vecteur ou matrice ou liste |
+
+### La fonction lapply
+
+La fonction `lapply`{data-pkg="base"} applique à chaque élément du premier paramètre qui lui est donné une
+fonction indiquée en second paramètre et retourne le résultat sous forme de liste. La syntaxe
+est la suivante :
+
+```{r, eval=FALSE}
+lapply(X, FUN, ...)
+```
+
+avec `X` la liste ou le vecteur donné en paramètre sur lequel on désire appliquer la fonction `FUN`.
+La paramètre `...` permet de fournir des paramètres à
+une fonction imbriquée, en l’occurance à celle que l’on souhaite appliquer à tous les éléments
+de `X`.
+
+```{r}
+liste <- list(normale = rnorm(10), logiques = c(TRUE, TRUE, FALSE), x = c(0, NA, 3))
+
+# Obtenir la liste des longueurs de chaque élément
+lapply(liste, length)
+
+# Calculer la moyenne pour chaque élément
+lapply(liste, mean, na.rm = TRUE)
+```
+
+On peut créer une fonction à l’intérieur de l’appel à `lapply`{data-pkg="base}. Le premier paramètre
+est nécessairement un élément du vecteur auquel on souhaite appliquer la fonction.
+
+```{r}
+lapply(liste, function(x) x / mean(x, na.rm = TRUE))
+
+# Si la fonction doit posséder plusieurs paramètres
+lapply(liste, function(x, y) x / mean(x, na.rm = TRUE) + y, y = 2)
+```
+
+On peut appliquer la `lapply`{data-pkg="base"} sur des tableaux de données, dans la mesure où ces
+derniers sont des listes. Cela s’avère pratique pour réaliser des opérations pour chaque colonne
+d’un tableau de données. Afin de prendre moins de place dans l’affichage, l’exemple suivant
+utilise la fonction `unlist`{data-pkg="base"} pour <q>aplatir</q> la liste obtenue.
+
+```{r}
+data(cars)
+
+# Afficher le type de chaque colonne de la data frame "cars"
+unlist(lapply(cars, class))
+
+# Calculer la moyenne pour chaque colonne
+unlist(lapply(cars, mean))
+```
+
+<div class="note">
+Attention, ce qui suit relève plus d’un tour de passe-passe que de la programmation
+élégante. 
+
+Si la fonction que l’on souhaite appliquer aux éléments de notre vecteur retourne un
+vecteur ligne de même longueur pour chaque élément, la fonction `do.call`{data-pkg="base"} peut devenir
+un outil très pratique pour créer une data frame. Voyons-le à travers un exemple.
+
+```{r}
+l <- lapply(1:3, function(x) cbind(valeur = x, lettre = LETTERS[x]))
+l
+data.frame(do.call("rbind", l))
+```
+
+
+
+L’appel de `do.call("rbind", x)` revient à faire `rbind(x[[1]], x[[2]], ..., x[[n]])` avec
+`x` une liste de taille `n`.
+
+### La fonction sapply
+
+La fonction `sapply`{data-pkg="base" data-rdoc="lapply"} applique une fonction aux éléments d’un vecteur ou d’une liste et peut
+retourner un vecteur, une liste ou une matrice. Elle possède la syntaxe suivante :
+
+```{r, eval=FALSE}
+sapply(X, FUN, simplify, USE.NAMES)
+```
+
+où `X` est le vecteur ou la liste auquel on souhaite appliquer la fonction `FUN`. Lorsque `simplify`
+vaut `FALSE`, le résultat est retourné sous forme de liste, exactement comme `lapply`{data-pkg="base"} (la fonction
+`sapply`{data-pkg="base" data-rdoc="lapply"} s’appuie sur la fonction `lapply`{data-pkg="base"}). Lorsque `simplify` vaut `TRUE` (par défaut), le résultat est retourné dans une forme simplifiée, si cela est possible. Si tous les éléments retournés
+par la fonction `FUN` sont des scalaires, alors `sapply`{data-pkg="base" data-rdoc="lapply"} retourne un vecteur ; sinon, si les éléments
+retournés ont la même taille, `sapply`{data-pkg="base" data-rdoc="lapply"} retourne une matrice avec une colonne pour chaque
+élément de `X` auquel la fonction `FUN` est appliquée. Le paramètre `USE.NAMES`, quand il vaut `TRUE`
+(par défaut), et si `X` est de type character, utilise `X` comme nom pour le résultat, à moins que
+le résultat possède déjà des noms.
+
+```{r}
+(x <- list(a = 1:10, beta = exp(-3:3), logic = c(TRUE,FALSE,FALSE,TRUE)))
+
+# Application de la fonction quantile() à chaque élément
+# pour obtenir la médiane et les quartiles
+# Avec lapply()
+lapply(x, quantile)
+
+# Avec sapply
+sapply(x, quantile)
+
+# Exemple avec USE.NAMES
+sapply(LETTERS[1:3], nchar)
+sapply(LETTERS[1:3], nchar, USE.NAMES = FALSE)
+```
+
+
+### La fonction vapply
+
+La fonction `vapply`{data-pkg="base" data-rdoc="lapply"} est similaire à `sapply`{data-pkg="base" data-rdoc="lapply"}, mais elle possède un type de valeurs spécifié,
+ce qui peut rendre l’utilisation plus sûre (et parfois plus rapide). Lorsqu’on lui fournit un *data.frame*, `vapply`{data-pkg="base" data-rdoc="lapply"} retourne le même résultat que `sapply`{data-pkg="base" data-rdoc="lapply"}. Cependant, quand on lui fournit une
+liste vide, `vapply`{data-pkg="base" data-rdoc="lapply"} retourne un vecteur logique de longueur nulle (ce qui est plus sensé que la
+liste vide que returne `sapply`{data-pkg="base" data-rdoc="lapply"}).
+
+```{r, eval=FALSE}
+vapply(X, FUN, FUN.VALUE, ..., USE.NAMES)
+```
+
+avec `X`, `FUN`, `...` et `USE.NAMES` les mêmes paramètres que pour `sapply`{data-pkg="base" data-rdoc="lapply"}. Le paramètre `FUN.VALUE`
+doit être un vecteur, un masque pour la valeur retournée par la fonction de `FUN`.
+
+```{r}
+# Retourner le vecteur
+sapply(cars, is.numeric)
+vapply(cars, is.numeric, FUN.VALUE = logical(1))
+# Avec la liste vide
+sapply(list(), is.numeric)
+vapply(list(), is.numeric, FUN.VALUE = logical(1))
+```
+
+### La fonction apply
+
+La fonction `apply`{data-pkg="base"} possède la syntaxe suivante :
+
+```{r, eval=FALSE}
+apply(X, MARGIN, FUN, ...)
+```
+
+avec `X` une matrice ou un tableau, `MARGIN` indiquant si on souhaite appliquer la fonction `FUN`
+aux lignes `(MARGIN = 1)` ou aux colonnes `(MARGIN = 2)`, et `...` des paramètres supplémentaires
+éventuels à passer à la fonction `FUN`.
+
+```{r}
+(X <- matrix(1:9, ncol = 3))
+# Somme par ligne
+apply(X, MARGIN = 1, sum)
+# Somme par colonne
+apply(X, MARGIN = 2, sum)
+# Fonction définie par l'utilisateur
+apply(X, MARGIN = 1, function(x) sum(x) / sum(X))
+```
+
+### La fonction tapply
+
+La fonction `tapply`{data-pkg="base"} s’applique à chaque cellule d’un tableau, sur des regroupements définis
+par les variables catégorielles fournies. La syntaxe est la suivante :
+
+```{r, eval=FALSE}
+tapply(X,INDEX, FUN, ..., simplify)
+```
+
+avec `X` le tableau de données, `INDEX` une liste d’un ou plusieurs facteurs, chacun de même taille
+que `X`. Le paramètre `FUN` renseigne la fonction que l’on souhaite appliquer. Si `simplify` vaut
+`FALSE`, le résultat est un tableau de mode *list*. Sinon (par défaut), le résultat est un tableau
+de scalaires.
+
+```{r}
+data(iris)
+head(iris)
+
+# Moyenne de la longueur des sépales par espèce
+tapply(iris$Sepal.Length, iris$Species, mean)
+# Pour retourner le résultat sous forme de liste
+tapply(iris$Sepal.Length, iris$Species, mean, simplify = FALSE)
+```
+
+
+### La fonction mapply
+
+La fonction `mapply`{data-pkg="base"} applique une fonction à plusieurs listes ou vecteurs. La syntaxe est la
+suivante :
+
+```{r, eval=FALSE}
+mapply(FUN, ..., MoreArgs, SIMPLIFY, USE.NAMES)
+```
+
+avec `FUN` la fonction à appliquer aux vecteurs ou listes fournies (grâce à `...`), `MoreArgs` une liste
+de paramètres supplémentaires à fournir à la fonction à appliquer. Les paramètres `SIMPLIFY` et
+`USE.NAMES` ont le même usage que pour la fonction `sapply`{data-pkg="base" data-rdoc="lapply"}.
+
+```{r}
+(l1 <- list(a = c(1:5), b = c(6:10)))
+(l2 <- list(c = c(11:15), d = c(16:20)))
+# La somme des éléments correspondants de l1 et l2
+mapply(sum, l1$a, l1$b, l2$c, l2$d)
+# Attention au recyclage silencieux !
+(l1 <- list(a = c(1:5), b = c(6:20)))
+mapply(sum, l1$a, l1$b, l2$c, l2$d)
+
+```
+
+## La fonction Vectorize
+
+La fonction `Vectorize`{data-pkg="base"} permet de convertir une fonction scalaire en une fonction vectorielle.
+Attention, cela ne permet pas d’améliorer la rapidité d’exécution du code. Par contre, son
+utilisation assez intuitive permet de gagner du temps. Il s’agit donc de faire l’arbitrage entre le
+temps passé à trouver un moyen élégant et efficace pour effectuer une opération en passant par
+de réels calculs vectoriels et le gain d’exécution que ce calcul vectoriel apporte vis-à-vis d’une
+boucle. La syntaxe de la `Vectorize`{data-pkg="base"} est la suivante :
+
+```{r, eval=FALSE}
+Vectorize(FUN, vectorize.args, SIMPLIFY, USE.NAMES)
+```
+
+avec `FUN` une fonction à appliquer, `vectorize.args` un vecteur de paramètres (de type caractère)
+qui devraient être vectorisés (par défaut, tous les paramètre de `FUN`). Les paramètres
+`SIMPLIFY` et `USE.NAMES` on le même emploi que dans la fonction `sapply`{data-pkg="base" data-rdoc="lapply"}.
+
+```{r}
+f <- function(x = 1:3, y) c(x, y)
+# On "vectorise" la fonction f
+vf <- Vectorize(f, SIMPLIFY = FALSE)
+f(1:3, 1:3)
+vf(1:3, 1:3)
+# Vectorise seulement y, pas x
+vf(y = 1:3)
+```
+
