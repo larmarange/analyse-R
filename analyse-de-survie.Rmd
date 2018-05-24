@@ -165,7 +165,7 @@ Tout d'abord, la modalité <q>pas d'adulte</q> n'est pas représentée dans l'é
 
 
 ```{r}
-enfants[, structure := to_factor(structure)]
+enfants[, structure := to_factor(structure, drop_unused_labels = TRUE)]
 enfants[, structure := relevel(structure, "deux adultes de sexe opposé")]
 ```
 
@@ -482,12 +482,22 @@ ggcoef(tidy(mod2, exponentiate = TRUE), exponentiate = TRUE)
 
 NB : dû à un bug^[<https://github.com/tidyverse/broom/issues/219>] en cours de résolution dans l'extension `broom`{.pkg}, il est nécessaire d'appliquer `tidy` au modèle avant de le passer à `ggcoef`. En effet, si l'on fait directement `ggcoef(mod2, exponentiate = TRUE)`, les intervalles de confiance ne seront pas correctement représentés.
 
-<figcaption>Coefficients du modèle</figcaption>
+<figcaption>Coefficients du modèle avec ggcoef</figcaption>
 </figure>
+
+L'extension `survminer`{.pkg} fournit également une fonction `ggforest`{data-pkg="survminer"} qui permet de représenter de manière plus esthétique et complète les coefficients d'un modèle de Cox.
+
+<figure>
+```{r, warning=FALSE}
+ggforest(mod2)
+```
+<figcaption>Coefficients du modèle avec ggforest</figcaption>
+</figure>
+
 
 ## Vérification de la validité du modèle
 
-Un modèle de Cox n'est valable que sous l'hypothèse de la proportionnalité des risques relatifs. Selon cette hypothèse les <dfn>résidus de Schoenfeld</dfn><dfn data-index="Schoenfeld, résidus"></dfn> ne dépendent pas du tout. Cette hypothèse peut être testée avec la fonction `cox.zph`{data-pkg="survival"}.
+Un modèle de Cox n'est valable que sous l'hypothèse de la proportionnalité des risques relatifs. Selon cette hypothèse les <dfn>résidus de Schoenfeld</dfn><dfn data-index="Schoenfeld, résidus"></dfn> ne dépendent pas du temps. Cette hypothèse peut être testée avec la fonction `cox.zph`{data-pkg="survival"}.
 
 ```{r}
 test <- cox.zph(mod2)
@@ -496,7 +506,7 @@ test
 
 Une valeur de p inférieure à 5 % indique que l'hypothèse n'est pas vérifiée. Il apparaît que p est supérieur à 5 % globalement et pour chaque variable prise individuellement. Notre modèle est donc valide.
 
-Il est possible de représenter la distribution des résidus de Schoenfeld à l'aide de `ggcoxzph`{data-pkg="survminer"} de l'extension `survminer`{.pkg}.
+Il est possible de représenter la distribution des résidus de Schoenfeld à l'aide de `ggcoxzph`{data-pkg="survminer"} de l'extension `survminer`{.pkg}, afin de voir si leur répartition change au cours du temps.
 
 <figure>
 ```{r, fig.height=8}
