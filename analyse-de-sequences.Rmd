@@ -170,10 +170,10 @@ couts <- seqsubm(seq, method = "CONSTANT", cval = 2)
 Ensuite, on calcule la <dfn>matrice de distances</dfn><dfn data-index="distance, matrice"></dfn>
 entre les séquences (i.e contenant les « dissimilarités » entre
 les séquences) avec `seqdist`{data-pkg="TraMineR"}, avec un coût d'insertion/suppression (*indel*) 
-que l'on fixe ici à 1,1 :
+que l'on fixe ici à 1 :
 
 ```{r}
-seq.om <- seqdist(seq, method = "OM", indel = 1.1, sm = couts)
+seq.om <- seqdist(seq, method = "OM", indel = 1, sm = couts)
 ```
 
 Cette matrice des distances ou des dissimilarités entre séquences peut ensuite être utilisée pour une
@@ -231,7 +231,7 @@ transversales : pour chaque âge, on a les proportions d'individus de la classe
 
 <figure>
 ```{r, fig.height=7}
-seqdplot(seq, group = seq.part, xtlab = 14:50, border = NA, withlegend = T)
+seqdplot(seq, group = seq.part, xtlab = 14:50, border = NA)
 ```
 <figcaption>Chronogrammes</figcaption>
 </figure>
@@ -242,14 +242,14 @@ Cependant, on aperçoit aussi des « couches » d'autres couleurs, indiquant q
 sont probablement pas stables.
 
 Les « <dfn dataindex="tapis des séquences">tapis</dfn><dfn data-index="séquence, tapis"></dfn> »
-(<dfn lang="en">index plots</dfn>), obtenus avec `seqiplot`{data-pkg="TraMineR" data-rdoc="seqplot"},
+(<dfn lang="en">index plots</dfn>), obtenus avec `seqIplot`{data-pkg="TraMineR" data-rdoc="seqplot"},
 permettent de mieux visualiser la dimension individuelle des séquences. 
 Chaque segment horizontal représente une séquence, découpée en sous-segments
 correspondant aux aux différents états successifs qui composent la séquence.
 
 <figure>
 ```{r, fig.height=7}
-seqiplot(seq, group = seq.part, xtlab = 14:50, tlim = 0, space = 0, border = NA, withlegend = T, yaxis = FALSE)
+seqIplot(seq, group = seq.part, xtlab = 14:50, space = 0, border = NA, yaxis = FALSE)
 ```
 <figcaption>Tapis des séquences triés</figcaption>
 </figure>
@@ -261,7 +261,7 @@ la fonction `cmdscale`{data-pkg="stats"}).
 <figure>
 ```{r, fig.height=7}
 ordre <- cmdscale(as.dist(seq.om), k = 1)
-seqiplot(seq, group = seq.part, sortv = ordre, xtlab = 14:50, tlim = 0, space = 0, border = NA, withlegend = T, yaxis = FALSE)
+seqIplot(seq, group = seq.part, sortv = ordre, xtlab = 14:50, space = 0, border = NA, yaxis = FALSE)
 ```
 <figcaption>Tapis des séquences triés par multidimensional scaling</figcaption>
 </figure>
@@ -298,12 +298,57 @@ seq_heatmap(seq, seq.agnes, labCol = 14:50)
 <figcaption>Tapis des séquences trié selon le dendrogramme</figcaption>
 </figure>
 
-La distance moyenne des séquences d'une classe au centre de cette classe, obtenue avec 
-`disscenter`{data-pkg="TraMineR"}, permet de mesurer plus précisément 
-l'<dfn>homogénéité des classes</dfn><dfn data-index="classe, homogénéité"></dfn> :
+<div class="note">
+Il est possible de reproduire un tapis de séquence avec `ggplot2`{.pkg}. Outre le fait que cela fournit plus d'options de personnalisation du graphique, cela permets également à ce que la hauteur de chaque classe sur le graphique soit proportionnelle aux nombre d'invidus.
+
+En premier lieu, on a va ajouter à notre fichier de données des identifiants individuels, la typologie crée et l'ordre obtenu par *multidimensional scaling*.
 
 ```{r}
-round(aggregate(disscenter(as.dist(seq.om), group = seq.part), list(seq.part), mean)[, -1], 1)
+donnees$id <- row.names(donnees)
+donnees$classe <- seq.part
+donnees$ordre <- rank(ordre, ties.method = "random")
+```
+
+Ensuite, il est impératif que nos données soient dans un format long et *tidy*, c'est-à-dire avec une ligne par individu et par pas de temps. Pour cela on aura recours à la fonction `gather`{data-pkg="tidyr"} (voir le [chapitre dédié](reorganiser-ses-donnees-avec-tidyr.html)).
+
+```{r}
+library(tidyr)
+long <- donnees %>% gather(csp1:csp37, key = annee, value = csp)
+```
+
+On va mettre en forme la variable `csp` sous forme de facteur, récupérer l'année grace à la fonction `str_sub`{data-pkg="stringr"} de l'extension `stringr`{.pkg} (voir le chapitre sur la [manipulation de texte](manipuler-du-texte.html#extraire-des-sous-chaines-par-position)) et recalculer l'âge.
+
+```{r}
+long$csp <- factor(long$csp, labels = c("agriculteur", "art./com./chefs", "cadres", "prof. int.", "employés", "ouvriers", "étudiants", "inactifs", "serv. militaire"))
+library(stringr)
+long$annee <- as.integer(str_sub(long$annee, 4))
+long$age <- long$annee + 13
+```
+
+Il n'y a plus qu'à faire notre graphique grace à `geom_raster`{data-pkg="ggplot2"} qui permet de colorier chaque pixel. Techniquement, pour un tapis de séquence, il s'agit de représenter le temps sur l'axe horizontal et les individus sur l'axe vertical. Petite astuce : plutôt que d'utiliser `id` pour l'axe vertical, nous utilisons `ordre` afin de trier les observations. Par ailleurs, il est impératif de transformer au passage `ordre` en facteur afin que `ggplot2`{.pkg} puisse recalculer proprement et séparément les axes pour chaque facette^[Essayez le même code mais avec `y = ordre` au lieu de `y = factor(ordre)` et vous comprendrez tout l'intérêt de cette astuce.], à condition de ne pas oublier l'option `scales = "free_y"` dans l'appel à `facet_grid`{data-pkg="ggplot2"}. Les autres commandes ont surtout pour vocation d'améliorer le rendu du graphique (voir le [chapitre dédié à ggplot2](ggplot2.html)). 
+
+
+```{r, fig.height=6}
+library(ggplot2)
+ggplot(long) +
+  aes(x = age, y = factor(ordre), fill = csp) +
+  geom_raster() +
+  ylab("") +
+  scale_y_discrete(label=NULL) +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  scale_fill_brewer(palette = "Set3") +
+  facet_grid(classe~., scales = "free_y", space = "free_y") +
+  scale_x_continuous(limits = c(14, 50), breaks = c(14, 20, 25, 30, 35, 40, 45, 50), expand = c(0, 0))
+```
+</div>
+
+La distance des séquences d'une classe au centre de cette classe, obtenue avec 
+`disscenter`{data-pkg="TraMineR"}, permet de mesurer plus précisément 
+l'<dfn>homogénéité des classes</dfn><dfn data-index="classe, homogénéité"></dfn>. Nous utilisons ici `aggregate`{data-pkg="stats"} pour calculer la moyenne par classe :
+
+```{r}
+aggregate(disscenter(as.dist(seq.om), group = seq.part), list(seq.part), mean)
 ```
 
 Cela nous confirme que les classes 1, 3 et 5 sont nettement plus hétérogènes que les autres, 
@@ -315,7 +360,7 @@ On peut visualiser les 10 séquences les plus fréquentes de chaque classe avec
 
 <figure>
 ```{r, fig.height=7}
-seqfplot(seq, group = seq.part, withlegend = T)
+seqfplot(seq, group = seq.part)
 ```
 <figcaption>Séquences les plus fréquentes de chaque classe</figcaption>
 </figure>
@@ -326,7 +371,7 @@ l'état modal (celui qui correspond au plus grand nombre de séquences de la cla
 
 <figure>
 ```{r, fig.height=7}
-seqmsplot(seq, group = seq.part, xtlab = 14:50, withlegend = T, title = "classe")
+seqmsplot(seq, group = seq.part, xtlab = 14:50, main = "classe")
 ```
 <figcaption>Statut modal à chaque âge</figcaption>
 </figure>
@@ -336,9 +381,18 @@ les durées moyennes passées dans les différents états.
 
 <figure>
 ```{r, fig.height=7}
-seqmtplot(seq, group = seq.part, withlegend = T)
+seqmtplot(seq, group = seq.part)
 ```
 <figcaption>Durée moyenne dans chaque statut</figcaption>
+</figure>
+
+La fonction `seqrplot`{data-pkg="TraMineR" data-rdoc="seqplot"} cherche à identifier des séquences <q>représentatives</q> de chaque classe. Plusieurs méthodes sont proposées (voir `seqrep`{data-pkg="TraMineR"}). La méthode `dist` cherche à identifier des séquences centrales à chaque classe, c'est-à-dire situées à proximité du centre de la classe. Selon l'hétérogénéité de la classe, plusieurs séquences <q>représentatives</q> peuvent être renvoyées. ATTENTION : il faut être prudent dans l'interprétation de ces séquences centrales de la classe dans la mesure où elles ne rendent pas toujours compte de ce qui se passe dans la classe et où elles peuvent induire en erreur quand la lasse est assez hétérogène. Il faut donc les considérer tout en ayant en tête l'ensemble du tapis de séquence pour voir si elles sont effectivement de bonnes candidates.
+
+<figure>
+```{r, fig.height=9, fig.with=6, message=FALSE}
+seqrplot(seq, group = seq.part, dist.matrix = seq.om, criterion = "dist")
+```
+<figcaption>Séquences <q>représentatives</q> de chaque classe</figcaption>
 </figure>
 
 Enfin, l'<dfn>entropie transversale</dfn><dfn data-index="transversale, entropie"></dfn>
@@ -351,10 +405,12 @@ professionnelle ou une mobilité sociale ascendante.
 
 <figure>
 ```{r, fig.height=7}
-seqHtplot(seq, group = seq.part, xtlab = 14:50, withlegend = T)
+seqHtplot(seq, group = seq.part, xtlab = 14:50)
 ```
 <figcaption>Entropie transversale</figcaption>
 </figure>
+
+## Distribution de la typologie
 
 On souhaite maintenant connaître la distribution de la typologie (en effectifs et en pourcentages) :
 
