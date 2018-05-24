@@ -271,6 +271,7 @@ $(document).ready(function () {
               <div class="col-sm-4">
   	            <ul class="multi-column-dropdown">
   		            <li class="dropdown-header">Graphiques</li>
+                  <li><a href="ggplot2.html">ggplot2 et la grammaire des graphiques</a></li>
                   <li><a href="combiner-plusieurs-graphiques.html">Combiner plusieurs graphiques</a></li>
                   <li><a href="graphiques-interactifs.html">Graphiques interactifs</a></li>
                   <li><a href="lattice-graphiques-et-formules.html"><strong>lattice</strong> : graphiques et formules</a></li>
@@ -343,6 +344,7 @@ $(document).ready(function () {
 <li><a href="#installer-traminer-et-recuperer-les-donnees">Installer TraMineR et récupérer les données</a></li>
 <li><a href="#appariement-optimal-et-classification">Appariement optimal et classification</a></li>
 <li><a href="#representations-graphiques">Représentations graphiques</a></li>
+<li><a href="#distribution-de-la-typologie">Distribution de la typologie</a></li>
 <li><a href="#bibliographie">Bibliographie</a></li>
 </ul>
 </div>
@@ -432,14 +434,14 @@ seq &lt;-<span class="st"> </span><span class="kw">seqdef</span>(donnees[, <span
 <p>Ces étapes préalables achevées, on peut comparer les séquences en calculant les dissimilarités entre paires de séquences. On va ici utiliser la méthode la plus répandue, l’appariement optimal (<em>optimal matching</em>). Cette méthode consiste, pour chaque paire de séquences, à compter le nombre minimal de modifications (substitutions, suppressions, insertions) qu’il faut faire subir à l’une des séquences pour obtenir l’autre. On peut considérer que chaque modification est équivalente, mais il est aussi possible de prendre en compte le fait que les « distances » entre les différents états n’ont pas toutes la même « valeur » (par exemple, la distance sociale entre emploi à temps plein et chômage est plus grande qu’entre emploi à temps plein et emploi à temps partiel), en assignant aux différentes modifications des « coûts » distincts. Dans notre exemple, on va créer avec <code data-pkg="TraMineR">seqsubm</code> une « matrice des coûts de substitution » dans laquelle tous les coûts sont constants et égaux à 2<a href="#fn14" class="footnoteRef" id="fnref14"><sup>14</sup></a> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">couts &lt;-<span class="st"> </span><span class="kw">seqsubm</span>(seq, <span class="dt">method =</span> <span class="st">&quot;CONSTANT&quot;</span>, <span class="dt">cval =</span> <span class="dv">2</span>)</code></pre></div>
 <pre><code> [&gt;] creating 9x9 substitution-cost matrix using 2 as constant value</code></pre>
-<p>Ensuite, on calcule la <dfn>matrice de distances</dfn><dfn data-index="distance, matrice"></dfn> entre les séquences (i.e contenant les « dissimilarités » entre les séquences) avec <code data-pkg="TraMineR">seqdist</code>, avec un coût d’insertion/suppression (<em>indel</em>) que l’on fixe ici à 1,1 :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seq.om &lt;-<span class="st"> </span><span class="kw">seqdist</span>(seq, <span class="dt">method =</span> <span class="st">&quot;OM&quot;</span>, <span class="dt">indel =</span> <span class="fl">1.1</span>, <span class="dt">sm =</span> couts)</code></pre></div>
+<p>Ensuite, on calcule la <dfn>matrice de distances</dfn><dfn data-index="distance, matrice"></dfn> entre les séquences (i.e contenant les « dissimilarités » entre les séquences) avec <code data-pkg="TraMineR">seqdist</code>, avec un coût d’insertion/suppression (<em>indel</em>) que l’on fixe ici à 1 :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seq.om &lt;-<span class="st"> </span><span class="kw">seqdist</span>(seq, <span class="dt">method =</span> <span class="st">&quot;OM&quot;</span>, <span class="dt">indel =</span> <span class="dv">1</span>, <span class="dt">sm =</span> couts)</code></pre></div>
 <pre><code> [&gt;] 1000 sequences with 9 distinct states</code></pre>
 <pre><code> [&gt;] checking &#39;sm&#39; (one value for each state, triangle inequality)</code></pre>
 <pre><code> [&gt;] 818 distinct sequences</code></pre>
 <pre><code> [&gt;] min/max sequence length: 37/37</code></pre>
 <pre><code> [&gt;] computing distances using the OM metric</code></pre>
-<pre><code> [&gt;] elapsed time: 1.79 secs</code></pre>
+<pre><code> [&gt;] elapsed time: 1.88 secs</code></pre>
 <p>Cette matrice des distances ou des dissimilarités entre séquences peut ensuite être utilisée pour une <dfn>classification ascendante hiérarchique</dfn> (<dfn>CAH</dfn>), qui permet de regrouper les séquences en un certain nombre de « classes » en fonction de leur proximité :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seq.agnes &lt;-<span class="st"> </span><span class="kw">agnes</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">method =</span> <span class="st">&quot;ward&quot;</span>, <span class="dt">keep.diss =</span> <span class="ot">FALSE</span>)</code></pre></div>
 <p>Avec la fonction <code data-pkg="stats" data-rdoc="dendrogram">plot</code>, il est possible de tracer l’arbre de la classification (<dfn>dendrogramme</dfn>).</p>
@@ -469,24 +471,16 @@ seq.part &lt;-<span class="st"> </span><span class="kw">factor</span>(seq.part, 
 <h2>Représentations graphiques</h2>
 <p>Pour se faire une première idée de la nature des classes de la typologie, il existe un certain nombre de représentations graphiques. Les chronogrammes (<em>state distribution plots</em>) présentent une série de coupes transversales : pour chaque âge, on a les proportions d’individus de la classe dans les différentes situations (agriculteur, étudiant, etc.). Ce graphique s’obtient avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqdplot</code> :</p>
 <figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqdplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">border =</span> <span class="ot">NA</span>, <span class="dt">withlegend =</span> T)</code></pre></div>
-<pre><code> [!] In rmarkdown::render() : withlegend is deprecated, use with.legend instead.</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqdplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">border =</span> <span class="ot">NA</span>)</code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-13-1.png" width="1050" />
 <figcaption>
 Chronogrammes
 </figcaption>
 </figure>
 <p>Chacune des classes semble caractérisée par un groupe professionnel principal : profession intermédiaire pour la classe 1, ouvrier pour la 2, employé pour la 3, cadre pour la 4 et indépendant pour la 5. Cependant, on aperçoit aussi des « couches » d’autres couleurs, indiquant que l’ensemble des carrières ne sont probablement pas stables.</p>
-<p>Les « <dfn dataindex="tapis des séquences">tapis</dfn><dfn data-index="séquence, tapis"></dfn> » (<dfn lang="en">index plots</dfn>), obtenus avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqiplot</code>, permettent de mieux visualiser la dimension individuelle des séquences. Chaque segment horizontal représente une séquence, découpée en sous-segments correspondant aux aux différents états successifs qui composent la séquence.</p>
+<p>Les « <dfn dataindex="tapis des séquences">tapis</dfn><dfn data-index="séquence, tapis"></dfn> » (<dfn lang="en">index plots</dfn>), obtenus avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqIplot</code>, permettent de mieux visualiser la dimension individuelle des séquences. Chaque segment horizontal représente une séquence, découpée en sous-segments correspondant aux aux différents états successifs qui composent la séquence.</p>
 <figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqiplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">tlim =</span> <span class="dv">0</span>, <span class="dt">space =</span> <span class="dv">0</span>, <span class="dt">border =</span> <span class="ot">NA</span>, 
-  <span class="dt">withlegend =</span> T, <span class="dt">yaxis =</span> <span class="ot">FALSE</span>)</code></pre></div>
-<pre><code> [!] In rmarkdown::render() : withlegend is deprecated, use with.legend instead.</code></pre>
-<pre><code> [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
- [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
- [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
- [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
- [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqIplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">space =</span> <span class="dv">0</span>, <span class="dt">border =</span> <span class="ot">NA</span>, <span class="dt">yaxis =</span> <span class="ot">FALSE</span>)</code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-14-1.png" width="1050" />
 <figcaption>
 Tapis des séquences triés
@@ -495,14 +489,8 @@ Tapis des séquences triés
 <p>Il est possible de trier les séquences pour rendre les tapis plus lisibles (on trie ici par <dfn lang="en">multidimensional scaling</dfn> à l’aide de la fonction <code data-pkg="stats">cmdscale</code>).</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ordre &lt;-<span class="st"> </span><span class="kw">cmdscale</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">k =</span> <span class="dv">1</span>)
-<span class="kw">seqiplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">sortv =</span> ordre, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">tlim =</span> <span class="dv">0</span>, <span class="dt">space =</span> <span class="dv">0</span>, 
-  <span class="dt">border =</span> <span class="ot">NA</span>, <span class="dt">withlegend =</span> T, <span class="dt">yaxis =</span> <span class="ot">FALSE</span>)</code></pre></div>
-<pre><code> [!] In rmarkdown::render() : withlegend is deprecated, use with.legend instead.</code></pre>
-<pre><code> [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
- [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
- [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
- [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.
- [!] In rmarkdown::render() : tlim is deprecated, use idxs instead.</code></pre>
+<span class="kw">seqIplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">sortv =</span> ordre, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">space =</span> <span class="dv">0</span>, <span class="dt">border =</span> <span class="ot">NA</span>, 
+  <span class="dt">yaxis =</span> <span class="ot">FALSE</span>)</code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-15-1.png" width="1050" />
 <figcaption>
 Tapis des séquences triés par multidimensional scaling
@@ -522,57 +510,89 @@ Tapis des séquences triés par multidimensional scaling
 Tapis des séquences trié selon le dendrogramme
 </figcaption>
 </figure>
-<p>La distance moyenne des séquences d’une classe au centre de cette classe, obtenue avec <code data-pkg="TraMineR">disscenter</code>, permet de mesurer plus précisément l’<dfn>homogénéité des classes</dfn><dfn data-index="classe, homogénéité"></dfn> :</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">round</span>(<span class="kw">aggregate</span>(<span class="kw">disscenter</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">group =</span> seq.part), <span class="kw">list</span>(seq.part), mean)[, 
-  <span class="op">-</span><span class="dv">1</span>], <span class="dv">1</span>)</code></pre></div>
-<pre><code>[1] 13.1  8.9 15.6  9.7 16.5</code></pre>
+<div class="note">
+<p>Il est possible de reproduire un tapis de séquence avec <code class="pkg">ggplot2</code>. Outre le fait que cela fournit plus d’options de personnalisation du graphique, cela permets également à ce que la hauteur de chaque classe sur le graphique soit proportionnelle aux nombre d’invidus.</p>
+<p>En premier lieu, on a va ajouter à notre fichier de données des identifiants individuels, la typologie crée et l’ordre obtenu par <em>multidimensional scaling</em>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">donnees<span class="op">$</span>id &lt;-<span class="st"> </span><span class="kw">row.names</span>(donnees)
+donnees<span class="op">$</span>classe &lt;-<span class="st"> </span>seq.part
+donnees<span class="op">$</span>ordre &lt;-<span class="st"> </span><span class="kw">rank</span>(ordre, <span class="dt">ties.method =</span> <span class="st">&quot;random&quot;</span>)</code></pre></div>
+<p>Ensuite, il est impératif que nos données soient dans un format long et <em>tidy</em>, c’est-à-dire avec une ligne par individu et par pas de temps. Pour cela on aura recours à la fonction <code data-pkg="tidyr">gather</code> (voir le <a href="reorganiser-ses-donnees-avec-tidyr.html">chapitre dédié</a>).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tidyr)
+long &lt;-<span class="st"> </span>donnees <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">gather</span>(csp1<span class="op">:</span>csp37, <span class="dt">key =</span> annee, <span class="dt">value =</span> csp)</code></pre></div>
+<p>On va mettre en forme la variable <code>csp</code> sous forme de facteur, récupérer l’année grace à la fonction <code data-pkg="stringr">str_sub</code> de l’extension <code class="pkg">stringr</code> (voir le chapitre sur la <a href="manipuler-du-texte.html#extraire-des-sous-chaines-par-position">manipulation de texte</a>) et recalculer l’âge.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">long<span class="op">$</span>csp &lt;-<span class="st"> </span><span class="kw">factor</span>(long<span class="op">$</span>csp, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;agriculteur&quot;</span>, <span class="st">&quot;art./com./chefs&quot;</span>, <span class="st">&quot;cadres&quot;</span>, 
+  <span class="st">&quot;prof. int.&quot;</span>, <span class="st">&quot;employés&quot;</span>, <span class="st">&quot;ouvriers&quot;</span>, <span class="st">&quot;étudiants&quot;</span>, <span class="st">&quot;inactifs&quot;</span>, <span class="st">&quot;serv. militaire&quot;</span>))
+<span class="kw">library</span>(stringr)
+long<span class="op">$</span>annee &lt;-<span class="st"> </span><span class="kw">as.integer</span>(<span class="kw">str_sub</span>(long<span class="op">$</span>annee, <span class="dv">4</span>))
+long<span class="op">$</span>age &lt;-<span class="st"> </span>long<span class="op">$</span>annee <span class="op">+</span><span class="st"> </span><span class="dv">13</span></code></pre></div>
+<p>Il n’y a plus qu’à faire notre graphique grace à <code data-pkg="ggplot2">geom_raster</code> qui permet de colorier chaque pixel. Techniquement, pour un tapis de séquence, il s’agit de représenter le temps sur l’axe horizontal et les individus sur l’axe vertical. Petite astuce : plutôt que d’utiliser <code>id</code> pour l’axe vertical, nous utilisons <code>ordre</code> afin de trier les observations. Par ailleurs, il est impératif de transformer au passage <code>ordre</code> en facteur afin que <code class="pkg">ggplot2</code> puisse recalculer proprement et séparément les axes pour chaque facette<a href="#fn15" class="footnoteRef" id="fnref15"><sup>15</sup></a>, à condition de ne pas oublier l’option <code>scales = &quot;free_y&quot;</code> dans l’appel à <code data-pkg="ggplot2">facet_grid</code>. Les autres commandes ont surtout pour vocation d’améliorer le rendu du graphique (voir le <a href="ggplot2.html">chapitre dédié à ggplot2</a>).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)
+<span class="kw">ggplot</span>(long) <span class="op">+</span><span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> age, <span class="dt">y =</span> <span class="kw">factor</span>(ordre), <span class="dt">fill =</span> csp) <span class="op">+</span><span class="st"> </span><span class="kw">geom_raster</span>() <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_discrete</span>(<span class="dt">label =</span> <span class="ot">NULL</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;bottom&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_fill_brewer</span>(<span class="dt">palette =</span> <span class="st">&quot;Set3&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(classe <span class="op">~</span><span class="st"> </span>., <span class="dt">scales =</span> <span class="st">&quot;free_y&quot;</span>, 
+  <span class="dt">space =</span> <span class="st">&quot;free_y&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">14</span>, <span class="dv">50</span>), <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">14</span>, <span class="dv">20</span>, 
+  <span class="dv">25</span>, <span class="dv">30</span>, <span class="dv">35</span>, <span class="dv">40</span>, <span class="dv">45</span>, <span class="dv">50</span>), <span class="dt">expand =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>))</code></pre></div>
+<p><img src="graphs/analyse-de-sequences/unnamed-chunk-21-1.png" width="1050" /></p>
+</div>
+<p>La distance des séquences d’une classe au centre de cette classe, obtenue avec <code data-pkg="TraMineR">disscenter</code>, permet de mesurer plus précisément l’<dfn>homogénéité des classes</dfn><dfn data-index="classe, homogénéité"></dfn>. Nous utilisons ici <code data-pkg="stats">aggregate</code> pour calculer la moyenne par classe :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">aggregate</span>(<span class="kw">disscenter</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">group =</span> seq.part), <span class="kw">list</span>(seq.part), mean)</code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["Group.1"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["x"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"classe.1","2":"12.891735"},{"1":"classe.2","2":"8.728719"},{"1":"classe.3","2":"15.201139"},{"1":"classe.4","2":"9.556488"},{"1":"classe.5","2":"16.181818"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <p>Cela nous confirme que les classes 1, 3 et 5 sont nettement plus hétérogènes que les autres, alors que la classe 2 est la plus homogène.</p>
 <p>D’autres représentations graphiques existent pour poursuivre l’examen de la typologie. On peut visualiser les 10 séquences les plus fréquentes de chaque classe avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqfplot</code>.</p>
 <figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqfplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">withlegend =</span> T)</code></pre></div>
-<pre><code> [!] In rmarkdown::render() : withlegend is deprecated, use with.legend instead.</code></pre>
-<img src="graphs/analyse-de-sequences/unnamed-chunk-19-1.png" width="1050" />
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqfplot</span>(seq, <span class="dt">group =</span> seq.part)</code></pre></div>
+<img src="graphs/analyse-de-sequences/unnamed-chunk-23-1.png" width="1050" />
 <figcaption>
 Séquences les plus fréquentes de chaque classe
 </figcaption>
 </figure>
 <p>On peut aussi visualiser avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqmsplot</code> l’état modal (celui qui correspond au plus grand nombre de séquences de la classe) à chaque âge.</p>
 <figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqmsplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">withlegend =</span> T, <span class="dt">title =</span> <span class="st">&quot;classe&quot;</span>)</code></pre></div>
-<pre><code> [!] In rmarkdown::render() : title is deprecated, use main instead.</code></pre>
-<pre><code> [!] In rmarkdown::render() : withlegend is deprecated, use with.legend instead.</code></pre>
-<img src="graphs/analyse-de-sequences/unnamed-chunk-20-1.png" width="1050" />
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqmsplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">main =</span> <span class="st">&quot;classe&quot;</span>)</code></pre></div>
+<img src="graphs/analyse-de-sequences/unnamed-chunk-24-1.png" width="1050" />
 <figcaption>
 Statut modal à chaque âge
 </figcaption>
 </figure>
 <p>On peut également représenter avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqmtplot</code> les durées moyennes passées dans les différents états.</p>
 <figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqmtplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">withlegend =</span> T)</code></pre></div>
-<pre><code> [!] In rmarkdown::render() : withlegend is deprecated, use with.legend instead.</code></pre>
-<img src="graphs/analyse-de-sequences/unnamed-chunk-21-1.png" width="1050" />
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqmtplot</span>(seq, <span class="dt">group =</span> seq.part)</code></pre></div>
+<img src="graphs/analyse-de-sequences/unnamed-chunk-25-1.png" width="1050" />
 <figcaption>
 Durée moyenne dans chaque statut
 </figcaption>
 </figure>
+<p>La fonction <code data-pkg="TraMineR" data-rdoc="seqplot">seqrplot</code> cherche à identifier des séquences <q>représentatives</q> de chaque classe. Plusieurs méthodes sont proposées (voir <code data-pkg="TraMineR">seqrep</code>). La méthode <code>dist</code> cherche à identifier des séquences centrales à chaque classe, c’est-à-dire situées à proximité du centre de la classe. Selon l’hétérogénéité de la classe, plusieurs séquences <q>représentatives</q> peuvent être renvoyées. ATTENTION : il faut être prudent dans l’interprétation de ces séquences centrales de la classe dans la mesure où elles ne rendent pas toujours compte de ce qui se passe dans la classe et où elles peuvent induire en erreur quand la lasse est assez hétérogène. Il faut donc les considérer tout en ayant en tête l’ensemble du tapis de séquence pour voir si elles sont effectivement de bonnes candidates.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqrplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">dist.matrix =</span> seq.om, <span class="dt">criterion =</span> <span class="st">&quot;dist&quot;</span>)</code></pre></div>
+<img src="graphs/analyse-de-sequences/unnamed-chunk-26-1.png" width="1050" />
+<figcaption>
+Séquences <q>représentatives</q> de chaque classe
+</figcaption>
+</figure>
 <p>Enfin, l’<dfn>entropie transversale</dfn><dfn data-index="transversale, entropie"></dfn> décrit l’évolution de l’homogénéité de la classe. Pour un âge donné, une entropie proche de 0 signifie que tous les individus de la classe (ou presque) sont dans la même situation. À l’inverse, l’entropie est de 1 si les individus sont dispersés dans toutes les situations. Ce type de graphique produit par <code data-pkg="TraMineR" data-rdoc="seqplot">seqHtplot</code> peut être pratique pour localiser les moments de transition, l’insertion professionnelle ou une mobilité sociale ascendante.</p>
 <figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqHtplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">withlegend =</span> T)</code></pre></div>
-<pre><code> [!] In rmarkdown::render() : withlegend is deprecated, use with.legend instead.</code></pre>
-<img src="graphs/analyse-de-sequences/unnamed-chunk-22-1.png" width="1050" />
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqHtplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>)</code></pre></div>
+<img src="graphs/analyse-de-sequences/unnamed-chunk-27-1.png" width="1050" />
 <figcaption>
 Entropie transversale
 </figcaption>
 </figure>
+</div>
+<div id="distribution-de-la-typologie" class="section level2">
+<h2>Distribution de la typologie</h2>
 <p>On souhaite maintenant connaître la distribution de la typologie (en effectifs et en pourcentages) :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(questionr)
 <span class="kw">freq</span>(seq.part)</code></pre></div>
-<pre><code>           n    % val%
-classe.1 280 28.0 28.0
-classe.2 199 19.9 19.9
-classe.3 114 11.4 11.4
-classe.4 341 34.1 34.1
-classe.5  66  6.6  6.6</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"280","2":"28.0","3":"28.0","_rn_":"classe.1"},{"1":"199","2":"19.9","3":"19.9","_rn_":"classe.2"},{"1":"114","2":"11.4","3":"11.4","_rn_":"classe.3"},{"1":"341","2":"34.1","3":"34.1","_rn_":"classe.4"},{"1":"66","2":"6.6","3":"6.6","_rn_":"classe.5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <p>On poursuit ensuite la description des classes en croisant la typologie avec la variable <em>generation</em> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cprop</span>(<span class="kw">table</span>(seq.part, donnees<span class="op">$</span>generation))</code></pre></div>
 <pre><code>          
@@ -590,7 +610,7 @@ seq.part   1930-38 1939-45 1946-50 Ensemble
 data:  table(seq.part, donnees$generation)
 X-squared = 12.032, df = 8, p-value = 0.1498</code></pre>
 <p>Le lien entre le fait d’avoir un certain type de carrières et la cohorte de naissance est significatif à un seuil de 15 %. On constate par exemple l’augmentation continue de la proportion de carrières de type « professions intermédiaires » (classe 1) et, entre les deux cohortes les plus anciennes, l’augmentation de la part des carrières de type « employés » (classe 3) et la baisse de la part des carrières de type « cadres » (classe 4).</p>
-<p>Bien d’autres analyses sont envisageables : croiser la typologie avec d’autres variables (origine sociale, etc.), construire l’espace des carrières possibles, étudier les interactions entre trajectoires familiales et professionnelles, analyser la variance des dissimilarités entre séquences en fonction de plusieurs variables « explicatives<a href="#fn15" class="footnoteRef" id="fnref15"><sup>15</sup></a> »…</p>
+<p>Bien d’autres analyses sont envisageables : croiser la typologie avec d’autres variables (origine sociale, etc.), construire l’espace des carrières possibles, étudier les interactions entre trajectoires familiales et professionnelles, analyser la variance des dissimilarités entre séquences en fonction de plusieurs variables « explicatives<a href="#fn16" class="footnoteRef" id="fnref16"><sup>16</sup></a> »…</p>
 <p>Mais l’exemple proposé est sans doute bien suffisant pour une première introduction !</p>
 </div>
 <div id="bibliographie" class="section level2">
@@ -629,7 +649,8 @@ X-squared = 12.032, df = 8, p-value = 0.1498</code></pre>
 <li id="fn12"><p><a href="http://mephisto.unige.ch/traminer/" class="uri">http://mephisto.unige.ch/traminer/</a><a href="#fnref12">↩</a></p></li>
 <li id="fn13"><p>Pour une présentation plus détaillée, voir le chapitre sur la <a href="classification-ascendante-hierarchique.html">classification ascendante hiérarchique (CAH)</a>.<a href="#fnref13">↩</a></p></li>
 <li id="fn14"><p>Le fonctionnement de l’algorithme d’appariement optimal — et notamment le choix des coûts — est décrit dans le chapitre 9 du manuel de <code class="pkg">TraMineR</code> (<a href="http://mephisto.unige.ch/pub/TraMineR/doc/TraMineR-Users-Guide.pdf" class="uri">http://mephisto.unige.ch/pub/TraMineR/doc/TraMineR-Users-Guide.pdf</a>).<a href="#fnref14">↩</a></p></li>
-<li id="fn15"><p>L’articulation entre méthodes « descriptives » et méthodes « explicatives » est un prolongement possible de l’analyse de séquences. Cependant, l’analyse de séquences était envisagée par Abbott comme une alternative à la sociologie quantitative <em>mainstream</em>, i.e le « paradigme des variables » et ses hypothèses implicites souvent difficilement tenables (Abbott, 2001). Une bonne description solidement fondée théoriquement vaut bien des « modèles explicatifs » (Savage, 2009).<a href="#fnref15">↩</a></p></li>
+<li id="fn15"><p>Essayez le même code mais avec <code>y = ordre</code> au lieu de <code>y = factor(ordre)</code> et vous comprendrez tout l’intérêt de cette astuce.<a href="#fnref15">↩</a></p></li>
+<li id="fn16"><p>L’articulation entre méthodes « descriptives » et méthodes « explicatives » est un prolongement possible de l’analyse de séquences. Cependant, l’analyse de séquences était envisagée par Abbott comme une alternative à la sociologie quantitative <em>mainstream</em>, i.e le « paradigme des variables » et ses hypothèses implicites souvent difficilement tenables (Abbott, 2001). Une bonne description solidement fondée théoriquement vaut bien des « modèles explicatifs » (Savage, 2009).<a href="#fnref16">↩</a></p></li>
 </ol>
 </div>
 

@@ -271,6 +271,7 @@ $(document).ready(function () {
               <div class="col-sm-4">
   	            <ul class="multi-column-dropdown">
   		            <li class="dropdown-header">Graphiques</li>
+                  <li><a href="ggplot2.html">ggplot2 et la grammaire des graphiques</a></li>
                   <li><a href="combiner-plusieurs-graphiques.html">Combiner plusieurs graphiques</a></li>
                   <li><a href="graphiques-interactifs.html">Graphiques interactifs</a></li>
                   <li><a href="lattice-graphiques-et-formules.html"><strong>lattice</strong> : graphiques et formules</a></li>
@@ -501,7 +502,7 @@ enfants[, richesse <span class="op">:</span><span class="er">=</span><span class
   </script>
 </div>
 <p>Tout d’abord, la modalité <q>pas d’adulte</q> n’est pas représentée dans l’échantillon. On aura donc recours à l’argument <code>drop_unused_labels</code> pour ne pas conserver cette modalité. Par ailleurs, nous considérons que la situation familiale à partir de laquelle nous voudrons comparer les autres dans notre modèle, donc celle qui doit être considérée comme la modalité de référence, est celle du ménage nucléaire. Cette modalité (<q>deux adultes de sexe opposé</q>) n’étant pas la première, nous aurons recours à la fonction <code>relevel</code>{data-pkg = “stats”}.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[, structure <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(structure)]
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">enfants[, structure <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(structure, <span class="dt">drop_unused_labels =</span> <span class="ot">TRUE</span>)]
 enfants[, structure <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">relevel</span>(structure, <span class="st">&quot;deux adultes de sexe opposé&quot;</span>)]</code></pre></div>
 <p>Regardons la variable <var>educ</var>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(enfants<span class="op">$</span>educ)</code></pre></div>
@@ -730,6 +731,11 @@ km_global</code></pre></div>
 <pre><code>Loading required package: ggpubr</code></pre>
 <pre><code>Loading required package: magrittr</code></pre>
 <pre><code>
+Attaching package: &#39;magrittr&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:tidyr&#39;:
+
+    extract</code></pre>
+<pre><code>
 Attaching package: &#39;ggpubr&#39;</code></pre>
 <pre><code>The following object is masked from &#39;package:JLutils&#39;:
 
@@ -903,13 +909,21 @@ Attaching package: &#39;GGally&#39;</code></pre>
 <p><img src="graphs/analyse-de-survie/unnamed-chunk-41-1.png" width="1050" /></p>
 <p>NB : dû à un bug<a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a> en cours de résolution dans l’extension <code class="pkg">broom</code>, il est nécessaire d’appliquer <code>tidy</code> au modèle avant de le passer à <code>ggcoef</code>. En effet, si l’on fait directement <code>ggcoef(mod2, exponentiate = TRUE)</code>, les intervalles de confiance ne seront pas correctement représentés.</p>
 <figcaption>
-Coefficients du modèle
+Coefficients du modèle avec ggcoef
+</figcaption>
+</figure>
+<p>L’extension <code class="pkg">survminer</code> fournit également une fonction <code data-pkg="survminer">ggforest</code> qui permet de représenter de manière plus esthétique et complète les coefficients d’un modèle de Cox.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggforest</span>(mod2)</code></pre></div>
+<img src="graphs/analyse-de-survie/unnamed-chunk-42-1.png" width="1050" />
+<figcaption>
+Coefficients du modèle avec ggforest
 </figcaption>
 </figure>
 </div>
 <div id="verification-de-la-validite-du-modele" class="section level2">
 <h2>Vérification de la validité du modèle</h2>
-<p>Un modèle de Cox n’est valable que sous l’hypothèse de la proportionnalité des risques relatifs. Selon cette hypothèse les <dfn>résidus de Schoenfeld</dfn><dfn data-index="Schoenfeld, résidus"></dfn> ne dépendent pas du tout. Cette hypothèse peut être testée avec la fonction <code data-pkg="survival">cox.zph</code>.</p>
+<p>Un modèle de Cox n’est valable que sous l’hypothèse de la proportionnalité des risques relatifs. Selon cette hypothèse les <dfn>résidus de Schoenfeld</dfn><dfn data-index="Schoenfeld, résidus"></dfn> ne dépendent pas du temps. Cette hypothèse peut être testée avec la fonction <code data-pkg="survival">cox.zph</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test &lt;-<span class="st"> </span><span class="kw">cox.zph</span>(mod2)
 test</code></pre></div>
 <pre><code>                        rho chisq     p
@@ -918,10 +932,10 @@ milieu              -0.0305 0.132 0.717
 rang_apres_idealoui -0.0359 0.181 0.670
 GLOBAL                   NA 0.827 0.843</code></pre>
 <p>Une valeur de p inférieure à 5 % indique que l’hypothèse n’est pas vérifiée. Il apparaît que p est supérieur à 5 % globalement et pour chaque variable prise individuellement. Notre modèle est donc valide.</p>
-<p>Il est possible de représenter la distribution des résidus de Schoenfeld à l’aide de <code data-pkg="survminer">ggcoxzph</code> de l’extension <code class="pkg">survminer</code>.</p>
+<p>Il est possible de représenter la distribution des résidus de Schoenfeld à l’aide de <code data-pkg="survminer">ggcoxzph</code> de l’extension <code class="pkg">survminer</code>, afin de voir si leur répartition change au cours du temps.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggcoxzph</span>(test)</code></pre></div>
-<img src="graphs/analyse-de-survie/unnamed-chunk-43-1.png" width="1050" />
+<img src="graphs/analyse-de-survie/unnamed-chunk-44-1.png" width="1050" />
 <figcaption>
 Résidus de Schoenfeld
 </figcaption>
