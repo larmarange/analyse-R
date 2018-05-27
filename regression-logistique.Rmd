@@ -409,6 +409,66 @@ reg2bis <- stepAIC(reg)
 ```
 </div>
 
+### Tableaux <q>all-in-one</q>
+
+L'extension `finalfit`{.pkg}, en cours de développement^[On ne peut donc exclure la présence éventuelle de bugs non encore corrigés.], fournit une fonction `finalfit`{data-pkg="finalfit"} du type <q lang="en">all-in-one</q> qui calcule un tableau avec les tris croisés, les odds ratios univariés et un modèle multivarié.
+
+Elle s'installe avec la commande suivante :
+
+```{r}
+devtools::install_github("ewenharrison/finalfit")
+```
+
+Il faut d'abord définir la variable dépendante et les variables explicatives.
+
+```{r}
+dep <- "sport"
+vars <- c("sexe", "grpage", "etud", "relig", "heures.tv")
+```
+
+Une première fonction `summary_factorlist`{data-pkg="finalfit"} fournit un tableau descriptif avec, si l'option `p  = TRUE` est indiquée, des tests de comparaisons (ici des tests du Chi²).
+
+```{r}
+library(finalfit)
+tab <- summary_factorlist(d, dep, vars, p=TRUE, add_dependent_label=TRUE)
+tab
+```
+
+Si l'on souhaite avoir des noms de variables plus explicites, il faut ajouter des étiquettes des variables avec `var_label`{data-pkg="labelled"} de l'extension `labelled`{.pkg} (voir le [chapitre sur les vecteurs labellisés](facteurs-et-vecteurs-labellises.html#les-etiquettes-de-variable)).
+
+```{r}
+library(labelled)
+var_label(d$sport) <- "Pratique du sport ?"
+var_label(d$sexe) <- "Sexe"
+var_label(d$grpage) <- "Groupe d'âges"
+var_label(d$etud) <- "Niveau d'étude"
+var_label(d$relig) <- "Pratique religieuse"
+var_label(d$heures.tv) <- "Nombre d'heures passées devant la télévision par jour"
+tab <- summary_factorlist(d, dep, vars, p = TRUE, add_dependent_label = TRUE)
+tab
+```
+
+On peut aussi associer le résultat avec la fonction `kable`{data-pkg="knitr"} de `knitr`{.pkg} pour un rendu plus esthétique lorsque l'on produit un rapport **Rmarkdown** (voir le [chapitre dédié aux rapports automatisés](rmarkdown-les-rapports-automatises.html)).
+
+```{r}
+knitr::kable(tab, row.names = FALSE)
+```
+
+```{r}
+tab <- finalfit(d, dep, vars)
+knitr::kable(tab, row.names = FALSE)
+```
+
+Par défaut, toutes les variables explicatives fournies sont retenues dans le modèle affiché. Si on ne souhaite inclure que certaines variables dans le modèle mutivarié (parce que l'on aura précédemment réalisé une procédure `setp`{data-pkg="stats"}), il faudra préciser séparément les variables du modèle multivarié.
+
+
+```{r}
+vars_multi <- c("sexe", "grpage", "etud", "heures.tv")
+tab <- finalfit(d, dep, vars, explanatory_multi =  vars_multi)
+knitr::kable(tab, row.names = FALSE)
+```
+
+On pourra se référer à l'aide de la fonction `finalfit`{data-pkg="finalfit"} pour d'autres exemples. 
 
 ### Effets d'interaction dans le modèle
 
