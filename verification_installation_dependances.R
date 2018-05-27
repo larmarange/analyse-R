@@ -1,7 +1,10 @@
 if(!require(devtools))
   install.packages("devtools")
+if(!require(stringr))
+  install.packages("stringr")
 
 require(devtools)
+require(stringr)
 
 # 1. Trouver les packages manquants ----------
 
@@ -27,13 +30,13 @@ if (!length(m)) {
 
 # 2. Installer les packages manquants (CRAN ou GitHub) ----------------
 
-thru_github <- c("tidyverse", "questionr", "JLutils", "hrbrmstr", "ropensci", "svrepmisc")
-repo_github <- c("hadley", "juba", "larmarange", "ggalt", "plotly", "carlganz")
+thru_pkgs <- c("hadley/tidyverse", "juba/questionr", "larmarange/JLutils", "hrbrmstr/ggalt", "ropensci/plotly", "carlganz/svrepmisc", "ewenharrison/finalfit")
+github_pkgs <- str_sub(thru_pkgs, str_locate(thru_pkgs, "/")[, 1] + 1)
 
-for (i in m[m %in% thru_github])
-  install_github(paste0(repo_github[which(thru_github == i)], "/", i))
+for (i in m[m %in% github_pkgs])
+  install_github(thru_pkgs[which(thru_github == i)])
 
-for (i in m[!m %in% thru_github])
+for (i in m[!m %in% github_pkgs])
   install.packages(i, dependencies = TRUE)
 
 if (any(!p %in% installed.packages()[, 1]))
@@ -89,7 +92,7 @@ min_r <- function(packages) {
 }
 
 v = min_r(p)
-v = gsub("\\s?R\\s\\(>=\\s|\\)", "", v)
+v = gsub("\\s?R\\s\\(>=?\\s|\\)", "", v)
 v = sort(v)[length(sort(v))]
 
 message("analyse-R requiert R version ", v, " ou supérieure.")
