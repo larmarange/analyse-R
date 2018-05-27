@@ -1,0 +1,414 @@
+---
+title: "Trajectoires de soins : données longitudinales, analyse de séquences, modèle multinomial, modèle à temps discret, modèles de survie classiques et multi-états"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+Dans ce chapitre, nous allons aborder plusieurs méthodes d'analyse à partir d'un jeu de données longitudinales. Tout d'abord, importons les données dans **R** avec la commande suivante :
+
+```{r include=FALSE}
+load("data/care_trajectories.RData")
+```
+
+```{r, eval=FALSE}
+load(url("http://larmarange.github.io/analyse-R/data/care_trajectories.RData"))
+```
+
+```{r}
+class(care_trajectories)
+```
+
+
+Nous obtenons un objet appelé `care_trajectories`. La fonction `class`{data-pkg="base"} nous montre qu'il s'agit d'un tableau de données au format `data.table`{.pkg} (voir le [chapitre dédié](manipulations-avancees-avec-data-table.html)). Chargeons donc cette extension ainsi que le `tidyverse`{.pkg}.
+
+```{r, message=FALSE}
+library(tidyverse, quietly = TRUE)
+library(data.table, quietly = TRUE)
+```
+
+## Première description des données
+
+Jetons un premier regard aux données.
+
+```{r}
+care_trajectories
+```
+
+Il apparaît que les données sont dans un format <q>long</q> et *tidy* (voir le [chapitre sur **tidyr**](reorganiser-ses-donnees-avec-tidyr.html#tidy-data) pour une présentation du concept de <dfn lang="en">tidy data</dfn>), avec une ligne par individu et par pas de temps. Il apparait également que les données sont stockées sous formes de vecteurs labellisés (voir le [chapitre dédié aux vecteurs labellisés](facteurs-et-vecteurs-labellises.html#labelled)). Nous aurons donc besoin de l'extension `labelled`{.pkg}. 
+
+```{r}
+library(labelled)
+```
+
+Pour une description des variables, on pourra avoir recours à `describe`{data-pkg="questionr"} de `questionr`.
+
+```{r}
+library(questionr)
+describe(care_trajectories, freq.n.max = 10)
+```
+
+Dans cette étude, on a suivi des patients à partir du moment où ils ont été diagnostiqués pour une pathologie grave et chronique et on a suivi leurs parcours de soins chaque mois à partir du diagnostic. La variable `status` contient le statut dans les soins de chaque individu pour chaque mois de suivi :
+
+- **D** : s'il n'est pas actuellement suivi dans une clinique, soit que la personne n'est pas encore entrée en clinique après le diagnostic, soit qu'elle a quitté la clinique et qu'elle est donc sortie des soins ;
+- **C** : indique que le patient est entré en soins (il est suivi dans une clinique) mais il n'a pas encore commencé le traitement, ou bien il a arrêté le traitement mais est toujours suivi en clinique ;
+- **T** : la personne est sous traitement mais l'infections n'est pas <q>supprimée</q> ou <q>contrôlée</q>, soit que le traitement n'a pas encore eu le temps de faire effet, soit qu'il n'est plus efficace ;
+- **S** : la personne est suivie en clinique, sous traitement et son infection est <q>supprimée</q> / <q>contrôlée</q>, indiquant que le traitement est efficace et produit son effet. Cette étape ultime du parcours de soins est celle dans laquelle on souhaite maintenir les individus le plus longtemps possible.
+
+Il est important de noter que nous avons ici des statuts **hiérarchiquement ordonnés** (D < C < T < S), ce qui aura son importance pour les choix méthodologiques que nous aurons à faire.
+
+Nous disposons également d'autres variables (âge, sexe, niveau d'éducation, distance à la clinique...) qui sont ici dépendantes du temps, c'est-à-dire que le cas échéant, elles peuvent varier d'un mois à l'autre en cas de changement.
+
+Le fichier contient `r JLutils::fr0(nrow(care_trajectories))` lignes, ce qui ne veut pas dire qu'il y a ce nombre d'invidus suivis au cours du temps, puisque plusieurs lignes correspondent à un même individu. On peut obtenir le nombre d'individus différents assez facilement avec la commande :
+
+```{r}
+length(unique(care_trajectories$id))
+```
+
+**Précision :** dans ce fichier, tous les individus ne sont pas suivis pendant la même durée, car ils n'ont pas tous été diagnostiqués au même moment. Cependant, il n'y a pas de <q>trous</q> dans le suivi (ce qui serait le cas si certains individus sortaient de l'observation pendant quelques mois puis re-rentraient dans la cohorte de suivi).
+
+Avant d'aller plus avant, il nous faut avoir une idée  du nombre d'individus observé au cours du temps, ce que l'on peut obtenir avec :
+
+```{r}
+ggplot(care_trajectories) +
+  aes(x = month) +
+  geom_bar()
+```
+
+Améliorons ce graphique en y ajoutant la distribution selon le statut dans les soins chaque mois, en améliorant l'axe du temps (tous les 6 mois est plus facile à lire) et en y ajoutant un titre et des étiquettes appropriées. Afin de disposer d'une palette de couleurs à fort contraste, nous allons utiliser l'extension `viridis`{.pkg}. Enfin, nous allons utiliser une petite astuce pour indiquer les effectifs sur l'axe horizontal. Au passage, nous allons également franciser les étiquettes de la variable `care_status` avec `val_labels`{data-pkg="labelled"} (notez aussi le recours à `to_factor`{data-pkg="labelled"} dans `aed`{data-pkg="ggplot2"} qui nous permet de transformer à la volée la variable en facteur, format attendu par `ggplot2`{.pkg} pour les variables catégorielles). On se référera au [chapitre dédié à **ggplot2**](ggplot2.html) pour plus de détails sur les différentes fonctions de cette extension graphique.
+
+```{r}
+library(viridis)
+n <- care_trajectories[month %in% (0:8*6), .(n = .N), by = month]$n
+etiquettes <- paste0("M", 0:8*6, "\n(n=", n, ")")
+val_labels(care_trajectories$care_status) <- c(
+  "diagnostiqué mais pas suivi" = "D",
+  "suivi mais pas sous traitement" = "C",
+  "sous traitement, mais infection son contrôlée" = "T",
+  "sous traitement et infection contrôlée" = "S"
+)
+ggplot(care_trajectories) +
+  aes(x = month, fill = to_factor(care_status)) +
+  geom_bar(color = "gray50", width = 1) +
+  scale_x_continuous(breaks = 0:8*6, labels = etiquettes) +
+  ggtitle("Distribution du statut dans les soins chaque mois") +
+  xlab("") + ylab("") +
+  theme_light() +
+  theme(legend.position = "bottom") +
+  labs(fill = "Statut dans les soins") + 
+  scale_fill_viridis(discrete = TRUE, direction = -1) +
+  guides(fill = guide_legend(nrow = 2))
+```
+
+On s'aperçoit qu'une majorité des personnes suivies ne l'ont été que peu de temps, avec une décroissance rapide des effectifs.
+
+## Évolution de la cascade de soins au cours du temps
+
+On nomme communément <q>cascade de soins</q> la proportion d'individus dans chaque statut à un moment du temps donné. On peut facilement obtenir celle-ci à partir du code du graphique précédent en ajoutant l'option `position = fill` à `geom_bar`{data-pkg="ggplot2"}.
+
+```{r}
+ggplot(care_trajectories) +
+  aes(x = month, fill = to_factor(care_status)) +
+  geom_bar(color = "gray50", width = 1, position = "fill") +
+  scale_x_continuous(breaks = 0:8*6, labels = etiquettes) +
+  ggtitle("Cascade des soins observée, selon le temps depuis le diagnostic") +
+  xlab("") + ylab("") +
+  theme_light() +
+  theme(legend.position = "bottom") +
+  labs(fill = "Statut dans les soins") + 
+  scale_fill_viridis(discrete = TRUE, direction = -1) +
+  guides(fill = guide_legend(nrow = 2))
+```
+
+Les effectifs sont très faibles au-delà de 36 mois et il serait préférable de couper la cascade au-delà de M36, ce que l'on peut faire aisément ne gardant que les lignes correspondantes de `care_trajectories`.
+
+```{r}
+ggplot(care_trajectories[month <= 36]) +
+  aes(x = month, fill = to_factor(care_status)) +
+  geom_bar(color = "gray50", width = 1, position = "fill") +
+  scale_x_continuous(breaks = 0:8*6, labels = etiquettes) +
+  ggtitle("Cascade des soins observée, selon le temps depuis le diagnostic") +
+  xlab("") + ylab("") +
+  theme_light() +
+  theme(legend.position = "bottom") +
+  labs(fill = "Statut dans les soins") + 
+  scale_fill_viridis(discrete = TRUE, direction = -1) +
+  guides(fill = guide_legend(nrow = 2))
+```
+
+## Une première analyse de séquences sur l'ensemble du fichier
+
+Nous allons réaliser une <dfn>analyse de séquences</dfn> (voir le [chapitre dédié](analyse-de-sequences.html)) sur l'ensemble de notre fichier. Pour cela, il va falloir préalable que nous transformions nos donnée actuellement dans un format <q>long</q> and un tableau <q>large</q>, c'est-à-dire avec une ligne par individu et une variable différentes par pas de temps. On peut réaliser cela facilement avec `spread`{data-pkg="tidyr"} de `tidyr`{.pkg} (voir le [chapitre dédié à **tidyr**](reorganiser-ses-donnees-avec-tidyr.html#spread-disperser-des-lignes))
+
+```{r}
+library(tidyr)
+large <- care_trajectories %>%
+  dplyr::select(id, m = month, care_status) %>%
+  spread(key = m, value = care_status, sep = "") 
+large
+```
+
+On utilise `seqdef`{data-pkg="TraMineR"} de `TraMineR`{.pkg} pour créer nos séquences, avec les arguments `alphabet` pour forcer l'ordre de l'alphabet, `states` pour spécifier des étiquettes courtes à chaque état et `cpal` pour indiquer le code couleur de chaque état (et être raccord avec nos graphiques précédents).
+
+```{r}
+library(TraMineR)
+seq_all <- seqdef(
+  large[, m0:m50],
+  id = large$id,
+  alphabet = c("D", "C", "T", "S"),
+  states = c("diagnostiqué", "en soins", "sous traitement", "inf. contrôlée"),
+  cpal = viridis(4, direction = -1)
+)
+```
+
+On peut retrouver la cascade de soins avec `seqdplot`{data-pkg="TraMineR" data-rdoc="seqplot"}.
+
+```{r}
+seqdplot(seq_all, legend.prop = .25)
+```
+
+Nous allons maintenant calculer une matrice des distances entre individus par <dfn lang="en">optimal matching</dfn>. Dans le cas présent, nos différents status sont hiérarchiquement ordonnés. Il n'est donc pas raisonnable de penser que les coûts sont constants entre les différents statuts, puisqu'en un sens, passer directement de **D** à **T** peut être considéré comme être passé d'abord de **D** à **C** puis de **C** à **D**. Nous allons donc faire une matrice de coûts hiérarchisées. `seqcost`{data-pkg="TraMineR"} nous permets de produire une matrice de coûts constants, que nous allons ensuite modifier manuellement. Pour le coût *indel*, le plus simple est de considérer la moitié du coût de substitution maximum.
+
+
+```{r}
+couts <- seqcost(seq_all, method = "CONSTANT")
+couts
+
+couts$sm[1, ] <- c(0, 1, 2, 3)
+couts$sm[2, ] <- c(1, 0, 1, 2)
+couts$sm[3, ] <- c(2, 1, 0, 1)
+couts$sm[4, ] <- c(3, 2, 1, 0)
+couts$indel <- max(couts$sm) / 2
+couts
+
+dist_all <- seqdist(seq_all, method = "OM", sm = couts$sm, indel = couts$indel)
+```
+
+Calculons le dendrogramme et représentons le avec le tapis de séquence grace à `seq_heatmap`{data-pkg="JLutils"} de l'extension `JLutils`{.pkg}. Pour rappel, cette extension est seulement disponible sur [GitHUb](https://github.com/larmarange/JLutils). On l'installera donc (ou on la mettra à jour) avec la commande `devtools::install_github("larmarange/JLutils")`.
+
+```{r, fig.height=7}
+arbre_all <- hclust(as.dist(dist_all), method = "ward.D2")
+seq_heatmap(seq_all, arbre_all)
+```
+
+Il apparaît que les différentes séquences sont principalement regroupées en fonction de leur longueur. En effet, pour passer d'une séquence courte à une séquence longue il faut <q>ajouter</q> des statuts pour compléter la séquence ce qui induit *de facto* une distance élevée (en raison du coût *indel*). Dès lors, lorsque l'on travaille avec des séquences aux longueurs très disparates, une <dfn>classification ascendante hiérarchique</dfn> va produire une typologie de séquences courtes et de séquences longues, ce qui n'est pas forcément ce que l'on recherche.
+
+Dans notre exemple, nous pouvons considérer que les séquences courtes ne sont pas pertinentes à retenir dans l'analyse car l'observation n'est pas assez longue pour voir le parcours de soins des patients. Une solution consiste à ne retenir que les individus observées au moins `n` mois et analyser leur trajectoire sur seulement `n` mois, ce qui permet de n'avoir que des séquences de même longueur. Dès lors, la distance entre deux séquences ne dépendra plus que des différences de parcours. On serait tenté de prendre un `n` élévé pour avoir ainsi des parcours de soins longs. Mais dans ce cas là, l'analyse ne se fera que sur un tout petit nombre d'individus et on manquera de puissance. Si, à l'inverse, on prends un `n` petit, nous aurons des effectifs élevés mais les séquences seront peut-être trop courtes pour mettre en évidence la variété des trajectoires. Il faut dès lors trouver un compromis entre ces deux contraintes.
+
+Si l'on regarde notre premier graphique montrant le nombre d'observations au cours du temps, il apparaît une sorte de point d'inflexion au niveau de M18 avec un brusque décrochage. D'un autre côté, 18 mois offre un minimum de durée d'observations pour espérer voir émerger des trajectoires plus complexes.
+
+## Une seconde analyse de séquences limitées aux 18 premiers mois
+
+Reprenons notre analyse en se limitant aux individus observés au moins 18 mois (soit 19 status entre M0 et M18) et en se limitant aux 18 premiers mois pour modéliser les séquences. La fonction `seqlength`{data-pkg="TraMineR"} permets de récupérer la longueur de chaque séquence.
+
+```{r, fig.height=7}
+large$seq_length <- seqlength(seq_all)
+large_m18 <- large[seq_length >= 19, id:m18]
+seq_m18 <- seqdef(
+  large_m18[, m0:m18],
+  id = large_m18$id,
+  alphabet = c("D", "C", "T", "S"),
+  states = c("diagnostiqué", "en soins", "sous traitement", "inf. contrôlée"),
+  cpal = viridis(4, direction = -1)
+)
+dist_m18 <- seqdist(seq_m18, method = "OM", sm = couts$sm, indel = couts$indel)
+arbre_m18 <- hclust(as.dist(dist_m18), method = "ward.D2")
+seq_heatmap(seq_m18, arbre_m18)
+```
+
+Reste maintenant à décider du nombre de classes à retenir. Encore une fois, c'est un équilibre à trouver entre le niveau de détails voulus et le niveau de simplification requis pour permettre l'analyse.
+
+Pour faciliter ce choix, on peut avoir recours à la fonction `as.seqtree`{data-pkg="WeightedCluster"} de l'extension `WeightedCluster`{.pkg}, couplée à la fonction `seqtreedisplay`{TraMineR}. **ATTENTION :** pour que le graphique puisse être produit, il faut que le logiciel libre **GraphViz** (<https://graphviz.gitlab.io/>) soit installé sur votre PC. On peut également installer **GraphViz** avec le code ci-dessous :
+
+```{r, eval=FALSE}
+source("http://bioconductor.org/biocLite.R")
+biocLite("Rgraphviz")
+```
+
+La combinaison des deux fonctions va permettre de représenter l'évolution des catégories au fur-et-à-mesure que l'on coupe le dendrogramme plus bas. On peut choisir le type de graphique utilisé avec l'argument `type` (voir l'aide de `seqplot`{data-pkg="TraMineR"}) et le nombre maximum de clusters avec `nclust`.
+
+```{r, eval=FALSE}
+library(WeightedCluster, quietly = TRUE)
+seqtree_m18 <- as.seqtree(arbre_m18, seqdata = seq_m18, diss = dist_m18, ncluster = 7)
+seqtreedisplay(seqtree_m18, type="I", border=NA, show.depth=TRUE)
+```
+
+```{r, include=FALSE}
+library(WeightedCluster, quietly = TRUE)
+seqtree_m18 <- as.seqtree(arbre_m18, seqdata = seq_m18, diss = dist_m18, ncluster = 7)
+seqtreedisplay(seqtree_m18, type="I", border=NA, show.depth=TRUE, filename = "images/trajectoires_soins_seqtreedisplay_m18.png", show.tree = FALSE)
+```
+
+![seqtreedisplay](images/trajectoires_soins_seqtreedisplay_m18.png)
+
+Afin d'éviter de multiplier les sous-groupes, nous n'allons conserver que 4 catégories.
+
+```{r}
+large_m18$typo_cah <- cutree(arbre_m18, 4)
+```
+
+On peut représenter le découpage du dendrogramme avec `A2Rplot`{data-pkg="JLutils"} fournie par `JLutils`{.pkg}
+
+```{r}
+A2Rplot(arbre_m18, k = 4, show.labels = FALSE)
+```
+
+Comme expliqué par Matthias Studer dans le [*manuel de la librairie Weighted Cluster](https://cran.r-project.org/web/packages/WeightedCluster/vignettes/WeightedClusterFR.pdf), plusieurs critiques peuvent être adressées aux procédures hiérarchiques, en particulier le fait que la fusion de deux groupes se fait en maximisant un critère local. 
+
+L’algorithme <dfn>PAM</dfn> pour <dfn lang="en">Partitioning Around Medoids</dfn> suit une autre logique que les algorithmes hiérarchiques et vise à
+obtenir la meilleure partition d’un ensemble de données en un nombre prédéfini de groupes. Il a l’avantage de maximiser un critère global et non uniquement un critère local. Par contre, le nombre de classes doit être fixé à l'avance.
+
+Ayant décidé de retenir 4 classes au regard de notre classification ascendante hiérarchique, nous pouvons voir si l'algorithme PAM permets d'améliorer nos 4 classes. Nous allons utiliser la fonction `wcKMedoids`{data-pkg="WeightedCluster"} de l'extension `WeightedCluster`{.pkg} en lui indiquant comme partition initiale celle obtenue avec la classigication hiérarchique.
+
+```{r}
+pam_m18 <- wcKMedoids(dist_m18, k = 4, initialclust = arbre_m18)
+large_m18$typo_pam <- pam_m18$clustering
+```
+
+Un tableau croisé nous permets de voir que les deux typologies restent proches.
+
+```{r}
+table(large_m18$typo_cah, large_m18$typo_pam)
+```
+
+Regardons les tapis de séquence des deux typologies.
+
+```{r}
+large_m18$ordre_cmd <- cmdscale(as.dist(dist_m18), k = 1)
+seqIplot(seq_m18, group = large_m18$typo_cah, sortv = large_m18$ordre_cmd)
+seqIplot(seq_m18, group = large_m18$typo_pam, sortv = large_m18$ordre_cmd)
+```
+
+Comme on le voit les deux typologies obtenues sont très proches. Suivant le cas, à vous de choisir celle qui semble la plus pertinente d'un point de vue sociologique. Il existe également divers indicateurs statisques pour mesurer la qualité d'une partition (voir le [*manuel de la librairie Weighted Cluster](https://cran.r-project.org/web/packages/WeightedCluster/vignettes/WeightedClusterFR.pdf) de Matthias Studer). Ils peuvent être calculés avec la fonction `wcClusterQuality`{data-pkg="WeightedCluster"}. Comparons les deux typologies obtenues.
+
+
+```{r}
+tab <- tibble(
+  stat = names(wcClusterQuality(dist_m18, large_m18$typo_cah)$stats),
+  cah = wcClusterQuality(dist_m18, large_m18$typo_cah)$stats,
+  pam = wcClusterQuality(dist_m18, large_m18$typo_pam)$stats
+)
+knitr::kable(tab, digits = 3)
+```
+
+Selon ces indicateurs calculés, l'approche PAM obtiendrait une partition légèrement de meilleure qualité que celle obtenuepar CAH.
+
+L'extension `WeightedCluster`{.pkg} fournie aussi une fonction `wcSilhouetteObs`{data-pkg = "WeightedCluster"} permettant de mesurer la <q>silhouette</q> de chaque séquence. Plus cette métrique est élevée et proche de 1, plus la séquence est proche du centre de classe et <q>caractéristique</q> de la classe. On peut utiliser cette métrique pour classer les séquences sur le tapis de séquences.
+
+```{r}
+large_m18$sil <- wcSilhouetteObs(dist_m18, large_m18$typo_pam)
+seqIplot(seq_m18, group = large_m18$typo_pam, sortv = large_m18$sil)
+```
+
+<!--
+
+Donner un nom
+
+Tapis de séquences avec ggplot2
+--->
+
+## Facteurs associés à l'appartenance à chaque groupe
+
+Section en construction.
+
+<!---
+Faire les profils univariés avec finalfit
+
+ggchisq
+
+Modèle multinomial*
+--->
+
+## Modèle à temps discret
+
+Section en construction.
+
+<!---
+Modèle ordinal à M18
+
+Modèle ordinal au cours du temps pas de 6 mois et temps catégoriel
+
+Modèle ordinal pas de 6 mois et temps continu
+
+Modèle simplifié
+
+Full modèle -->
+
+## Analyse de survie
+
+Section en construction.
+
+<!------
+Faire un modèle de survie pour chaque étape
+
+Fusionner les graphs
+
+Faire plusieurs modèles de Cox
+
+Limites : pas de retour en arrière
+
+----->
+
+
+## Modèle de survie multi-état
+
+Section en construction.
+
+<!-- Recours à msm
+
+Explorer un modèle avec plusieurs variables -->
+
+```{r msm, eval=FALSE, include=FALSE}
+library(msm)
+# il faut un statut sous forme numérique et ordonnée pour simplification
+care_trajectories$status <- as.integer(to_factor(care_trajectories$care_status))
+
+setorder(care_trajectories, id, month)
+
+
+care_trajectories$sexe <- to_factor(care_trajectories$sex)
+levels(care_trajectories$sexe) <- c("homme", "femme")
+
+care_trajectories$groupe_age <- to_factor(care_trajectories$age)
+
+# On ne garde que ceux observés au moins jusqu'à m1
+ct <- care_trajectories[id %in% care_trajectories[month == 1, id]]
+
+# table des transitions
+statetable.msm(status, id, data = ct)
+
+# definir les transitions possibles
+tr <- rbind(
+  c(0, 1, 0, 0),
+  c(1, 0, 1, 0),
+  c(0, 1, 0, 1),
+  c(0, 0, 1, 0)
+)
+
+
+
+#tr.inits <- crudeinits.msm(status ~ month, id, data = ct, qmatrix = tr)
+
+msmod <- msm(status ~ month, subject = id, data = ct, qmatrix = tr, gen.inits = TRUE, obstype = 1, control = list(fnscale = 35000))
+
+plot.prevalence.msm(msmod)
+
+#prevalence.msm(msmod, ci = "normal") to get prevalence values
+
+
+msmod_sex <- msm(status ~ month, subject = id, data = ct, qmatrix = tr, gen.inits = TRUE, obstype = 1, control = list(fnscale = 35000), covariates = ~ sexe)
+plot.prevalence.msm(msmod_sex)
+
+msmod_agesex <- msm(status ~ month, subject = id, data = ct, qmatrix = tr, gen.inits = TRUE, obstype = 1, control = list(fnscale = 35000), covariates = ~ sexe + groupe_age)
+prevalence.msm(msmod_agesex, covariates = list(sexe = "femme", groupe_age = "30-59"))
+
+```
+
+
+
+
+
+
+
+
