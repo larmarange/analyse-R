@@ -257,6 +257,7 @@ $(document).ready(function () {
                   <li><a href="multicolinearite.html">Multicolinéarité dans la régression</a></li>
                   <li><a href="analyse-de-survie.html">Analyse de survie</a></li>
                   <li><a href="analyse-de-sequences.html">Analyse de séquences</a></li>
+                  <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: données longitudinales, analyse de séquences, modèle multinomial, modèle à temps discret, modèles de survie classiques et multi-états</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
   	            </ul>
@@ -346,6 +347,7 @@ $(document).ready(function () {
 <li><a href="#representation-graphique-des-effets">Représentation graphique des effets</a></li>
 <li><a href="#identifier-les-variables-ayant-un-effet-significatif">Identifier les variables ayant un effet significatif</a></li>
 <li><a href="#selection-de-modeles">Sélection de modèles</a></li>
+<li><a href="#tableaux-all-in-one">Tableaux <q>all-in-one</q></a></li>
 <li><a href="#effets-dinteraction-dans-le-modele">Effets d’interaction dans le modèle</a></li>
 <li><a href="#multicolinearite">Multicolinéarité</a></li>
 </ul></li>
@@ -441,15 +443,15 @@ Secondaire              387 19.4 20.5
 Technique/Professionnel 594 29.7 31.5
 Supérieur               441 22.1 23.4
 NA                      112  5.6   NA</code></pre>
-<p>Notre variable comporte également 112 individus avec une valeur manquante. Si nous conservons cette valeur manquante, ces 112 individus seront, par défaut, exclus de l’analyse. Ces valeurs manquantes n’étant pas négligeable (5,6 %), nous pouvons également faire le choix de considérer ces valeurs manquantes comme une modalité supplémentaire. Auquel cas, nous utiliserons la fonction <code data-pkg="base">add.NA</code> :</p>
+<p>Notre variable comporte également 112 individus avec une valeur manquante. Si nous conservons cette valeur manquante, ces 112 individus seront, par défaut, exclus de l’analyse. Ces valeurs manquantes n’étant pas négligeable (5,6 %), nous pouvons également faire le choix de considérer ces valeurs manquantes comme une modalité supplémentaire. Auquel cas, nous utiliserons la fonction <code data-pkg="questionr">addNAstr</code> fournie par <code class="pkg">questionr</code><a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d<span class="op">$</span>etud)</code></pre></div>
 <pre><code>[1] &quot;Primaire&quot;                &quot;Secondaire&quot;             
 [3] &quot;Technique/Professionnel&quot; &quot;Supérieur&quot;              </code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d<span class="op">$</span>etud &lt;-<span class="st"> </span><span class="kw">addNA</span>(d<span class="op">$</span>etud)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d<span class="op">$</span>etud &lt;-<span class="st"> </span><span class="kw">addNAstr</span>(d<span class="op">$</span>etud, <span class="st">&quot;manquant&quot;</span>)
 <span class="kw">levels</span>(d<span class="op">$</span>etud)</code></pre></div>
 <pre><code>[1] &quot;Primaire&quot;                &quot;Secondaire&quot;             
 [3] &quot;Technique/Professionnel&quot; &quot;Supérieur&quot;              
-[5] NA                       </code></pre>
+[5] &quot;manquant&quot;               </code></pre>
 </div>
 <div id="regression-logistique-binaire" class="section level2">
 <h2>Régression logistique binaire</h2>
@@ -525,7 +527,7 @@ Residual deviance: 2206.2  on 1980  degrees of freedom
 AIC: 2236.2
 
 Number of Fisher Scoring iterations: 4</code></pre>
-<p>Dans le cadre d’un modèle logistique, généralement on ne présente pas les <dfn data-index="coefficient, modèle">coefficients</dfn> du modèle mais leur valeur exponentielle, cette dernière correspondant en effet à des <dfn data-index="odds ratio" lang="en">odds ratio</dfn>, également appelés <dfn data-index="rapport des cotes">rapports des cotes</dfn>. L’odds ratio diffère du <dfn>risque relatif</dfn><dfn data-index="relatif, risque"></dfn>. Cependent son interprétation est similaire. Un <em>odds ratio</em> de 1 signifie l’absence d’effet. Un <em>odds ratio</em> largement supérieur à 1 correspond à une augmentation du phénomène étudié et un <em>odds ratio</em> largement inféieur à 1 correspond à une diminution du phénomène étudié<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</p>
+<p>Dans le cadre d’un modèle logistique, généralement on ne présente pas les <dfn data-index="coefficient, modèle">coefficients</dfn> du modèle mais leur valeur exponentielle, cette dernière correspondant en effet à des <dfn data-index="odds ratio" lang="en">odds ratio</dfn>, également appelés <dfn data-index="rapport des cotes">rapports des cotes</dfn>. L’odds ratio diffère du <dfn>risque relatif</dfn><dfn data-index="relatif, risque"></dfn>. Cependent son interprétation est similaire. Un <em>odds ratio</em> de 1 signifie l’absence d’effet. Un <em>odds ratio</em> largement supérieur à 1 correspond à une augmentation du phénomène étudié et un <em>odds ratio</em> largement inféieur à 1 correspond à une diminution du phénomène étudié<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>.</p>
 <p>La fonction <code data-pkg="stats">coef</code> permet d’obtenir les coefficients d’un modèle, <code data-pkg="stats">confint</code> leurs intervalles de confiance et <code data-pkg="base" data-rdoc="log">exp</code> de calculer l’exponentiel. Les <em>odds ratio</em> et leurs <dfn data-index="intervalle de confiance d'un odds ratio">intervalles de confiance</dfn><dfn data-index="odds ratio, intervalle de confiance"></dfn> s’obtiennent ainsi :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">exp</span>(<span class="kw">coef</span>(reg))</code></pre></div>
 <pre><code>                     (Intercept)                        sexeHomme 
@@ -715,7 +717,7 @@ Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&
 <div id="selection-de-modeles" class="section level3">
 <h3>Sélection de modèles</h3>
 <p>Il est toujours tentant lorsque l’on recherche les facteurs associés à un phénomène d’inclure un nombre important de variables explicatives potentielles dans un mmodèle logistique. Cependant, un tel modèle n’est pas forcément le plus efficace et certaines variables n’auront probablement pas d’effet significatif sur la variable d’intérêt.</p>
-<p>La technique de <dfn>sélection descendante pas à pas</dfn><dfn data-index="pas à pas, sélection descendante"></dfn> est une approche visant à améliorer son modèle explicatif<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>. On réalise un premier modèle avec toutes les variables spécifiées, puis on regarde s’il est possible d’améliorer le modèle en supprimant une des variables du modèle. Si plusieurs variables permettent d’améliorer le modèle, on supprimera la variable dont la suppression améliorera le plus le modèle. Puis on recommence le même procédé pour voir si la suppression d’une seconde variable peut encore améliorer le modèle et ainsi de suite. Lorsque le modèle ne peut plus être améliorer par la suppresion d’une variable, on s’arrête.</p>
+<p>La technique de <dfn>sélection descendante pas à pas</dfn><dfn data-index="pas à pas, sélection descendante"></dfn> est une approche visant à améliorer son modèle explicatif<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. On réalise un premier modèle avec toutes les variables spécifiées, puis on regarde s’il est possible d’améliorer le modèle en supprimant une des variables du modèle. Si plusieurs variables permettent d’améliorer le modèle, on supprimera la variable dont la suppression améliorera le plus le modèle. Puis on recommence le même procédé pour voir si la suppression d’une seconde variable peut encore améliorer le modèle et ainsi de suite. Lorsque le modèle ne peut plus être améliorer par la suppresion d’une variable, on s’arrête.</p>
 <p>Il faut également définir un critère pour déterminer la qualité d’un modèle. L’un des plus utilisés est le <dfn lang="en">Akaike Information Criterion</dfn> ou <dfn>AIC</dfn>. Plus l’AIC sera faible, meilleure sera le modèle.</p>
 <p>La fonction <code data-pkg="stats">step</code> permet justement de sélectionner le meilleur modèle par une procédure pas à pas descendante basée sur la minimisation de l’AIC. La fonction affiche à l’écran les différentes étapes de la sélection et renvoie le modèle final.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg2 &lt;-<span class="st"> </span><span class="kw">step</span>(reg)</code></pre></div>
@@ -781,6 +783,528 @@ sport ~ sexe + grpage + etud + heures.tv
 - etud       4   2334.3 2346.3</code></pre>
 </div>
 </div>
+<div id="tableaux-all-in-one" class="section level3">
+<h3>Tableaux <q>all-in-one</q></h3>
+<p>L’extension <code class="pkg">finalfit</code>, en cours de développement<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>, fournit une fonction <code data-pkg="finalfit">finalfit</code> du type <q lang="en">all-in-one</q> qui calcule un tableau avec les tris croisés, les odds ratios univariés et un modèle multivarié.</p>
+<p>Elle s’installe avec la commande suivante :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;ewenharrison/finalfit&quot;</span>)</code></pre></div>
+<p>Il faut d’abord définir la variable dépendante et les variables explicatives.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dep &lt;-<span class="st"> &quot;sport&quot;</span>
+vars &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;relig&quot;</span>, <span class="st">&quot;heures.tv&quot;</span>)</code></pre></div>
+<p>Une première fonction <code data-pkg="finalfit">summary_factorlist</code> fournit un tableau descriptif avec, si l’option <code>p  = TRUE</code> est indiquée, des tests de comparaisons (ici des tests du Chi²).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(finalfit)
+tab &lt;-<span class="st"> </span><span class="kw">summary_factorlist</span>(d, dep, vars, <span class="dt">p =</span> <span class="ot">TRUE</span>, <span class="dt">add_dependent_label =</span> <span class="ot">TRUE</span>)
+tab</code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Dependent: sport"],"name":[1],"type":["chr"],"align":["left"]},{"label":[""],"name":[2],"type":["chr"],"align":["left"]},{"label":["Non"],"name":[3],"type":["fctr"],"align":["left"]},{"label":["Oui"],"name":[4],"type":["fctr"],"align":["left"]},{"label":["p"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"sexe","2":"Femme","3":"747 (67.8)","4":"354 (32.2)","5":"<0.001","_rn_":"17"},{"1":"","2":"Homme","3":"530 (59.0)","4":"369 (41.0)","5":"","_rn_":"18"},{"1":"grpage","2":"[16,25)","3":"58 (34.3)","4":"111 (65.7)","5":"<0.001","_rn_":"6"},{"1":"","2":"[25,45)","3":"359 (50.8)","4":"347 (49.2)","5":"","_rn_":"7"},{"1":"","2":"[45,65)","3":"541 (72.6)","4":"204 (27.4)","5":"","_rn_":"8"},{"1":"","2":"[65,99]","3":"319 (83.9)","4":"61 (16.1)","5":"","_rn_":"9"},{"1":"etud","2":"Primaire","3":"416 (89.3)","4":"50 (10.7)","5":"<0.001","_rn_":"1"},{"1":"","2":"Secondaire","3":"270 (69.8)","4":"117 (30.2)","5":"","_rn_":"2"},{"1":"","2":"Technique/Professionnel","3":"378 (63.6)","4":"216 (36.4)","5":"","_rn_":"3"},{"1":"","2":"Supérieur","3":"186 (42.2)","4":"255 (57.8)","5":"","_rn_":"4"},{"1":"","2":"manquant","3":"27 (24.1)","4":"85 (75.9)","5":"","_rn_":"5"},{"1":"relig","2":"Pratiquant regulier","3":"182 (68.4)","4":"84 (31.6)","5":"0.144","_rn_":"11"},{"1":"","2":"Pratiquant occasionnel","3":"295 (66.7)","4":"147 (33.3)","5":"","_rn_":"12"},{"1":"","2":"Appartenance sans pratique","3":"473 (62.2)","4":"287 (37.8)","5":"","_rn_":"13"},{"1":"","2":"Ni croyance ni appartenance","3":"239 (59.9)","4":"160 (40.1)","5":"","_rn_":"14"},{"1":"","2":"Rejet","3":"60 (64.5)","4":"33 (35.5)","5":"","_rn_":"15"},{"1":"","2":"NSP ou NVPR","3":"28 (70.0)","4":"12 (30.0)","5":"","_rn_":"16"},{"1":"heures.tv","2":"Mean (SD)","3":"2.5 (1.9)","4":"1.8 (1.4)","5":"<0.001","_rn_":"10"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Si l’on souhaite avoir des noms de variables plus explicites, il faut ajouter des étiquettes des variables avec <code data-pkg="labelled">var_label</code> de l’extension <code class="pkg">labelled</code> (voir le <a href="facteurs-et-vecteurs-labellises.html#les-etiquettes-de-variable">chapitre sur les vecteurs labellisés</a>).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(labelled)
+<span class="kw">var_label</span>(d<span class="op">$</span>sport) &lt;-<span class="st"> &quot;Pratique du sport ?&quot;</span>
+<span class="kw">var_label</span>(d<span class="op">$</span>sexe) &lt;-<span class="st"> &quot;Sexe&quot;</span>
+<span class="kw">var_label</span>(d<span class="op">$</span>grpage) &lt;-<span class="st"> &quot;Groupe d&#39;âges&quot;</span>
+<span class="kw">var_label</span>(d<span class="op">$</span>etud) &lt;-<span class="st"> &quot;Niveau d&#39;étude&quot;</span>
+<span class="kw">var_label</span>(d<span class="op">$</span>relig) &lt;-<span class="st"> &quot;Pratique religieuse&quot;</span>
+<span class="kw">var_label</span>(d<span class="op">$</span>heures.tv) &lt;-<span class="st"> &quot;Nombre d&#39;heures passées devant la télévision par jour&quot;</span>
+tab &lt;-<span class="st"> </span><span class="kw">summary_factorlist</span>(d, dep, vars, <span class="dt">p =</span> <span class="ot">TRUE</span>, <span class="dt">add_dependent_label =</span> <span class="ot">TRUE</span>)
+tab</code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Dependent: Pratique du sport ?"],"name":[1],"type":["chr"],"align":["left"]},{"label":[""],"name":[2],"type":["chr"],"align":["left"]},{"label":["Non"],"name":[3],"type":["fctr"],"align":["left"]},{"label":["Oui"],"name":[4],"type":["fctr"],"align":["left"]},{"label":["p"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"Sexe","2":"Femme","3":"747 (67.8)","4":"354 (32.2)","5":"<0.001","_rn_":"17"},{"1":"","2":"Homme","3":"530 (59.0)","4":"369 (41.0)","5":"","_rn_":"18"},{"1":"Groupe d'âges","2":"[16,25)","3":"58 (34.3)","4":"111 (65.7)","5":"<0.001","_rn_":"6"},{"1":"","2":"[25,45)","3":"359 (50.8)","4":"347 (49.2)","5":"","_rn_":"7"},{"1":"","2":"[45,65)","3":"541 (72.6)","4":"204 (27.4)","5":"","_rn_":"8"},{"1":"","2":"[65,99]","3":"319 (83.9)","4":"61 (16.1)","5":"","_rn_":"9"},{"1":"Niveau d'étude","2":"Primaire","3":"416 (89.3)","4":"50 (10.7)","5":"<0.001","_rn_":"1"},{"1":"","2":"Secondaire","3":"270 (69.8)","4":"117 (30.2)","5":"","_rn_":"2"},{"1":"","2":"Technique/Professionnel","3":"378 (63.6)","4":"216 (36.4)","5":"","_rn_":"3"},{"1":"","2":"Supérieur","3":"186 (42.2)","4":"255 (57.8)","5":"","_rn_":"4"},{"1":"","2":"manquant","3":"27 (24.1)","4":"85 (75.9)","5":"","_rn_":"5"},{"1":"Pratique religieuse","2":"Pratiquant regulier","3":"182 (68.4)","4":"84 (31.6)","5":"0.144","_rn_":"11"},{"1":"","2":"Pratiquant occasionnel","3":"295 (66.7)","4":"147 (33.3)","5":"","_rn_":"12"},{"1":"","2":"Appartenance sans pratique","3":"473 (62.2)","4":"287 (37.8)","5":"","_rn_":"13"},{"1":"","2":"Ni croyance ni appartenance","3":"239 (59.9)","4":"160 (40.1)","5":"","_rn_":"14"},{"1":"","2":"Rejet","3":"60 (64.5)","4":"33 (35.5)","5":"","_rn_":"15"},{"1":"","2":"NSP ou NVPR","3":"28 (70.0)","4":"12 (30.0)","5":"","_rn_":"16"},{"1":"Nombre d'heures passées devant la télévision par jour","2":"Mean (SD)","3":"2.5 (1.9)","4":"1.8 (1.4)","5":"<0.001","_rn_":"10"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>On peut aussi associer le résultat avec la fonction <code data-pkg="knitr">kable</code> de <code class="pkg">knitr</code> pour un rendu plus esthétique lorsque l’on produit un rapport <strong>Rmarkdown</strong> (voir le <a href="rmarkdown-les-rapports-automatises.html">chapitre dédié aux rapports automatisés</a>).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">knitr<span class="op">::</span><span class="kw">kable</span>(tab, <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Dependent: Pratique du sport ?</th>
+<th></th>
+<th align="left">Non</th>
+<th align="left">Oui</th>
+<th align="left">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sexe</td>
+<td>Femme</td>
+<td align="left">747 (67.8)</td>
+<td align="left">354 (32.2)</td>
+<td align="left">&lt;0.001</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>Homme</td>
+<td align="left">530 (59.0)</td>
+<td align="left">369 (41.0)</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Groupe d’âges</td>
+<td>[16,25)</td>
+<td align="left">58 (34.3)</td>
+<td align="left">111 (65.7)</td>
+<td align="left">&lt;0.001</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>[25,45)</td>
+<td align="left">359 (50.8)</td>
+<td align="left">347 (49.2)</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>[45,65)</td>
+<td align="left">541 (72.6)</td>
+<td align="left">204 (27.4)</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>[65,99]</td>
+<td align="left">319 (83.9)</td>
+<td align="left">61 (16.1)</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Niveau d’étude</td>
+<td>Primaire</td>
+<td align="left">416 (89.3)</td>
+<td align="left">50 (10.7)</td>
+<td align="left">&lt;0.001</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>Secondaire</td>
+<td align="left">270 (69.8)</td>
+<td align="left">117 (30.2)</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>Technique/Professionnel</td>
+<td align="left">378 (63.6)</td>
+<td align="left">216 (36.4)</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>Supérieur</td>
+<td align="left">186 (42.2)</td>
+<td align="left">255 (57.8)</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>manquant</td>
+<td align="left">27 (24.1)</td>
+<td align="left">85 (75.9)</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Pratique religieuse</td>
+<td>Pratiquant regulier</td>
+<td align="left">182 (68.4)</td>
+<td align="left">84 (31.6)</td>
+<td align="left">0.144</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>Pratiquant occasionnel</td>
+<td align="left">295 (66.7)</td>
+<td align="left">147 (33.3)</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>Appartenance sans pratique</td>
+<td align="left">473 (62.2)</td>
+<td align="left">287 (37.8)</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>Ni croyance ni appartenance</td>
+<td align="left">239 (59.9)</td>
+<td align="left">160 (40.1)</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>Rejet</td>
+<td align="left">60 (64.5)</td>
+<td align="left">33 (35.5)</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>NSP ou NVPR</td>
+<td align="left">28 (70.0)</td>
+<td align="left">12 (30.0)</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Nombre d’heures passées devant la télévision par jour</td>
+<td>Mean (SD)</td>
+<td align="left">2.5 (1.9)</td>
+<td align="left">1.8 (1.4)</td>
+<td align="left">&lt;0.001</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">finalfit</span>(d, dep, vars)</code></pre></div>
+<pre><code>Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">knitr<span class="op">::</span><span class="kw">kable</span>(tab, <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Dependent: Pratique du sport ?</th>
+<th></th>
+<th align="left">Non</th>
+<th align="left">Oui</th>
+<th align="left">OR (univariable)</th>
+<th align="left">OR (multivariable)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sexe</td>
+<td>Femme</td>
+<td align="left">747 (58.5)</td>
+<td align="left">354 (49.0)</td>
+<td align="left">-</td>
+<td align="left">-</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>Homme</td>
+<td align="left">530 (41.5)</td>
+<td align="left">369 (51.0)</td>
+<td align="left">1.47 (1.22-1.77, p&lt;0.001)</td>
+<td align="left">1.55 (1.26-1.91, p&lt;0.001)</td>
+</tr>
+<tr class="odd">
+<td align="left">Groupe d’âges</td>
+<td>[16,25)</td>
+<td align="left">58 (4.5)</td>
+<td align="left">111 (15.4)</td>
+<td align="left">-</td>
+<td align="left">-</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>[25,45)</td>
+<td align="left">359 (28.1)</td>
+<td align="left">347 (48.0)</td>
+<td align="left">0.51 (0.35-0.71, p&lt;0.001)</td>
+<td align="left">0.66 (0.42-1.03, p=0.065)</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>[45,65)</td>
+<td align="left">541 (42.4)</td>
+<td align="left">204 (28.2)</td>
+<td align="left">0.20 (0.14-0.28, p&lt;0.001)</td>
+<td align="left">0.34 (0.21-0.54, p&lt;0.001)</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>[65,99]</td>
+<td align="left">319 (25.0)</td>
+<td align="left">61 (8.4)</td>
+<td align="left">0.10 (0.07-0.15, p&lt;0.001)</td>
+<td align="left">0.25 (0.15-0.43, p&lt;0.001)</td>
+</tr>
+<tr class="odd">
+<td align="left">Niveau d’étude</td>
+<td>Primaire</td>
+<td align="left">416 (32.6)</td>
+<td align="left">50 (6.9)</td>
+<td align="left">-</td>
+<td align="left">-</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>Secondaire</td>
+<td align="left">270 (21.1)</td>
+<td align="left">117 (16.2)</td>
+<td align="left">3.61 (2.52-5.23, p&lt;0.001)</td>
+<td align="left">2.59 (1.77-3.83, p&lt;0.001)</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>Technique/Professionnel</td>
+<td align="left">378 (29.6)</td>
+<td align="left">216 (29.9)</td>
+<td align="left">4.75 (3.42-6.72, p&lt;0.001)</td>
+<td align="left">2.86 (1.98-4.17, p&lt;0.001)</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>Supérieur</td>
+<td align="left">186 (14.6)</td>
+<td align="left">255 (35.3)</td>
+<td align="left">11.41 (8.11-16.31, p&lt;0.001)</td>
+<td align="left">6.63 (4.55-9.80, p&lt;0.001)</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>manquant</td>
+<td align="left">27 (2.1)</td>
+<td align="left">85 (11.8)</td>
+<td align="left">26.19 (15.74-44.90, p&lt;0.001)</td>
+<td align="left">8.59 (4.53-16.59, p&lt;0.001)</td>
+</tr>
+<tr class="even">
+<td align="left">Pratique religieuse</td>
+<td>Pratiquant regulier</td>
+<td align="left">182 (14.3)</td>
+<td align="left">84 (11.6)</td>
+<td align="left">-</td>
+<td align="left">-</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>Pratiquant occasionnel</td>
+<td align="left">295 (23.1)</td>
+<td align="left">147 (20.3)</td>
+<td align="left">1.08 (0.78-1.50, p=0.644)</td>
+<td align="left">0.98 (0.68-1.42, p=0.908)</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>Appartenance sans pratique</td>
+<td align="left">473 (37.0)</td>
+<td align="left">287 (39.7)</td>
+<td align="left">1.31 (0.98-1.78, p=0.071)</td>
+<td align="left">0.99 (0.71-1.40, p=0.969)</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>Ni croyance ni appartenance</td>
+<td align="left">239 (18.7)</td>
+<td align="left">160 (22.1)</td>
+<td align="left">1.45 (1.05-2.02, p=0.026)</td>
+<td align="left">0.81 (0.55-1.18, p=0.265)</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>Rejet</td>
+<td align="left">60 (4.7)</td>
+<td align="left">33 (4.6)</td>
+<td align="left">1.19 (0.72-1.95, p=0.489)</td>
+<td align="left">0.68 (0.39-1.19, p=0.180)</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>NSP ou NVPR</td>
+<td align="left">28 (2.2)</td>
+<td align="left">12 (1.7)</td>
+<td align="left">0.93 (0.44-1.88, p=0.841)</td>
+<td align="left">0.92 (0.40-2.02, p=0.838)</td>
+</tr>
+<tr class="even">
+<td align="left">Nombre d’heures passées devant la télévision par jour</td>
+<td>Mean (SD)</td>
+<td align="left">2.5 (1.9)</td>
+<td align="left">1.8 (1.4)</td>
+<td align="left">0.79 (0.74-0.84, p&lt;0.001)</td>
+<td align="left">0.89 (0.83-0.95, p&lt;0.001)</td>
+</tr>
+</tbody>
+</table>
+<p>Par défaut, toutes les variables explicatives fournies sont retenues dans le modèle affiché. Si on ne souhaite inclure que certaines variables dans le modèle mutivarié (parce que l’on aura précédemment réalisé une procédure <code data-pkg="stats">setp</code>), il faudra préciser séparément les variables du modèle multivarié.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">vars_multi &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;heures.tv&quot;</span>)
+tab &lt;-<span class="st"> </span><span class="kw">finalfit</span>(d, dep, vars, <span class="dt">explanatory_multi =</span> vars_multi)</code></pre></div>
+<pre><code>Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">knitr<span class="op">::</span><span class="kw">kable</span>(tab, <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Dependent: Pratique du sport ?</th>
+<th></th>
+<th align="left">Non</th>
+<th align="left">Oui</th>
+<th align="left">OR (univariable)</th>
+<th align="left">OR (multivariable)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sexe</td>
+<td>Femme</td>
+<td align="left">747 (58.5)</td>
+<td align="left">354 (49.0)</td>
+<td align="left">-</td>
+<td align="left">-</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>Homme</td>
+<td align="left">530 (41.5)</td>
+<td align="left">369 (51.0)</td>
+<td align="left">1.47 (1.22-1.77, p&lt;0.001)</td>
+<td align="left">1.52 (1.24-1.87, p&lt;0.001)</td>
+</tr>
+<tr class="odd">
+<td align="left">Groupe d’âges</td>
+<td>[16,25)</td>
+<td align="left">58 (4.5)</td>
+<td align="left">111 (15.4)</td>
+<td align="left">-</td>
+<td align="left">-</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>[25,45)</td>
+<td align="left">359 (28.1)</td>
+<td align="left">347 (48.0)</td>
+<td align="left">0.51 (0.35-0.71, p&lt;0.001)</td>
+<td align="left">0.68 (0.43-1.06, p=0.084)</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>[45,65)</td>
+<td align="left">541 (42.4)</td>
+<td align="left">204 (28.2)</td>
+<td align="left">0.20 (0.14-0.28, p&lt;0.001)</td>
+<td align="left">0.36 (0.23-0.57, p&lt;0.001)</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>[65,99]</td>
+<td align="left">319 (25.0)</td>
+<td align="left">61 (8.4)</td>
+<td align="left">0.10 (0.07-0.15, p&lt;0.001)</td>
+<td align="left">0.27 (0.16-0.46, p&lt;0.001)</td>
+</tr>
+<tr class="odd">
+<td align="left">Niveau d’étude</td>
+<td>Primaire</td>
+<td align="left">416 (32.6)</td>
+<td align="left">50 (6.9)</td>
+<td align="left">-</td>
+<td align="left">-</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>Secondaire</td>
+<td align="left">270 (21.1)</td>
+<td align="left">117 (16.2)</td>
+<td align="left">3.61 (2.52-5.23, p&lt;0.001)</td>
+<td align="left">2.54 (1.73-3.75, p&lt;0.001)</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>Technique/Professionnel</td>
+<td align="left">378 (29.6)</td>
+<td align="left">216 (29.9)</td>
+<td align="left">4.75 (3.42-6.72, p&lt;0.001)</td>
+<td align="left">2.81 (1.95-4.10, p&lt;0.001)</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>Supérieur</td>
+<td align="left">186 (14.6)</td>
+<td align="left">255 (35.3)</td>
+<td align="left">11.41 (8.11-16.31, p&lt;0.001)</td>
+<td align="left">6.55 (4.50-9.66, p&lt;0.001)</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>manquant</td>
+<td align="left">27 (2.1)</td>
+<td align="left">85 (11.8)</td>
+<td align="left">26.19 (15.74-44.90, p&lt;0.001)</td>
+<td align="left">8.54 (4.51-16.47, p&lt;0.001)</td>
+</tr>
+<tr class="even">
+<td align="left">Pratique religieuse</td>
+<td>Pratiquant regulier</td>
+<td align="left">182 (14.3)</td>
+<td align="left">84 (11.6)</td>
+<td align="left">-</td>
+<td align="left">-</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>Pratiquant occasionnel</td>
+<td align="left">295 (23.1)</td>
+<td align="left">147 (20.3)</td>
+<td align="left">1.08 (0.78-1.50, p=0.644)</td>
+<td align="left">-</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>Appartenance sans pratique</td>
+<td align="left">473 (37.0)</td>
+<td align="left">287 (39.7)</td>
+<td align="left">1.31 (0.98-1.78, p=0.071)</td>
+<td align="left">-</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>Ni croyance ni appartenance</td>
+<td align="left">239 (18.7)</td>
+<td align="left">160 (22.1)</td>
+<td align="left">1.45 (1.05-2.02, p=0.026)</td>
+<td align="left">-</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td>Rejet</td>
+<td align="left">60 (4.7)</td>
+<td align="left">33 (4.6)</td>
+<td align="left">1.19 (0.72-1.95, p=0.489)</td>
+<td align="left">-</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td>NSP ou NVPR</td>
+<td align="left">28 (2.2)</td>
+<td align="left">12 (1.7)</td>
+<td align="left">0.93 (0.44-1.88, p=0.841)</td>
+<td align="left">-</td>
+</tr>
+<tr class="even">
+<td align="left">Nombre d’heures passées devant la télévision par jour</td>
+<td>Mean (SD)</td>
+<td align="left">2.5 (1.9)</td>
+<td align="left">1.8 (1.4)</td>
+<td align="left">0.79 (0.74-0.84, p&lt;0.001)</td>
+<td align="left">0.89 (0.83-0.95, p&lt;0.001)</td>
+</tr>
+</tbody>
+</table>
+<p>On pourra se référer à l’aide de la fonction <code data-pkg="finalfit">finalfit</code> pour d’autres exemples.</p>
+<p>L’extension <code class="pkg">finalfit</code> propose aussi une fonction <code>or_plot</code>{data-pkg = “finalfilt”} pour présenter les odd ratios obtenus sous forme de graphique.</p>
+<figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">var_label</span>(d<span class="op">$</span>heures.tv) &lt;-<span class="st"> &quot;Nombre d&#39;heures</span><span class="ch">\n</span><span class="st">de TV par jour&quot;</span>
+<span class="kw">or_plot</span>(d, dep, vars_multi)</code></pre></div>
+<pre><code>Waiting for profiling to be done...
+Waiting for profiling to be done...</code></pre>
+<pre><code>Warning: Removed 3 rows containing missing values (geom_errorbarh).</code></pre>
+<img src="graphs/regression-logistique/unnamed-chunk-35-1.png" width="1050" />
+<figcaption>
+Graphique des odds ratios obtenu avec or_plot
+</figcaption>
+</figure>
+<p><strong>ATTENTION :</strong> <code data-pkg="final_fit">or_plot</code> n’est pas compatible avec les effets d’interactions (cf. ci-dessous).</p>
+</div>
 <div id="effets-dinteraction-dans-le-modele" class="section level3">
 <h3>Effets d’interaction dans le modèle</h3>
 <p>Voir le <a href="effets-d-interaction.html">chapitre dédié aux effets d’interaction</a>.</p>
@@ -795,16 +1319,16 @@ sport ~ sexe + grpage + etud + heures.tv
 <p>La <dfn>régression logistique multinomiale</dfn><dfn data-index="multinomiale, régression logistique"></dfn> est une extension de la régression logistique aux variables qualitatives à trois modalités ou plus. Dans ce cas de figure, chaque modalité de la variable d’intérêt sera comparée à la modalité de réference. Les <em>odds ratio</em> seront donc exprimés par rapport à cette dernière.</p>
 <p>Nous allons prendre pour exemple la variable <em>trav.satisf</em>, à savoir la satisfaction ou l’insatisfaction au travail.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d<span class="op">$</span>trav.satisf)</code></pre></div>
-<pre><code>                 n    % val%
-Satisfaction   480 24.0 45.8
-Insatisfaction 117  5.9 11.2
-Equilibre      451 22.6 43.0
-NA             952 47.6   NA</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"480","2":"24.0","3":"45.8","_rn_":"Satisfaction"},{"1":"117","2":"5.9","3":"11.2","_rn_":"Insatisfaction"},{"1":"451","2":"22.6","3":"43.0","_rn_":"Equilibre"},{"1":"952","2":"47.6","3":"NA","_rn_":"__NA__"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <p>Nous allons choisir comme modalité de référence la position intermédiaire, à savoir l’« équilibre ».</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d<span class="op">$</span>trav.satisf &lt;-<span class="st"> </span><span class="kw">relevel</span>(d<span class="op">$</span>trav.satisf, <span class="st">&quot;Equilibre&quot;</span>)</code></pre></div>
 <p>Enfin, nous allons aussi en profiter pour raccourcir les étiquettes de la variable <em>trav.imp</em> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">levels</span>(d<span class="op">$</span>trav.imp) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Le plus&quot;</span>, <span class="st">&quot;Aussi&quot;</span>, <span class="st">&quot;Moins&quot;</span>, <span class="st">&quot;Peu&quot;</span>)</code></pre></div>
-<p>Pour calculer un modèle logistique multinomial, nous allons utiliser la fonction <code data-pkg="nnet">multinom</code> de l’extension <code class="pkg">nnet</code><a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. La syntaxe de <code data-pkg="nnet">multinom</code> est similaire à celle de <code data-pkg="stats">glm</code>, le paramètre <code>family</code> en moins.</p>
+<p>Pour calculer un modèle logistique multinomial, nous allons utiliser la fonction <code data-pkg="nnet">multinom</code> de l’extension <code class="pkg">nnet</code><a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a>. La syntaxe de <code data-pkg="nnet">multinom</code> est similaire à celle de <code data-pkg="stats">glm</code>, le paramètre <code>family</code> en moins.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(nnet)
 regm &lt;-<span class="st"> </span><span class="kw">multinom</span>(trav.satisf <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>trav.imp, <span class="dt">data =</span> d)</code></pre></div>
 <pre><code># weights:  39 (24 variable)
@@ -929,9 +1453,9 @@ Coefficients:
                (Intercept) etudSecondaire etudTechnique/Professionnel
 Satisfaction    -0.1110996     0.04916210                  0.07793241
 Insatisfaction  -1.1213760    -0.09737523                  0.08392603
-               etudSupérieur      etudNA trav.impAussi trav.impMoins
-Satisfaction      0.69950061 -0.53841577     0.2578973    -0.1756206
-Insatisfaction    0.07755307 -0.04364055    -0.2279774    -0.5330349
+               etudSupérieur etudmanquant trav.impAussi trav.impMoins
+Satisfaction      0.69950061  -0.53841577     0.2578973    -0.1756206
+Insatisfaction    0.07755307  -0.04364055    -0.2279774    -0.5330349
                trav.impPeu
 Satisfaction    -0.5995051
 Insatisfaction   1.3401509
@@ -940,49 +1464,21 @@ Std. Errors:
                (Intercept) etudSecondaire etudTechnique/Professionnel
 Satisfaction     0.4520902      0.2635573                   0.2408483
 Insatisfaction   0.6516992      0.3999875                   0.3579684
-               etudSupérieur    etudNA trav.impAussi trav.impMoins trav.impPeu
-Satisfaction       0.2472571 0.5910993     0.4260623     0.4115818   0.5580115
-Insatisfaction     0.3831110 0.8407592     0.6213781     0.5941721   0.6587383
+               etudSupérieur etudmanquant trav.impAussi trav.impMoins
+Satisfaction       0.2472571    0.5910993     0.4260623     0.4115818
+Insatisfaction     0.3831110    0.8407592     0.6213781     0.5941721
+               trav.impPeu
+Satisfaction     0.5580115
+Insatisfaction   0.6587383
 
 Residual Deviance: 1947.857 
 AIC: 1979.857 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">odds.ratio</span>(regm2)</code></pre></div>
-<pre><code>                                                 OR    2.5 %  97.5 %        p
-Satisfaction/(Intercept)                   0.894850 0.368918  2.1706 0.805878
-Satisfaction/etudSecondaire                1.050391 0.626629  1.7607 0.852027
-Satisfaction/etudTechnique/Professionnel   1.081050 0.674272  1.7332 0.746260
-Satisfaction/etudSupérieur                 2.012747 1.239720  3.2678 0.004669
-Satisfaction/etudNA                        0.583672 0.183242  1.8591 0.362363
-Satisfaction/trav.impAussi                 1.294206 0.561485  2.9831 0.544977
-Satisfaction/trav.impMoins                 0.838936 0.374447  1.8796 0.669600
-Satisfaction/trav.impPeu                   0.549083 0.183932  1.6391 0.282661
-Insatisfaction/(Intercept)                 0.325831 0.090838  1.1687 0.085306
-Insatisfaction/etudSecondaire              0.907216 0.414229  1.9869 0.807660
-Insatisfaction/etudTechnique/Professionnel 1.087548 0.539194  2.1936 0.814635
-Insatisfaction/etudSupérieur               1.080640 0.510007  2.2897 0.839581
-Insatisfaction/etudNA                      0.957298 0.184243  4.9740 0.958603
-Insatisfaction/trav.impAussi               0.796142 0.235544  2.6910 0.713701
-Insatisfaction/trav.impMoins               0.586821 0.183124  1.8805 0.369663
-Insatisfaction/trav.impPeu                 3.819620 1.050270 13.8912 0.041909
-                                             
-Satisfaction/(Intercept)                     
-Satisfaction/etudSecondaire                  
-Satisfaction/etudTechnique/Professionnel     
-Satisfaction/etudSupérieur                 **
-Satisfaction/etudNA                          
-Satisfaction/trav.impAussi                   
-Satisfaction/trav.impMoins                   
-Satisfaction/trav.impPeu                     
-Insatisfaction/(Intercept)                 . 
-Insatisfaction/etudSecondaire                
-Insatisfaction/etudTechnique/Professionnel   
-Insatisfaction/etudSupérieur                 
-Insatisfaction/etudNA                        
-Insatisfaction/trav.impAussi                 
-Insatisfaction/trav.impMoins                 
-Insatisfaction/trav.impPeu                 * 
----
-Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["OR"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["2.5 %"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["97.5 %"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["p"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.8948496","2":"0.36891824","3":"2.170551","4":"0.805878421","_rn_":"Satisfaction/(Intercept)"},{"1":"1.0503906","2":"0.62662899","3":"1.760724","4":"0.852026888","_rn_":"Satisfaction/etudSecondaire"},{"1":"1.0810496","2":"0.67427204","3":"1.733230","4":"0.746260102","_rn_":"Satisfaction/etudTechnique/Professionnel"},{"1":"2.0127473","2":"1.23972010","3":"3.267795","4":"0.004668761","_rn_":"Satisfaction/etudSupérieur"},{"1":"0.5836722","2":"0.18324174","3":"1.859146","4":"0.362362820","_rn_":"Satisfaction/etudmanquant"},{"1":"1.2942058","2":"0.56148541","3":"2.983103","4":"0.544976949","_rn_":"Satisfaction/trav.impAussi"},{"1":"0.8389362","2":"0.37444660","3":"1.879611","4":"0.669600230","_rn_":"Satisfaction/trav.impMoins"},{"1":"0.5490833","2":"0.18393230","3":"1.639149","4":"0.282661454","_rn_":"Satisfaction/trav.impPeu"},{"1":"0.3258311","2":"0.09083751","3":"1.168745","4":"0.085306052","_rn_":"Insatisfaction/(Intercept)"},{"1":"0.9072155","2":"0.41422897","3":"1.986920","4":"0.807660187","_rn_":"Insatisfaction/etudSecondaire"},{"1":"1.0875484","2":"0.53919437","3":"2.193572","4":"0.814634911","_rn_":"Insatisfaction/etudTechnique/Professionnel"},{"1":"1.0806396","2":"0.51000705","3":"2.289737","4":"0.839580764","_rn_":"Insatisfaction/etudSupérieur"},{"1":"0.9572980","2":"0.18424328","3":"4.973964","4":"0.958603498","_rn_":"Insatisfaction/etudmanquant"},{"1":"0.7961422","2":"0.23554433","3":"2.690969","4":"0.713701054","_rn_":"Insatisfaction/trav.impAussi"},{"1":"0.5868213","2":"0.18312418","3":"1.880469","4":"0.369662736","_rn_":"Insatisfaction/trav.impMoins"},{"1":"3.8196198","2":"1.05027036","3":"13.891181","4":"0.041909177","_rn_":"Insatisfaction/trav.impPeu"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <p>De même, il est possible de calculer la matrice de confusion :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(<span class="kw">predict</span>(regm2, <span class="dt">newdata =</span> d), d<span class="op">$</span>trav.satisf)</code></pre></div>
 <pre><code>                
@@ -993,44 +1489,15 @@ Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&
 <p>La fonction <code data-pkg="broom">tidy</code> peut s’appliquer au résultat de <code data-pkg="nnet">multinom</code> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(broom)
 <span class="kw">tidy</span>(regm2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<pre><code>                       y.level                        term  estimate std.error
-Satisfaction1     Satisfaction                 (Intercept) 0.8948496 0.4520902
-Satisfaction2     Satisfaction              etudSecondaire 1.0503906 0.2635573
-Satisfaction3     Satisfaction etudTechnique/Professionnel 1.0810496 0.2408483
-Satisfaction4     Satisfaction               etudSupérieur 2.0127473 0.2472571
-Satisfaction5     Satisfaction                      etudNA 0.5836722 0.5910993
-Satisfaction6     Satisfaction               trav.impAussi 1.2942058 0.4260623
-Satisfaction7     Satisfaction               trav.impMoins 0.8389362 0.4115818
-Satisfaction8     Satisfaction                 trav.impPeu 0.5490833 0.5580115
-Insatisfaction1 Insatisfaction                 (Intercept) 0.3258311 0.6516992
-Insatisfaction2 Insatisfaction              etudSecondaire 0.9072155 0.3999875
-Insatisfaction3 Insatisfaction etudTechnique/Professionnel 1.0875484 0.3579684
-Insatisfaction4 Insatisfaction               etudSupérieur 1.0806396 0.3831110
-Insatisfaction5 Insatisfaction                      etudNA 0.9572980 0.8407592
-Insatisfaction6 Insatisfaction               trav.impAussi 0.7961422 0.6213781
-Insatisfaction7 Insatisfaction               trav.impMoins 0.5868213 0.5941721
-Insatisfaction8 Insatisfaction                 trav.impPeu 3.8196198 0.6587383
-                  statistic     p.value   conf.low conf.high
-Satisfaction1   -0.24574657 0.805878421 0.36891824  2.170551
-Satisfaction2    0.18653289 0.852026888 0.62662899  1.760724
-Satisfaction3    0.32357462 0.746260102 0.67427204  1.733230
-Satisfaction4    2.82904174 0.004668761 1.23972010  3.267795
-Satisfaction5   -0.91087200 0.362362820 0.18324174  1.859146
-Satisfaction6    0.60530411 0.544976949 0.56148541  2.983103
-Satisfaction7   -0.42669673 0.669600230 0.37444660  1.879611
-Satisfaction8   -1.07435980 0.282661454 0.18393230  1.639149
-Insatisfaction1 -1.72069573 0.085306052 0.09083751  1.168745
-Insatisfaction2 -0.24344565 0.807660187 0.41422897  1.986920
-Insatisfaction3  0.23445095 0.814634911 0.53919437  2.193572
-Insatisfaction4  0.20242976 0.839580764 0.51000705  2.289737
-Insatisfaction5 -0.05190612 0.958603498 0.18424328  4.973964
-Insatisfaction6 -0.36689002 0.713701054 0.23554433  2.690969
-Insatisfaction7 -0.89710529 0.369662736 0.18312418  1.880469
-Insatisfaction8  2.03442089 0.041909177 1.05027036 13.891181</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["y.level"],"name":[1],"type":["chr"],"align":["left"]},{"label":["term"],"name":[2],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"Satisfaction","2":"(Intercept)","3":"0.8948496","4":"0.4520902","5":"-0.24574657","6":"0.805878421","7":"0.36891824","8":"2.170551"},{"1":"Satisfaction","2":"etudSecondaire","3":"1.0503906","4":"0.2635573","5":"0.18653289","6":"0.852026888","7":"0.62662899","8":"1.760724"},{"1":"Satisfaction","2":"etudTechnique/Professionnel","3":"1.0810496","4":"0.2408483","5":"0.32357462","6":"0.746260102","7":"0.67427204","8":"1.733230"},{"1":"Satisfaction","2":"etudSupérieur","3":"2.0127473","4":"0.2472571","5":"2.82904174","6":"0.004668761","7":"1.23972010","8":"3.267795"},{"1":"Satisfaction","2":"etudmanquant","3":"0.5836722","4":"0.5910993","5":"-0.91087200","6":"0.362362820","7":"0.18324174","8":"1.859146"},{"1":"Satisfaction","2":"trav.impAussi","3":"1.2942058","4":"0.4260623","5":"0.60530411","6":"0.544976949","7":"0.56148541","8":"2.983103"},{"1":"Satisfaction","2":"trav.impMoins","3":"0.8389362","4":"0.4115818","5":"-0.42669673","6":"0.669600230","7":"0.37444660","8":"1.879611"},{"1":"Satisfaction","2":"trav.impPeu","3":"0.5490833","4":"0.5580115","5":"-1.07435980","6":"0.282661454","7":"0.18393230","8":"1.639149"},{"1":"Insatisfaction","2":"(Intercept)","3":"0.3258311","4":"0.6516992","5":"-1.72069573","6":"0.085306052","7":"0.09083751","8":"1.168745"},{"1":"Insatisfaction","2":"etudSecondaire","3":"0.9072155","4":"0.3999875","5":"-0.24344565","6":"0.807660187","7":"0.41422897","8":"1.986920"},{"1":"Insatisfaction","2":"etudTechnique/Professionnel","3":"1.0875484","4":"0.3579684","5":"0.23445095","6":"0.814634911","7":"0.53919437","8":"2.193572"},{"1":"Insatisfaction","2":"etudSupérieur","3":"1.0806396","4":"0.3831110","5":"0.20242976","6":"0.839580764","7":"0.51000705","8":"2.289737"},{"1":"Insatisfaction","2":"etudmanquant","3":"0.9572980","4":"0.8407592","5":"-0.05190612","6":"0.958603498","7":"0.18424328","8":"4.973964"},{"1":"Insatisfaction","2":"trav.impAussi","3":"0.7961422","4":"0.6213781","5":"-0.36689002","6":"0.713701054","7":"0.23554433","8":"2.690969"},{"1":"Insatisfaction","2":"trav.impMoins","3":"0.5868213","4":"0.5941721","5":"-0.89710529","6":"0.369662736","7":"0.18312418","8":"1.880469"},{"1":"Insatisfaction","2":"trav.impPeu","3":"3.8196198","4":"0.6587383","5":"2.03442089","6":"0.041909177","7":"1.05027036","8":"13.891181"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <p>On notera la présence d’une colonne supplémentaire, <var>y.level</var>. De fait, la fonction <code data-pkg="GGally">ggcoef</code> ne peut s’appliquer directement, car les coefficients vont se supperposer.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggcoef</span>(regm2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<img src="graphs/regression-logistique/unnamed-chunk-36-1.png" width="1050" />
+<img src="graphs/regression-logistique/unnamed-chunk-44-1.png" width="1050" />
 <figcaption>
 À ne pas faire : appliquer directment ggcoef
 </figcaption>
@@ -1038,7 +1505,7 @@ Insatisfaction8  2.03442089 0.041909177 1.05027036 13.891181</code></pre>
 <p>On a deux solutions possibles. Pour la première, la plus simple, il suffit d’ajouter des facettes avec <code data-pkg="ggplot2">facet_grid</code>.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggcoef</span>(regm2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>) <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(<span class="op">~</span>y.level)</code></pre></div>
-<img src="graphs/regression-logistique/unnamed-chunk-37-1.png" width="1050" />
+<img src="graphs/regression-logistique/unnamed-chunk-45-1.png" width="1050" />
 <figcaption>
 ggcoef avec facet_grid
 </figcaption>
@@ -1050,7 +1517,7 @@ ggcoef avec facet_grid
   <span class="dt">color =</span> <span class="st">&quot;gray25&quot;</span>, <span class="dt">linetype =</span> <span class="st">&quot;dotted&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">geom_errorbar</span>(<span class="dt">position =</span> <span class="kw">position_dodge</span>(<span class="fl">0.5</span>), 
   <span class="dt">width =</span> <span class="dv">0</span>) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">position =</span> <span class="kw">position_dodge</span>(<span class="dt">width =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_log10</span>() <span class="op">+</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">coord_flip</span>()</code></pre></div>
-<img src="graphs/regression-logistique/unnamed-chunk-38-1.png" width="1050" />
+<img src="graphs/regression-logistique/unnamed-chunk-46-1.png" width="1050" />
 <figcaption>
 Odds ratio d’un modèle multinomial
 </figcaption>
@@ -1064,20 +1531,20 @@ Odds ratio d’un modèle multinomial
 <p>Une autre introduction pertinente (en français) et utilisant cette fois-ci l’extention <code class="pkg">VGAM</code> et sa fonction <code data-pkg="VGAM">vglm</code> est disponible sur le site de l’université de Lyon : <a href="https://eric.univ-lyon2.fr/~ricco/cours/didacticiels/data-mining/didacticiel_Reg_Logistique_Polytomique_Ordinale.pdf" class="uri">https://eric.univ-lyon2.fr/~ricco/cours/didacticiels/data-mining/didacticiel_Reg_Logistique_Polytomique_Ordinale.pdf</a>.</p>
 <p>On va reprendre l’exemple précédent puisque la variable <var>trav.satisf</var> est une variable ordonnée.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">freq</span>(d<span class="op">$</span>trav.satisf)</code></pre></div>
-<pre><code>                 n    % val%
-Equilibre      451 22.6 43.0
-Satisfaction   480 24.0 45.8
-Insatisfaction 117  5.9 11.2
-NA             952 47.6   NA</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"451","2":"22.6","3":"43.0","_rn_":"Equilibre"},{"1":"480","2":"24.0","3":"45.8","_rn_":"Satisfaction"},{"1":"117","2":"5.9","3":"11.2","_rn_":"Insatisfaction"},{"1":"952","2":"47.6","3":"NA","_rn_":"__NA__"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <p><strong>ATTENTION :</strong> Dans le cas d’une régression logistique ordinale, il importante que les niveaux du facteur soient classés selon leur ordre hiéarchique (du plus faible au plus fort). On va dès lors recoder notre variable à expliquer.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d<span class="op">$</span>trav.satisf &lt;-<span class="st"> </span><span class="kw">factor</span>(d<span class="op">$</span>trav.satisf, <span class="kw">c</span>(<span class="st">&quot;Insatisfaction&quot;</span>, <span class="st">&quot;Equilibre&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>), 
   <span class="dt">ordered =</span> <span class="ot">TRUE</span>)
 <span class="kw">freq</span>(d<span class="op">$</span>trav.satisf)</code></pre></div>
-<pre><code>                 n    % val%
-Insatisfaction 117  5.9 11.2
-Equilibre      451 22.6 43.0
-Satisfaction   480 24.0 45.8
-NA             952 47.6   NA</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"117","2":"5.9","3":"11.2","_rn_":"Insatisfaction"},{"1":"451","2":"22.6","3":"43.0","_rn_":"Equilibre"},{"1":"480","2":"24.0","3":"45.8","_rn_":"Satisfaction"},{"1":"952","2":"47.6","3":"NA","_rn_":"__NA__"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ordinal)
 rego &lt;-<span class="st"> </span><span class="kw">clm</span>(trav.satisf <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>trav.imp, <span class="dt">data =</span> d)
 <span class="kw">summary</span>(rego)</code></pre></div>
@@ -1093,7 +1560,7 @@ sexeHomme                   -0.16141    0.12215  -1.321 0.186369
 etudSecondaire               0.05558    0.23220   0.239 0.810819    
 etudTechnique/Professionnel  0.03373    0.21210   0.159 0.873660    
 etudSupérieur                0.61336    0.21972   2.792 0.005245 ** 
-etudNA                      -0.45555    0.48761  -0.934 0.350174    
+etudmanquant                -0.45555    0.48761  -0.934 0.350174    
 trav.impAussi                0.35104    0.38578   0.910 0.362857    
 trav.impMoins                0.02616    0.37174   0.070 0.943896    
 trav.impPeu                 -1.66062    0.46204  -3.594 0.000325 ***
@@ -1127,33 +1594,18 @@ trav.satisf ~ etud + trav.imp
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(JLutils)
 <span class="kw">tidy</span>(rego2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<pre><code>                         term  estimate std.error   statistic      p.value
-1      Equilibre|Satisfaction 1.5112340 0.4070527  1.01443002 3.103776e-01
-2                      etudNA 0.6595865 0.4870037 -0.85449501 3.928308e-01
-3              etudSecondaire 1.0625486 0.2320661  0.26143590 7.937564e-01
-4               etudSupérieur 1.8404208 0.2196152  2.77755928 5.476885e-03
-5 etudTechnique/Professionnel 1.0140018 0.2114991  0.06574345 9.475821e-01
-6    Insatisfaction|Equilibre 0.1427923 0.4142977 -4.69798475 2.627410e-06
-7               trav.impAussi 1.3939432 0.3849992  0.86269411 3.883057e-01
-8               trav.impMoins 1.0337601 0.3712009  0.08944679 9.287268e-01
-9                 trav.impPeu 0.1948513 0.4610260 -3.54756230 3.888138e-04
-    conf.low conf.high
-1         NA        NA
-2 0.25296915 1.7205700
-3 0.67374921 1.6747176
-4 1.19619139 2.8319521
-5 0.66917118 1.5346895
-6         NA        NA
-7 0.65080539 2.9656810
-8 0.49540445 2.1402278
-9 0.07837432 0.4798506</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"Equilibre|Satisfaction","2":"1.5112340","3":"0.4070527","4":"1.01443002","5":"3.103776e-01","6":"NA","7":"NA"},{"1":"etudmanquant","2":"0.6595865","3":"0.4870037","4":"-0.85449501","5":"3.928308e-01","6":"0.25296915","7":"1.7205700"},{"1":"etudSecondaire","2":"1.0625486","3":"0.2320661","4":"0.26143590","5":"7.937564e-01","6":"0.67374921","7":"1.6747176"},{"1":"etudSupérieur","2":"1.8404208","3":"0.2196152","4":"2.77755928","5":"5.476885e-03","6":"1.19619139","7":"2.8319521"},{"1":"etudTechnique/Professionnel","2":"1.0140018","3":"0.2114991","4":"0.06574345","5":"9.475821e-01","6":"0.66917118","7":"1.5346895"},{"1":"Insatisfaction|Equilibre","2":"0.1427923","3":"0.4142977","4":"-4.69798475","5":"2.627410e-06","6":"NA","7":"NA"},{"1":"trav.impAussi","2":"1.3939432","3":"0.3849992","4":"0.86269411","5":"3.883057e-01","6":"0.65080539","7":"2.9656810"},{"1":"trav.impMoins","2":"1.0337601","3":"0.3712009","4":"0.08944679","5":"9.287268e-01","6":"0.49540445","7":"2.1402278"},{"1":"trav.impPeu","2":"0.1948513","3":"0.4610260","4":"-3.54756230","5":"3.888138e-04","6":"0.07837432","7":"0.4798506"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <p>La méthode <code data-pkg="JLutils" data-rdoc="tidy_model">tidy.clm</code> étant disponible, on peut utiliser <code data-pkg="GGally">ggcoef</code>.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(JLutils)
 <span class="kw">library</span>(GGally)
 <span class="kw">ggcoef</span>(rego2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>Warning: Removed 2 rows containing missing values (geom_errorbarh).</code></pre>
-<img src="graphs/regression-logistique/unnamed-chunk-45-1.png" width="1050" />
+<img src="graphs/regression-logistique/unnamed-chunk-53-1.png" width="1050" />
 <figcaption>
 Coefficients du modèle ordinal
 </figcaption>
@@ -1161,7 +1613,7 @@ Coefficients du modèle ordinal
 </div>
 <div id="survey" class="section level2">
 <h2>Données pondérées et l’extension survey</h2>
-<p>Lorsque l’on utilise des données pondérées, on aura recours à l’extension <code class="pkg">survey</code><a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>.</p>
+<p>Lorsque l’on utilise des données pondérées, on aura recours à l’extension <code class="pkg">survey</code><a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a>.</p>
 <p>Préparons des données d’exemple :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(survey)
 dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> <span class="op">~</span>poids)</code></pre></div>
@@ -1196,42 +1648,20 @@ Null Deviance:      2672
 Residual Deviance: 2378     AIC: NA</code></pre>
 <p>Le résultat obtenu est similaire à celui de <code data-pkg="stats">glm</code> et l’on peut utiliser sans problème les fonctions <code data-pkg="survey" data-rdoc="svyglm">coef</code>, <code data-pkg="survey" data-rdoc="confint.glm">confint</code>, <code data-pkg="questionr">odds.ratio</code>, <code data-pkg="survey" data-rdoc="svyglm">predict</code> ou encore <code data-pkg="broom" data-rdoc="glm_tidiers">tidy</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">odds.ratio</span>(reg)</code></pre></div>
-<pre><code>                                      OR   2.5 % 97.5 %         p    
-(Intercept)                      4.64553 2.57758 8.3726 3.522e-07 ***
-sexeHomme                        1.44089 1.12150 1.8513  0.004325 ** 
-age                              0.95957 0.95181 0.9674 &lt; 2.2e-16 ***
-religPratiquant occasionnel      1.05735 0.65902 1.6965  0.817180    
-religAppartenance sans pratique  1.17782 0.75911 1.8275  0.465321    
-religNi croyance ni appartenance 1.04068 0.64638 1.6755  0.869658    
-religRejet                       0.86190 0.42752 1.7376  0.677858    
-religNSP ou NVPR                 0.79707 0.32481 1.9560  0.620504    
-heures.tv                        0.83356 0.77019 0.9022 6.786e-06 ***
----
-Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["OR"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["2.5 %"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["97.5 %"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["p"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"4.6455262","2":"2.5775794","3":"8.3725505","4":"3.522452e-07","_rn_":"(Intercept)"},{"1":"1.4408950","2":"1.1214960","3":"1.8512578","4":"4.324505e-03","_rn_":"sexeHomme"},{"1":"0.9595746","2":"0.9518052","3":"0.9674074","4":"8.648927e-23","_rn_":"age"},{"1":"1.0573550","2":"0.6590167","3":"1.6964662","4":"8.171797e-01","_rn_":"religPratiquant occasionnel"},{"1":"1.1778210","2":"0.7591124","3":"1.8274795","4":"4.653212e-01","_rn_":"religAppartenance sans pratique"},{"1":"1.0406833","2":"0.6463807","3":"1.6755167","4":"8.696579e-01","_rn_":"religNi croyance ni appartenance"},{"1":"0.8618968","2":"0.4275166","3":"1.7376311","4":"6.778577e-01","_rn_":"religRejet"},{"1":"0.7970656","2":"0.3248073","3":"1.9559707","4":"6.205041e-01","_rn_":"religNSP ou NVPR"},{"1":"0.8335645","2":"0.7701918","3":"0.9021516","4":"6.785556e-06","_rn_":"heures.tv"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(broom)
 <span class="kw">tidy</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<pre><code>                              term  estimate   std.error  statistic
-1                      (Intercept) 4.6455262 0.300543226  5.1104285
-2                        sexeHomme 1.4408950 0.127859939  2.8567542
-3                              age 0.9595746 0.004147866 -9.9485426
-4      religPratiquant occasionnel 1.0573550 0.241217139  0.2312045
-5  religAppartenance sans pratique 1.1778210 0.224122249  0.7302539
-6 religNi croyance ni appartenance 1.0406833 0.242986159  0.1641142
-7                       religRejet 0.8618968 0.357732331 -0.4154496
-8                 religNSP ou NVPR 0.7970656 0.458021132 -0.4952137
-9                        heures.tv 0.8335645 0.040343332 -4.5123745
-       p.value  conf.low conf.high
-1 3.522452e-07 2.5775794 8.3725505
-2 4.324505e-03 1.1214960 1.8512578
-3 8.648927e-23 0.9518052 0.9674074
-4 8.171797e-01 0.6590167 1.6964662
-5 4.653212e-01 0.7591124 1.8274795
-6 8.696579e-01 0.6463807 1.6755167
-7 6.778577e-01 0.4275166 1.7376311
-8 6.205041e-01 0.3248073 1.9559707
-9 6.785556e-06 0.7701918 0.9021516</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"(Intercept)","2":"4.6455262","3":"0.300543226","4":"5.1104285","5":"3.522452e-07","6":"2.5775794","7":"8.3725505"},{"1":"sexeHomme","2":"1.4408950","3":"0.127859939","4":"2.8567542","5":"4.324505e-03","6":"1.1214960","7":"1.8512578"},{"1":"age","2":"0.9595746","3":"0.004147866","4":"-9.9485426","5":"8.648927e-23","6":"0.9518052","7":"0.9674074"},{"1":"religPratiquant occasionnel","2":"1.0573550","3":"0.241217139","4":"0.2312045","5":"8.171797e-01","6":"0.6590167","7":"1.6964662"},{"1":"religAppartenance sans pratique","2":"1.1778210","3":"0.224122249","4":"0.7302539","5":"4.653212e-01","6":"0.7591124","7":"1.8274795"},{"1":"religNi croyance ni appartenance","2":"1.0406833","3":"0.242986159","4":"0.1641142","5":"8.696579e-01","6":"0.6463807","7":"1.6755167"},{"1":"religRejet","2":"0.8618968","3":"0.357732331","4":"-0.4154496","5":"6.778577e-01","6":"0.4275166","7":"1.7376311"},{"1":"religNSP ou NVPR","2":"0.7970656","3":"0.458021132","4":"-0.4952137","5":"6.205041e-01","6":"0.3248073","7":"1.9559707"},{"1":"heures.tv","2":"0.8335645","3":"0.040343332","4":"-4.5123745","5":"6.785556e-06","6":"0.7701918","7":"0.9021516"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <p>Dans ses dernières versions, <code class="pkg">survey</code> fournit une méthode <code data-pkg="survey" data-rdoc="anova.svyglm">AIC.svyglm</code> permettant d’estimer un <dfn>AIC</dfn> sur un modèle calculé avec <code data-pkg="survey">svyglm</code>. Il est dès lors possible d’utiliser la fonction <code data-pkg="stats">step</code> pour réaliser une <dfn>sélection descendante pas à pas</dfn><dfn data-index="pas à pas, sélection descendante"></dfn>.</p>
-<p>L’extension <code class="pkg">effects</code> n’est quant à elle pas compatible avec <code data-pkg="survey">svyglm</code><a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a>.</p>
+<p>L’extension <code class="pkg">effects</code> n’est quant à elle pas compatible avec <code data-pkg="survey">svyglm</code><a href="#fn7" class="footnoteRef" id="fnref7"><sup>7</sup></a>.</p>
 </div>
 <div id="regression-multinomiale" class="section level3">
 <h3>Régression multinomiale</h3>
@@ -1259,8 +1689,8 @@ Equilibre.etudTechnique/Professionnel       -0.47708  0.54825 -0.8702   0.3869
 Satisfaction.etudTechnique/Professionnel    -0.23585  0.51393 -0.4589   0.6476
 Equilibre.etudSupérieur                     -0.57579  0.57258 -1.0056   0.3178
 Satisfaction.etudSupérieur                   0.36801  0.54181  0.6792   0.4991
-Equilibre.etudNA                            -0.32346  5.59568 -0.0578   0.9541
-Satisfaction.etudNA                         -0.65343  5.65957 -0.1155   0.9084
+Equilibre.etudmanquant                      -0.32346  5.59568 -0.0578   0.9541
+Satisfaction.etudmanquant                   -0.65343  5.65957 -0.1155   0.9084
 Equilibre.grpage[25,45)                      0.60710  0.63340  0.9585   0.3409
 Satisfaction.grpage[25,45)                   0.46941  0.71325  0.6581   0.5124
 Equilibre.grpage[45,65)                      0.57989  0.68468  0.8469   0.3997
@@ -1285,8 +1715,8 @@ Equilibre.etudTechnique/Professionnel     -1.5690225  0.6148616
 Satisfaction.etudTechnique/Professionnel  -1.2594308  0.7877238
 Equilibre.etudSupérieur                   -1.7161773  0.5646004
 Satisfaction.etudSupérieur                -0.7111056  1.4471296
-Equilibre.etudNA                         -11.4682300 10.8213108
-Satisfaction.etudNA                      -11.9254421 10.6185783
+Equilibre.etudmanquant                   -11.4682300 10.8213108
+Satisfaction.etudmanquant                -11.9254421 10.6185783
 Equilibre.grpage[25,45)                   -0.6544188  1.8686207
 Satisfaction.grpage[25,45)                -0.9511533  1.8899648
 Equilibre.grpage[45,65)                   -0.7837766  1.9435542
@@ -1301,56 +1731,11 @@ Equilibre.trav.impPeu                     -4.9796878  1.8852516
 Satisfaction.trav.impPeu                  -5.0135074  2.0696817</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(broom)
 <span class="kw">tidy</span>(regm, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<pre><code>                                       term     estimate  std.error  statistic
-1                     Equilibre.(Intercept) 2.558622e+00  1.7906945  0.5246393
-2                          Equilibre.etudNA 7.236412e-01  5.5956839 -0.0578052
-3                  Equilibre.etudSecondaire 6.583475e-01  0.6051390 -0.6907873
-4                   Equilibre.etudSupérieur 5.622614e-01  0.5725785 -1.0056061
-5     Equilibre.etudTechnique/Professionnel 6.205926e-01  0.5482538 -0.8701818
-6                   Equilibre.grpage[25,45) 1.835104e+00  0.6333971  0.9584838
-7                   Equilibre.grpage[45,65) 1.785840e+00  0.6846835  0.8469443
-8                   Equilibre.grpage[65,99] 4.048860e-02 24.4219235 -0.1313056
-9                       Equilibre.sexeHomme 7.842390e-01  0.2928789 -0.8298361
-10                  Equilibre.trav.impAussi 1.530371e+00  1.6632782  0.2558264
-11                  Equilibre.trav.impMoins 2.090213e+00  1.6330882  0.4514550
-12                    Equilibre.trav.impPeu 2.128392e-01  1.7234106 -0.8977652
-13                 Satisfaction.(Intercept) 2.098598e+00  1.8354985  0.4038519
-14                      Satisfaction.etudNA 5.202573e-01  5.6595698 -0.1154561
-15              Satisfaction.etudSecondaire 7.665965e-01  0.5565941 -0.4775378
-16               Satisfaction.etudSupérieur 1.444859e+00  0.5418148  0.6792210
-17 Satisfaction.etudTechnique/Professionnel 7.898964e-01  0.5139285 -0.4589228
-18               Satisfaction.grpage[25,45) 1.599044e+00  0.7132493  0.6581230
-19               Satisfaction.grpage[45,65) 1.696775e+00  0.7496264  0.7053240
-20               Satisfaction.grpage[65,99] 1.091981e+05 25.5333743  0.4543434
-21                   Satisfaction.sexeHomme 7.604793e-01  0.2969638 -0.9220192
-22               Satisfaction.trav.impAussi 1.718690e+00  1.6864513  0.3211255
-23               Satisfaction.trav.impMoins 1.946835e+00  1.6634645  0.4004925
-24                 Satisfaction.trav.impPeu 2.294861e-01  1.7782011 -0.8277539
-     p.value     conf.low    conf.high
-1  0.6013610 7.229441e-02 9.055397e+01
-2  0.9540555 1.045709e-05 5.007668e+04
-3  0.4918037 1.972544e-01 2.197272e+00
-4  0.3177961 1.797520e-01 1.758745e+00
-5  0.3869412 2.082486e-01 1.849401e+00
-6  0.3408581 5.197440e-01 6.479353e+00
-7  0.3996853 4.566781e-01 6.983528e+00
-8  0.8958805 3.041181e-23 5.390427e+19
-9  0.4092305 4.376392e-01 1.405337e+00
-10 0.7987761 5.573231e-02 4.202295e+01
-11 0.6529473 8.083775e-02 5.404639e+01
-12 0.3721460 6.876209e-03 6.588012e+00
-13 0.6874558 5.423426e-02 8.120539e+01
-14 0.9083881 6.619822e-06 4.088745e+04
-15 0.6343498 2.530045e-01 2.322765e+00
-16 0.4990612 4.911009e-01 4.250895e+00
-17 0.6475994 2.838155e-01 2.198387e+00
-18 0.5124477 3.862953e-01 6.619136e+00
-19 0.4827648 3.812573e-01 7.551453e+00
-20 0.6508767 8.965007e-18 1.330087e+27
-21 0.3594363 4.209417e-01 1.373893e+00
-22 0.7489967 5.976731e-02 4.942327e+01
-23 0.6899174 7.087259e-02 5.347861e+01
-24 0.4104016 6.647547e-03 7.922301e+00</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"Equilibre.(Intercept)","2":"2.558622e+00","3":"1.7906945","4":"0.5246393","5":"0.6013610","6":"7.229441e-02","7":"9.055397e+01"},{"1":"Equilibre.etudmanquant","2":"7.236412e-01","3":"5.5956839","4":"-0.0578052","5":"0.9540555","6":"1.045709e-05","7":"5.007668e+04"},{"1":"Equilibre.etudSecondaire","2":"6.583475e-01","3":"0.6051390","4":"-0.6907873","5":"0.4918037","6":"1.972544e-01","7":"2.197272e+00"},{"1":"Equilibre.etudSupérieur","2":"5.622614e-01","3":"0.5725785","4":"-1.0056061","5":"0.3177961","6":"1.797520e-01","7":"1.758745e+00"},{"1":"Equilibre.etudTechnique/Professionnel","2":"6.205926e-01","3":"0.5482538","4":"-0.8701818","5":"0.3869412","6":"2.082486e-01","7":"1.849401e+00"},{"1":"Equilibre.grpage[25,45)","2":"1.835104e+00","3":"0.6333971","4":"0.9584838","5":"0.3408581","6":"5.197440e-01","7":"6.479353e+00"},{"1":"Equilibre.grpage[45,65)","2":"1.785840e+00","3":"0.6846835","4":"0.8469443","5":"0.3996853","6":"4.566781e-01","7":"6.983528e+00"},{"1":"Equilibre.grpage[65,99]","2":"4.048860e-02","3":"24.4219235","4":"-0.1313056","5":"0.8958805","6":"3.041181e-23","7":"5.390427e+19"},{"1":"Equilibre.sexeHomme","2":"7.842390e-01","3":"0.2928789","4":"-0.8298361","5":"0.4092305","6":"4.376392e-01","7":"1.405337e+00"},{"1":"Equilibre.trav.impAussi","2":"1.530371e+00","3":"1.6632782","4":"0.2558264","5":"0.7987761","6":"5.573231e-02","7":"4.202295e+01"},{"1":"Equilibre.trav.impMoins","2":"2.090213e+00","3":"1.6330882","4":"0.4514550","5":"0.6529473","6":"8.083775e-02","7":"5.404639e+01"},{"1":"Equilibre.trav.impPeu","2":"2.128392e-01","3":"1.7234106","4":"-0.8977652","5":"0.3721460","6":"6.876209e-03","7":"6.588012e+00"},{"1":"Satisfaction.(Intercept)","2":"2.098598e+00","3":"1.8354985","4":"0.4038519","5":"0.6874558","6":"5.423426e-02","7":"8.120539e+01"},{"1":"Satisfaction.etudmanquant","2":"5.202573e-01","3":"5.6595698","4":"-0.1154561","5":"0.9083881","6":"6.619822e-06","7":"4.088745e+04"},{"1":"Satisfaction.etudSecondaire","2":"7.665965e-01","3":"0.5565941","4":"-0.4775378","5":"0.6343498","6":"2.530045e-01","7":"2.322765e+00"},{"1":"Satisfaction.etudSupérieur","2":"1.444859e+00","3":"0.5418148","4":"0.6792210","5":"0.4990612","6":"4.911009e-01","7":"4.250895e+00"},{"1":"Satisfaction.etudTechnique/Professionnel","2":"7.898964e-01","3":"0.5139285","4":"-0.4589228","5":"0.6475994","6":"2.838155e-01","7":"2.198387e+00"},{"1":"Satisfaction.grpage[25,45)","2":"1.599044e+00","3":"0.7132493","4":"0.6581230","5":"0.5124477","6":"3.862953e-01","7":"6.619136e+00"},{"1":"Satisfaction.grpage[45,65)","2":"1.696775e+00","3":"0.7496264","4":"0.7053240","5":"0.4827648","6":"3.812573e-01","7":"7.551453e+00"},{"1":"Satisfaction.grpage[65,99]","2":"1.091981e+05","3":"25.5333743","4":"0.4543434","5":"0.6508767","6":"8.965007e-18","7":"1.330087e+27"},{"1":"Satisfaction.sexeHomme","2":"7.604793e-01","3":"0.2969638","4":"-0.9220192","5":"0.3594363","6":"4.209417e-01","7":"1.373893e+00"},{"1":"Satisfaction.trav.impAussi","2":"1.718690e+00","3":"1.6864513","4":"0.3211255","5":"0.7489967","6":"5.976731e-02","7":"4.942327e+01"},{"1":"Satisfaction.trav.impMoins","2":"1.946835e+00","3":"1.6634645","4":"0.4004925","5":"0.6899174","6":"7.087259e-02","7":"5.347861e+01"},{"1":"Satisfaction.trav.impPeu","2":"2.294861e-01","3":"1.7782011","4":"-0.8277539","5":"0.4104016","6":"6.647547e-03","7":"7.922301e+00"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 <div id="regression-ordinale" class="section level3">
 <h3>Régression ordinale</h3>
@@ -1366,7 +1751,7 @@ sexeHomme                   -0.1328026100  0.1545640 -0.859207986
 etudSecondaire              -0.0427151234  0.2751085 -0.155266460
 etudTechnique/Professionnel  0.0004261287  0.2492533  0.001709621
 etudSupérieur                0.6424698737  0.2593446  2.477282672
-etudNA                      -0.4694599623  0.5033490 -0.932672851
+etudmanquant                -0.4694599623  0.5033490 -0.932672851
 trav.impAussi                0.1207125976  0.5044264  0.239306656
 trav.impMoins                0.0526740003  0.4895782  0.107590577
 trav.impPeu                 -1.5303889517  0.7215699 -2.120915790
@@ -1382,38 +1767,21 @@ sexeHomme                   -0.4357425  0.1701372
 etudSecondaire              -0.5819179  0.4964876
 etudTechnique/Professionnel -0.4881013  0.4889536
 etudSupérieur                0.1341638  1.1507759
-etudNA                      -1.4560059  0.5170860
+etudmanquant                -1.4560059  0.5170860
 trav.impAussi               -0.8679450  1.1093702
 trav.impMoins               -0.9068816  1.0122296
 trav.impPeu                 -2.9446399 -0.1161380
 Insatisfaction|Equilibre    -3.1027595 -0.9755811
 Equilibre|Satisfaction       0.1607965  0.3846345</code></pre>
-<p>L’extension <code class="pkg">JLutils</code><a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a> propose une méthode <code data-pkg="JLutils" data-rdoc="tidy_model">tidy</code> pour les objets <code>svyolr.</code></p>
+<p>L’extension <code class="pkg">JLutils</code><a href="#fn8" class="footnoteRef" id="fnref8"><sup>8</sup></a> propose une méthode <code data-pkg="JLutils" data-rdoc="tidy_model">tidy</code> pour les objets <code>svyolr.</code></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(JLutils)
 <span class="kw">library</span>(broom)
 <span class="kw">tidy</span>(rego, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<pre><code>                          term  estimate std.error    statistic   conf.low
-1       Equilibre|Satisfaction 1.3135265 0.5305802  0.513994918 1.17444595
-2                       etudNA 0.6253399 0.5033490 -0.932672851 0.23316570
-3               etudSecondaire 0.9581843 0.2751085 -0.155266460 0.55882558
-4                etudSupérieur 1.9011707 0.2593446  2.477282672 1.14358013
-5  etudTechnique/Professionnel 1.0004262 0.2492533  0.001709621 0.61379069
-6     Insatisfaction|Equilibre 0.1301366 0.5426575 -3.757748101 0.04492506
-7                    sexeHomme 0.8756379 0.1545640 -0.859207986 0.64678428
-8                trav.impAussi 1.1283006 0.5044264  0.239306656 0.41981338
-9                trav.impMoins 1.0540860 0.4895782  0.107590577 0.40378140
-10                 trav.impPeu 0.2164515 0.7215699 -2.120915790 0.05262100
-   conf.high
-1  1.4690773
-2  1.6771333
-3  1.6429405
-4  3.1606444
-5  1.6306090
-6  0.3769732
-7  1.1854675
-8  3.0324479
-9  2.7517295
-10 0.8903524</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"Equilibre|Satisfaction","2":"1.3135265","3":"0.5305802","4":"0.513994918","5":"1.17444595","6":"1.4690773"},{"1":"etudmanquant","2":"0.6253399","3":"0.5033490","4":"-0.932672851","5":"0.23316570","6":"1.6771333"},{"1":"etudSecondaire","2":"0.9581843","3":"0.2751085","4":"-0.155266460","5":"0.55882558","6":"1.6429405"},{"1":"etudSupérieur","2":"1.9011707","3":"0.2593446","4":"2.477282672","5":"1.14358013","6":"3.1606444"},{"1":"etudTechnique/Professionnel","2":"1.0004262","3":"0.2492533","4":"0.001709621","5":"0.61379069","6":"1.6306090"},{"1":"Insatisfaction|Equilibre","2":"0.1301366","3":"0.5426575","4":"-3.757748101","5":"0.04492506","6":"0.3769732"},{"1":"sexeHomme","2":"0.8756379","3":"0.1545640","4":"-0.859207986","5":"0.64678428","6":"1.1854675"},{"1":"trav.impAussi","2":"1.1283006","3":"0.5044264","4":"0.239306656","5":"0.41981338","6":"3.0324479"},{"1":"trav.impMoins","2":"1.0540860","3":"0.4895782","4":"0.107590577","5":"0.40378140","6":"2.7517295"},{"1":"trav.impPeu","2":"0.2164515","3":"0.7215699","4":"-2.120915790","5":"0.05262100","6":"0.8903524"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <p>Une alternative est d’avoir recours, comme pour la régression multinomiale, aux poids de réplication et à la fonction <code data-pkg="svrepmisc">svyclm</code> implémentée dans l’extension <code class="pkg">svrepmisc</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dwr &lt;-<span class="st"> </span><span class="kw">as.svrepdesign</span>(dw, <span class="dt">type =</span> <span class="st">&quot;bootstrap&quot;</span>, <span class="dt">replicates =</span> <span class="dv">100</span>)
 <span class="kw">library</span>(svrepmisc)
@@ -1430,7 +1798,7 @@ sexeHomme                   -0.13280477  0.17795218 -0.7463 0.4574344
 etudSecondaire              -0.04271403  0.28310986 -0.1509 0.8804124    
 etudTechnique/Professionnel  0.00042809  0.27715652  0.0015 0.9987710    
 etudSupérieur                0.64247607  0.27536180  2.3332 0.0218659 *  
-etudNA                      -0.46945975  0.54203306 -0.8661 0.3887334    
+etudmanquant                -0.46945975  0.54203306 -0.8661 0.3887334    
 trav.impAussi                0.12071087  0.52291049  0.2308 0.8179598    
 trav.impMoins                0.05267146  0.52268594  0.1008 0.9199566    
 trav.impPeu                 -1.53039056  0.72723032 -2.1044 0.0381308 *  
@@ -1444,44 +1812,29 @@ sexeHomme                   -0.48633783  0.22072829
 etudSecondaire              -0.60516118  0.51973312
 etudTechnique/Professionnel -0.55019173  0.55104790
 etudSupérieur                0.09542179  1.18953035
-etudNA                      -1.54630303  0.60738352
+etudmanquant                -1.54630303  0.60738352
 trav.impAussi               -0.91814209  1.15956382
 trav.impMoins               -0.98573540  1.09107832
 trav.impPeu                 -2.97516053 -0.08562059</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">tidy</span>(rego_alt, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<pre><code>                          term  estimate std.error    statistic      p.value
-1       Equilibre|Satisfaction 1.3135298 0.5613030  0.485865928 0.6282430641
-2                       etudNA 0.6253400 0.5420331 -0.866109083 0.3887334020
-3               etudSecondaire 0.9581854 0.2831099 -0.150874410 0.8804124348
-4                etudSupérieur 1.9011825 0.2753618  2.333206968 0.0218658755
-5  etudTechnique/Professionnel 1.0004282 0.2771565  0.001544561 0.9987710374
-6     Insatisfaction|Equilibre 0.1301361 0.5888241 -3.463130228 0.0008192865
-7                    sexeHomme 0.8756360 0.1779522 -0.746294704 0.4574343955
-8                trav.impAussi 1.1282986 0.5229105  0.230844224 0.8179597814
-9                trav.impMoins 1.0540833 0.5226859  0.100770761 0.9199565877
-10                 trav.impPeu 0.2164511 0.7272303 -2.104409720 0.0381307874
-     conf.low conf.high
-1  0.43067205 4.0062049
-2  0.21303410 1.8356222
-3  0.54598642 1.6815788
-4  1.10012278 3.2855378
-5  0.57683920 1.7350702
-6  0.04039794 0.4192144
-7  0.61487405 1.2469846
-8  0.39926014 3.1885422
-9  0.37316470 2.9774830
-10 0.05103924 0.9179424</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"Equilibre|Satisfaction","2":"1.3135298","3":"0.5613030","4":"0.485865928","5":"0.6282430641","6":"0.43067205","7":"4.0062049"},{"1":"etudmanquant","2":"0.6253400","3":"0.5420331","4":"-0.866109083","5":"0.3887334020","6":"0.21303410","7":"1.8356222"},{"1":"etudSecondaire","2":"0.9581854","3":"0.2831099","4":"-0.150874410","5":"0.8804124348","6":"0.54598642","7":"1.6815788"},{"1":"etudSupérieur","2":"1.9011825","3":"0.2753618","4":"2.333206968","5":"0.0218658755","6":"1.10012278","7":"3.2855378"},{"1":"etudTechnique/Professionnel","2":"1.0004282","3":"0.2771565","4":"0.001544561","5":"0.9987710374","6":"0.57683920","7":"1.7350702"},{"1":"Insatisfaction|Equilibre","2":"0.1301361","3":"0.5888241","4":"-3.463130228","5":"0.0008192865","6":"0.04039794","7":"0.4192144"},{"1":"sexeHomme","2":"0.8756360","3":"0.1779522","4":"-0.746294704","5":"0.4574343955","6":"0.61487405","7":"1.2469846"},{"1":"trav.impAussi","2":"1.1282986","3":"0.5229105","4":"0.230844224","5":"0.8179597814","6":"0.39926014","7":"3.1885422"},{"1":"trav.impMoins","2":"1.0540833","3":"0.5226859","4":"0.100770761","5":"0.9199565877","6":"0.37316470","7":"2.9774830"},{"1":"trav.impPeu","2":"0.2164511","3":"0.7272303","4":"-2.104409720","5":"0.0381307874","6":"0.05103924","7":"0.9179424"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>Pour plus de détails, voir <a href="http://www.spc.univ-lyon1.fr/polycop/odds%20ratio.htm">http://www.spc.univ-lyon1.fr/polycop/odds%20ratio.htm</a>.<a href="#fnref1">↩</a></p></li>
-<li id="fn2"><p>Il existe également des méthodes de <em>sélection ascendante pas à pas</em>, mais nous les aborderons pas ici.<a href="#fnref2">↩</a></p></li>
-<li id="fn3"><p>Une alternative est d’avoir recours à l’extension <code class="pkg">mlogit</code> que nous n’aborderons pas ici. Voir <a href="http://www.ats.ucla.edu/stat/r/dae/mlogit.htm" class="uri">http://www.ats.ucla.edu/stat/r/dae/mlogit.htm</a> (en anglais) pour plus de détails.<a href="#fnref3">↩</a></p></li>
-<li id="fn4"><p>Voir le chapitre dédié aux <a href="donnees-ponderees.html#survey">données pondérées</a>.<a href="#fnref4">↩</a></p></li>
-<li id="fn5"><p>Compatibilité qui pourra éventuellement être introduite dans une future version de l’extension.<a href="#fnref5">↩</a></p></li>
-<li id="fn6"><p><code>devtools::install_github(&quot;larmarange/JLutils&quot;)</code> pour l’installer<a href="#fnref6">↩</a></p></li>
+<li id="fn1"><p>Il existe également une fonction <code data-pkg="base">add.NA</code> fournie avec <strong>R</strong>. Mais elle ne permet pas de choisir l’étiquette du nouveau niveau créé. Plus spécfiquement, cette étiquette est <code>NA</code> et non une valeur textuelle, ce qui peut créer des problèmes avec certaines fonctions.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>Pour plus de détails, voir <a href="http://www.spc.univ-lyon1.fr/polycop/odds%20ratio.htm">http://www.spc.univ-lyon1.fr/polycop/odds%20ratio.htm</a>.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>Il existe également des méthodes de <em>sélection ascendante pas à pas</em>, mais nous les aborderons pas ici.<a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>On ne peut donc exclure la présence éventuelle de bugs non encore corrigés.<a href="#fnref4">↩</a></p></li>
+<li id="fn5"><p>Une alternative est d’avoir recours à l’extension <code class="pkg">mlogit</code> que nous n’aborderons pas ici. Voir <a href="http://www.ats.ucla.edu/stat/r/dae/mlogit.htm" class="uri">http://www.ats.ucla.edu/stat/r/dae/mlogit.htm</a> (en anglais) pour plus de détails.<a href="#fnref5">↩</a></p></li>
+<li id="fn6"><p>Voir le chapitre dédié aux <a href="donnees-ponderees.html#survey">données pondérées</a>.<a href="#fnref6">↩</a></p></li>
+<li id="fn7"><p>Compatibilité qui pourra éventuellement être introduite dans une future version de l’extension.<a href="#fnref7">↩</a></p></li>
+<li id="fn8"><p><code>devtools::install_github(&quot;larmarange/JLutils&quot;)</code> pour l’installer<a href="#fnref8">↩</a></p></li>
 </ol>
 </div>
 

@@ -257,6 +257,7 @@ $(document).ready(function () {
                   <li><a href="multicolinearite.html">Multicolinéarité dans la régression</a></li>
                   <li><a href="analyse-de-survie.html">Analyse de survie</a></li>
                   <li><a href="analyse-de-sequences.html">Analyse de séquences</a></li>
+                  <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: données longitudinales, analyse de séquences, modèle multinomial, modèle à temps discret, modèles de survie classiques et multi-états</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
   	            </ul>
@@ -345,6 +346,7 @@ $(document).ready(function () {
 <li><a href="#appariement-optimal-et-classification">Appariement optimal et classification</a></li>
 <li><a href="#representations-graphiques">Représentations graphiques</a></li>
 <li><a href="#distribution-de-la-typologie">Distribution de la typologie</a></li>
+<li><a href="#pour-aller-plus-loin">Pour aller plus loin</a></li>
 <li><a href="#bibliographie">Bibliographie</a></li>
 </ul>
 </div>
@@ -442,12 +444,24 @@ seq &lt;-<span class="st"> </span><span class="kw">seqdef</span>(donnees[, <span
 <pre><code> [&gt;] min/max sequence length: 37/37</code></pre>
 <pre><code> [&gt;] computing distances using the OM metric</code></pre>
 <pre><code> [&gt;] elapsed time: 1.88 secs</code></pre>
+<div class="important">
+<p>Ce cas de figure où tous les coûts de substitution sont égaux à 2 et le coût <em>indel</em> égal à 1 correspond à un cas particulier d’<em>optimal matching</em> que l’on appelle la <dfn lang="en">Longuest Common Subsequence</dfn> ou <dfn>LCS</df>. Elle peut se calculer directement avec <code>seqdist</code> de la manière suivante :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seq.om &lt;-<span class="st"> </span><span class="kw">seqdist</span>(seq, <span class="dt">method =</span> <span class="st">&quot;LCS&quot;</span>)</code></pre></div>
+<pre><code> [&gt;] 1000 sequences with 9 distinct states</code></pre>
+<pre><code> [&gt;] creating a &#39;sm&#39; with a substitution cost of 2</code></pre>
+<pre><code> [&gt;] creating 9x9 substitution-cost matrix using 2 as constant value</code></pre>
+<pre><code> [&gt;] 818 distinct sequences</code></pre>
+<pre><code> [&gt;] min/max sequence length: 37/37</code></pre>
+<pre><code> [&gt;] computing distances using the LCS metric</code></pre>
+<pre><code> [&gt;] elapsed time: 1.88 secs</code></pre>
+<p>En l’absence d’hypothèses fortes sur les différents statuts auxquels correspond notre alphabet (données hiérarchisées, croisement de différentes dimensions…), nous vous recommandons d’utiliser prioritairement la métrique LCS pour calculer la distance entre les séquences.</p>
+</div>
 <p>Cette matrice des distances ou des dissimilarités entre séquences peut ensuite être utilisée pour une <dfn>classification ascendante hiérarchique</dfn> (<dfn>CAH</dfn>), qui permet de regrouper les séquences en un certain nombre de « classes » en fonction de leur proximité :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seq.agnes &lt;-<span class="st"> </span><span class="kw">agnes</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">method =</span> <span class="st">&quot;ward&quot;</span>, <span class="dt">keep.diss =</span> <span class="ot">FALSE</span>)</code></pre></div>
 <p>Avec la fonction <code data-pkg="stats" data-rdoc="dendrogram">plot</code>, il est possible de tracer l’arbre de la classification (<dfn>dendrogramme</dfn>).</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">as.dendrogram</span>(seq.agnes), <span class="dt">leaflab =</span> <span class="st">&quot;none&quot;</span>)</code></pre></div>
-<img src="graphs/analyse-de-sequences/unnamed-chunk-10-1.png" width="1050" />
+<img src="graphs/analyse-de-sequences/unnamed-chunk-11-1.png" width="1050" />
 <figcaption>
 Dendrogramme de la classification des séquences
 </figcaption>
@@ -456,7 +470,7 @@ Dendrogramme de la classification des séquences
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">sort</span>(seq.agnes<span class="op">$</span>height, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)[<span class="dv">1</span><span class="op">:</span><span class="dv">20</span>], <span class="dt">type =</span> <span class="st">&quot;s&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;nb de classes&quot;</span>, 
   <span class="dt">ylab =</span> <span class="st">&quot;inertie&quot;</span>)</code></pre></div>
-<img src="graphs/analyse-de-sequences/unnamed-chunk-11-1.png" width="1050" />
+<img src="graphs/analyse-de-sequences/unnamed-chunk-12-1.png" width="1050" />
 <figcaption>
 Sauts d’inertie de la classification des séquences
 </figcaption>
@@ -472,7 +486,7 @@ seq.part &lt;-<span class="st"> </span><span class="kw">factor</span>(seq.part, 
 <p>Pour se faire une première idée de la nature des classes de la typologie, il existe un certain nombre de représentations graphiques. Les chronogrammes (<em>state distribution plots</em>) présentent une série de coupes transversales : pour chaque âge, on a les proportions d’individus de la classe dans les différentes situations (agriculteur, étudiant, etc.). Ce graphique s’obtient avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqdplot</code> :</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqdplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">border =</span> <span class="ot">NA</span>)</code></pre></div>
-<img src="graphs/analyse-de-sequences/unnamed-chunk-13-1.png" width="1050" />
+<img src="graphs/analyse-de-sequences/unnamed-chunk-14-1.png" width="1050" />
 <figcaption>
 Chronogrammes
 </figcaption>
@@ -481,7 +495,7 @@ Chronogrammes
 <p>Les « <dfn dataindex="tapis des séquences">tapis</dfn><dfn data-index="séquence, tapis"></dfn> » (<dfn lang="en">index plots</dfn>), obtenus avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqIplot</code>, permettent de mieux visualiser la dimension individuelle des séquences. Chaque segment horizontal représente une séquence, découpée en sous-segments correspondant aux aux différents états successifs qui composent la séquence.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqIplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">space =</span> <span class="dv">0</span>, <span class="dt">border =</span> <span class="ot">NA</span>, <span class="dt">yaxis =</span> <span class="ot">FALSE</span>)</code></pre></div>
-<img src="graphs/analyse-de-sequences/unnamed-chunk-14-1.png" width="1050" />
+<img src="graphs/analyse-de-sequences/unnamed-chunk-15-1.png" width="1050" />
 <figcaption>
 Tapis des séquences triés
 </figcaption>
@@ -491,7 +505,7 @@ Tapis des séquences triés
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ordre &lt;-<span class="st"> </span><span class="kw">cmdscale</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">k =</span> <span class="dv">1</span>)
 <span class="kw">seqIplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">sortv =</span> ordre, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">space =</span> <span class="dv">0</span>, <span class="dt">border =</span> <span class="ot">NA</span>, 
   <span class="dt">yaxis =</span> <span class="ot">FALSE</span>)</code></pre></div>
-<img src="graphs/analyse-de-sequences/unnamed-chunk-15-1.png" width="1050" />
+<img src="graphs/analyse-de-sequences/unnamed-chunk-16-1.png" width="1050" />
 <figcaption>
 Tapis des séquences triés par multidimensional scaling
 </figcaption>
@@ -505,7 +519,7 @@ Tapis des séquences triés par multidimensional scaling
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(JLutils)
 <span class="kw">seq_heatmap</span>(seq, seq.agnes, <span class="dt">labCol =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>)</code></pre></div>
-<img src="graphs/analyse-de-sequences/unnamed-chunk-17-1.png" width="1050" />
+<img src="graphs/analyse-de-sequences/unnamed-chunk-18-1.png" width="1050" />
 <figcaption>
 Tapis des séquences trié selon le dendrogramme
 </figcaption>
@@ -532,20 +546,20 @@ long<span class="op">$</span>age &lt;-<span class="st"> </span>long<span class="
 <span class="st">  </span><span class="kw">scale_fill_brewer</span>(<span class="dt">palette =</span> <span class="st">&quot;Set3&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(classe <span class="op">~</span><span class="st"> </span>., <span class="dt">scales =</span> <span class="st">&quot;free_y&quot;</span>, 
   <span class="dt">space =</span> <span class="st">&quot;free_y&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">14</span>, <span class="dv">50</span>), <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">14</span>, <span class="dv">20</span>, 
   <span class="dv">25</span>, <span class="dv">30</span>, <span class="dv">35</span>, <span class="dv">40</span>, <span class="dv">45</span>, <span class="dv">50</span>), <span class="dt">expand =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>))</code></pre></div>
-<p><img src="graphs/analyse-de-sequences/unnamed-chunk-21-1.png" width="1050" /></p>
+<p><img src="graphs/analyse-de-sequences/unnamed-chunk-22-1.png" width="1050" /></p>
 </div>
 <p>La distance des séquences d’une classe au centre de cette classe, obtenue avec <code data-pkg="TraMineR">disscenter</code>, permet de mesurer plus précisément l’<dfn>homogénéité des classes</dfn><dfn data-index="classe, homogénéité"></dfn>. Nous utilisons ici <code data-pkg="stats">aggregate</code> pour calculer la moyenne par classe :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">aggregate</span>(<span class="kw">disscenter</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">group =</span> seq.part), <span class="kw">list</span>(seq.part), mean)</code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["Group.1"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["x"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"classe.1","2":"12.891735"},{"1":"classe.2","2":"8.728719"},{"1":"classe.3","2":"15.201139"},{"1":"classe.4","2":"9.556488"},{"1":"classe.5","2":"16.181818"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["Group.1"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["x"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"classe.1","2":"12.024459"},{"1":"classe.2","2":"17.899080"},{"1":"classe.3","2":"6.991322"},{"1":"classe.4","2":"15.904762"},{"1":"classe.5","2":"10.464719"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Cela nous confirme que les classes 1, 3 et 5 sont nettement plus hétérogènes que les autres, alors que la classe 2 est la plus homogène.</p>
 <p>D’autres représentations graphiques existent pour poursuivre l’examen de la typologie. On peut visualiser les 10 séquences les plus fréquentes de chaque classe avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqfplot</code>.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqfplot</span>(seq, <span class="dt">group =</span> seq.part)</code></pre></div>
-<img src="graphs/analyse-de-sequences/unnamed-chunk-23-1.png" width="1050" />
+<img src="graphs/analyse-de-sequences/unnamed-chunk-24-1.png" width="1050" />
 <figcaption>
 Séquences les plus fréquentes de chaque classe
 </figcaption>
@@ -553,7 +567,7 @@ Séquences les plus fréquentes de chaque classe
 <p>On peut aussi visualiser avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqmsplot</code> l’état modal (celui qui correspond au plus grand nombre de séquences de la classe) à chaque âge.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqmsplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">main =</span> <span class="st">&quot;classe&quot;</span>)</code></pre></div>
-<img src="graphs/analyse-de-sequences/unnamed-chunk-24-1.png" width="1050" />
+<img src="graphs/analyse-de-sequences/unnamed-chunk-25-1.png" width="1050" />
 <figcaption>
 Statut modal à chaque âge
 </figcaption>
@@ -561,7 +575,7 @@ Statut modal à chaque âge
 <p>On peut également représenter avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqmtplot</code> les durées moyennes passées dans les différents états.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqmtplot</span>(seq, <span class="dt">group =</span> seq.part)</code></pre></div>
-<img src="graphs/analyse-de-sequences/unnamed-chunk-25-1.png" width="1050" />
+<img src="graphs/analyse-de-sequences/unnamed-chunk-26-1.png" width="1050" />
 <figcaption>
 Durée moyenne dans chaque statut
 </figcaption>
@@ -569,7 +583,7 @@ Durée moyenne dans chaque statut
 <p>La fonction <code data-pkg="TraMineR" data-rdoc="seqplot">seqrplot</code> cherche à identifier des séquences <q>représentatives</q> de chaque classe. Plusieurs méthodes sont proposées (voir <code data-pkg="TraMineR">seqrep</code>). La méthode <code>dist</code> cherche à identifier des séquences centrales à chaque classe, c’est-à-dire situées à proximité du centre de la classe. Selon l’hétérogénéité de la classe, plusieurs séquences <q>représentatives</q> peuvent être renvoyées. ATTENTION : il faut être prudent dans l’interprétation de ces séquences centrales de la classe dans la mesure où elles ne rendent pas toujours compte de ce qui se passe dans la classe et où elles peuvent induire en erreur quand la lasse est assez hétérogène. Il faut donc les considérer tout en ayant en tête l’ensemble du tapis de séquence pour voir si elles sont effectivement de bonnes candidates.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqrplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">dist.matrix =</span> seq.om, <span class="dt">criterion =</span> <span class="st">&quot;dist&quot;</span>)</code></pre></div>
-<img src="graphs/analyse-de-sequences/unnamed-chunk-26-1.png" width="1050" />
+<img src="graphs/analyse-de-sequences/unnamed-chunk-27-1.png" width="1050" />
 <figcaption>
 Séquences <q>représentatives</q> de chaque classe
 </figcaption>
@@ -577,7 +591,7 @@ Séquences <q>représentatives</q> de chaque classe
 <p>Enfin, l’<dfn>entropie transversale</dfn><dfn data-index="transversale, entropie"></dfn> décrit l’évolution de l’homogénéité de la classe. Pour un âge donné, une entropie proche de 0 signifie que tous les individus de la classe (ou presque) sont dans la même situation. À l’inverse, l’entropie est de 1 si les individus sont dispersés dans toutes les situations. Ce type de graphique produit par <code data-pkg="TraMineR" data-rdoc="seqplot">seqHtplot</code> peut être pratique pour localiser les moments de transition, l’insertion professionnelle ou une mobilité sociale ascendante.</p>
 <figure>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">seqHtplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>)</code></pre></div>
-<img src="graphs/analyse-de-sequences/unnamed-chunk-27-1.png" width="1050" />
+<img src="graphs/analyse-de-sequences/unnamed-chunk-28-1.png" width="1050" />
 <figcaption>
 Entropie transversale
 </figcaption>
@@ -590,28 +604,35 @@ Entropie transversale
 <span class="kw">freq</span>(seq.part)</code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"280","2":"28.0","3":"28.0","_rn_":"classe.1"},{"1":"199","2":"19.9","3":"19.9","_rn_":"classe.2"},{"1":"114","2":"11.4","3":"11.4","_rn_":"classe.3"},{"1":"341","2":"34.1","3":"34.1","_rn_":"classe.4"},{"1":"66","2":"6.6","3":"6.6","_rn_":"classe.5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"254","2":"25.4","3":"25.4","_rn_":"classe.1"},{"1":"78","2":"7.8","3":"7.8","_rn_":"classe.2"},{"1":"185","2":"18.5","3":"18.5","_rn_":"classe.3"},{"1":"126","2":"12.6","3":"12.6","_rn_":"classe.4"},{"1":"357","2":"35.7","3":"35.7","_rn_":"classe.5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>On poursuit ensuite la description des classes en croisant la typologie avec la variable <em>generation</em> :</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cprop</span>(<span class="kw">table</span>(seq.part, donnees<span class="op">$</span>generation))</code></pre></div>
 <pre><code>          
 seq.part   1930-38 1939-45 1946-50 Ensemble
-  classe.1  25.6    27.1    31.0    28.0   
-  classe.2  20.9    20.0    18.9    19.9   
-  classe.3   7.9    13.6    12.9    11.4   
-  classe.4  38.2    31.9    32.1    34.1   
-  classe.5   7.4     7.5     5.2     6.6   
+  classe.1  22.4    24.7    28.8    25.4   
+  classe.2   7.9     8.8     6.8     7.8   
+  classe.3  19.7    19.0    17.0    18.5   
+  classe.4  10.0    14.6    13.4    12.6   
+  classe.5  40.0    32.9    34.0    35.7   
   Total    100.0   100.0   100.0   100.0   </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">chisq.test</span>(<span class="kw">table</span>(seq.part, donnees<span class="op">$</span>generation))</code></pre></div>
 <pre><code>
     Pearson&#39;s Chi-squared test
 
 data:  table(seq.part, donnees$generation)
-X-squared = 12.032, df = 8, p-value = 0.1498</code></pre>
+X-squared = 10.156, df = 8, p-value = 0.2542</code></pre>
 <p>Le lien entre le fait d’avoir un certain type de carrières et la cohorte de naissance est significatif à un seuil de 15 %. On constate par exemple l’augmentation continue de la proportion de carrières de type « professions intermédiaires » (classe 1) et, entre les deux cohortes les plus anciennes, l’augmentation de la part des carrières de type « employés » (classe 3) et la baisse de la part des carrières de type « cadres » (classe 4).</p>
 <p>Bien d’autres analyses sont envisageables : croiser la typologie avec d’autres variables (origine sociale, etc.), construire l’espace des carrières possibles, étudier les interactions entre trajectoires familiales et professionnelles, analyser la variance des dissimilarités entre séquences en fonction de plusieurs variables « explicatives<a href="#fn16" class="footnoteRef" id="fnref16"><sup>16</sup></a> »…</p>
 <p>Mais l’exemple proposé est sans doute bien suffisant pour une première introduction !</p>
+</div>
+<div id="pour-aller-plus-loin" class="section level2">
+<h2>Pour aller plus loin</h2>
+<p>En premier lieu, la lecture du manuel d’utilisation de <code class="pkg">TraMineR</code>, intitulé <a href="http://mephisto.unige.ch/pub/TraMineR/doc/TraMineR-Users-Guide.pdf"><em>Mining sequence data in R with the TraMineR package: A user’s guide</em></a> et écrit par Alexis Gabadinho, Gilbert Ritschard, Matthias Studer et Nicolas S. Muller, est fortement conseillée. Ce manuel ne se contente pas de présenter l’extension, mais aborde également la théorie sous-jacente de l’analyse de séquences, les différents formats de données, les différences approches (séquences de statut ou séquences de transitions par exemple), etc.</p>
+<p>Pour une initiation en français, on pourra se référer à l’ouvrage de Nicolas Robette <a href="http://www.ceped.org/?article1064"><em>Explorer et décrire les parcours de vie : les typologies de trajectoires</em></a> sorti en 2011 aux éditions du Ceped.</p>
+<p>L’extension <code class="pkg">WeightedCluster</code> de Matthias Studer est un excellent complément à <code class="pkg">TraMineR</code>. Il a également écrit un <a href="https://cran.r-project.org/web/packages/WeightedCluster/vignettes/WeightedClusterFR.pdf"><em>manuel de la librairie WeightedCluster : un guide pratique pour la création de typologies de trajectoires en sciences sociales avec R</em></a>.</p>
+<p>Enfin, l’extension <code class="pkg">TraMineRextras</code> (<a href="https://cran.r-project.org/package=TraMineRextras" class="uri">https://cran.r-project.org/package=TraMineRextras</a>) contient des fonctions complémentaires à <code class="pkg">TraMineR</code>, plus ou moins en phase de test.</p>
 </div>
 <div id="bibliographie" class="section level2">
 <h2>Bibliographie</h2>
