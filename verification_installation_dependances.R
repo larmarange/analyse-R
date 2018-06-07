@@ -30,11 +30,11 @@ if (!length(m)) {
 
 # 2. Installer les packages manquants (CRAN ou GitHub) ----------------
 
-thru_pkgs <- c("hadley/tidyverse", "juba/questionr", "larmarange/JLutils", "hrbrmstr/ggalt", "ropensci/plotly", "carlganz/svrepmisc", "ewenharrison/finalfit")
-github_pkgs <- str_sub(thru_pkgs, str_locate(thru_pkgs, "/")[, 1] + 1)
+thru_github <- c("hadley/tidyverse", "juba/questionr", "larmarange/JLutils", "hrbrmstr/ggalt", "ropensci/plotly", "carlganz/svrepmisc", "ewenharrison/finalfit")
+github_pkgs <- str_sub(thru_github, str_locate(thru_github, "/")[, 1] + 1)
 
 for (i in m[m %in% github_pkgs])
-  install_github(thru_pkgs[which(thru_github == i)])
+  install_github(thru_github[which(github_pkgs == i)])
 
 for (i in m[!m %in% github_pkgs])
   install.packages(i, dependencies = TRUE)
@@ -82,7 +82,7 @@ min_r <- function(packages) {
       r.dep <- NA
     }
 
-    if (!is.na(r.dep))
+    if (any(!is.na(r.dep)))
       req <- c(req, r.dep)
 
   }
