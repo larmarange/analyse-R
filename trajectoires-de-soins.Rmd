@@ -4,6 +4,7 @@ title: "Trajectoires de soins : données longitudinales, analyse de séquences,
 
 ```{r options_communes, include=FALSE}
 source("options_communes.R")
+knitr::opts_chunk$set(tidy = FALSE)
 ```
 
 Dans ce chapitre, nous allons aborder plusieurs méthodes d'analyse à partir d'un jeu de données longitudinales. Tout d'abord, importons les données dans **R** avec la commande suivante :
@@ -76,9 +77,9 @@ ggplot(care_trajectories) +
   geom_bar()
 ```
 
-Améliorons ce graphique en y ajoutant la distribution selon le statut dans les soins chaque mois, en améliorant l'axe du temps (tous les 6 mois est plus facile à lire) et en y ajoutant un titre et des étiquettes appropriées. Afin de disposer d'une palette de couleurs à fort contraste, nous allons utiliser l'extension `viridis`{.pkg}. Enfin, nous allons utiliser une petite astuce pour indiquer les effectifs sur l'axe horizontal. Au passage, nous allons également franciser les étiquettes de la variable `care_status` avec `val_labels`{data-pkg="labelled"} (notez aussi le recours à `to_factor`{data-pkg="labelled"} dans `aed`{data-pkg="ggplot2"} qui nous permet de transformer à la volée la variable en facteur, format attendu par `ggplot2`{.pkg} pour les variables catégorielles). On se référera au [chapitre dédié à **ggplot2**](ggplot2.html) pour plus de détails sur les différentes fonctions de cette extension graphique.
+Améliorons ce graphique en y ajoutant la distribution selon le statut dans les soins chaque mois, en améliorant l'axe du temps (tous les 6 mois est plus facile à lire) et en y ajoutant un titre et des étiquettes appropriées. Afin de disposer d'une palette de couleurs à fort contraste, nous allons utiliser l'extension `viridis`{.pkg}. Enfin, nous allons utiliser une petite astuce pour indiquer les effectifs sur l'axe horizontal. Au passage, nous allons également franciser les étiquettes de la variable `care_status` avec `val_labels`{data-pkg="labelled"} (notez aussi le recours à `to_factor`{data-pkg="labelled"} dans `aes`{data-pkg="ggplot2"} qui nous permet de transformer à la volée la variable en facteur, format attendu par `ggplot2`{.pkg} pour les variables catégorielles). On se référera au [chapitre dédié à **ggplot2**](ggplot2.html) pour plus de détails sur les différentes fonctions de cette extension graphique.
 
-```{r}
+```{r, message=FALSE}
 library(viridis)
 n <- care_trajectories[month %in% (0:8*6), .(n = .N), by = month]$n
 etiquettes <- paste0("M", 0:8*6, "\n(n=", n, ")")
@@ -139,7 +140,7 @@ ggplot(care_trajectories[month <= 36]) +
 
 ## Une première analyse de séquences sur l'ensemble du fichier
 
-Nous allons réaliser une <dfn>analyse de séquences</dfn> (voir le [chapitre dédié](analyse-de-sequences.html)) sur l'ensemble de notre fichier. Pour cela, il va falloir préalable que nous transformions nos donnée actuellement dans un format <q>long</q> and un tableau <q>large</q>, c'est-à-dire avec une ligne par individu et une variable différentes par pas de temps. On peut réaliser cela facilement avec `spread`{data-pkg="tidyr"} de `tidyr`{.pkg} (voir le [chapitre dédié à **tidyr**](reorganiser-ses-donnees-avec-tidyr.html#spread-disperser-des-lignes))
+Nous allons réaliser une <dfn>analyse de séquences</dfn> (voir le [chapitre dédié](analyse-de-sequences.html)) sur l'ensemble de notre fichier. Pour cela, il va falloir préalable que nous transformions nos donnée actuellement dans un format <q>long</q> en un tableau <q>large</q>, c'est-à-dire avec une ligne par individu et une variable différentes par pas de temps. On peut réaliser cela facilement avec `spread`{data-pkg="tidyr"} de `tidyr`{.pkg} (voir le [chapitre dédié à **tidyr**](reorganiser-ses-donnees-avec-tidyr.html#spread-disperser-des-lignes)).
 
 ```{r}
 library(tidyr)
@@ -168,7 +169,7 @@ On peut retrouver la cascade de soins avec `seqdplot`{data-pkg="TraMineR" data-r
 seqdplot(seq_all, legend.prop = .25)
 ```
 
-Nous allons maintenant calculer une matrice des distances entre individus par <dfn lang="en">optimal matching</dfn>. Dans le cas présent, nos différents status sont hiérarchiquement ordonnés. Il n'est donc pas raisonnable de penser que les coûts sont constants entre les différents statuts, puisqu'en un sens, passer directement de **D** à **T** peut être considéré comme être passé d'abord de **D** à **C** puis de **C** à **D**. Nous allons donc faire une matrice de coûts hiérarchisées. `seqcost`{data-pkg="TraMineR"} nous permets de produire une matrice de coûts constants, que nous allons ensuite modifier manuellement. Pour le coût *indel*, le plus simple est de considérer la moitié du coût de substitution maximum.
+Nous allons maintenant calculer une matrice des distances entre individus par <dfn lang="en">optimal matching</dfn>. Dans le cas présent, nos différents status sont hiérarchiquement ordonnés. Il n'est donc pas raisonnable de penser que les coûts sont constants entre les différents statuts, puisqu'en un sens, passer directement de **D** à **T** peut être considéré comme être passé d'abord de **D** à **C** puis de **C** à **D**. Nous allons donc faire une matrice de coûts hiérarchisée. `seqcost`{data-pkg="TraMineR"} nous permets de produire une matrice de coûts constants, que nous allons ensuite modifier manuellement. Pour le coût *indel*, le plus simple est de considérer la moitié du coût de substitution maximum.
 
 
 ```{r}
@@ -189,6 +190,7 @@ Calculons le dendrogramme et représentons le avec le tapis de séquence grace �
 
 ```{r, fig.height=7}
 arbre_all <- hclust(as.dist(dist_all), method = "ward.D2")
+library(JLutils)
 seq_heatmap(seq_all, arbre_all)
 ```
 
@@ -219,7 +221,7 @@ seq_heatmap(seq_m18, arbre_m18)
 
 Reste maintenant à décider du nombre de classes à retenir. Encore une fois, c'est un équilibre à trouver entre le niveau de détails voulus et le niveau de simplification requis pour permettre l'analyse.
 
-Pour faciliter ce choix, on peut avoir recours à la fonction `as.seqtree`{data-pkg="WeightedCluster"} de l'extension `WeightedCluster`{.pkg}, couplée à la fonction `seqtreedisplay`{TraMineR}. **ATTENTION :** pour que le graphique puisse être produit, il faut que le logiciel libre **GraphViz** (<https://graphviz.gitlab.io/>) soit installé sur votre PC. On peut également installer **GraphViz** avec le code ci-dessous :
+Pour faciliter ce choix, on peut avoir recours à la fonction `as.seqtree`{data-pkg="WeightedCluster"} de l'extension `WeightedCluster`{.pkg}, couplée à la fonction `seqtreedisplay`{data-pkg="TraMineR"}. **ATTENTION :** pour que le graphique puisse être produit, il faut que le logiciel libre **GraphViz** (<https://graphviz.gitlab.io/>) soit installé sur votre PC. On peut également installer **GraphViz** avec le code ci-dessous :
 
 ```{r, eval=FALSE}
 source("http://bioconductor.org/biocLite.R")
@@ -254,7 +256,7 @@ On peut représenter le découpage du dendrogramme avec `A2Rplot`{data-pkg="JLut
 A2Rplot(arbre_m18, k = 4, show.labels = FALSE)
 ```
 
-Comme expliqué par Matthias Studer dans le [*manuel de la librairie Weighted Cluster](https://cran.r-project.org/web/packages/WeightedCluster/vignettes/WeightedClusterFR.pdf), plusieurs critiques peuvent être adressées aux procédures hiérarchiques, en particulier le fait que la fusion de deux groupes se fait en maximisant un critère local. 
+Comme expliqué par Matthias Studer dans le [*manuel de la librairie Weighted Cluster*](https://cran.r-project.org/web/packages/WeightedCluster/vignettes/WeightedClusterFR.pdf), plusieurs critiques peuvent être adressées aux procédures hiérarchiques, en particulier le fait que la fusion de deux groupes se fait en maximisant un critère local. 
 
 L’algorithme <dfn>PAM</dfn> pour <dfn lang="en">Partitioning Around Medoids</dfn> suit une autre logique que les algorithmes hiérarchiques et vise à
 obtenir la meilleure partition d’un ensemble de données en un nombre prédéfini de groupes. Il a l’avantage de maximiser un critère global et non uniquement un critère local. Par contre, le nombre de classes doit être fixé à l'avance.
@@ -294,31 +296,144 @@ knitr::kable(tab, digits = 3)
 
 Selon ces indicateurs calculés, l'approche PAM obtiendrait une partition légèrement de meilleure qualité que celle obtenuepar CAH.
 
-L'extension `WeightedCluster`{.pkg} fournie aussi une fonction `wcSilhouetteObs`{data-pkg = "WeightedCluster"} permettant de mesurer la <q>silhouette</q> de chaque séquence. Plus cette métrique est élevée et proche de 1, plus la séquence est proche du centre de classe et <q>caractéristique</q> de la classe. On peut utiliser cette métrique pour classer les séquences sur le tapis de séquences.
+L'extension `WeightedCluster`{.pkg} fournie aussi une fonction `wcSilhouetteObs`{data-pkg="WeightedCluster"} permettant de mesurer la <q>silhouette</q> de chaque séquence. Plus cette métrique est élevée et proche de 1, plus la séquence est proche du centre de classe et <q>caractéristique</q> de la classe. On peut utiliser cette métrique pour classer les séquences sur le tapis de séquences.
 
 ```{r}
 large_m18$sil <- wcSilhouetteObs(dist_m18, large_m18$typo_pam)
 seqIplot(seq_m18, group = large_m18$typo_pam, sortv = large_m18$sil)
 ```
 
-<!--
+Nous voyons émerger quatre groupes distincts :
 
-Donner un nom
+- les *rapides*, qui entrent en soins et initient le traitement dès les premiers mois suivant le diagnostic ;
+- les *lents*, qui entrent en soins et initient le traitement plus tardivement, après M6 ;
+- les *inaboutis*, qui entrent en soins mais n'initient pas le traitement ;
+- les *hors soins*, qui ne sont pas entrés en soins où n'y sont pas restés.
 
-Tapis de séquences avec ggplot2
---->
+Le graphique obtenu avec `seqIplot`{data-pkg="TraMineR" data-rdoc="seqplot"} affiche visuellement chaque groupe avec la même hauteur, pouvant laisser accroire que chaque groupe a le même poids dans l'échantillon. Pour produire une représentation graphique des tapis de séquences plus <q>correcte</q>, où chaque la hauteur de chaque groupe correspondrait à son poids dans l'échantillon, nous allons passer par `ggplot2`{.pkg}. Un tapis de séquences peut-être vu comme un <q>raster</q> et dès lors représenté avec `geom_raster`{data-pkg="ggplot2"}. Pour travailler avec `ggplot2`{.pkg}, nos données doivent être au format *tidy*, c'est-à-dire avec une ligne par point d'observation, soit une ligne par personne et par jour. Nous allons donc repartir du fichier `care_trajectories`. Le mois d'observation indiquera la position en abscisse. Quant à la position en ordonnée, il faudra que nous la calculions, séparément pour chaque groupe, afin d'éviter des <q>lignes vides</q> dans le graphique.
+
+```{r, fig.height=8}
+# nommer les groupes
+large_m18$groupe <- factor(
+  large_m18$typo_pam,
+  c(85, 23, 410, 6),
+  c("Rapides", "Lents", "Inaboutis", "Hors soins")
+)
+
+# calculer le rang des individus dans chaque groupe
+setorder(large_m18, "ordre_cmd")
+large_m18[, rang_cmd := 1:.N, by = groupe]
+
+# créer un fichier long
+long_m18 <- care_trajectories[id %in% large_m18$id & month <= 18]
+long_m18 <- merge(
+  long_m18,
+  large_m18[, .(id, groupe, rang_cmd)],
+  by = "id",
+  all.x = TRUE
+)
+long_m18$care_statusF <- to_factor(long_m18$care_status)
+
+# calculer les effectifs par groupe
+tmp <- large_m18[, .(n = .N), by = groupe]
+tmp[, groupe_n := paste0(groupe, "\n(n=", n, ")")]
+long_m18 <- merge(
+  long_m18,
+  tmp[, .(groupe, groupe_n)],
+  by = "groupe",
+  all.x = TRUE
+)
+
+# graphique des tapis de séquences
+ggplot(long_m18) +
+  aes(x = month, y = rang_cmd, fill = care_statusF) +
+  geom_raster() +
+  facet_grid(groupe_n ~ ., space = "free", scales = "free") +
+  scale_x_continuous(breaks = 0:6*3, labels = paste0("M", 0:6*3)) +
+  scale_y_continuous(breaks = 0:5*100, minor_breaks = NULL) +
+  xlab("") + ylab("") +
+  theme_light() +
+  theme(legend.position = "bottom") +
+  labs(fill = "Statut dans les soins") + 
+  scale_fill_viridis(discrete = TRUE, direction = -1) +
+  guides(fill = guide_legend(nrow = 2))
+
+```
+
 
 ## Facteurs associés à l'appartenance à chaque groupe
 
-Section en construction.
+Une fois les différents groupes de trajectoires identifiés, il est courant de vouloir regarder si certains facteurs influencent l'appartenance à un groupe plutôt qu'un autre. Dans nos données d'exemple, nous disposons des variables suivantes : sexe, groupe d'âges, niveau d'éducation, niveau de richesse du ménage, distance à la clinique la plus proche.
 
-<!---
-Faire les profils univariés avec finalfit
+Ces différentes variables sont renseignées pour chaque mois dans le tableau de données `care_trajectories`, en tenant compte des éventuels changements au cours du temps. Ici, notre analyse est menée au niveau individuel. Nous allons donc récupérer la valeur de ces différentes variables au moment du diagnostic, à savoir à M0.
 
-ggchisq
+```{r}
+large_m18 <- merge(
+  large_m18,
+  care_trajectories[
+    month == 0, 
+    .(id, sex, age, education, wealth, distance_clinic)
+  ],
+  by = "id",
+  all.x = TRUE
+)
+```
 
-Modèle multinomial*
---->
+L'extension `finalfit`{.pkg}, présentée dans le chapite sur la [régression logistique](regression-logistique.html#tableaux-all-in-one), permets via sa fonction `summary_factorlist`{data-pkg="finalfit"} de produire rapidement le tableau de l'analyse bivariée. En l'occurence, le code ci-dessous permets de sortir les effectifs, les pourcentages en colonnes et les p-values correspondant au <dfn>test du Chi²</dfn><dfn data-index="Chi², test"></dfn>.^[Pour plus de détails sur les tableaux croisés et le test du Chi², voir le chapitre sur la [statisque bivariée](statistique-bivariee.html#deux-variables-qualitatives).]
+
+```{r}
+library(finalfit)
+explanatory = c("sex", "age", "education", "wealth", "distance_clinic")
+dependent = "groupe"
+tab <- summary_factorlist(
+  to_factor(large_m18), dependent, explanatory,
+  p=TRUE, column = TRUE, total_col = TRUE
+)
+knitr::kable(tab, row.names = FALSE)
+```
+
+Pour mieux visualiser les relations entre les variables, on peut avoir recours à la fonction `ggchisq_res`{data-pkg="JLutils"} de l'extension `JLutils`{.pkg} qui permets de représenter les <dfn data-index="résidus, test du Chi²">résidus du Chi²</dfn><dfn data-index="test du Chi², résidus"></dfn><dfn data-index="Chi², résidus">.
+
+```{r}
+library(JLutils)
+ggchisq_res(
+  sex + age + education + wealth + distance_clinic ~ groupe,
+  data = to_factor(large_m18),
+  label = "scales::percent(col.prop)",
+  breaks = c(-4, -2, 0, 2, 4)
+)
+```
+
+On peut ainsi noter que les hommes, les jeunes et ceux vivant à plus de 10 kilomètres d'une clinique sont plus souvent dans le groupe <q>Hors soins</q>. Inversement, les femmes et les plus éduqués sont plus souvent dans le groupe des <q>Rapides</q>. Résultat inattendu, les ménages les plus riches sont moins souvent dans les groupes ayant initiés un traitement (<q>Rapides</q> et <q>Lents</q>), ce résultat pouvant s'expliquer en partie par le fait que les plus aisés peuvent plus facilement accéder à des soins dans le secteur privé, et donc <q>faussement</q> apparaître <q>Hors soins<q>, car seuls les soins reçus dans le secteur public ont été mesurés dans cette étude.
+
+Pour affiner les résultats, on aura recours à un modèle multivarié en exécutant une <dfn>régression logistique multinomiale</dfn><dfn data-index="multinomiale, régression logistique"></dfn> avec `multinom`{data-pkg="nnet} de l'extension `nnet`{.pkg} (pour plus de détails, voir le [chapitre dédié](regression-logistique.html#regression-logistique-multinomiale)).
+
+```{r, echo=FALSE}
+library(nnet)
+large_m18$groupe2 <- relevel(large_m18$groupe, "Hors soins")
+regm <- multinom(
+  groupe2 ~ sex + age + education + wealth + distance_clinic, 
+  data = to_factor(large_m18)
+)
+regm2 <- step(regm)
+```
+
+```{r}
+tmp <- JLutils::tidy_detailed(regm2, exponentiate = T, conf.int = TRUE)
+tmp <- tmp[tmp$term != "(Intercept)", ]
+tmp$y.level
+ggplot(tmp) + 
+  aes(x = label, y = estimate, ymin = conf.low, ymax = conf.high, color = y.level) +
+  geom_hline(yintercept = 1, color = "gray25", linetype = "dotted") + 
+  geom_errorbar(position = position_dodge(0.5), width = 0) + 
+  geom_point(position = position_dodge(width = 0.5)) + 
+  scale_y_log10() + 
+  coord_flip() +
+  xlab("Facteur") + ylab("Odds Ratios") +
+  labs(color = "vs. Hors Soins") +
+  theme_light() + 
+  theme(panel.grid.major.y = element_blank())
+```
 
 ## Modèle à temps discret
 
