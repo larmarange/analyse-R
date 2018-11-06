@@ -90,15 +90,24 @@ Autre exemple, généré depuis le jeu de données `nycflights13`{.pkg}, permett
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 library(nycflights13)
+library(tidyverse)
 data(flights)
 data(airlines)
+
+airlines <- airlines %>%
+  left_join(
+    flights %>% 
+      group_by(carrier) %>% 
+      summarise(flights_per_year = n())
+  )
+
 
 df <- flights %>% 
   filter(carrier %in% c("AA", "UA")) %>% 
   slice(1:8) %>% 
   select(year, month, day, dep_time, carrier) %>% 
   left_join(airlines)
-kable(df)
+knitr::kable(df)
 ```
 
 Dans ce tableau on a bien une observation par ligne (un vol), et une variable par colonne. Mais on a une "infraction" à la troisième règle, qui est que chaque valeur doit être présente dans une unique case : si on regarde la colonne `name`, on a en effet une duplication de l'information concernant le nom des compagnies aériennes. Notre tableau mêle en fait deux types d'observations différents : des observations sur les vols, et des observations sur les compagnies aériennes.
@@ -106,11 +115,11 @@ Dans ce tableau on a bien une observation par ligne (un vol), et une variable pa
 Pour "arranger" ce tableau, il faut séparer les deux types d'observations en deux tables différentes :
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-kable(df %>% select(-name))
+knitr::kable(df %>% select(-name, -flights_per_year))
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-kable(df %>% select(carrier, name) %>%  distinct)
+knitr::kable(df %>% select(carrier, name, flights_per_year) %>%  distinct)
 ```
 
 On a désormais deux tables distinctes, l'information n'est pas dupliquée, et on peut facilement faire une jointure si on a besoin de récupérer l'information d'une table dans une autre.
