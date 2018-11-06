@@ -12,7 +12,12 @@ contraintes techniques (fichiers **dbf** ou **Excel** limités à 256 colonnes, 
 
 Cela arrive également lorsque l'on traitre de données d'une enquêtes réalisée à différents niveaux (par exemple, un questionnaire ménage et un questionnaire individu).
 
-## La fonction merge
+On peut distinguer deux situations :
+
+- l'ajout de variables (jointure entre tables)
+- l'ajout d'observations (concaténation de tables)
+
+## La fonction merge et les jointures
 
 Une opération relativement courante consiste à 
 <dfn data-index="fusion de tables">fusionner</dfn><dfn data-index="tableau de données, fusion"></dfn>
@@ -152,8 +157,7 @@ table.exemple_operateur td {
 
 Cela semble fonctionner. La fonction qui permet d'effectuer cette opération sous **R** 
 s'appelle `cbind`{data-pkg="base"}, elle « colle » des tableaux côte à côte en regroupant 
-leurs colonnes^[L'équivalent de `cbind`{data-pkg="base"} pour les lignes s'appelle 
-`rbind`{data-pkg="base" data-rdoc="cbind"}.].
+leurs colonnes.
 
 ```{r}
 head(cbind(d1, d2))
@@ -180,7 +184,13 @@ d'autres individus.
 La commande `cbind`{data-pkg="base"} ne peut en effet fonctionner que si les deux tableaux ont exactement
 le même nombre de lignes, et dans le même ordre, ce qui n'est pas le cas ici.
 
-On va donc être obligé de pocéder à une <dfn>fusion</dfn> des deux tableaux, qui va permettre de rendre à
+<div class="important">
+Pour éviter toute erreur, il est préférable de ne jamais utiliser `cbind`{data-pkg="base"} ou son équivalent `bind_cols`{data-pkg="dplyr" data-rdoc="bind"} fourni par `dplyr`{.pkg}.
+
+On aura recours à la jointure entre tables présentée ci-dessous.
+</div>
+
+On va donc être obligé de procéder à une <dfn>fusion</dfn> des deux tableaux, qui va permettre de rendre à
 chaque ligne ce qui lui appartient. Pour cela nous avons besoin d'un identifiant qui permet d'identifier
 chaque ligne de manière unique et qui doit être présent dans tous les tableaux. Dans notre cas, c'est
 plutôt rapide, il s'agit de la variable *id*.
@@ -582,8 +592,11 @@ ménages). Dans ce cas les lignes de l'autre table sont dupliquées autant de fo
 </table>
 
 
-## Extension dplyr
+## Jointures avec dplyr
 
+Le jeu de données `nycflights13`{.pkg} est un exemple de données réparties en plusieurs tables. Ici on en a trois : les informations sur les vols, celles sur les aéroports et celles sur les compagnies aériennes sont dans trois tables distinctes.
+
+`dplyr`{.pkg} propose différentes fonctions permettant de travailler avec des données structurées de cette manière.
 
 ```{r}
 library(dplyr)
@@ -813,6 +826,63 @@ kable(anti_join(personnes, voitures))
 ```
 
 
-## Extension data.table
+## Jointures avec data.table
 
 `data.table`{.pkg} fourni une fonction `merge`{data-pkg="data.table"} beaucoup plus rapide que celle standard de R mais fonctionnant de manière identique.
+
+
+## Ajouter des observations
+
+<div class="important">
+La fonction `rbind`{data-pkg="base" data-rdoc="cbind"} fournie nativement avec **R** pour ajouter des observations à un tableau doit être évitée car elle générera des résultats non pertinents si les tableaux que l'on concatènent n'ont pas exactement les mêmes colonnes dans le même ordre.
+</div>
+
+La fonction `bind_rows`{data-pkg="dplyr" data-rdoc="bind"} de `dplyr`{.pkg} permet d'ajouter des lignes à une table à partir d'une ou plusieurs autres tables.
+
+L'exemple suivant (certes très artificiel) montre l'utilisation de `bind_rows`{data-pkg="dplyr" data-rdoc="bind"}. On commence par créer trois tableaux `t1`, `t2` et `t3` :
+
+```{r}
+t1 <- airports %>% 
+  select(faa, name, lat, lon) %>% 
+  slice(1:2)
+t1
+```
+```{r}
+t2 <- airports %>% 
+  select(name, faa, lon, lat) %>% 
+  slice(5:6)
+
+t2
+```
+```{r}
+t3 <- airports %>% 
+  select(faa, name) %>% 
+  slice(100:101)
+t3
+```
+
+On concaténe ensuite les trois tables avec `bind_rows`{data-pkg="dplyr" data-rdoc="bind"} :
+
+```{r}
+bind_rows(t1, t2, t3)
+```
+
+On remarquera que si des colonnes sont manquantes pour certaines tables, comme les colonnes <var>lat</var> et <var>lon</var> de `t3`, des `NA` sont automatiquement insérées. 
+
+De plus, peu importe l'ordre des variables entre les différentes tables, `bind_rows`{data-pkg="dplyr" data-rdoc="bind"} les réassociera en considérant que deux colonnes ayant le même nom dans deux tableaux correspondent à la même variable.
+
+Il peut être utile, quand on concatène des lignes, de garder une trace du tableau d'origine de chacune des lignes dans le tableau final. C'est possible grâce à l'argument `.id` de `bind_rows`{data-pkg="dplyr" data-rdoc="bind"}. On passe à cet argument le nom d'une colonne qui contiendra l'indicateur d'origine des lignes :
+
+```{r}
+bind_rows(t1, t2, t3, .id = "source")
+```
+
+Par défaut la colonne `.id` ne contient qu'un nombre, différent pour chaque tableau. On peut lui spécifier des valeurs plus explicites en "nommant" les tables dans `bind_rows`{data-pkg="dplyr" data-rdoc="bind"} de la manière suivante :
+
+```{r}
+bind_rows(table1 = t1, table2 = t2, table3 = t3, .id = "source")
+```
+
+<div class="note">
+Une alternative à `bind_rows`{data-pkg="dplyr" data-rdoc="bind"} est la fonction `rbind.fill`{data-pkg="plyr"} de l'extension `plyr`{.pkg} qui fonctionne de manière similaire.
+</div>
