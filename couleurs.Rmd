@@ -1,0 +1,85 @@
+---
+title: "Couleurs et Palettes"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+## Noms de couleur
+
+Lorsque l'on doit indiquer à **R** une <dfn>couleur</dfn>, notamment dans les fonctions graphiques, on peut mentionner certaines couleurs en toutes lettres (en anglais) comme `"red"` ou `"blue"`. La liste des couleurs reconnues par **R** est disponible sur <http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf>.
+
+## Couleurs RVB
+
+En informatique, les couleurs sont usuellement codées en Rouge/Vert/Bleu (voir <https://fr.wikipedia.org/wiki/Rouge_vert_bleu>) et représentées par un code hexadécimal à 6 caractères, précédés du symbole `#`. Ce code est reconnu par **R** et on pourra par exemple indiquer `"#FF0000"` pour la couleur rouge. Le code hexadécimal des différentes couleurs peut s'obtenir aisément sur internet, de nombreux sites étant consacrés aux palettes de couleurs.
+
+Parfois, au lieu du code hexadécimal, les couleurs RVB sont indiquées avec trois chiffres entiers compris entre 0 et 255. La conversion en hexadécimal se fait avec la fonction `rgb`{data-pkg="grDevices"}.
+
+```{r}
+rgb(255, 0, 0, maxColorValue = 255)
+```
+
+## Palettes de couleurs
+
+### Palettes natives
+
+**R** fournit nativement quelques palettes de couleurs continues telles que `rainbow`{data-pkg="grDevices" data-rdoc="Palettes"}, `heat.colors`{data-pkg="grDevices" data-rdoc="Palettes"}, `terrain.colors`{data-pkg="grDevices" data-rdoc="Palettes"}, `topo.colors`{data-pkg="grDevices" data-rdoc="Palettes"} ou encore `cm.colors`{data-pkg="grDevices" data-rdoc="Palettes"}.
+
+Voici un aperçu de ces palettes de couleurs :
+
+```{r echo=FALSE}
+demo.pal <-
+  function(n, border = if (n < 32) "light gray" else NA,
+           main = paste("color palettes;  n=", n),
+           ch.col = c("rainbow(n, start=.7, end=.1)", "heat.colors(n)",
+                      "terrain.colors(n)", "topo.colors(n)",
+                      "cm.colors(n)"))
+{
+    nt <- length(ch.col)
+    i <- 1:n; j <- n / nt; d <- j/6; dy <- 2*d
+    plot(i, i+d, type = "n", yaxt = "n", ylab = "", main = main)
+    for (k in 1:nt) {
+        rect(i-.5, (k-1)*j+ dy, i+.4, k*j,
+             col = eval(parse(text = ch.col[k])), border = border)
+        text(2*j,  k * j + dy/4, ch.col[k])
+    }
+  }
+demo.pal(16)
+```
+
+### Color Brewer
+
+Le projet **Color Brewer** a développé des palettes cartographiques, à la fois séquentielles, divergentes et catégorielles, présentées en détail sur <http://colorbrewer2.org/>. Pour chaque type de palette, et en fonction du nombre de classes, est indiqué sur ce site si la palette est adaptée aux personnes souffrant de daltonisme, si elle est rendra correctement sur écran, en cas d'impression couleur et en cas d'impression en noir et blanc.
+
+Voici un aperçu des différentes palettes disponibles :
+
+```{r echo=FALSE, fig.height=8, fig.width=8}
+library(RColorBrewer)
+display.brewer.all(8)
+```
+
+L'extension `RColorBrewer`{.pkg} permets d'accéder à ces palettes sous **R**.
+
+Si on utilise `ggplot2`{.pkg}, les palettes Color Brewer sont directement disponibles via les fonctions `scale_fill_brewer`{data-pkg="ggplot2" data-rdoc="scale_colour_brewer"} et `scale_colour_brewer`{data-pkg="ggplot2"}.
+
+ATTENTION : les palettes Color Brewer sont seulement implémentées pour des variables catégorielles. Il est cependant possible de les utiliser avec des variables continues en les combinants avec `scale_fill_gradientn`{data-pkg="ggplot2" data-rdoc="scale_colour_gradient"} ou `scale_coulour_gradientn`{data-pkg="ggplot2" data-rdoc="scale_colour_gradient"} (en remplaçant `"Set1"` par le nom de la palette désirée) :
+
+```{r eval=FALSE}
+scale_fill_gradientn(values = RColorBrewer::brewer.pal(6, "Set1"))
+```
+
+### Viridis
+
+Les palettes de couleurs de la famille **Viridis** ont initialement été créées pour **Matplolib** de telles manières que :
+
+- les couleurs sont perçues de manière uniformes, même lorsqu’elles sont imprimées en noir et blanc ;
+- les couleurs sont distinguées par les formes les plus courantes de daltonisme.
+
+Voici un aperçu des différentes palettes de cette famille :
+
+![](images/viridis-scales.png)
+
+Ces palettes sont accessibles de manière générale via l'extension `viridis`{.pkg}.
+
+Elles sont également implémentées dans `gpplot2`{.pkg} via les fonctions `scale_fill_viridis_c`{data-pkg="ggplot2" data-rdoc="scale_colour_viridis_d"} et `scale_colour_viridis_c`{data-pkg="ggplot2" data-rdoc="scale_colour_viridis_d"} pour des variables continues et `scale_fill_viridis_d`{data-pkg="ggplot2" data-rdoc="scale_colour_viridis_d"} et `scale_colour_viridis_d`{data-pkg="ggplot2" data-rdoc="scale_colour_viridis_d"} pour des variables discrètes.
