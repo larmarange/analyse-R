@@ -1,0 +1,61 @@
+---
+title: "Annotations mathématiques"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+Pour ajouter des annotation mathématiques à un graphique, comme une équation, on aura recours à la fonction `expression`{data-pkg="base"}. Les expressions qui peuvent être utilisées sont présentées en détail dans l'aide en ligne de `plotmath`{data-pkg="grDevices"}, visible également sur <http://www.rdocumentation.org/packages/grDevices/functions/plotmath>.
+
+
+## Combiner texte et expression
+
+On aura recours à la fonction `paste`{.data-pkg="base"} à l'intérieur de l'appel à `expression`{data-pkg="base"}. Un exemple :
+
+```{r, tidy=FALSE}
+# données aléatoires
+df <- data.frame(x = rnorm(100), y = rnorm(100))
+
+library(ggplot2)
+ggplot(df) +
+  aes(x = x, y = y) +
+  geom_point() +
+  xlab(expression(hat(mu)[0])) +
+  ylab(expression(alpha^beta)) +
+  ggtitle(expression(paste("Plot of ", alpha^beta, " versus ", hat(mu)[0])))
+```
+
+## Intégrer une valeur calculée dans une expression
+
+Pour intégrer une valeur pré-calculée, et donc stockée dans un objet R, dans une expression, on aura recours à la fonction `substitute`{data-pkg="base"}.
+
+
+```{r, tidy=FALSE}
+x_mean <- 1.5
+x_sd <- 1.2
+df <- data.frame(x = rnorm(100, x_mean, x_sd))
+
+ggplot(df) +
+  aes(x = x) +
+  geom_histogram(binwidth = .25) + 
+  ggtitle(
+    substitute(
+      paste(X[i], " ~ N(", mu, "=", m, ", ", sigma^2, "=", s2, ")"),
+      list(m = x_mean, s2 = x_sd^2)
+    )
+  )
+```
+
+
+## Syntaxe de plotmath
+
+```{r, eval=FALSE}
+demo(plotmath)
+```
+
+
+```{r, echo=FALSE, fig.width=12, fig.height=6}
+demo(plotmath, echo = FALSE)
+```
+
