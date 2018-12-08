@@ -57,10 +57,10 @@
 
 
 <style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
+<style type="text/css" data-origin="pandoc">
 a.sourceLine { display: inline-block; line-height: 1.25; }
 a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; position: absolute; }
+a.sourceLine:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -73,13 +73,11 @@ code.sourceCode { white-space: pre-wrap; }
 a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
 pre.numberSource a.sourceLine
-  { position: relative; }
-pre.numberSource a.sourceLine:empty
-  { position: absolute; }
+  { position: relative; left: -4em; }
 pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
-    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all;
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -121,7 +119,29 @@ code span.st { color: #4070a0; } /* String */
 code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
 </style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 <style type="text/css">
   pre:not([class]) {
     background-color: white;
@@ -184,6 +204,9 @@ img {
 button.code-folding-btn:focus {
   outline: none;
 }
+summary {
+  display: list-item;
+}
 </style>
 
 
@@ -191,14 +214,74 @@ button.code-folding-btn:focus {
 <div class="container-fluid main-container">
 
 <!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
 <script>
 $(document).ready(function () {
   window.buildTabsets("TOC");
 });
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
 </script>
 
 <!-- code folding -->
-
 
 
 
@@ -411,9 +494,9 @@ $(document).ready(function () {
 </div>
 <p>Le <dfn>recodage de variables</dfn><dfn data-index="variable, recodage"></dfn> est une opération extrêmement fréquente lors du traitement d’enquête. Celui-ci utilise soit l’une des formes d’indexation décrites précédemment, soit des fonctions <em>ad hoc</em> de <strong>R</strong>.</p>
 <p>On passe ici en revue différents types de recodage parmi les plus courants. Les exemples s’appuient, comme précédemment, sur l’extrait de l’enquête <em>Histoire de vie</em> :</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(questionr)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">data</span>(hdv2003)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">d &lt;-<span class="st"> </span>hdv2003</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(questionr)</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">data</span>(hdv2003)</a>
+<a class="sourceLine" id="cb1-3" title="3">d &lt;-<span class="st"> </span>hdv2003</a></code></pre></div>
 <div id="renommer-des-variables" class="section level2">
 <h2>Renommer des variables</h2>
 <p>Une opération courante lorsqu’on a importé des variables depuis une source de données externe consiste à renommer les variables importées. Sous <strong>R</strong> les noms de variables doivent être à la fois courts et explicites.</p>
@@ -421,30 +504,30 @@ $(document).ready(function () {
 <p>Les noms de variables peuvent contenir des lettres, des chiffres (mais ils ne peuvent pas commencer par un chiffre), les symboles <code>.</code> et <code>_</code> et doivent commencer par une lettre. <strong>R</strong> fait la différence entre les majuscules et les minuscules, ce qui signifie que <var>x</var> et <var>X</var> sont deux noms de variable différents. On évitera également d’utiliser des caractères accentués dans les noms de variable. Comme les espaces ne sont pas autorisés, on pourra les remplacer par un point ou un tiret bas.</p>
 </div>
 <p>On peut lister les noms des variables d’un tableau de données (<em>data.frame</em>) à l’aide de la fonction <code data-pkg="base">names</code> :</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">names</span>(d)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">names</span>(d)</a></code></pre></div>
 <pre><code> [1] &quot;id&quot;            &quot;age&quot;           &quot;sexe&quot;          &quot;nivetud&quot;      
  [5] &quot;poids&quot;         &quot;occup&quot;         &quot;qualif&quot;        &quot;freres.soeurs&quot;
  [9] &quot;clso&quot;          &quot;relig&quot;         &quot;trav.imp&quot;      &quot;trav.satisf&quot;  
 [13] &quot;hard.rock&quot;     &quot;lecture.bd&quot;    &quot;peche.chasse&quot;  &quot;cuisine&quot;      
 [17] &quot;bricol&quot;        &quot;cinema&quot;        &quot;sport&quot;         &quot;heures.tv&quot;    </code></pre>
 <p>Cette fonction peut également être utilisée pour renommer l’ensemble des variables. Si par exemple on souhaitait passer les noms de toutes les variables en majuscules, on pourrait faire :</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">d.maj &lt;-<span class="st"> </span>d</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw">names</span>(d.maj) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;ID&quot;</span>, <span class="st">&quot;AGE&quot;</span>, <span class="st">&quot;SEXE&quot;</span>, <span class="st">&quot;NIVETUD&quot;</span>, <span class="st">&quot;POIDS&quot;</span>, <span class="st">&quot;OCCUP&quot;</span>, <span class="st">&quot;QUALIF&quot;</span>, <span class="st">&quot;FRERES.SOEURS&quot;</span>, </a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">  <span class="st">&quot;CLSO&quot;</span>, <span class="st">&quot;RELIG&quot;</span>, <span class="st">&quot;TRAV.IMP&quot;</span>, <span class="st">&quot;TRAV.SATISF&quot;</span>, <span class="st">&quot;HARD.ROCK&quot;</span>, <span class="st">&quot;LECTURE.BD&quot;</span>, <span class="st">&quot;PECHE.CHASSE&quot;</span>, </a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">  <span class="st">&quot;CUISINE&quot;</span>, <span class="st">&quot;BRICOL&quot;</span>, <span class="st">&quot;CINEMA&quot;</span>, <span class="st">&quot;SPORT&quot;</span>, <span class="st">&quot;HEURES.TV&quot;</span>)</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="kw">summary</span>(d.maj<span class="op">$</span>SEXE)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">d.maj &lt;-<span class="st"> </span>d</a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="kw">names</span>(d.maj) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;ID&quot;</span>, <span class="st">&quot;AGE&quot;</span>, <span class="st">&quot;SEXE&quot;</span>, <span class="st">&quot;NIVETUD&quot;</span>, <span class="st">&quot;POIDS&quot;</span>, <span class="st">&quot;OCCUP&quot;</span>, <span class="st">&quot;QUALIF&quot;</span>, <span class="st">&quot;FRERES.SOEURS&quot;</span>, </a>
+<a class="sourceLine" id="cb4-3" title="3">  <span class="st">&quot;CLSO&quot;</span>, <span class="st">&quot;RELIG&quot;</span>, <span class="st">&quot;TRAV.IMP&quot;</span>, <span class="st">&quot;TRAV.SATISF&quot;</span>, <span class="st">&quot;HARD.ROCK&quot;</span>, <span class="st">&quot;LECTURE.BD&quot;</span>, <span class="st">&quot;PECHE.CHASSE&quot;</span>, </a>
+<a class="sourceLine" id="cb4-4" title="4">  <span class="st">&quot;CUISINE&quot;</span>, <span class="st">&quot;BRICOL&quot;</span>, <span class="st">&quot;CINEMA&quot;</span>, <span class="st">&quot;SPORT&quot;</span>, <span class="st">&quot;HEURES.TV&quot;</span>)</a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="kw">summary</span>(d.maj<span class="op">$</span>SEXE)</a></code></pre></div>
 <pre><code>Homme Femme 
   899  1101 </code></pre>
 <p>Ce type de renommage peut être utile lorsqu’on souhaite passer en revue tous les noms de variables d’un fichier importé pour les corriger le cas échéant. Pour faciliter un peu ce travail pas forcément passionnant, on peut utiliser la fonction <code data-pkg="base">dput</code> :</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">dput</span>(<span class="kw">names</span>(d))</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">dput</span>(<span class="kw">names</span>(d))</a></code></pre></div>
 <pre><code>c(&quot;id&quot;, &quot;age&quot;, &quot;sexe&quot;, &quot;nivetud&quot;, &quot;poids&quot;, &quot;occup&quot;, &quot;qualif&quot;, 
 &quot;freres.soeurs&quot;, &quot;clso&quot;, &quot;relig&quot;, &quot;trav.imp&quot;, &quot;trav.satisf&quot;, 
 &quot;hard.rock&quot;, &quot;lecture.bd&quot;, &quot;peche.chasse&quot;, &quot;cuisine&quot;, &quot;bricol&quot;, 
 &quot;cinema&quot;, &quot;sport&quot;, &quot;heures.tv&quot;)</code></pre>
 <p>On obtient en résultat la liste des variables sous forme de vecteur déclaré. On n’a plus alors qu’à copier/coller cette chaîne, rajouter <code>names(d) &lt;-</code> devant et modifier un à un les noms des variables.</p>
 <p>Si on souhaite seulement modifier le nom d’une variable, on peut utiliser la fonction <code data-pkg="questionr">rename.variable</code> de l’extension <code class="pkg">questionr</code>. Celle-ci prend en argument le tableau de données, le nom actuel de la variable et le nouveau nom. Par exemple, si on veut renommer la variable <var>bricol</var> du tableau de données <code>d</code> en <var>bricolage</var> :</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">rename.variable</span>(d, <span class="st">&quot;bricol&quot;</span>, <span class="st">&quot;bricolage&quot;</span>)</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="kw">table</span>(d<span class="op">$</span>bricolage)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">d &lt;-<span class="st"> </span><span class="kw">rename.variable</span>(d, <span class="st">&quot;bricol&quot;</span>, <span class="st">&quot;bricolage&quot;</span>)</a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="kw">table</span>(d<span class="op">$</span>bricolage)</a></code></pre></div>
 <pre><code>
  Non  Oui 
 1147  853 </code></pre>
@@ -455,40 +538,40 @@ $(document).ready(function () {
 <div id="variable-numerique-ou-textuelle-en-facteur" class="section level3">
 <h3>Variable numérique ou textuelle en facteur</h3>
 <p>Par exemple, on peut considérer que la variable numérique <var>freres.soeurs</var> est une « fausse » variable numérique et qu’une représentation sous forme de facteur serait plus adéquate. Dans ce cas il suffit de faire appel à la fonction <code data-pkg="base">factor</code> :</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">d<span class="op">$</span>fs.fac &lt;-<span class="st"> </span><span class="kw">factor</span>(d<span class="op">$</span>freres.soeurs)</a>
-<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="kw">levels</span>(d<span class="op">$</span>fs.fac)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">d<span class="op">$</span>fs.fac &lt;-<span class="st"> </span><span class="kw">factor</span>(d<span class="op">$</span>freres.soeurs)</a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="kw">levels</span>(d<span class="op">$</span>fs.fac)</a></code></pre></div>
 <pre><code> [1] &quot;0&quot;  &quot;1&quot;  &quot;2&quot;  &quot;3&quot;  &quot;4&quot;  &quot;5&quot;  &quot;6&quot;  &quot;7&quot;  &quot;8&quot;  &quot;9&quot;  &quot;10&quot; &quot;11&quot; &quot;12&quot; &quot;13&quot; &quot;14&quot;
 [16] &quot;15&quot; &quot;16&quot; &quot;18&quot; &quot;22&quot;</code></pre>
 <p>La conversion d’une variable caractères en facteur se fait de la même manière.</p>
 <p>La conversion d’un facteur ou d’une variable numérique en variable caractères peut se faire à l’aide de la fonction <code data-pkg="base" data-rdoc="character">as.character</code> :</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">d<span class="op">$</span>fs.char &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>freres.soeurs)</a>
-<a class="sourceLine" id="cb12-2" data-line-number="2">d<span class="op">$</span>qualif.char &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>qualif)</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">d<span class="op">$</span>fs.char &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>freres.soeurs)</a>
+<a class="sourceLine" id="cb12-2" title="2">d<span class="op">$</span>qualif.char &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>qualif)</a></code></pre></div>
 </div>
 <div id="conversion-dun-facteur" class="section level3">
 <h3>Conversion d’un facteur</h3>
 <p>La conversion d’un facteur en caractères est fréquemment utilisé lors des recodages du fait qu’il est impossible d’ajouter de nouvelles modalités à un facteur de cette manière. Par exemple, la première des commandes suivantes génère un message d’avertissement, tandis que les deux autres fonctionnent :</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">d.temp &lt;-<span class="st"> </span>d</a>
-<a class="sourceLine" id="cb13-2" data-line-number="2">d.temp<span class="op">$</span>qualif[d.temp<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Ouvrier specialise&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">d.temp &lt;-<span class="st"> </span>d</a>
+<a class="sourceLine" id="cb13-2" title="2">d.temp<span class="op">$</span>qualif[d.temp<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Ouvrier specialise&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a></code></pre></div>
 <pre><code>Warning in `[&lt;-.factor`(`*tmp*`, d.temp$qualif == &quot;Ouvrier specialise&quot;, :
 invalid factor level, NA generated</code></pre>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">d<span class="op">$</span>qualif.char &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>qualif)</a>
-<a class="sourceLine" id="cb15-2" data-line-number="2">d<span class="op">$</span>qualif.char[d<span class="op">$</span>qualif.char <span class="op">==</span><span class="st"> &quot;Ouvrier specialise&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">d<span class="op">$</span>qualif.char &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>qualif)</a>
+<a class="sourceLine" id="cb15-2" title="2">d<span class="op">$</span>qualif.char[d<span class="op">$</span>qualif.char <span class="op">==</span><span class="st"> &quot;Ouvrier specialise&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a></code></pre></div>
 <p>Dans le premier cas, le message d’avertissement indique que toutes les modalités « Ouvrier specialise » de notre variable <var>qualif</var> ont été remplacées par des valeurs manquantes <code>NA</code>.</p>
 <p>Enfin, une variable de type caractères dont les valeurs seraient des nombres peut être convertie en variable numérique avec la fonction <code data-pkg="base" data-rdoc="numeric">as.numeric</code>.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">v &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;1&quot;</span>, <span class="st">&quot;3.1415&quot;</span>, <span class="st">&quot;4&quot;</span>, <span class="st">&quot;5.6&quot;</span>, <span class="st">&quot;1&quot;</span>, <span class="st">&quot;4&quot;</span>)</a>
-<a class="sourceLine" id="cb16-2" data-line-number="2">v</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1">v &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;1&quot;</span>, <span class="st">&quot;3.1415&quot;</span>, <span class="st">&quot;4&quot;</span>, <span class="st">&quot;5.6&quot;</span>, <span class="st">&quot;1&quot;</span>, <span class="st">&quot;4&quot;</span>)</a>
+<a class="sourceLine" id="cb16-2" title="2">v</a></code></pre></div>
 <pre><code>[1] &quot;1&quot;      &quot;3.1415&quot; &quot;4&quot;      &quot;5.6&quot;    &quot;1&quot;      &quot;4&quot;     </code></pre>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw">as.numeric</span>(v)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">as.numeric</span>(v)</a></code></pre></div>
 <pre><code>[1] 1.0000 3.1415 4.0000 5.6000 1.0000 4.0000</code></pre>
 <div class="important">
 <p>Lorsque l’on convertit un facteur avec <code data-pkg="base" data-rdoc="numeric">as.numeric</code>, on obtient le numéro de chaque facteur (première modalité, seconde modalité, etc.). Si la valeur numérique qui nous intéresse est en fait contenu dans le nom des modalités, il faut convertir au préalable notre facteur en variable textuelle.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">vf &lt;-<span class="st"> </span><span class="kw">factor</span>(v)</a>
-<a class="sourceLine" id="cb20-2" data-line-number="2">vf</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1">vf &lt;-<span class="st"> </span><span class="kw">factor</span>(v)</a>
+<a class="sourceLine" id="cb20-2" title="2">vf</a></code></pre></div>
 <pre><code>[1] 1      3.1415 4      5.6    1      4     
 Levels: 1 3.1415 4 5.6</code></pre>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="kw">as.numeric</span>(vf)</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">as.numeric</span>(vf)</a></code></pre></div>
 <pre><code>[1] 1 2 3 4 1 3</code></pre>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="kw">as.numeric</span>(<span class="kw">as.character</span>(vf))</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1"><span class="kw">as.numeric</span>(<span class="kw">as.character</span>(vf))</a></code></pre></div>
 <pre><code>[1] 1.0000 3.1415 4.0000 5.6000 1.0000 4.0000</code></pre>
 <p>ATTENTION : la valeur numérique associée à chaque étiquette d’un facteur change lorsque l’on modifie l’ordre des étiquettes d’un facteur. Dès lors, il est <strong>fortement déconseillé</strong> de convertir un facteur en variable numérique.</p>
 </div>
@@ -497,9 +580,9 @@ Levels: 1 3.1415 4 5.6</code></pre>
 <h3>Conversion d’un vecteur labellisé</h3>
 <p>Nous avons abordé dans un <a href="facteurs-et-vecteurs-labellises.html#labelled">chapitre précédent</a> la gestion de données labellisées à l’aide de l’extension <code class="pkg">labelled</code>. Les vecteurs labellisés sont beaucoup plus souples que les facteurs lors de la préparation des données, puisque la liste des modalités autorisées n’est pas fixée à l’avance. De plus, cela permet également de documenter au-fur-et-à-mesure les nouvelles variables que l’on créé.</p>
 <p>Nous verrons dans les chapitres d’analyse, notamment quand il s’agit de calculer des modèles, qu’il est nécessaire de coder les variables catégorielles sous forme de facteurs. Il est très facile de convertir ubn vecteur labellisé en facteur à l’aide la fonction <code data-pkg="labelled">to_factor</code> de l’extension <code class="pkg">labelled</code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw">library</span>(labelled)</a>
-<a class="sourceLine" id="cb26-2" data-line-number="2">v &lt;-<span class="st"> </span><span class="kw">labelled</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">9</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="ot">NA</span>), <span class="kw">c</span>(<span class="dt">oui =</span> <span class="dv">1</span>, <span class="st">`</span><span class="dt">peut-être</span><span class="st">`</span> =<span class="st"> </span><span class="dv">2</span>, <span class="dt">non =</span> <span class="dv">3</span>, <span class="st">`</span><span class="dt">ne sait pas</span><span class="st">`</span> =<span class="st"> </span><span class="dv">9</span>))</a>
-<a class="sourceLine" id="cb26-3" data-line-number="3">v</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">library</span>(labelled)</a>
+<a class="sourceLine" id="cb26-2" title="2">v &lt;-<span class="st"> </span><span class="kw">labelled</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">9</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="ot">NA</span>), <span class="kw">c</span>(<span class="dt">oui =</span> <span class="dv">1</span>, <span class="st">`</span><span class="dt">peut-être</span><span class="st">`</span> =<span class="st"> </span><span class="dv">2</span>, <span class="dt">non =</span> <span class="dv">3</span>, <span class="st">`</span><span class="dt">ne sait pas</span><span class="st">`</span> =<span class="st"> </span><span class="dv">9</span>))</a>
+<a class="sourceLine" id="cb26-3" title="3">v</a></code></pre></div>
 <pre><code>&lt;Labelled double&gt;
 [1]  1  2  9  3  3  2 NA
 
@@ -509,28 +592,28 @@ Labels:
      2   peut-être
      3         non
      9 ne sait pas</code></pre>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="kw">to_factor</span>(v)</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="kw">to_factor</span>(v)</a></code></pre></div>
 <pre><code>[1] oui         peut-être   ne sait pas non         non         peut-être  
 [7] &lt;NA&gt;       
 Levels: oui peut-être non ne sait pas</code></pre>
 <p>Il possible d’indiquer si l’on souhaite, comme étiquettes du facteur, utiliser les étiquettes de valeur (par défaut), les valeurs elles-mêmes, ou bien les étiquettes de valeurs préfixées par la valeur d’origine indiquée entre crochets.</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="kw">to_factor</span>(v, <span class="st">&quot;l&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1"><span class="kw">to_factor</span>(v, <span class="st">&quot;l&quot;</span>)</a></code></pre></div>
 <pre><code>[1] oui         peut-être   ne sait pas non         non         peut-être  
 [7] &lt;NA&gt;       
 Levels: oui peut-être non ne sait pas</code></pre>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1"><span class="kw">to_factor</span>(v, <span class="st">&quot;v&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1"><span class="kw">to_factor</span>(v, <span class="st">&quot;v&quot;</span>)</a></code></pre></div>
 <pre><code>[1] 1    2    9    3    3    2    &lt;NA&gt;
 Levels: 1 2 3 9</code></pre>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="kw">to_factor</span>(v, <span class="st">&quot;p&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">to_factor</span>(v, <span class="st">&quot;p&quot;</span>)</a></code></pre></div>
 <pre><code>[1] [1] oui         [2] peut-être   [9] ne sait pas [3] non        
 [5] [3] non         [2] peut-être   &lt;NA&gt;           
 Levels: [1] oui [2] peut-être [3] non [9] ne sait pas</code></pre>
 <p>Par défaut, les étiquettes du facteur seront triés selon l’ordre des étiquettes de valeur. Mais cela peut être modifié avec l’argument <code>sort_levels</code> si l’on préfère trier selon les valeurs ou selon l’ordre alphabétique des étiquettes.</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1"><span class="kw">to_factor</span>(v, <span class="dt">sort_levels =</span> <span class="st">&quot;v&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" title="1"><span class="kw">to_factor</span>(v, <span class="dt">sort_levels =</span> <span class="st">&quot;v&quot;</span>)</a></code></pre></div>
 <pre><code>[1] oui         peut-être   ne sait pas non         non         peut-être  
 [7] &lt;NA&gt;       
 Levels: oui peut-être non ne sait pas</code></pre>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="kw">to_factor</span>(v, <span class="dt">sort_levels =</span> <span class="st">&quot;l&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="kw">to_factor</span>(v, <span class="dt">sort_levels =</span> <span class="st">&quot;l&quot;</span>)</a></code></pre></div>
 <pre><code>[1] oui         peut-être   ne sait pas non         non         peut-être  
 [7] &lt;NA&gt;       
 Levels: ne sait pas non oui peut-être</code></pre>
@@ -548,53 +631,53 @@ Levels: ne sait pas non oui peut-être</code></pre>
 <li><code>dig.lab</code> indique le nombre de chiffres après la virgule à conserver dans les noms de modalités.</li>
 </ul>
 <p>Prenons tout de suite un exemple et tentons de découper notre variable <var>age</var> en cinq classes et de placer le résultat dans une nouvelle variable nommée <var>age5cl</var> :</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" data-line-number="1">d<span class="op">$</span>age5cl &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="dv">5</span>)</a>
-<a class="sourceLine" id="cb40-2" data-line-number="2"><span class="kw">table</span>(d<span class="op">$</span>age5cl)</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1">d<span class="op">$</span>age5cl &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb40-2" title="2"><span class="kw">table</span>(d<span class="op">$</span>age5cl)</a></code></pre></div>
 <pre><code>
 (17.9,33.8] (33.8,49.6] (49.6,65.4] (65.4,81.2] (81.2,97.1] 
         454         628         556         319          43 </code></pre>
 <p>Par défaut <strong>R</strong> nous a bien créé cinq classes d’amplitudes égales. La première classe va de 16,9 à 32,2 ans (en fait de 17 à 32), etc.</p>
 <p>Les frontières de classe seraient plus présentables si elles utilisaient des nombres ronds. On va donc spécifier manuellement le découpage souhaité, par tranches de 20 ans :</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" data-line-number="1">d<span class="op">$</span>age20 &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">100</span>))</a>
-<a class="sourceLine" id="cb42-2" data-line-number="2"><span class="kw">table</span>(d<span class="op">$</span>age20)</a></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" title="1">d<span class="op">$</span>age20 &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">100</span>))</a>
+<a class="sourceLine" id="cb42-2" title="2"><span class="kw">table</span>(d<span class="op">$</span>age20)</a></code></pre></div>
 <pre><code>
   (0,20]  (20,40]  (40,60]  (60,80] (80,100] 
       72      660      780      436       52 </code></pre>
 <p>On aurait pu tenir compte des âges extrêmes pour la première et la dernière valeur :</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" data-line-number="1"><span class="kw">range</span>(d<span class="op">$</span>age)</a></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" title="1"><span class="kw">range</span>(d<span class="op">$</span>age)</a></code></pre></div>
 <pre><code>[1] 18 97</code></pre>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" data-line-number="1">d<span class="op">$</span>age20 &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">18</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">97</span>))</a>
-<a class="sourceLine" id="cb46-2" data-line-number="2"><span class="kw">table</span>(d<span class="op">$</span>age20)</a></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" title="1">d<span class="op">$</span>age20 &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">18</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">97</span>))</a>
+<a class="sourceLine" id="cb46-2" title="2"><span class="kw">table</span>(d<span class="op">$</span>age20)</a></code></pre></div>
 <pre><code>
 (18,20] (20,40] (40,60] (60,80] (80,97] 
      55     660     780     436      52 </code></pre>
 <p>Les symboles dans les noms attribués aux classes ont leur importance : <code>(</code> signifie que la frontière de la classe est exclue, tandis que <code>[</code> signifie qu’elle est incluse. Ainsi, <code>(20,40]</code> signifie « strictement supérieur à 20 et inférieur ou égal à 40 ».</p>
 <p>On remarque que du coup, dans notre exemple précédent, la valeur minimale, 18, est exclue de notre première classe, et qu’une observation est donc absente de ce découpage. Pour résoudre ce problème on peut soit faire commencer la première classe à 17, soit utiliser l’option <code>include.lowest=TRUE</code> :</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" data-line-number="1">d<span class="op">$</span>age20 &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">17</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">97</span>))</a>
-<a class="sourceLine" id="cb48-2" data-line-number="2"><span class="kw">table</span>(d<span class="op">$</span>age20)</a></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" title="1">d<span class="op">$</span>age20 &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">17</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">97</span>))</a>
+<a class="sourceLine" id="cb48-2" title="2"><span class="kw">table</span>(d<span class="op">$</span>age20)</a></code></pre></div>
 <pre><code>
 (17,20] (20,40] (40,60] (60,80] (80,97] 
      72     660     780     436      52 </code></pre>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" data-line-number="1">d<span class="op">$</span>age20 &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">18</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">97</span>), <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb50-2" data-line-number="2"><span class="kw">table</span>(d<span class="op">$</span>age20)</a></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" title="1">d<span class="op">$</span>age20 &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">18</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">97</span>), <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb50-2" title="2"><span class="kw">table</span>(d<span class="op">$</span>age20)</a></code></pre></div>
 <pre><code>
 [18,20] (20,40] (40,60] (60,80] (80,97] 
      72     660     780     436      52 </code></pre>
 <p>On peut également modifier le sens des intervalles avec l’option <code>right=FALSE</code>, et indiquer manuellement les noms des modalités avec <code>labels</code> :</p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" data-line-number="1">d<span class="op">$</span>age20 &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">18</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">97</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb52-2" data-line-number="2"><span class="kw">table</span>(d<span class="op">$</span>age20)</a></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" title="1">d<span class="op">$</span>age20 &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">18</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">97</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb52-2" title="2"><span class="kw">table</span>(d<span class="op">$</span>age20)</a></code></pre></div>
 <pre><code>
 [18,20) [20,40) [40,60) [60,80) [80,97] 
      48     643     793     454      62 </code></pre>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" data-line-number="1">d<span class="op">$</span>age20 &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">18</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">97</span>), <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;&lt;20ans&quot;</span>, </a>
-<a class="sourceLine" id="cb54-2" data-line-number="2">  <span class="st">&quot;21-40 ans&quot;</span>, <span class="st">&quot;41-60ans&quot;</span>, <span class="st">&quot;61-80ans&quot;</span>, <span class="st">&quot;&gt;80ans&quot;</span>))</a>
-<a class="sourceLine" id="cb54-3" data-line-number="3"><span class="kw">table</span>(d<span class="op">$</span>age20)</a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" title="1">d<span class="op">$</span>age20 &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">18</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">97</span>), <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;&lt;20ans&quot;</span>, </a>
+<a class="sourceLine" id="cb54-2" title="2">  <span class="st">&quot;21-40 ans&quot;</span>, <span class="st">&quot;41-60ans&quot;</span>, <span class="st">&quot;61-80ans&quot;</span>, <span class="st">&quot;&gt;80ans&quot;</span>))</a>
+<a class="sourceLine" id="cb54-3" title="3"><span class="kw">table</span>(d<span class="op">$</span>age20)</a></code></pre></div>
 <pre><code>
    &lt;20ans 21-40 ans  41-60ans  61-80ans    &gt;80ans 
        72       660       780       436        52 </code></pre>
 <div class="note">
 <p>L’extension <code class="pkg">questionr</code> propose une interface interactive à la fonction <code data-pkg="base">cut</code>, nommée <code data-pkg="questionr">icut</code>. Elle s’utilise de la manière suivante :</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" data-line-number="1"><span class="kw">icut</span>(d, age)</a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" title="1"><span class="kw">icut</span>(d, age)</a></code></pre></div>
 <p><strong>RStudio</strong> devrait ouvrir une fenêtre semblable à l’image ci-dessous.</p>
 <div class="figure">
 <img src="images/capture_icut.png" alt="Capture d’écran d’icut" />
@@ -603,8 +686,8 @@ Levels: ne sait pas non oui peut-être</code></pre>
 <p>Vous pouvez alors indiquer les limites de vos classes ainsi que quelques options complémentaires. Ces limites sont représentées graphiquement sur l’histogramme de la variable d’origine.</p>
 <p>L’onglet <em>Vérification</em> affiche un tri à plat et un graphique en barres de la nouvelle variable. Une fois le résultat satisfaisant, vous pouvez récupérer le code généré pour l’inclure dans votre script.</p>
 <p>L’extension <code class="pkg">questionr</code> propose aussi une fonction <code data-pkg="questionr">quant.cut</code> permettant de découper une variable numérique en un nombre de classes donné ayant des efffectifs semblables. Il suffit de lui passer le nombre de classes en argument :</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" data-line-number="1">d<span class="op">$</span>age6cl &lt;-<span class="st"> </span><span class="kw">quant.cut</span>(d<span class="op">$</span>age, <span class="dv">6</span>)</a>
-<a class="sourceLine" id="cb57-2" data-line-number="2"><span class="kw">table</span>(d<span class="op">$</span>age6cl)</a></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" title="1">d<span class="op">$</span>age6cl &lt;-<span class="st"> </span><span class="kw">quant.cut</span>(d<span class="op">$</span>age, <span class="dv">6</span>)</a>
+<a class="sourceLine" id="cb57-2" title="2"><span class="kw">table</span>(d<span class="op">$</span>age6cl)</a></code></pre></div>
 <pre><code>
     [18,30)     [30,39)     [39,48) [48,55.667) [55.667,66)     [66,97] 
         302         337         350         344         305         362 </code></pre>
@@ -615,7 +698,7 @@ Levels: ne sait pas non oui peut-être</code></pre>
 <h2>Regrouper les modalités d’une variable</h2>
 <p>Pour regrouper les modalités d’une variable qualitative (d’un facteur le plus souvent), on peut utiliser directement l’indexation.</p>
 <p>Ainsi, si on veut recoder la variable <var>qualif</var> dans une variable <var>qualif.reg</var> plus « compacte », on peut utiliser :</p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" data-line-number="1"><span class="kw">table</span>(d<span class="op">$</span>qualif)</a></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" title="1"><span class="kw">table</span>(d<span class="op">$</span>qualif)</a></code></pre></div>
 <pre><code>
       Ouvrier specialise         Ouvrier qualifie               Technicien 
                      203                      292                       86 
@@ -623,60 +706,60 @@ Profession intermediaire                    Cadre                  Employe
                      160                      260                      594 
                    Autre 
                       58 </code></pre>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" data-line-number="1">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Ouvrier specialise&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a>
-<a class="sourceLine" id="cb61-2" data-line-number="2">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Ouvrier qualifie&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a>
-<a class="sourceLine" id="cb61-3" data-line-number="3">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Employe&quot;</span>] &lt;-<span class="st"> &quot;Employe&quot;</span></a>
-<a class="sourceLine" id="cb61-4" data-line-number="4">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Profession intermediaire&quot;</span>] &lt;-<span class="st"> &quot;Intermediaire&quot;</span></a>
-<a class="sourceLine" id="cb61-5" data-line-number="5">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Technicien&quot;</span>] &lt;-<span class="st"> &quot;Intermediaire&quot;</span></a>
-<a class="sourceLine" id="cb61-6" data-line-number="6">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Cadre&quot;</span>] &lt;-<span class="st"> &quot;Cadre&quot;</span></a>
-<a class="sourceLine" id="cb61-7" data-line-number="7">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Autre&quot;</span>] &lt;-<span class="st"> &quot;Autre&quot;</span></a>
-<a class="sourceLine" id="cb61-8" data-line-number="8"><span class="kw">table</span>(d<span class="op">$</span>qualif.reg)</a></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" title="1">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Ouvrier specialise&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a>
+<a class="sourceLine" id="cb61-2" title="2">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Ouvrier qualifie&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a>
+<a class="sourceLine" id="cb61-3" title="3">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Employe&quot;</span>] &lt;-<span class="st"> &quot;Employe&quot;</span></a>
+<a class="sourceLine" id="cb61-4" title="4">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Profession intermediaire&quot;</span>] &lt;-<span class="st"> &quot;Intermediaire&quot;</span></a>
+<a class="sourceLine" id="cb61-5" title="5">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Technicien&quot;</span>] &lt;-<span class="st"> &quot;Intermediaire&quot;</span></a>
+<a class="sourceLine" id="cb61-6" title="6">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Cadre&quot;</span>] &lt;-<span class="st"> &quot;Cadre&quot;</span></a>
+<a class="sourceLine" id="cb61-7" title="7">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Autre&quot;</span>] &lt;-<span class="st"> &quot;Autre&quot;</span></a>
+<a class="sourceLine" id="cb61-8" title="8"><span class="kw">table</span>(d<span class="op">$</span>qualif.reg)</a></code></pre></div>
 <pre><code>
         Autre         Cadre       Employe Intermediaire       Ouvrier 
            58           260           594           246           495 </code></pre>
 <p>On aurait pu représenter ce recodage de manière plus compacte, notamment en commençant par copier le contenu de <var>qualif</var> dans <var>qualif.reg</var>, ce qui permet de ne pas s’occuper de ce qui ne change pas.</p>
 <p>Il est cependant nécessaire de ne pas copier <var>qualif</var> sous forme de facteur, sinon on ne pourrait ajouter de nouvelles modalités. On copie donc la version caractères de <var>qualif</var> grâce à la fonction <code data-pkg="base" data-rdoc="character">as.character</code> :</p>
-<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb63-1" data-line-number="1">d<span class="op">$</span>qualif.reg &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>qualif)</a>
-<a class="sourceLine" id="cb63-2" data-line-number="2">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Ouvrier specialise&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a>
-<a class="sourceLine" id="cb63-3" data-line-number="3">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Ouvrier qualifie&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a>
-<a class="sourceLine" id="cb63-4" data-line-number="4">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Profession intermediaire&quot;</span>] &lt;-<span class="st"> &quot;Intermediaire&quot;</span></a>
-<a class="sourceLine" id="cb63-5" data-line-number="5">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Technicien&quot;</span>] &lt;-<span class="st"> &quot;Intermediaire&quot;</span></a>
-<a class="sourceLine" id="cb63-6" data-line-number="6"><span class="kw">table</span>(d<span class="op">$</span>qualif.reg)</a></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb63-1" title="1">d<span class="op">$</span>qualif.reg &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>qualif)</a>
+<a class="sourceLine" id="cb63-2" title="2">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Ouvrier specialise&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a>
+<a class="sourceLine" id="cb63-3" title="3">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Ouvrier qualifie&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a>
+<a class="sourceLine" id="cb63-4" title="4">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Profession intermediaire&quot;</span>] &lt;-<span class="st"> &quot;Intermediaire&quot;</span></a>
+<a class="sourceLine" id="cb63-5" title="5">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Technicien&quot;</span>] &lt;-<span class="st"> &quot;Intermediaire&quot;</span></a>
+<a class="sourceLine" id="cb63-6" title="6"><span class="kw">table</span>(d<span class="op">$</span>qualif.reg)</a></code></pre></div>
 <pre><code>
         Autre         Cadre       Employe Intermediaire       Ouvrier 
            58           260           594           246           495 </code></pre>
 <p>On peut faire une version encore plus compacte en utilisant l’opérateur logique <em>ou</em> (<code>|</code>) :</p>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" data-line-number="1">d<span class="op">$</span>qualif.reg &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>qualif)</a>
-<a class="sourceLine" id="cb65-2" data-line-number="2">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Ouvrier specialise&quot;</span> <span class="op">|</span><span class="st"> </span>d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Ouvrier qualifie&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a>
-<a class="sourceLine" id="cb65-3" data-line-number="3">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Profession intermediaire&quot;</span> <span class="op">|</span><span class="st"> </span>d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Technicien&quot;</span>] &lt;-<span class="st"> &quot;Intermediaire&quot;</span></a>
-<a class="sourceLine" id="cb65-4" data-line-number="4"><span class="kw">table</span>(d<span class="op">$</span>qualif.reg)</a></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" title="1">d<span class="op">$</span>qualif.reg &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>qualif)</a>
+<a class="sourceLine" id="cb65-2" title="2">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Ouvrier specialise&quot;</span> <span class="op">|</span><span class="st"> </span>d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Ouvrier qualifie&quot;</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a>
+<a class="sourceLine" id="cb65-3" title="3">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Profession intermediaire&quot;</span> <span class="op">|</span><span class="st"> </span>d<span class="op">$</span>qualif <span class="op">==</span><span class="st"> &quot;Technicien&quot;</span>] &lt;-<span class="st"> &quot;Intermediaire&quot;</span></a>
+<a class="sourceLine" id="cb65-4" title="4"><span class="kw">table</span>(d<span class="op">$</span>qualif.reg)</a></code></pre></div>
 <pre><code>
         Autre         Cadre       Employe Intermediaire       Ouvrier 
            58           260           594           246           495 </code></pre>
 <p>Enfin, pour terminer ce petit tour d’horizon, on peut également remplacer l’opérateur <code>|</code> par <code>%in%</code>, qui peut parfois être plus lisible :</p>
-<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" data-line-number="1">d<span class="op">$</span>qualif.reg &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>qualif)</a>
-<a class="sourceLine" id="cb67-2" data-line-number="2">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>)] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a>
-<a class="sourceLine" id="cb67-3" data-line-number="3">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Profession intermediaire&quot;</span>, <span class="st">&quot;Technicien&quot;</span>)] &lt;-<span class="st"> &quot;Intermediaire&quot;</span></a>
-<a class="sourceLine" id="cb67-4" data-line-number="4"><span class="kw">table</span>(d<span class="op">$</span>qualif.reg)</a></code></pre></div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" title="1">d<span class="op">$</span>qualif.reg &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>qualif)</a>
+<a class="sourceLine" id="cb67-2" title="2">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>)] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a>
+<a class="sourceLine" id="cb67-3" title="3">d<span class="op">$</span>qualif.reg[d<span class="op">$</span>qualif <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Profession intermediaire&quot;</span>, <span class="st">&quot;Technicien&quot;</span>)] &lt;-<span class="st"> &quot;Intermediaire&quot;</span></a>
+<a class="sourceLine" id="cb67-4" title="4"><span class="kw">table</span>(d<span class="op">$</span>qualif.reg)</a></code></pre></div>
 <pre><code>
         Autre         Cadre       Employe Intermediaire       Ouvrier 
            58           260           594           246           495 </code></pre>
 <p>Dans tous les cas le résultat obtenu est une variable de type caractère. On pourra la convertir en facteur par un simple :</p>
-<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb69-1" data-line-number="1">d<span class="op">$</span>qualif.reg &lt;-<span class="st"> </span><span class="kw">factor</span>(d<span class="op">$</span>qualif.reg)</a></code></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb69-1" title="1">d<span class="op">$</span>qualif.reg &lt;-<span class="st"> </span><span class="kw">factor</span>(d<span class="op">$</span>qualif.reg)</a></code></pre></div>
 <p>Si on souhaite recoder les valeurs manquantes, il suffit de faire appel à la fonction <code data-pkg="base" data-rdoc="NA">is.na</code> :</p>
-<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb70-1" data-line-number="1"><span class="kw">table</span>(d<span class="op">$</span>trav.satisf)</a></code></pre></div>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb70-1" title="1"><span class="kw">table</span>(d<span class="op">$</span>trav.satisf)</a></code></pre></div>
 <pre><code>
   Satisfaction Insatisfaction      Equilibre 
            480            117            451 </code></pre>
-<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb72-1" data-line-number="1">d<span class="op">$</span>trav.satisf.reg &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>trav.satisf)</a>
-<a class="sourceLine" id="cb72-2" data-line-number="2">d<span class="op">$</span>trav.satisf.reg[<span class="kw">is.na</span>(d<span class="op">$</span>trav.satisf)] &lt;-<span class="st"> &quot;Manquant&quot;</span></a>
-<a class="sourceLine" id="cb72-3" data-line-number="3"><span class="kw">table</span>(d<span class="op">$</span>trav.satisf.reg)</a></code></pre></div>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb72-1" title="1">d<span class="op">$</span>trav.satisf.reg &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>trav.satisf)</a>
+<a class="sourceLine" id="cb72-2" title="2">d<span class="op">$</span>trav.satisf.reg[<span class="kw">is.na</span>(d<span class="op">$</span>trav.satisf)] &lt;-<span class="st"> &quot;Manquant&quot;</span></a>
+<a class="sourceLine" id="cb72-3" title="3"><span class="kw">table</span>(d<span class="op">$</span>trav.satisf.reg)</a></code></pre></div>
 <pre><code>
      Equilibre Insatisfaction       Manquant   Satisfaction 
            451            117            952            480 </code></pre>
 <div class="note">
 <p><code class="pkg">questionr</code> propose une interface interactive pour le recodage d’une variable qualitative (renommage et regroupement de modalités). Cette fonction, nommée <code data-pkg="questionr">irec</code>, s’utilise de la manière suivante :</p>
-<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb74-1" data-line-number="1"><span class="kw">irec</span>(d, qualif)</a></code></pre></div>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb74-1" title="1"><span class="kw">irec</span>(d, qualif)</a></code></pre></div>
 <p><strong>RStudio</strong> va alors ouvrir une fenêtre semblable à l’image ci-dessous :</p>
 <div class="figure">
 <img src="images/capture_irec.png" alt="Capture de irec" />
@@ -687,9 +770,9 @@ Profession intermediaire                    Cadre                  Employe
 </div>
 <div class="note">
 <p>Les exemples précédents montrent bien qu’il est parfois malaisé d’utiliser des facteurs lorsque l’on recode des variables. Les vecteurs labellisés sont, quant à eux, plus souples. <strong>Attention :</strong> avec des vecteurs labellisés, on utilisera les valeurs sous-jacentes et non les étiquettes pour écrire des conditions.</p>
-<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb75-1" data-line-number="1"><span class="kw">data</span>(fecondite)</a>
-<a class="sourceLine" id="cb75-2" data-line-number="2"><span class="kw">library</span>(labelled)</a>
-<a class="sourceLine" id="cb75-3" data-line-number="3"><span class="kw">describe</span>(femmes<span class="op">$</span>educ)</a></code></pre></div>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb75-1" title="1"><span class="kw">data</span>(fecondite)</a>
+<a class="sourceLine" id="cb75-2" title="2"><span class="kw">library</span>(labelled)</a>
+<a class="sourceLine" id="cb75-3" title="3"><span class="kw">describe</span>(femmes<span class="op">$</span>educ)</a></code></pre></div>
 <pre><code>[2000 obs.] Niveau d&#39;éducation
 labelled double: 0 0 0 0 1 0 0 0 0 0 ...
 min: 0 - max: 3 - NAs: 0 (0%) - 4 unique values
@@ -701,11 +784,11 @@ min: 0 - max: 3 - NAs: 0 (0%) - 4 unique values
 [2] secondaire  348  17.4
 [3] supérieur    54   2.7
 Total          2000 100.0</code></pre>
-<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb77-1" data-line-number="1">femmes<span class="op">$</span>educ2 &lt;-<span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb77-2" data-line-number="2">femmes<span class="op">$</span>educ2[femmes<span class="op">$</span>educ <span class="op">&gt;=</span><span class="st"> </span><span class="dv">2</span>] &lt;-<span class="st"> </span><span class="dv">1</span></a>
-<a class="sourceLine" id="cb77-3" data-line-number="3"><span class="kw">var_label</span>(femmes<span class="op">$</span>educ2) &lt;-<span class="st"> &quot;A atteint un niveau secondaire ou supérieur ?&quot;</span></a>
-<a class="sourceLine" id="cb77-4" data-line-number="4"><span class="kw">val_labels</span>(femmes<span class="op">$</span>educ2) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">non =</span> <span class="dv">0</span>, <span class="dt">oui =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb77-5" data-line-number="5"><span class="kw">describe</span>(femmes<span class="op">$</span>educ2)</a></code></pre></div>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb77-1" title="1">femmes<span class="op">$</span>educ2 &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb77-2" title="2">femmes<span class="op">$</span>educ2[femmes<span class="op">$</span>educ <span class="op">&gt;=</span><span class="st"> </span><span class="dv">2</span>] &lt;-<span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb77-3" title="3"><span class="kw">var_label</span>(femmes<span class="op">$</span>educ2) &lt;-<span class="st"> &quot;A atteint un niveau secondaire ou supérieur ?&quot;</span></a>
+<a class="sourceLine" id="cb77-4" title="4"><span class="kw">val_labels</span>(femmes<span class="op">$</span>educ2) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">non =</span> <span class="dv">0</span>, <span class="dt">oui =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb77-5" title="5"><span class="kw">describe</span>(femmes<span class="op">$</span>educ2)</a></code></pre></div>
 <pre><code>[2000 obs.] A atteint un niveau secondaire ou supérieur ?
 labelled double: 0 0 0 0 0 0 0 0 0 0 ...
 min: 0 - max: 1 - NAs: 0 (0%) - 2 unique values
@@ -721,41 +804,41 @@ Total   2000 100.0</code></pre>
 <h2>Variables calculées</h2>
 <p>La création d’une variable numérique à partir de calculs sur une ou plusieurs autres variables numériques se fait très simplement.</p>
 <p>Supposons que l’on souhaite calculer une variable indiquant l’écart entre le nombre d’heures passées à regarder la télévision et la moyenne globale de cette variable. On pourrait alors faire :</p>
-<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb79-1" data-line-number="1"><span class="kw">range</span>(d<span class="op">$</span>heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb79-1" title="1"><span class="kw">range</span>(d<span class="op">$</span>heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>[1]  0 12</code></pre>
-<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb81-1" data-line-number="1"><span class="kw">mean</span>(d<span class="op">$</span>heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb81-1" title="1"><span class="kw">mean</span>(d<span class="op">$</span>heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>[1] 2.246566</code></pre>
-<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb83-1" data-line-number="1">d<span class="op">$</span>ecart.heures.tv &lt;-<span class="st"> </span>d<span class="op">$</span>heures.tv <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(d<span class="op">$</span>heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb83-2" data-line-number="2"><span class="kw">range</span>(d<span class="op">$</span>ecart.heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb83-1" title="1">d<span class="op">$</span>ecart.heures.tv &lt;-<span class="st"> </span>d<span class="op">$</span>heures.tv <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(d<span class="op">$</span>heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb83-2" title="2"><span class="kw">range</span>(d<span class="op">$</span>ecart.heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>[1] -2.246566  9.753434</code></pre>
-<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb85-1" data-line-number="1"><span class="kw">mean</span>(d<span class="op">$</span>ecart.heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb85-1" title="1"><span class="kw">mean</span>(d<span class="op">$</span>ecart.heures.tv, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>[1] 4.714578e-17</code></pre>
 <p>Autre exemple tiré du jeu de données <code>rp99</code> : si on souhaite calculer le pourcentage d’actifs dans chaque commune, on peut diviser la population active <var>pop.act</var> par la population totale <var>pop.tot</var>.</p>
-<div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb87-1" data-line-number="1"><span class="kw">data</span>(<span class="st">&quot;rp99&quot;</span>)</a>
-<a class="sourceLine" id="cb87-2" data-line-number="2">rp99<span class="op">$</span>part.actifs &lt;-<span class="st"> </span>rp99<span class="op">$</span>pop.act<span class="op">/</span>rp99<span class="op">$</span>pop.tot <span class="op">*</span><span class="st"> </span><span class="dv">100</span></a></code></pre></div>
+<div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb87-1" title="1"><span class="kw">data</span>(<span class="st">&quot;rp99&quot;</span>)</a>
+<a class="sourceLine" id="cb87-2" title="2">rp99<span class="op">$</span>part.actifs &lt;-<span class="st"> </span>rp99<span class="op">$</span>pop.act<span class="op">/</span>rp99<span class="op">$</span>pop.tot <span class="op">*</span><span class="st"> </span><span class="dv">100</span></a></code></pre></div>
 </div>
 <div id="combiner-plusieurs-variables" class="section level2">
 <h2>Combiner plusieurs variables</h2>
 <p>La combinaison de plusieurs variables se fait à l’aide des techniques d’indexation déjà décrites précédemment. Le plus compliqué est d’arriver à formuler des conditions parfois complexes de manière rigoureuse.</p>
 <p>On peut ainsi vouloir combiner plusieurs variables qualitatives en une seule :</p>
-<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb88-1" data-line-number="1">d<span class="op">$</span>act.manuelles &lt;-<span class="st"> </span><span class="ot">NA</span></a>
-<a class="sourceLine" id="cb88-2" data-line-number="2">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Oui&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> &quot;Cuisine et Bricolage&quot;</span></a>
-<a class="sourceLine" id="cb88-3" data-line-number="3">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Oui&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Non&quot;</span>] &lt;-<span class="st"> &quot;Cuisine seulement&quot;</span></a>
-<a class="sourceLine" id="cb88-4" data-line-number="4">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Non&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> &quot;Bricolage seulement&quot;</span></a>
-<a class="sourceLine" id="cb88-5" data-line-number="5">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Non&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Non&quot;</span>] &lt;-<span class="st"> &quot;Ni cuisine ni bricolage&quot;</span></a>
-<a class="sourceLine" id="cb88-6" data-line-number="6"><span class="kw">table</span>(d<span class="op">$</span>act.manuelles)</a></code></pre></div>
+<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb88-1" title="1">d<span class="op">$</span>act.manuelles &lt;-<span class="st"> </span><span class="ot">NA</span></a>
+<a class="sourceLine" id="cb88-2" title="2">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Oui&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> &quot;Cuisine et Bricolage&quot;</span></a>
+<a class="sourceLine" id="cb88-3" title="3">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Oui&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Non&quot;</span>] &lt;-<span class="st"> &quot;Cuisine seulement&quot;</span></a>
+<a class="sourceLine" id="cb88-4" title="4">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Non&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> &quot;Bricolage seulement&quot;</span></a>
+<a class="sourceLine" id="cb88-5" title="5">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Non&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Non&quot;</span>] &lt;-<span class="st"> &quot;Ni cuisine ni bricolage&quot;</span></a>
+<a class="sourceLine" id="cb88-6" title="6"><span class="kw">table</span>(d<span class="op">$</span>act.manuelles)</a></code></pre></div>
 <pre><code>
     Bricolage seulement    Cuisine et Bricolage       Cuisine seulement 
                     437                     416                     465 
 Ni cuisine ni bricolage 
                     682 </code></pre>
 <p>On peut également combiner variables qualitatives et variables quantitatives :</p>
-<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb90-1" data-line-number="1">d<span class="op">$</span>age.sexe &lt;-<span class="st"> </span><span class="ot">NA</span></a>
-<a class="sourceLine" id="cb90-2" data-line-number="2">d<span class="op">$</span>age.sexe[d<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>age <span class="op">&lt;</span><span class="st"> </span><span class="dv">40</span>] &lt;-<span class="st"> &quot;Homme moins de 40 ans&quot;</span></a>
-<a class="sourceLine" id="cb90-3" data-line-number="3">d<span class="op">$</span>age.sexe[d<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>age <span class="op">&gt;=</span><span class="st"> </span><span class="dv">40</span>] &lt;-<span class="st"> &quot;Homme plus de 40 ans&quot;</span></a>
-<a class="sourceLine" id="cb90-4" data-line-number="4">d<span class="op">$</span>age.sexe[d<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Femme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>age <span class="op">&lt;</span><span class="st"> </span><span class="dv">40</span>] &lt;-<span class="st"> &quot;Femme moins de 40 ans&quot;</span></a>
-<a class="sourceLine" id="cb90-5" data-line-number="5">d<span class="op">$</span>age.sexe[d<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Femme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>age <span class="op">&gt;=</span><span class="st"> </span><span class="dv">40</span>] &lt;-<span class="st"> &quot;Femme plus de 40 ans&quot;</span></a>
-<a class="sourceLine" id="cb90-6" data-line-number="6"><span class="kw">table</span>(d<span class="op">$</span>age.sexe)</a></code></pre></div>
+<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb90-1" title="1">d<span class="op">$</span>age.sexe &lt;-<span class="st"> </span><span class="ot">NA</span></a>
+<a class="sourceLine" id="cb90-2" title="2">d<span class="op">$</span>age.sexe[d<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>age <span class="op">&lt;</span><span class="st"> </span><span class="dv">40</span>] &lt;-<span class="st"> &quot;Homme moins de 40 ans&quot;</span></a>
+<a class="sourceLine" id="cb90-3" title="3">d<span class="op">$</span>age.sexe[d<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>age <span class="op">&gt;=</span><span class="st"> </span><span class="dv">40</span>] &lt;-<span class="st"> &quot;Homme plus de 40 ans&quot;</span></a>
+<a class="sourceLine" id="cb90-4" title="4">d<span class="op">$</span>age.sexe[d<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Femme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>age <span class="op">&lt;</span><span class="st"> </span><span class="dv">40</span>] &lt;-<span class="st"> &quot;Femme moins de 40 ans&quot;</span></a>
+<a class="sourceLine" id="cb90-5" title="5">d<span class="op">$</span>age.sexe[d<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Femme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>age <span class="op">&gt;=</span><span class="st"> </span><span class="dv">40</span>] &lt;-<span class="st"> &quot;Femme plus de 40 ans&quot;</span></a>
+<a class="sourceLine" id="cb90-6" title="6"><span class="kw">table</span>(d<span class="op">$</span>age.sexe)</a></code></pre></div>
 <pre><code>
 Femme moins de 40 ans  Femme plus de 40 ans Homme moins de 40 ans 
                   376                   725                   315 
@@ -763,8 +846,8 @@ Femme moins de 40 ans  Femme plus de 40 ans Homme moins de 40 ans
                   584 </code></pre>
 <p>Les combinaisons de variables un peu complexes nécessitent parfois un petit travail de réflexion. En particulier, l’ordre des commandes de recodage a parfois une influence dans le résultat final.</p>
 <p>Pour combiner rapidement plusieurs variables entre elles, on peut aussi avoir recours à la fonction <code data-pkg="base">interaction</code> qui créra un facteur avec un niveau pour chaque combinaison de modalités des variables sources.</p>
-<div class="sourceCode" id="cb92"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb92-1" data-line-number="1">d<span class="op">$</span>age20.sexe &lt;-<span class="st"> </span><span class="kw">interaction</span>(d<span class="op">$</span>sexe, d<span class="op">$</span>age20)</a>
-<a class="sourceLine" id="cb92-2" data-line-number="2"><span class="kw">table</span>(d<span class="op">$</span>age20.sexe)</a></code></pre></div>
+<div class="sourceCode" id="cb92"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb92-1" title="1">d<span class="op">$</span>age20.sexe &lt;-<span class="st"> </span><span class="kw">interaction</span>(d<span class="op">$</span>sexe, d<span class="op">$</span>age20)</a>
+<a class="sourceLine" id="cb92-2" title="2"><span class="kw">table</span>(d<span class="op">$</span>age20.sexe)</a></code></pre></div>
 <pre><code>
    Homme.&lt;20ans    Femme.&lt;20ans Homme.21-40 ans Femme.21-40 ans  Homme.41-60ans 
              34              38             291             369             352 
@@ -775,19 +858,19 @@ Femme moins de 40 ans  Femme plus de 40 ans Homme moins de 40 ans
 <h2>Variables scores</h2>
 <p>Une variable score est une variable calculée en additionnant des poids accordés aux modalités d’une série de variables qualitatives.</p>
 <p>Pour prendre un exemple tout à fait arbitraire, imaginons que nous souhaitons calculer un score d’activités extérieures. Dans ce score on considère que le fait d’aller au cinéma « pèse » 10, celui de pêcher ou chasser vaut 30 et celui de faire du sport vaut 20. On pourrait alors calculer notre score de la manière suivante :</p>
-<div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb94-1" data-line-number="1">d<span class="op">$</span>score.ext &lt;-<span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb94-2" data-line-number="2">d<span class="op">$</span>score.ext[d<span class="op">$</span>cinema <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> </span>d<span class="op">$</span>score.ext[d<span class="op">$</span>cinema <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] <span class="op">+</span><span class="st"> </span><span class="dv">10</span></a>
-<a class="sourceLine" id="cb94-3" data-line-number="3">d<span class="op">$</span>score.ext[d<span class="op">$</span>peche.chasse <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> </span>d<span class="op">$</span>score.ext[d<span class="op">$</span>peche.chasse <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] <span class="op">+</span><span class="st"> </span><span class="dv">30</span></a>
-<a class="sourceLine" id="cb94-4" data-line-number="4">d<span class="op">$</span>score.ext[d<span class="op">$</span>sport <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> </span>d<span class="op">$</span>score.ext[d<span class="op">$</span>sport <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] <span class="op">+</span><span class="st"> </span><span class="dv">20</span></a>
-<a class="sourceLine" id="cb94-5" data-line-number="5"><span class="kw">table</span>(d<span class="op">$</span>score.ext)</a></code></pre></div>
+<div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb94-1" title="1">d<span class="op">$</span>score.ext &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb94-2" title="2">d<span class="op">$</span>score.ext[d<span class="op">$</span>cinema <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> </span>d<span class="op">$</span>score.ext[d<span class="op">$</span>cinema <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] <span class="op">+</span><span class="st"> </span><span class="dv">10</span></a>
+<a class="sourceLine" id="cb94-3" title="3">d<span class="op">$</span>score.ext[d<span class="op">$</span>peche.chasse <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> </span>d<span class="op">$</span>score.ext[d<span class="op">$</span>peche.chasse <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] <span class="op">+</span><span class="st"> </span><span class="dv">30</span></a>
+<a class="sourceLine" id="cb94-4" title="4">d<span class="op">$</span>score.ext[d<span class="op">$</span>sport <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> </span>d<span class="op">$</span>score.ext[d<span class="op">$</span>sport <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] <span class="op">+</span><span class="st"> </span><span class="dv">20</span></a>
+<a class="sourceLine" id="cb94-5" title="5"><span class="kw">table</span>(d<span class="op">$</span>score.ext)</a></code></pre></div>
 <pre><code>
   0  10  20  30  40  50  60 
 800 342 229 509  31  41  48 </code></pre>
 <p>Cette notation étant un peu lourde, on peut l’alléger un peu en utilisant la fonction <code data-pkg="base">ifelse</code>. Celle-ci prend en argument une condition et deux valeurs. Si la condition est vraie elle retourne la première valeur, sinon elle retourne la seconde.</p>
-<div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb96-1" data-line-number="1">d<span class="op">$</span>score.ext &lt;-<span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb96-2" data-line-number="2">d<span class="op">$</span>score.ext &lt;-<span class="st"> </span><span class="kw">ifelse</span>(d<span class="op">$</span>cinema <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, <span class="dv">10</span>, <span class="dv">0</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ifelse</span>(d<span class="op">$</span>peche.chasse <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, </a>
-<a class="sourceLine" id="cb96-3" data-line-number="3">  <span class="dv">30</span>, <span class="dv">0</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ifelse</span>(d<span class="op">$</span>sport <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, <span class="dv">20</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb96-4" data-line-number="4"><span class="kw">table</span>(d<span class="op">$</span>score.ext)</a></code></pre></div>
+<div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb96-1" title="1">d<span class="op">$</span>score.ext &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb96-2" title="2">d<span class="op">$</span>score.ext &lt;-<span class="st"> </span><span class="kw">ifelse</span>(d<span class="op">$</span>cinema <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, <span class="dv">10</span>, <span class="dv">0</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ifelse</span>(d<span class="op">$</span>peche.chasse <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, </a>
+<a class="sourceLine" id="cb96-3" title="3">  <span class="dv">30</span>, <span class="dv">0</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ifelse</span>(d<span class="op">$</span>sport <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, <span class="dv">20</span>, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb96-4" title="4"><span class="kw">table</span>(d<span class="op">$</span>score.ext)</a></code></pre></div>
 <pre><code>
   0  10  20  30  40  50  60 
 800 342 229 509  31  41  48 </code></pre>
@@ -797,19 +880,19 @@ Femme moins de 40 ans  Femme plus de 40 ans Homme moins de 40 ans
 <p>Il est très important de vérifier, notamment après les recodages les plus complexes, qu’on a bien obtenu le résultat escompté. Les deux points les plus sensibles étant les valeurs manquantes et les erreurs dans les conditions.</p>
 <p>Pour vérifier tout cela, le plus simple est sans doute de faire des tableaux croisés entre la variable recodée et celles ayant servi au recodage, à l’aide des fonctions <code data-pkg="base">table</code> ou <code data-pkg="stats">xtabs</code>, et de vérifier le nombre de valeurs manquantes dans la variable recodée avec <code data-pkg="base">summary</code>, <code data-pkg="questionr">freq</code> ou <code data-pkg="base">table</code>.</p>
 <p>Par exemple :</p>
-<div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb98-1" data-line-number="1">d<span class="op">$</span>act.manuelles &lt;-<span class="st"> </span><span class="ot">NA</span></a>
-<a class="sourceLine" id="cb98-2" data-line-number="2">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Oui&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> &quot;Cuisine et Bricolage&quot;</span></a>
-<a class="sourceLine" id="cb98-3" data-line-number="3">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Oui&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Non&quot;</span>] &lt;-<span class="st"> &quot;Cuisine seulement&quot;</span></a>
-<a class="sourceLine" id="cb98-4" data-line-number="4">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Non&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> &quot;Bricolage seulement&quot;</span></a>
-<a class="sourceLine" id="cb98-5" data-line-number="5">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Non&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Non&quot;</span>] &lt;-<span class="st"> &quot;Ni cuisine ni bricolage&quot;</span></a>
-<a class="sourceLine" id="cb98-6" data-line-number="6"><span class="kw">table</span>(d<span class="op">$</span>act.manuelles, d<span class="op">$</span>cuisine)</a></code></pre></div>
+<div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb98-1" title="1">d<span class="op">$</span>act.manuelles &lt;-<span class="st"> </span><span class="ot">NA</span></a>
+<a class="sourceLine" id="cb98-2" title="2">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Oui&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> &quot;Cuisine et Bricolage&quot;</span></a>
+<a class="sourceLine" id="cb98-3" title="3">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Oui&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Non&quot;</span>] &lt;-<span class="st"> &quot;Cuisine seulement&quot;</span></a>
+<a class="sourceLine" id="cb98-4" title="4">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Non&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> &quot;Bricolage seulement&quot;</span></a>
+<a class="sourceLine" id="cb98-5" title="5">d<span class="op">$</span>act.manuelles[d<span class="op">$</span>cuisine <span class="op">==</span><span class="st"> &quot;Non&quot;</span> <span class="op">&amp;</span><span class="st"> </span>d<span class="op">$</span>bricol <span class="op">==</span><span class="st"> &quot;Non&quot;</span>] &lt;-<span class="st"> &quot;Ni cuisine ni bricolage&quot;</span></a>
+<a class="sourceLine" id="cb98-6" title="6"><span class="kw">table</span>(d<span class="op">$</span>act.manuelles, d<span class="op">$</span>cuisine)</a></code></pre></div>
 <pre><code>                         
                           Non Oui
   Bricolage seulement     437   0
   Cuisine et Bricolage      0 416
   Cuisine seulement         0 465
   Ni cuisine ni bricolage 682   0</code></pre>
-<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb100-1" data-line-number="1"><span class="kw">table</span>(d<span class="op">$</span>act.manuelles, d<span class="op">$</span>bricol)</a></code></pre></div>
+<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb100-1" title="1"><span class="kw">table</span>(d<span class="op">$</span>act.manuelles, d<span class="op">$</span>bricol)</a></code></pre></div>
 <pre><code>                         
                           Non Oui
   Bricolage seulement       0 437
@@ -820,19 +903,19 @@ Femme moins de 40 ans  Femme plus de 40 ans Homme moins de 40 ans
 <div id="facteurs-et-forcats" class="section level2">
 <h2>Facteurs et forcats</h2>
 <p><code class="pkg">forcats</code> est une extension facilitant la manipulation des variables qualitatives, qu’elles soient sous forme de vecteurs <code>character</code> ou de facteurs. Elle fait partie du <strong>tidyverse</strong>, et est donc automatiquement chargée par :</p>
-<div class="sourceCode" id="cb102"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb102-1" data-line-number="1"><span class="kw">library</span>(tidyverse)</a></code></pre></div>
+<div class="sourceCode" id="cb102"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb102-1" title="1"><span class="kw">library</span>(tidyverse)</a></code></pre></div>
 <div id="modifier-les-modalites-dune-variable-qualitative" class="section level3">
 <h3>Modifier les modalités d’une variable qualitative</h3>
 <p>Une opération courante consiste à modifier les valeurs d’une variable qualitative, que ce soit pour avoir des intitulés plus courts ou plus clairs ou pour regrouper des modalités entre elles.</p>
 <p>Il existe plusieurs possibilités pour effectuer ce type de recodage, mais ici on va utiliser la fonction <code data-pkg="forcats">fct_recode</code> de l’extension <code class="pkg">forcats</code>. Celle-ci prend en argument une liste de recodages sous la forme <code>&quot;Nouvelle valeur&quot; = &quot;Ancienne valeur&quot;</code>.</p>
 <p>Un exemple :</p>
-<div class="sourceCode" id="cb103"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb103-1" data-line-number="1">f &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Pomme&quot;</span>, <span class="st">&quot;Poire&quot;</span>, <span class="st">&quot;Pomme&quot;</span>, <span class="st">&quot;Cerise&quot;</span>)</a>
-<a class="sourceLine" id="cb103-2" data-line-number="2">f &lt;-<span class="st"> </span><span class="kw">fct_recode</span>(f, <span class="dt">Fraise =</span> <span class="st">&quot;Pomme&quot;</span>, <span class="dt">Ananas =</span> <span class="st">&quot;Poire&quot;</span>)</a>
-<a class="sourceLine" id="cb103-3" data-line-number="3">f</a></code></pre></div>
+<div class="sourceCode" id="cb103"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb103-1" title="1">f &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Pomme&quot;</span>, <span class="st">&quot;Poire&quot;</span>, <span class="st">&quot;Pomme&quot;</span>, <span class="st">&quot;Cerise&quot;</span>)</a>
+<a class="sourceLine" id="cb103-2" title="2">f &lt;-<span class="st"> </span><span class="kw">fct_recode</span>(f, <span class="dt">Fraise =</span> <span class="st">&quot;Pomme&quot;</span>, <span class="dt">Ananas =</span> <span class="st">&quot;Poire&quot;</span>)</a>
+<a class="sourceLine" id="cb103-3" title="3">f</a></code></pre></div>
 <pre><code>[1] Fraise Ananas Fraise Cerise
 Levels: Cerise Ananas Fraise</code></pre>
 <p>Autre exemple sur une “vraie” variable :</p>
-<div class="sourceCode" id="cb105"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb105-1" data-line-number="1"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif)</a></code></pre></div>
+<div class="sourceCode" id="cb105"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb105-1" title="1"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif)</a></code></pre></div>
 <pre><code>                           n    % val%
 Ouvrier specialise       203 10.2 12.3
 Ouvrier qualifie         292 14.6 17.7
@@ -842,10 +925,10 @@ Cadre                    260 13.0 15.7
 Employe                  594 29.7 35.9
 Autre                     58  2.9  3.5
 NA                       347 17.3   NA</code></pre>
-<div class="sourceCode" id="cb107"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb107-1" data-line-number="1">hdv2003<span class="op">$</span>qualif5 &lt;-<span class="st"> </span><span class="kw">fct_recode</span>(hdv2003<span class="op">$</span>qualif, <span class="dt">Ouvrier =</span> <span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="dt">Ouvrier =</span> <span class="st">&quot;Ouvrier qualifie&quot;</span>, </a>
-<a class="sourceLine" id="cb107-2" data-line-number="2">  <span class="dt">Interm =</span> <span class="st">&quot;Technicien&quot;</span>, <span class="dt">Interm =</span> <span class="st">&quot;Profession intermediaire&quot;</span>)</a>
-<a class="sourceLine" id="cb107-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb107-4" data-line-number="4"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif5)</a></code></pre></div>
+<div class="sourceCode" id="cb107"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb107-1" title="1">hdv2003<span class="op">$</span>qualif5 &lt;-<span class="st"> </span><span class="kw">fct_recode</span>(hdv2003<span class="op">$</span>qualif, <span class="dt">Ouvrier =</span> <span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="dt">Ouvrier =</span> <span class="st">&quot;Ouvrier qualifie&quot;</span>, </a>
+<a class="sourceLine" id="cb107-2" title="2">  <span class="dt">Interm =</span> <span class="st">&quot;Technicien&quot;</span>, <span class="dt">Interm =</span> <span class="st">&quot;Profession intermediaire&quot;</span>)</a>
+<a class="sourceLine" id="cb107-3" title="3"></a>
+<a class="sourceLine" id="cb107-4" title="4"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif5)</a></code></pre></div>
 <pre><code>          n    % val%
 Ouvrier 495 24.8 29.9
 Interm  246 12.3 14.9
@@ -854,13 +937,13 @@ Employe 594 29.7 35.9
 Autre    58  2.9  3.5
 NA      347 17.3   NA</code></pre>
 <p>Attention, les anciennes valeurs saisies doivent être exactement égales aux valeurs des modalités de la variable recodée : toute différence d’accent ou d’espace fera que ce recodage ne sera pas pris en compte. Dans ce cas, <code>forcats</code> affiche un avertissement nous indiquant qu’une valeur saisie n’a pas été trouvée dans les modalités de la variable :</p>
-<div class="sourceCode" id="cb109"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb109-1" data-line-number="1">hdv2003<span class="op">$</span>qualif_test &lt;-<span class="st"> </span><span class="kw">fct_recode</span>(hdv2003<span class="op">$</span>qualif, <span class="dt">Ouvrier =</span> <span class="st">&quot;Ouvrier spécialisé&quot;</span>, </a>
-<a class="sourceLine" id="cb109-2" data-line-number="2">  <span class="dt">Ouvrier =</span> <span class="st">&quot;Ouvrier qualifié&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb109"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb109-1" title="1">hdv2003<span class="op">$</span>qualif_test &lt;-<span class="st"> </span><span class="kw">fct_recode</span>(hdv2003<span class="op">$</span>qualif, <span class="dt">Ouvrier =</span> <span class="st">&quot;Ouvrier spécialisé&quot;</span>, </a>
+<a class="sourceLine" id="cb109-2" title="2">  <span class="dt">Ouvrier =</span> <span class="st">&quot;Ouvrier qualifié&quot;</span>)</a></code></pre></div>
 <pre><code>Warning: Unknown levels in `f`: Ouvrier spécialisé, Ouvrier qualifié</code></pre>
 <p>Si on souhaite recoder une modalité de la variable en <code>NA</code>, il faut (contre intuitivement) lui assigner la valeur <code>NULL</code> :</p>
-<div class="sourceCode" id="cb111"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb111-1" data-line-number="1">hdv2003<span class="op">$</span>qualif_rec &lt;-<span class="st"> </span><span class="kw">fct_recode</span>(hdv2003<span class="op">$</span>qualif, <span class="st">`</span><span class="dt">NULL</span><span class="st">`</span> =<span class="st"> &quot;Autre&quot;</span>)</a>
-<a class="sourceLine" id="cb111-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb111-3" data-line-number="3"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif_rec)</a></code></pre></div>
+<div class="sourceCode" id="cb111"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb111-1" title="1">hdv2003<span class="op">$</span>qualif_rec &lt;-<span class="st"> </span><span class="kw">fct_recode</span>(hdv2003<span class="op">$</span>qualif, <span class="st">`</span><span class="dt">NULL</span><span class="st">`</span> =<span class="st"> &quot;Autre&quot;</span>)</a>
+<a class="sourceLine" id="cb111-2" title="2"></a>
+<a class="sourceLine" id="cb111-3" title="3"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif_rec)</a></code></pre></div>
 <pre><code>                           n    % val%
 Ouvrier specialise       203 10.2 12.7
 Ouvrier qualifie         292 14.6 18.3
@@ -870,9 +953,9 @@ Cadre                    260 13.0 16.3
 Employe                  594 29.7 37.2
 NA                       405 20.2   NA</code></pre>
 <p>À l’inverse, si on souhaite recoder les <code>NA</code> d’une variable, on utilisera la fonction <code data-pkg="forcats">fct_explicit_na</code>, qui convertit toutes les valeurs manquantes (<code>NA</code>) d’un facteur en une modalité spécifique :</p>
-<div class="sourceCode" id="cb113"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb113-1" data-line-number="1">hdv2003<span class="op">$</span>qualif_rec &lt;-<span class="st"> </span><span class="kw">fct_explicit_na</span>(hdv2003<span class="op">$</span>qualif, <span class="dt">na_level =</span> <span class="st">&quot;(Manquant)&quot;</span>)</a>
-<a class="sourceLine" id="cb113-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb113-3" data-line-number="3"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif_rec)</a></code></pre></div>
+<div class="sourceCode" id="cb113"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb113-1" title="1">hdv2003<span class="op">$</span>qualif_rec &lt;-<span class="st"> </span><span class="kw">fct_explicit_na</span>(hdv2003<span class="op">$</span>qualif, <span class="dt">na_level =</span> <span class="st">&quot;(Manquant)&quot;</span>)</a>
+<a class="sourceLine" id="cb113-2" title="2"></a>
+<a class="sourceLine" id="cb113-3" title="3"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif_rec)</a></code></pre></div>
 <pre><code>                           n    % val%
 Ouvrier specialise       203 10.2 10.2
 Ouvrier qualifie         292 14.6 14.6
@@ -883,10 +966,10 @@ Employe                  594 29.7 29.7
 Autre                     58  2.9  2.9
 (Manquant)               347 17.3 17.3</code></pre>
 <p>D’autres fonctions sont proposées par <code class="pkg">forcats</code> pour faciliter certains recodage, comme <code data-pkg="forcats">fct_collapse</code>, qui propose une autre syntaxe pratique quand on doit regrouper ensemble des modalités :</p>
-<div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb115-1" data-line-number="1">hdv2003<span class="op">$</span>qualif_rec &lt;-<span class="st"> </span><span class="kw">fct_collapse</span>(hdv2003<span class="op">$</span>qualif, <span class="dt">Ouvrier =</span> <span class="kw">c</span>(<span class="st">&quot;Ouvrier specialise&quot;</span>, </a>
-<a class="sourceLine" id="cb115-2" data-line-number="2">  <span class="st">&quot;Ouvrier qualifie&quot;</span>), <span class="dt">Interm =</span> <span class="kw">c</span>(<span class="st">&quot;Technicien&quot;</span>, <span class="st">&quot;Profession intermediaire&quot;</span>))</a>
-<a class="sourceLine" id="cb115-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb115-4" data-line-number="4"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif_rec)</a></code></pre></div>
+<div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb115-1" title="1">hdv2003<span class="op">$</span>qualif_rec &lt;-<span class="st"> </span><span class="kw">fct_collapse</span>(hdv2003<span class="op">$</span>qualif, <span class="dt">Ouvrier =</span> <span class="kw">c</span>(<span class="st">&quot;Ouvrier specialise&quot;</span>, </a>
+<a class="sourceLine" id="cb115-2" title="2">  <span class="st">&quot;Ouvrier qualifie&quot;</span>), <span class="dt">Interm =</span> <span class="kw">c</span>(<span class="st">&quot;Technicien&quot;</span>, <span class="st">&quot;Profession intermediaire&quot;</span>))</a>
+<a class="sourceLine" id="cb115-3" title="3"></a>
+<a class="sourceLine" id="cb115-4" title="4"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif_rec)</a></code></pre></div>
 <pre><code>          n    % val%
 Ouvrier 495 24.8 29.9
 Interm  246 12.3 14.9
@@ -895,10 +978,10 @@ Employe 594 29.7 35.9
 Autre    58  2.9  3.5
 NA      347 17.3   NA</code></pre>
 <p><code data-pkg="forcats">fct_other</code>, qui regroupe une liste de modalités en une seule modalité “Other” :</p>
-<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb117-1" data-line-number="1">hdv2003<span class="op">$</span>qualif_rec &lt;-<span class="st"> </span><span class="kw">fct_other</span>(hdv2003<span class="op">$</span>qualif, <span class="dt">drop =</span> <span class="kw">c</span>(<span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>, </a>
-<a class="sourceLine" id="cb117-2" data-line-number="2">  <span class="st">&quot;Cadre&quot;</span>, <span class="st">&quot;Autre&quot;</span>))</a>
-<a class="sourceLine" id="cb117-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb117-4" data-line-number="4"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif_rec)</a></code></pre></div>
+<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb117-1" title="1">hdv2003<span class="op">$</span>qualif_rec &lt;-<span class="st"> </span><span class="kw">fct_other</span>(hdv2003<span class="op">$</span>qualif, <span class="dt">drop =</span> <span class="kw">c</span>(<span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>, </a>
+<a class="sourceLine" id="cb117-2" title="2">  <span class="st">&quot;Cadre&quot;</span>, <span class="st">&quot;Autre&quot;</span>))</a>
+<a class="sourceLine" id="cb117-3" title="3"></a>
+<a class="sourceLine" id="cb117-4" title="4"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif_rec)</a></code></pre></div>
 <pre><code>                           n    % val%
 Technicien                86  4.3  5.2
 Profession intermediaire 160  8.0  9.7
@@ -906,9 +989,9 @@ Employe                  594 29.7 35.9
 Other                    813 40.6 49.2
 NA                       347 17.3   NA</code></pre>
 <p><code data-pkg="forcats">fct_lump</code>, qui regroupe automatiquement les modalités les moins fréquentes en une seule modalité “Other” (avec possibilité d’indiquer des seuils de regroupement) :</p>
-<div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb119-1" data-line-number="1">hdv2003<span class="op">$</span>qualif_rec &lt;-<span class="st"> </span><span class="kw">fct_lump</span>(hdv2003<span class="op">$</span>qualif)</a>
-<a class="sourceLine" id="cb119-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb119-3" data-line-number="3"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif_rec)</a></code></pre></div>
+<div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb119-1" title="1">hdv2003<span class="op">$</span>qualif_rec &lt;-<span class="st"> </span><span class="kw">fct_lump</span>(hdv2003<span class="op">$</span>qualif)</a>
+<a class="sourceLine" id="cb119-2" title="2"></a>
+<a class="sourceLine" id="cb119-3" title="3"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif_rec)</a></code></pre></div>
 <pre><code>                           n    % val%
 Ouvrier specialise       203 10.2 12.3
 Ouvrier qualifie         292 14.6 17.7
@@ -922,9 +1005,9 @@ NA                       347 17.3   NA</code></pre>
 <h3>Ordonner les modalités d’une variable qualitative</h3>
 <p>L’avantage des facteurs (par rapport aux vecteurs de type <code>character</code>) est que leurs modalités peuvent être ordonnées, ce qui peut faciliter la lecture de tableaux ou graphiques.</p>
 <p>On peut ordonner les modalités d’un facteur manuellement, par exemple avec la fonction <code>fct_relevel()</code> de l’extension <code>forcats</code> :</p>
-<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb121-1" data-line-number="1">hdv2003<span class="op">$</span>qualif_rec &lt;-<span class="st"> </span><span class="kw">fct_relevel</span>(hdv2003<span class="op">$</span>qualif, <span class="st">&quot;Cadre&quot;</span>, <span class="st">&quot;Profession intermediaire&quot;</span>, </a>
-<a class="sourceLine" id="cb121-2" data-line-number="2">  <span class="st">&quot;Technicien&quot;</span>, <span class="st">&quot;Employe&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>, <span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Autre&quot;</span>)</a>
-<a class="sourceLine" id="cb121-3" data-line-number="3"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif_rec)</a></code></pre></div>
+<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb121-1" title="1">hdv2003<span class="op">$</span>qualif_rec &lt;-<span class="st"> </span><span class="kw">fct_relevel</span>(hdv2003<span class="op">$</span>qualif, <span class="st">&quot;Cadre&quot;</span>, <span class="st">&quot;Profession intermediaire&quot;</span>, </a>
+<a class="sourceLine" id="cb121-2" title="2">  <span class="st">&quot;Technicien&quot;</span>, <span class="st">&quot;Employe&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>, <span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Autre&quot;</span>)</a>
+<a class="sourceLine" id="cb121-3" title="3"><span class="kw">freq</span>(hdv2003<span class="op">$</span>qualif_rec)</a></code></pre></div>
 <pre><code>                           n    % val%
 Cadre                    260 13.0 15.7
 Profession intermediaire 160  8.0  9.7
@@ -935,13 +1018,13 @@ Ouvrier specialise       203 10.2 12.3
 Autre                     58  2.9  3.5
 NA                       347 17.3   NA</code></pre>
 <p>Une autre possibilité est d’ordonner les modalités d’un facteur selon les valeurs d’une autre variable. Par exemple, si on représente le boxplot de la répartition de l’âge selon le statut d’occupation :</p>
-<div class="sourceCode" id="cb123"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb123-1" data-line-number="1"><span class="kw">library</span>(ggplot2)</a>
-<a class="sourceLine" id="cb123-2" data-line-number="2"><span class="kw">ggplot</span>(hdv2003) <span class="op">+</span><span class="st"> </span><span class="kw">geom_boxplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> occup, <span class="dt">y =</span> age))</a></code></pre></div>
+<div class="sourceCode" id="cb123"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb123-1" title="1"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb123-2" title="2"><span class="kw">ggplot</span>(hdv2003) <span class="op">+</span><span class="st"> </span><span class="kw">geom_boxplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> occup, <span class="dt">y =</span> age))</a></code></pre></div>
 <p><img src="graphs/recodage/unnamed-chunk-48-1.png" width="1050" /></p>
 <p>Le graphique pourrait être plus lisible si les modalités étaient triées par âge median croissant. Ceci est possible en utilisant <code data-pkg="forcats">fct_reorder</code>. Celle-ci prend 3 arguments : le facteur à réordonner, la variable dont les valeurs doivent être utilisées pour ce réordonnancement, et enfin une fonction à appliquer à cette deuxième variable.</p>
-<div class="sourceCode" id="cb124"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb124-1" data-line-number="1">hdv2003<span class="op">$</span>occup_age &lt;-<span class="st"> </span><span class="kw">fct_reorder</span>(hdv2003<span class="op">$</span>occup, hdv2003<span class="op">$</span>age, median)</a>
-<a class="sourceLine" id="cb124-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb124-3" data-line-number="3"><span class="kw">ggplot</span>(hdv2003) <span class="op">+</span><span class="st"> </span><span class="kw">geom_boxplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> occup_age, <span class="dt">y =</span> age))</a></code></pre></div>
+<div class="sourceCode" id="cb124"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb124-1" title="1">hdv2003<span class="op">$</span>occup_age &lt;-<span class="st"> </span><span class="kw">fct_reorder</span>(hdv2003<span class="op">$</span>occup, hdv2003<span class="op">$</span>age, median)</a>
+<a class="sourceLine" id="cb124-2" title="2"></a>
+<a class="sourceLine" id="cb124-3" title="3"><span class="kw">ggplot</span>(hdv2003) <span class="op">+</span><span class="st"> </span><span class="kw">geom_boxplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> occup_age, <span class="dt">y =</span> age))</a></code></pre></div>
 <p><img src="graphs/recodage/unnamed-chunk-49-1.png" width="1050" /></p>
 </div>
 <div id="combiner-plusieurs-variables-1" class="section level3">
@@ -951,14 +1034,14 @@ NA                       347 17.3   NA</code></pre>
 <h4>if_else</h4>
 <p><code data-pkg="dplyr">if_else</code> prend trois arguments : un test, une valeur à renvoyer si le test est vrai, et une valeur à renvoyer si le test est faux.</p>
 <p>Voici un exemple simple :</p>
-<div class="sourceCode" id="cb125"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb125-1" data-line-number="1">v &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">12</span>, <span class="dv">14</span>, <span class="dv">8</span>, <span class="dv">16</span>)</a>
-<a class="sourceLine" id="cb125-2" data-line-number="2"><span class="kw">if_else</span>(v <span class="op">&gt;</span><span class="st"> </span><span class="dv">10</span>, <span class="st">&quot;Supérieur à 10&quot;</span>, <span class="st">&quot;Inférieur à 10&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb125"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb125-1" title="1">v &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">12</span>, <span class="dv">14</span>, <span class="dv">8</span>, <span class="dv">16</span>)</a>
+<a class="sourceLine" id="cb125-2" title="2"><span class="kw">if_else</span>(v <span class="op">&gt;</span><span class="st"> </span><span class="dv">10</span>, <span class="st">&quot;Supérieur à 10&quot;</span>, <span class="st">&quot;Inférieur à 10&quot;</span>)</a></code></pre></div>
 <pre><code>[1] &quot;Supérieur à 10&quot; &quot;Supérieur à 10&quot; &quot;Inférieur à 10&quot; &quot;Supérieur à 10&quot;</code></pre>
 <p>La fonction devient plus intéressante avec des tests combinant plusieurs variables. Par exemple, imaginons qu’on souhaite créer une nouvelle variable indiquant les hommes de plus de 60 ans :</p>
-<div class="sourceCode" id="cb127"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb127-1" data-line-number="1">hdv2003<span class="op">$</span>statut &lt;-<span class="st"> </span><span class="kw">if_else</span>(hdv2003<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>hdv2003<span class="op">$</span>age <span class="op">&gt;</span><span class="st"> </span><span class="dv">60</span>, <span class="st">&quot;Homme de plus de 60 ans&quot;</span>, </a>
-<a class="sourceLine" id="cb127-2" data-line-number="2">  <span class="st">&quot;Autre&quot;</span>)</a>
-<a class="sourceLine" id="cb127-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb127-4" data-line-number="4"><span class="kw">freq</span>(hdv2003<span class="op">$</span>statut)</a></code></pre></div>
+<div class="sourceCode" id="cb127"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb127-1" title="1">hdv2003<span class="op">$</span>statut &lt;-<span class="st"> </span><span class="kw">if_else</span>(hdv2003<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>hdv2003<span class="op">$</span>age <span class="op">&gt;</span><span class="st"> </span><span class="dv">60</span>, <span class="st">&quot;Homme de plus de 60 ans&quot;</span>, </a>
+<a class="sourceLine" id="cb127-2" title="2">  <span class="st">&quot;Autre&quot;</span>)</a>
+<a class="sourceLine" id="cb127-3" title="3"></a>
+<a class="sourceLine" id="cb127-4" title="4"><span class="kw">freq</span>(hdv2003<span class="op">$</span>statut)</a></code></pre></div>
 <pre><code>                           n    % val%
 Autre                   1778 88.9 88.9
 Homme de plus de 60 ans  222 11.1 11.1</code></pre>
@@ -967,11 +1050,11 @@ Homme de plus de 60 ans  222 11.1 11.1</code></pre>
 <h4>case_when</h4>
 <p><code data-pkg="dplyr">case_when</code> est une génération du <code data-pkg="dplyr">if_else</code> qui permet d’indiquer plusieurs tests et leurs valeurs associées.</p>
 <p>Imaginons qu’on souhaite créer une nouvelle variable permettant d’identifier les hommes de plus de 60 ans, les femmes de plus de 60 ans, et les autres. On peut utiliser la syntaxe suivante :</p>
-<div class="sourceCode" id="cb129"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb129-1" data-line-number="1">hdv2003<span class="op">$</span>statut &lt;-<span class="st"> </span><span class="kw">case_when</span>(hdv2003<span class="op">$</span>age <span class="op">&gt;</span><span class="st"> </span><span class="dv">60</span> <span class="op">&amp;</span><span class="st"> </span>hdv2003<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">~</span><span class="st"> &quot;Homme de plus de 60 ans&quot;</span>, </a>
-<a class="sourceLine" id="cb129-2" data-line-number="2">  hdv2003<span class="op">$</span>age <span class="op">&gt;</span><span class="st"> </span><span class="dv">60</span> <span class="op">&amp;</span><span class="st"> </span>hdv2003<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Femme&quot;</span> <span class="op">~</span><span class="st"> &quot;Femme de plus de 60 ans&quot;</span>, <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb129-3" data-line-number="3"><span class="st">    &quot;Autre&quot;</span>)</a>
-<a class="sourceLine" id="cb129-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb129-5" data-line-number="5"><span class="kw">freq</span>(hdv2003<span class="op">$</span>statut)</a></code></pre></div>
+<div class="sourceCode" id="cb129"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb129-1" title="1">hdv2003<span class="op">$</span>statut &lt;-<span class="st"> </span><span class="kw">case_when</span>(hdv2003<span class="op">$</span>age <span class="op">&gt;</span><span class="st"> </span><span class="dv">60</span> <span class="op">&amp;</span><span class="st"> </span>hdv2003<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">~</span><span class="st"> &quot;Homme de plus de 60 ans&quot;</span>, </a>
+<a class="sourceLine" id="cb129-2" title="2">  hdv2003<span class="op">$</span>age <span class="op">&gt;</span><span class="st"> </span><span class="dv">60</span> <span class="op">&amp;</span><span class="st"> </span>hdv2003<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Femme&quot;</span> <span class="op">~</span><span class="st"> &quot;Femme de plus de 60 ans&quot;</span>, <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb129-3" title="3"><span class="st">    &quot;Autre&quot;</span>)</a>
+<a class="sourceLine" id="cb129-4" title="4"></a>
+<a class="sourceLine" id="cb129-5" title="5"><span class="kw">freq</span>(hdv2003<span class="op">$</span>statut)</a></code></pre></div>
 <pre><code>                           n    % val%
 Autre                   1512 75.6 75.6
 Femme de plus de 60 ans  266 13.3 13.3
@@ -981,19 +1064,19 @@ Homme de plus de 60 ans  222 11.1 11.1</code></pre>
 <div class="important">
 <p><strong>Attention :</strong> comme les conditions sont testées l’une après l’autre et que la valeur renvoyée est celle correspondant à la première condition vraie, l’ordre de ces conditions est très important. Il faut absolument aller du plus spécifique au plus général.</p>
 <p>Par exemple le recodage suivant ne fonctionne pas :</p>
-<div class="sourceCode" id="cb131"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb131-1" data-line-number="1">hdv2003<span class="op">$</span>statut &lt;-<span class="st"> </span><span class="kw">case_when</span>(hdv2003<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">~</span><span class="st"> &quot;Homme&quot;</span>, hdv2003<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">&amp;</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb131-2" data-line-number="2"><span class="st">  </span>hdv2003<span class="op">$</span>age <span class="op">&gt;</span><span class="st"> </span><span class="dv">60</span> <span class="op">~</span><span class="st"> &quot;Homme de plus de 60 ans&quot;</span>, <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> &quot;Autre&quot;</span>)</a>
-<a class="sourceLine" id="cb131-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb131-4" data-line-number="4"><span class="kw">freq</span>(hdv2003<span class="op">$</span>statut)</a></code></pre></div>
+<div class="sourceCode" id="cb131"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb131-1" title="1">hdv2003<span class="op">$</span>statut &lt;-<span class="st"> </span><span class="kw">case_when</span>(hdv2003<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">~</span><span class="st"> &quot;Homme&quot;</span>, hdv2003<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">&amp;</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb131-2" title="2"><span class="st">  </span>hdv2003<span class="op">$</span>age <span class="op">&gt;</span><span class="st"> </span><span class="dv">60</span> <span class="op">~</span><span class="st"> &quot;Homme de plus de 60 ans&quot;</span>, <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> &quot;Autre&quot;</span>)</a>
+<a class="sourceLine" id="cb131-3" title="3"></a>
+<a class="sourceLine" id="cb131-4" title="4"><span class="kw">freq</span>(hdv2003<span class="op">$</span>statut)</a></code></pre></div>
 <pre><code>         n  % val%
 Autre 1101 55   55
 Homme  899 45   45</code></pre>
 <p>Comme la condition <code>sexe == &quot;Homme&quot;</code> est plus générale que <code>sexe == &quot;Homme&quot; &amp; age &gt; 60</code>, cette deuxième condition n’est jamais testée ! On n’obtiendra jamais la valeur correspondante.</p>
 <p>Pour que ce recodage fonctionne il faut donc changer l’ordre des conditions pour aller du plus spécifique au plus général :</p>
-<div class="sourceCode" id="cb133"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb133-1" data-line-number="1">hdv2003<span class="op">$</span>statut &lt;-<span class="st"> </span><span class="kw">case_when</span>(hdv2003<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>hdv2003<span class="op">$</span>age <span class="op">&gt;</span><span class="st"> </span><span class="dv">60</span> <span class="op">~</span><span class="st"> &quot;Homme de plus de 60 ans&quot;</span>, </a>
-<a class="sourceLine" id="cb133-2" data-line-number="2">  hdv2003<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">~</span><span class="st"> &quot;Homme&quot;</span>, <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> &quot;Autre&quot;</span>)</a>
-<a class="sourceLine" id="cb133-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb133-4" data-line-number="4"><span class="kw">freq</span>(hdv2003<span class="op">$</span>statut)</a></code></pre></div>
+<div class="sourceCode" id="cb133"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb133-1" title="1">hdv2003<span class="op">$</span>statut &lt;-<span class="st"> </span><span class="kw">case_when</span>(hdv2003<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>hdv2003<span class="op">$</span>age <span class="op">&gt;</span><span class="st"> </span><span class="dv">60</span> <span class="op">~</span><span class="st"> &quot;Homme de plus de 60 ans&quot;</span>, </a>
+<a class="sourceLine" id="cb133-2" title="2">  hdv2003<span class="op">$</span>sexe <span class="op">==</span><span class="st"> &quot;Homme&quot;</span> <span class="op">~</span><span class="st"> &quot;Homme&quot;</span>, <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> &quot;Autre&quot;</span>)</a>
+<a class="sourceLine" id="cb133-3" title="3"></a>
+<a class="sourceLine" id="cb133-4" title="4"><span class="kw">freq</span>(hdv2003<span class="op">$</span>statut)</a></code></pre></div>
 <pre><code>                           n    % val%
 Autre                   1101 55.0 55.0
 Homme                    677 33.9 33.9
@@ -1007,22 +1090,22 @@ Homme de plus de 60 ans  222 11.1 11.1</code></pre>
 <div id="recodage-et-data.table" class="section level2">
 <h2>Recodage et data.table</h2>
 <p>Nous aborderons dans un <a href="manipulations-avancees-avec-data-table.html">prochain chapitre</a> l’extension <code class="pkg">data.table</code> qui étend les tableaux de données et modifie complètement la syntaxe utilisée entre les crochets. Elle nécessite un petit temps d’adaptation mais, une fois maîtrisée, elle facile le quotidien lorsqu’il s’agit de manipuler et recoder les données. Ci-dessous, un petit avant-goût, reprenons quelques exemples précédents.</p>
-<div class="sourceCode" id="cb135"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb135-1" data-line-number="1"><span class="kw">library</span>(data.table)</a>
-<a class="sourceLine" id="cb135-2" data-line-number="2">dt &lt;-<span class="st"> </span><span class="kw">data.table</span>(hdv2003)</a>
-<a class="sourceLine" id="cb135-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb135-4" data-line-number="4">dt[, score.ext <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="dv">0</span>]</a>
-<a class="sourceLine" id="cb135-5" data-line-number="5">dt[cinema <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, score.ext <span class="op">:</span><span class="er">=</span><span class="st"> </span>score.ext <span class="op">+</span><span class="st"> </span><span class="dv">10</span>]</a>
-<a class="sourceLine" id="cb135-6" data-line-number="6">dt[peche.chasse <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, score.ext <span class="op">:</span><span class="er">=</span><span class="st"> </span>score.ext <span class="op">+</span><span class="st"> </span><span class="dv">30</span>]</a>
-<a class="sourceLine" id="cb135-7" data-line-number="7">dt[sport <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, score.ext <span class="op">:</span><span class="er">=</span><span class="st"> </span>score.ext <span class="op">+</span><span class="st"> </span><span class="dv">20</span>]</a>
-<a class="sourceLine" id="cb135-8" data-line-number="8"><span class="kw">table</span>(dt<span class="op">$</span>score.ext)</a></code></pre></div>
+<div class="sourceCode" id="cb135"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb135-1" title="1"><span class="kw">library</span>(data.table)</a>
+<a class="sourceLine" id="cb135-2" title="2">dt &lt;-<span class="st"> </span><span class="kw">data.table</span>(hdv2003)</a>
+<a class="sourceLine" id="cb135-3" title="3"></a>
+<a class="sourceLine" id="cb135-4" title="4">dt[, score.ext <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="dv">0</span>]</a>
+<a class="sourceLine" id="cb135-5" title="5">dt[cinema <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, score.ext <span class="op">:</span><span class="er">=</span><span class="st"> </span>score.ext <span class="op">+</span><span class="st"> </span><span class="dv">10</span>]</a>
+<a class="sourceLine" id="cb135-6" title="6">dt[peche.chasse <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, score.ext <span class="op">:</span><span class="er">=</span><span class="st"> </span>score.ext <span class="op">+</span><span class="st"> </span><span class="dv">30</span>]</a>
+<a class="sourceLine" id="cb135-7" title="7">dt[sport <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, score.ext <span class="op">:</span><span class="er">=</span><span class="st"> </span>score.ext <span class="op">+</span><span class="st"> </span><span class="dv">20</span>]</a>
+<a class="sourceLine" id="cb135-8" title="8"><span class="kw">table</span>(dt<span class="op">$</span>score.ext)</a></code></pre></div>
 <pre><code>
   0  10  20  30  40  50  60 
 800 342 229 509  31  41  48 </code></pre>
-<div class="sourceCode" id="cb137"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb137-1" data-line-number="1">dt[cuisine <span class="op">==</span><span class="st"> &quot;Oui&quot;</span> <span class="op">&amp;</span><span class="st"> </span>bricol <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, act.manuelles <span class="op">:</span><span class="er">=</span><span class="st"> &quot;Cuisine et Bricolage&quot;</span>]</a>
-<a class="sourceLine" id="cb137-2" data-line-number="2">dt[cuisine <span class="op">==</span><span class="st"> &quot;Oui&quot;</span> <span class="op">&amp;</span><span class="st"> </span>bricol <span class="op">==</span><span class="st"> &quot;Non&quot;</span>, act.manuelles <span class="op">:</span><span class="er">=</span><span class="st"> &quot;Cuisine seulement&quot;</span>]</a>
-<a class="sourceLine" id="cb137-3" data-line-number="3">dt[cuisine <span class="op">==</span><span class="st"> &quot;Non&quot;</span> <span class="op">&amp;</span><span class="st"> </span>bricol <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, act.manuelles <span class="op">:</span><span class="er">=</span><span class="st"> &quot;Bricolage seulement&quot;</span>]</a>
-<a class="sourceLine" id="cb137-4" data-line-number="4">dt[cuisine <span class="op">==</span><span class="st"> &quot;Non&quot;</span> <span class="op">&amp;</span><span class="st"> </span>bricol <span class="op">==</span><span class="st"> &quot;Non&quot;</span>, act.manuelles <span class="op">:</span><span class="er">=</span><span class="st"> &quot;Ni cuisine ni bricolage&quot;</span>]</a>
-<a class="sourceLine" id="cb137-5" data-line-number="5"><span class="kw">table</span>(dt<span class="op">$</span>act.manuelles)</a></code></pre></div>
+<div class="sourceCode" id="cb137"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb137-1" title="1">dt[cuisine <span class="op">==</span><span class="st"> &quot;Oui&quot;</span> <span class="op">&amp;</span><span class="st"> </span>bricol <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, act.manuelles <span class="op">:</span><span class="er">=</span><span class="st"> &quot;Cuisine et Bricolage&quot;</span>]</a>
+<a class="sourceLine" id="cb137-2" title="2">dt[cuisine <span class="op">==</span><span class="st"> &quot;Oui&quot;</span> <span class="op">&amp;</span><span class="st"> </span>bricol <span class="op">==</span><span class="st"> &quot;Non&quot;</span>, act.manuelles <span class="op">:</span><span class="er">=</span><span class="st"> &quot;Cuisine seulement&quot;</span>]</a>
+<a class="sourceLine" id="cb137-3" title="3">dt[cuisine <span class="op">==</span><span class="st"> &quot;Non&quot;</span> <span class="op">&amp;</span><span class="st"> </span>bricol <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>, act.manuelles <span class="op">:</span><span class="er">=</span><span class="st"> &quot;Bricolage seulement&quot;</span>]</a>
+<a class="sourceLine" id="cb137-4" title="4">dt[cuisine <span class="op">==</span><span class="st"> &quot;Non&quot;</span> <span class="op">&amp;</span><span class="st"> </span>bricol <span class="op">==</span><span class="st"> &quot;Non&quot;</span>, act.manuelles <span class="op">:</span><span class="er">=</span><span class="st"> &quot;Ni cuisine ni bricolage&quot;</span>]</a>
+<a class="sourceLine" id="cb137-5" title="5"><span class="kw">table</span>(dt<span class="op">$</span>act.manuelles)</a></code></pre></div>
 <pre><code>
     Bricolage seulement    Cuisine et Bricolage       Cuisine seulement 
                     437                     416                     465 
@@ -1188,7 +1271,8 @@ $(document).ready(function () {
   <div class="row">
     <div class="col-lg-12">
       <p>Contenus sous licence <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/" rel="nofollow">Creative Commons Attribution - Pas d’utilisation commerciale - Partage dans les mêmes conditions</a>.<br />
-      Propulsé par <a href="http://www.r-project.org/" rel="nofollow">R</a>, </a><a href="http://www.rstudio.com/" rel="nofollow">RStudio</a>, <a href="http://rmarkdown.rstudio.com/" rel="nofollow">R Markdown</a>, <a href="http://yihui.name/knitr/" rel="nofollow">knitr</a>, <a href="http://pandoc.org/" rel="nofollow">pandoc</a> et <a href="http://www.princexml.com/" rel="nofollow">Prince XML</a>. Hébergé par <a href="https://github.com/" rel="nofollow">GitHub</a>.</p>
+      Propulsé par <a href="http://www.r-project.org/" rel="nofollow">R</a>, </a><a href="http://www.rstudio.com/" rel="nofollow">RStudio</a>, <a href="http://rmarkdown.rstudio.com/" rel="nofollow">R Markdown</a>, <a href="http://yihui.name/knitr/" rel="nofollow">knitr</a>, <a href="http://pandoc.org/" rel="nofollow">pandoc</a> et <a href="http://www.princexml.com/" rel="nofollow">Prince XML</a>. Hébergé par <a href="https://github.com/" rel="nofollow">GitHub</a>.<br />
+      <a href="https://www.zenodo.org/badge/latestdoi/34986666"><img src="https://www.zenodo.org/badge/34986666.svg" alt="DOI"></a></p>
     </div>
   </div>
 </footer>

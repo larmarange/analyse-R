@@ -57,10 +57,10 @@
 
 
 <style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
+<style type="text/css" data-origin="pandoc">
 a.sourceLine { display: inline-block; line-height: 1.25; }
 a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; position: absolute; }
+a.sourceLine:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -73,13 +73,11 @@ code.sourceCode { white-space: pre-wrap; }
 a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
 pre.numberSource a.sourceLine
-  { position: relative; }
-pre.numberSource a.sourceLine:empty
-  { position: absolute; }
+  { position: relative; left: -4em; }
 pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
-    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all;
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -121,7 +119,29 @@ code span.st { color: #4070a0; } /* String */
 code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
 </style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 <style type="text/css">
   pre:not([class]) {
     background-color: white;
@@ -184,6 +204,9 @@ img {
 button.code-folding-btn:focus {
   outline: none;
 }
+summary {
+  display: list-item;
+}
 </style>
 
 
@@ -191,14 +214,74 @@ button.code-folding-btn:focus {
 <div class="container-fluid main-container">
 
 <!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
 <script>
 $(document).ready(function () {
   window.buildTabsets("TOC");
 });
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
 </script>
 
 <!-- code folding -->
-
 
 
 
@@ -396,18 +479,18 @@ $(document).ready(function () {
 <div id="exemple-dinteraction" class="section level2">
 <h2>Exemple d’interaction</h2>
 <p>Reprenons le modèle que nous avons utilisé dans le chapitre sur la <a href="regression-logistique.html">régression logistique</a>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(questionr)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">data</span>(hdv2003)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">d &lt;-<span class="st"> </span>hdv2003</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">d<span class="op">$</span>sexe &lt;-<span class="st"> </span><span class="kw">relevel</span>(d<span class="op">$</span>sexe, <span class="st">&quot;Femme&quot;</span>)</a>
-<a class="sourceLine" id="cb1-5" data-line-number="5">d<span class="op">$</span>grpage &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">99</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">d<span class="op">$</span>etud &lt;-<span class="st"> </span>d<span class="op">$</span>nivetud</a>
-<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="kw">levels</span>(d<span class="op">$</span>etud) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, </a>
-<a class="sourceLine" id="cb1-8" data-line-number="8">  <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Supérieur&quot;</span>)</a>
-<a class="sourceLine" id="cb1-9" data-line-number="9">d<span class="op">$</span>etud &lt;-<span class="st"> </span><span class="kw">addNAstr</span>(d<span class="op">$</span>etud, <span class="st">&quot;Manquant&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(questionr)</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">data</span>(hdv2003)</a>
+<a class="sourceLine" id="cb1-3" title="3">d &lt;-<span class="st"> </span>hdv2003</a>
+<a class="sourceLine" id="cb1-4" title="4">d<span class="op">$</span>sexe &lt;-<span class="st"> </span><span class="kw">relevel</span>(d<span class="op">$</span>sexe, <span class="st">&quot;Femme&quot;</span>)</a>
+<a class="sourceLine" id="cb1-5" title="5">d<span class="op">$</span>grpage &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">99</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb1-6" title="6">d<span class="op">$</span>etud &lt;-<span class="st"> </span>d<span class="op">$</span>nivetud</a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="kw">levels</span>(d<span class="op">$</span>etud) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, </a>
+<a class="sourceLine" id="cb1-8" title="8">  <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Supérieur&quot;</span>)</a>
+<a class="sourceLine" id="cb1-9" title="9">d<span class="op">$</span>etud &lt;-<span class="st"> </span><span class="kw">addNAstr</span>(d<span class="op">$</span>etud, <span class="st">&quot;Manquant&quot;</span>)</a></code></pre></div>
 <p>Nous avions alors exploré les facteurs associés au fait de pratiquer du sport.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">mod &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>heures.tv <span class="op">+</span><span class="st"> </span>relig, <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>())</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">odds.ratio</span>(mod)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">mod &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>heures.tv <span class="op">+</span><span class="st"> </span>relig, <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>())</a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="kw">odds.ratio</span>(mod)</a></code></pre></div>
 <pre><code>Waiting for profiling to be done...</code></pre>
 <pre><code>                                      OR   2.5 %  97.5 %         p    
 (Intercept)                      0.45006 0.23770  0.8473 0.0137076 *  
@@ -429,18 +512,18 @@ religNSP ou NVPR                 0.91963 0.39967  2.0216 0.8384696
 Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>Selon les résultats de notre modèle, les hommes pratiquent plus un sport que les femmes et la pratique du sport diminue avec l’âge. Pour représenter les effets différentes variables, on peut avoir recours à la fonction <code data-pkg="effects" data-rdoc="effects">allEffects</code> de l’extension <code class="pkg">effects</code>.</p>
 <figure>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">library</span>(effects)</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="kw">plot</span>(<span class="kw">allEffects</span>(mod))</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">library</span>(effects)</a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="kw">plot</span>(<span class="kw">allEffects</span>(mod))</a></code></pre></div>
 <img src="graphs/effets-d-interaction/unnamed-chunk-3-1.png" width="1050" />
 <figcaption>
 Représentation graphique des effets du modèle
 </figcaption>
 </figure>
 <p>Cependant, l’effet de l’âge est-il le même selon le sexe ? Nous allons donc introduire une interaction entre l’âge et le sexe dans notre modèle, ce qui sera représenté par <code>sexe * grpage</code> dans l’équation du modèle.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">mod2 &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">*</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>heures.tv <span class="op">+</span><span class="st"> </span>relig, <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>())</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">mod2 &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">*</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>heures.tv <span class="op">+</span><span class="st"> </span>relig, <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>())</a></code></pre></div>
 <p>Commençons par regarder les effets du modèle.</p>
 <figure>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">plot</span>(<span class="kw">allEffects</span>(mod2))</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">plot</span>(<span class="kw">allEffects</span>(mod2))</a></code></pre></div>
 <img src="graphs/effets-d-interaction/unnamed-chunk-5-1.png" width="1050" />
 <figcaption>
 Représentation graphique des effets du modèle avec interaction entre le sexe et le groupe d’âge
@@ -448,7 +531,7 @@ Représentation graphique des effets du modèle avec interaction entre le sexe e
 </figure>
 <p>Sur ce graphique, on voit que l’effet de l’âge sur la pratique d’un sport est surtout marqué chez les hommes. Chez les femmes, le même effet est observé, mais dans une moindre mesure et seulement à partir de 45 ans.</p>
 <p>On peut tester si l’ajout de l’interaction améliore significativement le modèle avec <code data-pkg="stats">anova</code>.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">anova</span>(mod2, <span class="dt">test =</span> <span class="st">&quot;Chisq&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">anova</span>(mod2, <span class="dt">test =</span> <span class="st">&quot;Chisq&quot;</span>)</a></code></pre></div>
 <pre><code>Analysis of Deviance Table
 
 Model: binomial, link: logit
@@ -469,8 +552,8 @@ sexe:grpage  3   13.030      1977     2193.1 0.0045714 **
 Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>Jetons maintenant un oeil aux coefficients du modèle. Pour rendre les choses plus visuelles, nous aurons recours à <code data-pkg="GGally">ggcoef</code> de l’extension <code class="pkg">GGally</code>.</p>
 <figure>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">library</span>(GGally)</a>
-<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="kw">ggcoef</span>(mod2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">library</span>(GGally)</a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="kw">ggcoef</span>(mod2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <img src="graphs/effets-d-interaction/unnamed-chunk-7-1.png" width="1050" />
 <figcaption>
 Représentation graphique des coefficients du modèle avec interaction entre le sexe et le groupe d’âge
@@ -479,17 +562,17 @@ Représentation graphique des coefficients du modèle avec interaction entre le 
 <p>Concernant l’âge et le sexe, nous avons trois séries de coefficients : trois coefficients (<em>grpage[25,45)</em>, <em>grpage[45,65)</em> et <em>grpage[65,99]</em>) qui correspondent à l’effet global de la variable <em>âge</em>, un coefficient (<em>sexeHomme</em>)pour l’effet global du sexe et trois coefficients qui sont des moficateurs de l’effet d’âge pour les hommes (<em>grpage[25,45)</em>, <em>grpage[45,65)</em> et <em>grpage[65,99]</em>).</p>
 <p>Pour bien interpréter ces coefficients, il faut toujours avoir en tête les modalités choisies comme référence pour chaque variable. Supposons une femme de 60 ans, dont toutes lautres variables correspondent aux modalités de référence (c’est donc une pratiquante régulière, de niveau primaire, qui ne regarde pas la télévision). Regardons ce que prédit le modèle quant à sa probabilité de faire du sport au travers d’une représentation graphique</p>
 <figure>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">library</span>(breakDown)</a>
-<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="kw">library</span>(ggplot2)</a>
-<a class="sourceLine" id="cb11-3" data-line-number="3">logit &lt;-<span class="st"> </span><span class="cf">function</span>(x) <span class="kw">exp</span>(x)<span class="op">/</span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="kw">exp</span>(x))</a>
-<a class="sourceLine" id="cb11-4" data-line-number="4">nouvelle_observation &lt;-<span class="st"> </span>d[<span class="dv">1</span>, ]</a>
-<a class="sourceLine" id="cb11-5" data-line-number="5">nouvelle_observation<span class="op">$</span>sexe[<span class="dv">1</span>] =<span class="st"> &quot;Femme&quot;</span></a>
-<a class="sourceLine" id="cb11-6" data-line-number="6">nouvelle_observation<span class="op">$</span>grpage[<span class="dv">1</span>] =<span class="st"> &quot;[45,65)&quot;</span></a>
-<a class="sourceLine" id="cb11-7" data-line-number="7">nouvelle_observation<span class="op">$</span>etud[<span class="dv">1</span>] =<span class="st"> &quot;Primaire&quot;</span></a>
-<a class="sourceLine" id="cb11-8" data-line-number="8">nouvelle_observation<span class="op">$</span>relig[<span class="dv">1</span>] =<span class="st"> &quot;Pratiquant regulier&quot;</span></a>
-<a class="sourceLine" id="cb11-9" data-line-number="9">nouvelle_observation<span class="op">$</span>heures.tv[<span class="dv">1</span>] =<span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb11-10" data-line-number="10"><span class="kw">plot</span>(<span class="kw">broken</span>(mod2, nouvelle_observation, <span class="dt">predict.function =</span> betas), <span class="dt">trans =</span> logit) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb11-11" data-line-number="11"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Probabilité de faire du sport&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">library</span>(breakDown)</a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb11-3" title="3">logit &lt;-<span class="st"> </span><span class="cf">function</span>(x) <span class="kw">exp</span>(x)<span class="op">/</span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="kw">exp</span>(x))</a>
+<a class="sourceLine" id="cb11-4" title="4">nouvelle_observation &lt;-<span class="st"> </span>d[<span class="dv">1</span>, ]</a>
+<a class="sourceLine" id="cb11-5" title="5">nouvelle_observation<span class="op">$</span>sexe[<span class="dv">1</span>] =<span class="st"> &quot;Femme&quot;</span></a>
+<a class="sourceLine" id="cb11-6" title="6">nouvelle_observation<span class="op">$</span>grpage[<span class="dv">1</span>] =<span class="st"> &quot;[45,65)&quot;</span></a>
+<a class="sourceLine" id="cb11-7" title="7">nouvelle_observation<span class="op">$</span>etud[<span class="dv">1</span>] =<span class="st"> &quot;Primaire&quot;</span></a>
+<a class="sourceLine" id="cb11-8" title="8">nouvelle_observation<span class="op">$</span>relig[<span class="dv">1</span>] =<span class="st"> &quot;Pratiquant regulier&quot;</span></a>
+<a class="sourceLine" id="cb11-9" title="9">nouvelle_observation<span class="op">$</span>heures.tv[<span class="dv">1</span>] =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb11-10" title="10"><span class="kw">plot</span>(<span class="kw">broken</span>(mod2, nouvelle_observation, <span class="dt">predict.function =</span> betas), <span class="dt">trans =</span> logit) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb11-11" title="11"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Probabilité de faire du sport&quot;</span>)</a></code></pre></div>
 <pre><code>Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which will
 replace the existing scale.</code></pre>
 <img src="graphs/effets-d-interaction/unnamed-chunk-8-1.png" width="1050" />
@@ -500,10 +583,10 @@ Représentation graphique de l’estimation de la probabilité de faire du sport
 <p>En premier lieu, l’intercept s’applique et permet de déterminer la probabilité de base de faire du sport (si toutes les variables sont à leur valeur de référence). <q>Femme</q> étant la modalité de référence pour la variable <var>sexe</var>, cela ne modifie pas le calcul de la probabilité de faire du sport. Par contre, il y a une modification induite par la modalité <q>45-65</q> de la variable <var>grpage</var>.</p>
 <p>Regardons maintenant la situation d’un homme de 20 ans.</p>
 <figure>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">nouvelle_observation<span class="op">$</span>sexe[<span class="dv">1</span>] =<span class="st"> &quot;Homme&quot;</span></a>
-<a class="sourceLine" id="cb13-2" data-line-number="2">nouvelle_observation<span class="op">$</span>grpage[<span class="dv">1</span>] =<span class="st"> &quot;[16,25)&quot;</span></a>
-<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="kw">plot</span>(<span class="kw">broken</span>(mod2, nouvelle_observation, <span class="dt">predict.function =</span> betas), <span class="dt">trans =</span> logit) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Probabilité de faire du sport&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">nouvelle_observation<span class="op">$</span>sexe[<span class="dv">1</span>] =<span class="st"> &quot;Homme&quot;</span></a>
+<a class="sourceLine" id="cb13-2" title="2">nouvelle_observation<span class="op">$</span>grpage[<span class="dv">1</span>] =<span class="st"> &quot;[16,25)&quot;</span></a>
+<a class="sourceLine" id="cb13-3" title="3"><span class="kw">plot</span>(<span class="kw">broken</span>(mod2, nouvelle_observation, <span class="dt">predict.function =</span> betas), <span class="dt">trans =</span> logit) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb13-4" title="4"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Probabilité de faire du sport&quot;</span>)</a></code></pre></div>
 <pre><code>Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which will
 replace the existing scale.</code></pre>
 <img src="graphs/effets-d-interaction/unnamed-chunk-9-1.png" width="1050" />
@@ -514,9 +597,9 @@ Représentation graphique de l’estimation de la probabilité de faire du sport
 <p>Nous sommes à la modalité de référence pour l’âge par contre il y a un effet important du sexe. Le coefficient associé globalement à la variable <var>sexe</var> correspond donc à l’effet du sexe à la modalité de référence du groupe d’âges.</p>
 <p>La situation est différente pour un homme de 60 ans.</p>
 <figure>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">nouvelle_observation<span class="op">$</span>grpage[<span class="dv">1</span>] =<span class="st"> &quot;[45,65)&quot;</span></a>
-<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="kw">plot</span>(<span class="kw">broken</span>(mod2, nouvelle_observation, <span class="dt">predict.function =</span> betas), <span class="dt">trans =</span> logit) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Probabilité de faire du sport&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">nouvelle_observation<span class="op">$</span>grpage[<span class="dv">1</span>] =<span class="st"> &quot;[45,65)&quot;</span></a>
+<a class="sourceLine" id="cb15-2" title="2"><span class="kw">plot</span>(<span class="kw">broken</span>(mod2, nouvelle_observation, <span class="dt">predict.function =</span> betas), <span class="dt">trans =</span> logit) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb15-3" title="3"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Probabilité de faire du sport&quot;</span>)</a></code></pre></div>
 <pre><code>Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which will
 replace the existing scale.</code></pre>
 <img src="graphs/effets-d-interaction/unnamed-chunk-10-1.png" width="1050" />
@@ -526,9 +609,9 @@ Représentation graphique de l’estimation de la probabilité de faire du sport
 </figure>
 <p>Cette fois-ci, il y a plusieurs modifications d’effet. On applique en effet à la fois le coefficient <q>sexe = Homme</q> (effet du sexe pour les 15-24 ans), le coefficient <q>grpage = [45-65)</q> qui est l’effet de l’âge pour les femmes de 45-64 ans et le coefficient <q>sexe:grpage = Homme:[45-65)</q> qui indique l’effet spécifique qui s’applique aux hommes de 45-64, d’une part par rapport aux femmes du même et d’autre part par rapport aux hommes de 16-24 ans. L’effet des coefficients d’interaction doivent donc être interprétés par rapport aux autres coefficients du modèle qui s’appliquent, en tenant compte des modalités de référence.</p>
 <p>Il est cependant possible d’écrire le même modèle différemment. En effet, <code>sexe * grpage</code> dans la formule du modèle est équivalent à l’écriture <code>sexe + grpage + sexe:grpage</code>, c’est-à-dire à modéliser un coefficient global pour chaque variable plus un des coefficients d’interaction. On aurait pu demander juste des coefficients d’interaction, en ne mettant que <code>sexe:grpage</code>.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">mod3 &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span>sexe<span class="op">:</span>grpage <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>heures.tv <span class="op">+</span><span class="st"> </span>relig, <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>())</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1">mod3 &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span>sexe<span class="op">:</span>grpage <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>heures.tv <span class="op">+</span><span class="st"> </span>relig, <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>())</a></code></pre></div>
 <p>Au sens strict, ce modèle explique tout autant le phénomène étudié que le modèle précédent. On peut le vérifier facilement avec <code data-pkg="stats">anova</code>.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw">anova</span>(mod2, mod3, <span class="dt">test =</span> <span class="st">&quot;Chisq&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">anova</span>(mod2, mod3, <span class="dt">test =</span> <span class="st">&quot;Chisq&quot;</span>)</a></code></pre></div>
 <pre><code>Analysis of Deviance Table
 
 Model 1: sport ~ sexe * grpage + etud + heures.tv + relig
@@ -538,7 +621,7 @@ Model 2: sport ~ sexe:grpage + etud + heures.tv + relig
 2      1977     2193.1  0        0         </code></pre>
 <p>De même, les effets modélisés sont les mêmes.</p>
 <figure>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="kw">plot</span>(<span class="kw">allEffects</span>(mod3))</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">plot</span>(<span class="kw">allEffects</span>(mod3))</a></code></pre></div>
 <img src="graphs/effets-d-interaction/unnamed-chunk-13-1.png" width="1050" />
 <figcaption>
 Représentation graphique des effets du modèle avec interaction simple entre le sexe et le groupe d’âge
@@ -546,7 +629,7 @@ Représentation graphique des effets du modèle avec interaction simple entre le
 </figure>
 <p>Par contre, regardons d’un peu plus près les coefficients de ce nouveau modèle. Nous allons voir que leur interprétation est légèrement différente.</p>
 <figure>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="kw">ggcoef</span>(mod3, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">ggcoef</span>(mod3, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <img src="graphs/effets-d-interaction/unnamed-chunk-14-1.png" width="1050" />
 <figcaption>
 Représentation graphique des coefficients du modèle avec interaction simple entre le sexe et le groupe d’âge
@@ -554,8 +637,8 @@ Représentation graphique des coefficients du modèle avec interaction simple en
 </figure>
 <p>Cette fois-ci, il n’y a plus de coefficients globaux pour la variable <var>sexe</var> ni pour <var>grpage</var> mais des coefficients pour chaque combinaison de ces deux variables.</p>
 <figure>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="kw">plot</span>(<span class="kw">broken</span>(mod3, nouvelle_observation, <span class="dt">predict.function =</span> betas), <span class="dt">trans =</span> logit) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb22-2" data-line-number="2"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Probabilité de faire du sport&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">plot</span>(<span class="kw">broken</span>(mod3, nouvelle_observation, <span class="dt">predict.function =</span> betas), <span class="dt">trans =</span> logit) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb22-2" title="2"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Probabilité de faire du sport&quot;</span>)</a></code></pre></div>
 <pre><code>Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which will
 replace the existing scale.</code></pre>
 <img src="graphs/effets-d-interaction/unnamed-chunk-15-1.png" width="1050" />
@@ -568,10 +651,10 @@ Représentation graphique de l’estimation de la probabilité de faire du sport
 <div id="un-second-exemple-dinteraction" class="section level2">
 <h2>Un second exemple d’interaction</h2>
 <p>Intéressons-nous maintenant à l’interaction entre le sexe et le niveau d’étude. L’effet du niveau d’étude diffère-t-il selon l’âge ?</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">mod4 &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">*</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>heures.tv <span class="op">+</span><span class="st"> </span>relig, <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>())</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1">mod4 &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">*</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>heures.tv <span class="op">+</span><span class="st"> </span>relig, <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>())</a></code></pre></div>
 <p>Regardons d’abord les effets.</p>
 <figure>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="kw">plot</span>(<span class="kw">allEffects</span>(mod4))</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">plot</span>(<span class="kw">allEffects</span>(mod4))</a></code></pre></div>
 <img src="graphs/effets-d-interaction/unnamed-chunk-17-1.png" width="1050" />
 <figcaption>
 Représentation graphique des effets du modèle avec interaction entre le sexe et le niveau d’étude
@@ -579,8 +662,8 @@ Représentation graphique des effets du modèle avec interaction entre le sexe e
 </figure>
 <p>À première vue, l’effet du niveau d’étude semble être le même chez les hommes et chez les femmes. Ceci dit, cela serait peut être plus lisible si l’on superposait les deux sexe sur un même graphique. Nous allons utiliser la fonction <code data-pkg="ggeffects">ggeffect</code> de l’extension <code class="pkg">ggeffects</code> qui permets de récupérer les effets calculés avec <code data-pkg="effects">effect</code> dans un format utilisable avec <code class="pkg">ggplot2</code>.</p>
 <figure>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw">library</span>(ggeffects)</a>
-<a class="sourceLine" id="cb26-2" data-line-number="2"><span class="kw">plot</span>(<span class="kw">ggeffect</span>(mod4, <span class="kw">c</span>(<span class="st">&quot;etud&quot;</span>, <span class="st">&quot;sexe&quot;</span>)))</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">library</span>(ggeffects)</a>
+<a class="sourceLine" id="cb26-2" title="2"><span class="kw">plot</span>(<span class="kw">ggeffect</span>(mod4, <span class="kw">c</span>(<span class="st">&quot;etud&quot;</span>, <span class="st">&quot;sexe&quot;</span>)))</a></code></pre></div>
 <img src="graphs/effets-d-interaction/unnamed-chunk-18-1.png" width="1050" />
 <figcaption>
 Effets du niveau d’étude selon le sexe
@@ -588,13 +671,13 @@ Effets du niveau d’étude selon le sexe
 </figure>
 <p>Cela confirme ce que l’on suppose. Regardons les coefficients du modèle.</p>
 <figure>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="kw">ggcoef</span>(mod4, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">ggcoef</span>(mod4, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <img src="graphs/effets-d-interaction/unnamed-chunk-19-1.png" width="1050" />
 <figcaption>
 Représentation graphique des coefficients du modèle avec interaction simple entre le sexe et le niveau d’étude
 </figcaption>
 </figure>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="kw">odds.ratio</span>(mod4)</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="kw">odds.ratio</span>(mod4)</a></code></pre></div>
 <pre><code>Waiting for profiling to be done...</code></pre>
 <pre><code>                                           OR   2.5 %  97.5 %         p    
 (Intercept)                           0.45928 0.22781  0.9126 0.0276831 *  
@@ -619,7 +702,7 @@ sexeHomme:etudManquant                4.28305 1.32153 15.8357 0.0200885 *
 ---
 Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>Si les coefficients associés au niveau d’étude sont significatifs, ceux de l’interaction ne le sont pas (sauf <q>sexeHomme:etudManquant</q>) et celui associé au sexe, précédemment significatif ne l’est plus. Testons avec <code data-pkg="stats">anova</code> si l’interaction est belle et bien significative.</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="kw">anova</span>(mod4, <span class="dt">test =</span> <span class="st">&quot;Chisq&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">anova</span>(mod4, <span class="dt">test =</span> <span class="st">&quot;Chisq&quot;</span>)</a></code></pre></div>
 <pre><code>Analysis of Deviance Table
 
 Model: binomial, link: logit
@@ -643,8 +726,8 @@ Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&
 <div id="explorer-les-differentes-interactions-possibles" class="section level2">
 <h2>Explorer les différentes interactions possibles</h2>
 <p>Il peut y avoir de multiples interactions dans un modèle, d’ordre 2 (entre deux variables) ou plus (entre trois variables ou plus). Il est dès lors tentant de tester les multiples interactions possibles de manière itératives afin d’identifier celles à retenir. C’est justement le but de la fonction <code data-pkg="ggmulti">glmulti</code> de l’extension du même nom. <code data-pkg="ggmulti">glmulti</code> permets de tester toutes les combinaisons d’interactions d’ordre 2 dans un modèle, en retenant le meilleur modèle à partir d’un critère spécifié (par défaut l’<df>AIC</dfn>). ATTENTION : le temps de calcul de <code data-pkg="ggmulti">glmulti</code> peut-être long.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="kw">library</span>(glmulti)</a>
-<a class="sourceLine" id="cb33-2" data-line-number="2"><span class="kw">glmulti</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>heures.tv <span class="op">+</span><span class="st"> </span>relig, <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>())</a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1"><span class="kw">library</span>(glmulti)</a>
+<a class="sourceLine" id="cb33-2" title="2"><span class="kw">glmulti</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>heures.tv <span class="op">+</span><span class="st"> </span>relig, <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>())</a></code></pre></div>
 <pre><code>Initialization...
 TASK: Exhaustive screening of candidate set.
 Fitting...
@@ -679,9 +762,9 @@ Best model: sport~1+sexe+grpage+etud+heures.tv+grpage:sexe+sexe:heures.tv
 Crit= 2222.67161519005
 Mean crit= 2234.95020358944</code></pre>
 <p>On voit qu’au bout d’un moment, l’algorithme se statibilise autour d’un modèle comportant une interaction entre le sexe et l’âge d’une part et entre le sexe et le nombre d’heures passées quotidiennement devant la télé. On voit également que la variable religion a été retirée du modèle final.</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1">best &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span><span class="dv">1</span> <span class="op">+</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>heures.tv <span class="op">+</span><span class="st"> </span>grpage<span class="op">:</span>sexe <span class="op">+</span><span class="st"> </span>sexe<span class="op">:</span>heures.tv, </a>
-<a class="sourceLine" id="cb35-2" data-line-number="2">  <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>())</a>
-<a class="sourceLine" id="cb35-3" data-line-number="3"><span class="kw">odds.ratio</span>(best)</a></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1">best &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span><span class="dv">1</span> <span class="op">+</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>heures.tv <span class="op">+</span><span class="st"> </span>grpage<span class="op">:</span>sexe <span class="op">+</span><span class="st"> </span>sexe<span class="op">:</span>heures.tv, </a>
+<a class="sourceLine" id="cb35-2" title="2">  <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>())</a>
+<a class="sourceLine" id="cb35-3" title="3"><span class="kw">odds.ratio</span>(best)</a></code></pre></div>
 <pre><code>Waiting for profiling to be done...</code></pre>
 <pre><code>                                  OR    2.5 %  97.5 %         p    
 (Intercept)                 0.285395 0.144811  0.5557 0.0002508 ***
@@ -701,14 +784,14 @@ sexeHomme:heures.tv         1.115351 0.979397  1.2705 0.0997266 .
 ---
 Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <figure>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="kw">ggcoef</span>(best, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="kw">ggcoef</span>(best, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <img src="graphs/effets-d-interaction/unnamed-chunk-24-1.png" width="1050" />
 <figcaption>
 Représentation graphique des coefficients du modèle avec interaction entre le sexe, le niveau d’étude et le nombre d’heures passées devant la télévision
 </figcaption>
 </figure>
 <figure>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" data-line-number="1"><span class="kw">plot</span>(<span class="kw">allEffects</span>(best))</a></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" title="1"><span class="kw">plot</span>(<span class="kw">allEffects</span>(best))</a></code></pre></div>
 <img src="graphs/effets-d-interaction/unnamed-chunk-25-1.png" width="1050" />
 <figcaption>
 Représentation graphique des effets du modèle avec interaction entre le sexe, le niveau d’étude et le nombre d’heures passées devant la télévision
@@ -879,7 +962,8 @@ $(document).ready(function () {
   <div class="row">
     <div class="col-lg-12">
       <p>Contenus sous licence <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/" rel="nofollow">Creative Commons Attribution - Pas d’utilisation commerciale - Partage dans les mêmes conditions</a>.<br />
-      Propulsé par <a href="http://www.r-project.org/" rel="nofollow">R</a>, </a><a href="http://www.rstudio.com/" rel="nofollow">RStudio</a>, <a href="http://rmarkdown.rstudio.com/" rel="nofollow">R Markdown</a>, <a href="http://yihui.name/knitr/" rel="nofollow">knitr</a>, <a href="http://pandoc.org/" rel="nofollow">pandoc</a> et <a href="http://www.princexml.com/" rel="nofollow">Prince XML</a>. Hébergé par <a href="https://github.com/" rel="nofollow">GitHub</a>.</p>
+      Propulsé par <a href="http://www.r-project.org/" rel="nofollow">R</a>, </a><a href="http://www.rstudio.com/" rel="nofollow">RStudio</a>, <a href="http://rmarkdown.rstudio.com/" rel="nofollow">R Markdown</a>, <a href="http://yihui.name/knitr/" rel="nofollow">knitr</a>, <a href="http://pandoc.org/" rel="nofollow">pandoc</a> et <a href="http://www.princexml.com/" rel="nofollow">Prince XML</a>. Hébergé par <a href="https://github.com/" rel="nofollow">GitHub</a>.<br />
+      <a href="https://www.zenodo.org/badge/latestdoi/34986666"><img src="https://www.zenodo.org/badge/34986666.svg" alt="DOI"></a></p>
     </div>
   </div>
 </footer>

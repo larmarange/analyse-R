@@ -57,10 +57,10 @@
 
 
 <style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
+<style type="text/css" data-origin="pandoc">
 a.sourceLine { display: inline-block; line-height: 1.25; }
 a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; position: absolute; }
+a.sourceLine:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -73,13 +73,11 @@ code.sourceCode { white-space: pre-wrap; }
 a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
 pre.numberSource a.sourceLine
-  { position: relative; }
-pre.numberSource a.sourceLine:empty
-  { position: absolute; }
+  { position: relative; left: -4em; }
 pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
-    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all;
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -121,7 +119,29 @@ code span.st { color: #4070a0; } /* String */
 code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
 </style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 <style type="text/css">
   pre:not([class]) {
     background-color: white;
@@ -184,6 +204,9 @@ img {
 button.code-folding-btn:focus {
   outline: none;
 }
+summary {
+  display: list-item;
+}
 </style>
 
 
@@ -191,14 +214,74 @@ button.code-folding-btn:focus {
 <div class="container-fluid main-container">
 
 <!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
 <script>
 $(document).ready(function () {
   window.buildTabsets("TOC");
 });
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
 </script>
 
 <!-- code folding -->
-
 
 
 
@@ -404,15 +487,15 @@ $(document).ready(function () {
 </div>
 <p>Les fonctions de <code class="pkg">forcats</code> vues précédemment permettent de modifier des modalités d’une variables qualitative globalement. Mais parfois on a besoin de manipuler le contenu même du texte d’une variable de type chaîne de caractères : combiner, rechercher, remplacer…</p>
 <p>On va utiliser ici les fonctions de l’extension <code class="pkg">stringr</code>. Celle-ci fait partie du coeur du <strong>tidyverse</strong>, elle est donc automatiquement chargée avec :</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(tidyverse)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(tidyverse)</a></code></pre></div>
 <div class="note">
 <p><code class="pkg">stringr</code> est en fait une interface simplifiée aux fonctions d’une autre extension, <code class="pkg">stringi</code>. Si les fonctions de <code class="pkg">stringr</code> ne sont pas suffisantes ou si on manipule beaucoup de chaînes de caractères, ne pas hésiter à se reporter à la documentation de <code class="pkg">stringi</code>.</p>
 </div>
 <p>Dans ce qui suit on va utiliser le court tableau d’exemple <code>d</code> suivant :</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">nom =</span> <span class="kw">c</span>(<span class="st">&quot;Mr Félicien Machin&quot;</span>, <span class="st">&quot;Mme Raymonde Bidule&quot;</span>, <span class="st">&quot;M. Martial Truc&quot;</span>, </a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">  <span class="st">&quot;Mme Huguette Chose&quot;</span>), <span class="dt">adresse =</span> <span class="kw">c</span>(<span class="st">&quot;3 rue des Fleurs&quot;</span>, <span class="st">&quot;47 ave de la Libération&quot;</span>, </a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">  <span class="st">&quot;12 rue du 17 octobre 1961&quot;</span>, <span class="st">&quot;221 avenue de la Libération&quot;</span>), <span class="dt">ville =</span> <span class="kw">c</span>(<span class="st">&quot;Nouméa&quot;</span>, </a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">  <span class="st">&quot;Marseille&quot;</span>, <span class="st">&quot;Vénissieux&quot;</span>, <span class="st">&quot;Marseille&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">d &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">nom =</span> <span class="kw">c</span>(<span class="st">&quot;Mr Félicien Machin&quot;</span>, <span class="st">&quot;Mme Raymonde Bidule&quot;</span>, <span class="st">&quot;M. Martial Truc&quot;</span>, </a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="st">&quot;Mme Huguette Chose&quot;</span>), <span class="dt">adresse =</span> <span class="kw">c</span>(<span class="st">&quot;3 rue des Fleurs&quot;</span>, <span class="st">&quot;47 ave de la Libération&quot;</span>, </a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="st">&quot;12 rue du 17 octobre 1961&quot;</span>, <span class="st">&quot;221 avenue de la Libération&quot;</span>), <span class="dt">ville =</span> <span class="kw">c</span>(<span class="st">&quot;Nouméa&quot;</span>, </a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="st">&quot;Marseille&quot;</span>, <span class="st">&quot;Vénissieux&quot;</span>, <span class="st">&quot;Marseille&quot;</span>))</a></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -456,19 +539,19 @@ $(document).ready(function () {
 <h2>Concaténer des chaînes</h2>
 <p>La première opération de base consiste à concaténer des chaînes de caractères entre elles. On peut le faire avec la fonction <code data-pkg="base">paste</code>.</p>
 <p>Par exemple, si on veut concaténer l’adresse et la ville :</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">paste</span>(d<span class="op">$</span>adresse, d<span class="op">$</span>ville)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">paste</span>(d<span class="op">$</span>adresse, d<span class="op">$</span>ville)</a></code></pre></div>
 <pre><code>[1] &quot;3 rue des Fleurs Nouméa&quot;              
 [2] &quot;47 ave de la Libération Marseille&quot;    
 [3] &quot;12 rue du 17 octobre 1961 Vénissieux&quot; 
 [4] &quot;221 avenue de la Libération Marseille&quot;</code></pre>
 <p>Par défaut, <code data-pkg="base">paste</code> concatène en ajoutant un espace entre les différentes chaînes. On peut spécifier un autre séparateur avec son argument <code>sep</code> :</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">paste</span>(d<span class="op">$</span>adresse, d<span class="op">$</span>ville, <span class="dt">sep =</span> <span class="st">&quot; - &quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">paste</span>(d<span class="op">$</span>adresse, d<span class="op">$</span>ville, <span class="dt">sep =</span> <span class="st">&quot; - &quot;</span>)</a></code></pre></div>
 <pre><code>[1] &quot;3 rue des Fleurs - Nouméa&quot;              
 [2] &quot;47 ave de la Libération - Marseille&quot;    
 [3] &quot;12 rue du 17 octobre 1961 - Vénissieux&quot; 
 [4] &quot;221 avenue de la Libération - Marseille&quot;</code></pre>
 <p>Il existe une variante, <code data-pkg="base" data-rdoc="paste">paste0</code>, qui concatène sans mettre de séparateur, et qui est légèrement plus rapide :</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">paste0</span>(d<span class="op">$</span>adresse, d<span class="op">$</span>ville)</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">paste0</span>(d<span class="op">$</span>adresse, d<span class="op">$</span>ville)</a></code></pre></div>
 <pre><code>[1] &quot;3 rue des FleursNouméa&quot;              
 [2] &quot;47 ave de la LibérationMarseille&quot;    
 [3] &quot;12 rue du 17 octobre 1961Vénissieux&quot; 
@@ -477,33 +560,33 @@ $(document).ready(function () {
 <p>À noter que <code data-pkg="base">paste</code> et <code data-pkg="base" data-rdoc="paste">paste0</code> sont des fonctions R de base. L’équivalent pour <code class="pkg">stringr</code> se nomme <code data-pkg="stringr">str_c</code>.</p>
 </div>
 <p>Parfois on cherche à concaténer les différents éléments d’un vecteur non pas avec ceux d’un autre vecteur, comme on l’a fait précédemment, mais <em>entre eux</em>. Dans ce cas <code data-pkg="base">paste</code> seule ne fera rien :</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw">paste</span>(d<span class="op">$</span>ville)</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">paste</span>(d<span class="op">$</span>ville)</a></code></pre></div>
 <pre><code>[1] &quot;Nouméa&quot;     &quot;Marseille&quot;  &quot;Vénissieux&quot; &quot;Marseille&quot; </code></pre>
 <p>Il faut lui ajouter un argument <code>collapse</code>, avec comme valeur la chaîne à utiliser pour concaténer les éléments :</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">paste</span>(d<span class="op">$</span>ville, <span class="dt">collapse =</span> <span class="st">&quot;, &quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">paste</span>(d<span class="op">$</span>ville, <span class="dt">collapse =</span> <span class="st">&quot;, &quot;</span>)</a></code></pre></div>
 <pre><code>[1] &quot;Nouméa, Marseille, Vénissieux, Marseille&quot;</code></pre>
 </div>
 <div id="convertir-en-majuscules-minuscules" class="section level2">
 <h2>Convertir en majuscules / minuscules</h2>
 <p>Les fonctions <code data-pkg="stringr" data-rdoc="case">str_to_lower</code>, <code data-pkg="stringr" data-rdoc="case">str_to_upper</code> et <code data-pkg="stringr" data-rdoc="case">str_to_title</code> permettent respectivement de mettre en minuscules, mettre en majuscules, ou de capitaliser les éléments d’un vecteur de chaînes de caractères :</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">str_to_lower</span>(d<span class="op">$</span>nom)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">str_to_lower</span>(d<span class="op">$</span>nom)</a></code></pre></div>
 <pre><code>[1] &quot;mr félicien machin&quot;  &quot;mme raymonde bidule&quot; &quot;m. martial truc&quot;    
 [4] &quot;mme huguette chose&quot; </code></pre>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw">str_to_upper</span>(d<span class="op">$</span>nom)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">str_to_upper</span>(d<span class="op">$</span>nom)</a></code></pre></div>
 <pre><code>[1] &quot;MR FÉLICIEN MACHIN&quot;  &quot;MME RAYMONDE BIDULE&quot; &quot;M. MARTIAL TRUC&quot;    
 [4] &quot;MME HUGUETTE CHOSE&quot; </code></pre>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="kw">str_to_title</span>(d<span class="op">$</span>nom)</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">str_to_title</span>(d<span class="op">$</span>nom)</a></code></pre></div>
 <pre><code>[1] &quot;Mr Félicien Machin&quot;  &quot;Mme Raymonde Bidule&quot; &quot;M. Martial Truc&quot;    
 [4] &quot;Mme Huguette Chose&quot; </code></pre>
 </div>
 <div id="decouper-des-chaines" class="section level2">
 <h2>Découper des chaînes</h2>
 <p>La fonction <code data-pkg="stringr">str_split</code> permet de “découper” une chaîne de caractère en fonction d’un délimiteur. On passe la chaîne en premier argument, et le délimiteur en second :</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw">str_split</span>(<span class="st">&quot;un-deux-trois&quot;</span>, <span class="st">&quot;-&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1"><span class="kw">str_split</span>(<span class="st">&quot;un-deux-trois&quot;</span>, <span class="st">&quot;-&quot;</span>)</a></code></pre></div>
 <pre><code>[[1]]
 [1] &quot;un&quot;    &quot;deux&quot;  &quot;trois&quot;</code></pre>
 <p>On peut appliquer la fonction à un vecteur, dans ce cas le résultat sera une liste :</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="kw">str_split</span>(d<span class="op">$</span>nom, <span class="st">&quot; &quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">str_split</span>(d<span class="op">$</span>nom, <span class="st">&quot; &quot;</span>)</a></code></pre></div>
 <pre><code>[[1]]
 [1] &quot;Mr&quot;       &quot;Félicien&quot; &quot;Machin&quot;  
 
@@ -516,7 +599,7 @@ $(document).ready(function () {
 [[4]]
 [1] &quot;Mme&quot;      &quot;Huguette&quot; &quot;Chose&quot;   </code></pre>
 <p>Ou un tableau (plus précisément une matrice) si on ajoute <code>simplify = TRUE</code>.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="kw">str_split</span>(d<span class="op">$</span>nom, <span class="st">&quot; &quot;</span>, <span class="dt">simplify =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1"><span class="kw">str_split</span>(d<span class="op">$</span>nom, <span class="st">&quot; &quot;</span>, <span class="dt">simplify =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>     [,1]  [,2]       [,3]    
 [1,] &quot;Mr&quot;  &quot;Félicien&quot; &quot;Machin&quot;
 [2,] &quot;Mme&quot; &quot;Raymonde&quot; &quot;Bidule&quot;
@@ -524,8 +607,8 @@ $(document).ready(function () {
 [4,] &quot;Mme&quot; &quot;Huguette&quot; &quot;Chose&quot; </code></pre>
 <p>Si on souhaite créer de nouvelles colonnes dans un tableau de données en découpant une colonne de type texte, on pourra utiliser la fonction <code data-pkg="tidyr">separate</code> de l’extension <code class="pkg">tidyr</code>. Celle-ci est expliquée section @ref(separate).</p>
 <p>Voici juste un exemple de son utilisation :</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="kw">library</span>(tidyr)</a>
-<a class="sourceLine" id="cb25-2" data-line-number="2">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(nom, <span class="kw">c</span>(<span class="st">&quot;genre&quot;</span>, <span class="st">&quot;prenom&quot;</span>, <span class="st">&quot;nom&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">library</span>(tidyr)</a>
+<a class="sourceLine" id="cb25-2" title="2">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(nom, <span class="kw">c</span>(<span class="st">&quot;genre&quot;</span>, <span class="st">&quot;prenom&quot;</span>, <span class="st">&quot;nom&quot;</span>))</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["genre"],"name":[1],"type":["chr"],"align":["left"]},{"label":["prenom"],"name":[2],"type":["chr"],"align":["left"]},{"label":["nom"],"name":[3],"type":["chr"],"align":["left"]},{"label":["adresse"],"name":[4],"type":["chr"],"align":["left"]},{"label":["ville"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"Mr","2":"Félicien","3":"Machin","4":"3 rue des Fleurs","5":"Nouméa"},{"1":"Mme","2":"Raymonde","3":"Bidule","4":"47 ave de la Libération","5":"Marseille"},{"1":"M","2":"Martial","3":"Truc","4":"12 rue du 17 octobre 1961","5":"Vénissieux"},{"1":"Mme","2":"Huguette","3":"Chose","4":"221 avenue de la Libération","5":"Marseille"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -535,36 +618,36 @@ $(document).ready(function () {
 <div id="extraire-des-sous-chaines-par-position" class="section level2">
 <h2>Extraire des sous-chaînes par position</h2>
 <p>La fonction <code data-pkg="stringr">str_sub</code> permet d’extraire des sous-chaînes par position, en indiquant simplement les positions des premier et dernier caractères :</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw">str_sub</span>(d<span class="op">$</span>ville, <span class="dv">1</span>, <span class="dv">3</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">str_sub</span>(d<span class="op">$</span>ville, <span class="dv">1</span>, <span class="dv">3</span>)</a></code></pre></div>
 <pre><code>[1] &quot;Nou&quot; &quot;Mar&quot; &quot;Vén&quot; &quot;Mar&quot;</code></pre>
 </div>
 <div id="str_detect" class="section level2">
 <h2>Détecter des motifs</h2>
 <p><code data-pkg="stringr">str_detect</code> permet de détecter la présence d’un motif parmi les élements d’un vecteur. Par exemple, si on souhaite identifier toutes les adresses contenant <q>Libération</q> :</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="kw">str_detect</span>(d<span class="op">$</span>adresse, <span class="st">&quot;Libération&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="kw">str_detect</span>(d<span class="op">$</span>adresse, <span class="st">&quot;Libération&quot;</span>)</a></code></pre></div>
 <pre><code>[1] FALSE  TRUE FALSE  TRUE</code></pre>
 <p><code data-pkg="stringr">str_detect</code> renvoit un vecteur de valeurs logiques et peut donc être utilisée, par exemple, avec le verbe <code data-pkg="dplyr">filter</code> de <code class="pkg">dplyr</code> pour extraire des sous-populations.</p>
 <p>Une variante, <code data-pkg="stringr">str_count</code>, compte le nombre d’occurrences d’une chaîne pour chaque élément d’un vecteur :</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="kw">str_count</span>(d<span class="op">$</span>ville, <span class="st">&quot;s&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1"><span class="kw">str_count</span>(d<span class="op">$</span>ville, <span class="st">&quot;s&quot;</span>)</a></code></pre></div>
 <pre><code>[1] 0 1 2 1</code></pre>
 <div class="important">
 <p>Attention, les fonctions de <code class="pkg">stringr</code> étant prévues pour fonctionner avec des expressions régulières, certains caractères n’auront pas le sens habituel dans la chaîne indiquant le motif à rechercher. Par exemple, le <code>.</code> ne sera pas un point mais le symbole représentant <q>n’importe quel caractère</q>.</p>
 <p>La section sur les modificateurs de motifs explique comment utiliser des chaîne <q>classiques</q> au lieu d’expressions régulières.</p>
 </div>
 <p>On peut aussi utiliser <code data-pkg="stringr">str_subset</code> pour ne garder d’un vecteur que les éléments correspondant au motif :</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1"><span class="kw">str_subset</span>(d<span class="op">$</span>adresse, <span class="st">&quot;Libération&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1"><span class="kw">str_subset</span>(d<span class="op">$</span>adresse, <span class="st">&quot;Libération&quot;</span>)</a></code></pre></div>
 <pre><code>[1] &quot;47 ave de la Libération&quot;     &quot;221 avenue de la Libération&quot;</code></pre>
 </div>
 <div id="extraire-des-motifs" class="section level2">
 <h2>Extraire des motifs</h2>
 <p><code data-pkg="stringr">str_extract</code> permet d’extraire les valeurs correspondant à un motif. Si on lui passe comme motif une chaîne de caractère, cela aura peu d’intérêt :</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="kw">str_extract</span>(d<span class="op">$</span>adresse, <span class="st">&quot;Libération&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">str_extract</span>(d<span class="op">$</span>adresse, <span class="st">&quot;Libération&quot;</span>)</a></code></pre></div>
 <pre><code>[1] NA           &quot;Libération&quot; NA           &quot;Libération&quot;</code></pre>
 <p>C’est tout de suite plus intéressant si on utilise des expressions régulières. Par exemple la commande suivante permet d’isoler les numéros de rue.</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1"><span class="kw">str_extract</span>(d<span class="op">$</span>adresse, <span class="st">&quot;^</span><span class="ch">\\</span><span class="st">d+&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" title="1"><span class="kw">str_extract</span>(d<span class="op">$</span>adresse, <span class="st">&quot;^</span><span class="ch">\\</span><span class="st">d+&quot;</span>)</a></code></pre></div>
 <pre><code>[1] &quot;3&quot;   &quot;47&quot;  &quot;12&quot;  &quot;221&quot;</code></pre>
 <p><code data-pkg="stringr">str_extract</code> ne récupère que la première occurrence du motif. Si on veut toutes les extraire on peut utiliser <code data-pkg="stringr" data-rdoc="str_extract">str_extract_all</code>. Ainsi, si on veut extraire l’ensemble des nombres présents dans les adresses :</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="kw">str_extract_all</span>(d<span class="op">$</span>adresse, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">d+&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="kw">str_extract_all</span>(d<span class="op">$</span>adresse, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">d+&quot;</span>)</a></code></pre></div>
 <pre><code>[[1]]
 [1] &quot;3&quot;
 
@@ -581,8 +664,8 @@ $(document).ready(function () {
 </div>
 <p>À noter que si on souhaite extraire des valeurs d’une colonne texte d’un tableau de données pour créer de nouvelles variables, on pourra utiliser la fonction <code data-pkg="tidyr">extract</code> de l’extension <code class="pkg">tidyr</code>, décrite plus haut.</p>
 <p>Par exemple :</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" data-line-number="1"><span class="kw">library</span>(tidyr)</a>
-<a class="sourceLine" id="cb40-2" data-line-number="2">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">extract</span>(adresse, <span class="st">&quot;type_rue&quot;</span>, <span class="st">&quot;^</span><span class="ch">\\</span><span class="st">d+ (.*?) &quot;</span>, <span class="dt">remove =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1"><span class="kw">library</span>(tidyr)</a>
+<a class="sourceLine" id="cb40-2" title="2">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">extract</span>(adresse, <span class="st">&quot;type_rue&quot;</span>, <span class="st">&quot;^</span><span class="ch">\\</span><span class="st">d+ (.*?) &quot;</span>, <span class="dt">remove =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["nom"],"name":[1],"type":["chr"],"align":["left"]},{"label":["adresse"],"name":[2],"type":["chr"],"align":["left"]},{"label":["type_rue"],"name":[3],"type":["chr"],"align":["left"]},{"label":["ville"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"Mr Félicien Machin","2":"3 rue des Fleurs","3":"rue","4":"Nouméa"},{"1":"Mme Raymonde Bidule","2":"47 ave de la Libération","3":"ave","4":"Marseille"},{"1":"M. Martial Truc","2":"12 rue du 17 octobre 1961","3":"rue","4":"Vénissieux"},{"1":"Mme Huguette Chose","2":"221 avenue de la Libération","3":"avenue","4":"Marseille"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -593,11 +676,11 @@ $(document).ready(function () {
 <h2>Remplacer des motifs</h2>
 <p>La fonction <code data-pkg="stringr">str_replace</code> permet de remplacer une chaîne ou un motif par une autre.</p>
 <p>Par exemple, on peut remplace les occurrence de “Mr” par “M.” dans les noms de notre tableau :</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" data-line-number="1"><span class="kw">str_replace</span>(d<span class="op">$</span>nom, <span class="st">&quot;Mr&quot;</span>, <span class="st">&quot;M.&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">str_replace</span>(d<span class="op">$</span>nom, <span class="st">&quot;Mr&quot;</span>, <span class="st">&quot;M.&quot;</span>)</a></code></pre></div>
 <pre><code>[1] &quot;M. Félicien Machin&quot;  &quot;Mme Raymonde Bidule&quot; &quot;M. Martial Truc&quot;    
 [4] &quot;Mme Huguette Chose&quot; </code></pre>
 <p>La variante <code data-pkg="stringr" data-rdoc="str_replace">str_replace_all</code> permet de spécifier plusieurs remplacements d’un coup :</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" data-line-number="1"><span class="kw">str_replace_all</span>(d<span class="op">$</span>adresse, <span class="kw">c</span>(<span class="dt">avenue =</span> <span class="st">&quot;Avenue&quot;</span>, <span class="dt">ave =</span> <span class="st">&quot;Avenue&quot;</span>, <span class="dt">rue =</span> <span class="st">&quot;Rue&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1"><span class="kw">str_replace_all</span>(d<span class="op">$</span>adresse, <span class="kw">c</span>(<span class="dt">avenue =</span> <span class="st">&quot;Avenue&quot;</span>, <span class="dt">ave =</span> <span class="st">&quot;Avenue&quot;</span>, <span class="dt">rue =</span> <span class="st">&quot;Rue&quot;</span>))</a></code></pre></div>
 <pre><code>[1] &quot;3 Rue des Fleurs&quot;            &quot;47 Avenue de la Libération&quot; 
 [3] &quot;12 Rue du 17 octobre 1961&quot;   &quot;221 Avenue de la Libération&quot;</code></pre>
 </div>
@@ -605,29 +688,29 @@ $(document).ready(function () {
 <h2>Modificateurs de motifs</h2>
 <p>Par défaut, les motifs passés aux fonctions comme <code data-pkg="stringr">str_detect</code>, <code data-pkg="stringr">str_extract</code> ou <code data-pkg="stringr">str_replace</code> sont des expressions régulières classiques.</p>
 <p>On peut spécifier qu’un motif n’est pas une expression régulière mais une chaîne de caractères normale en lui appliquant la fonction <code data-pkg="stringr">fixed</code>. Par exemple, si on veut compter le nombre de points dans les noms de notre tableau, le paramétrage par défaut ne fonctionnera pas car dans une expression régulière le <code>.</code> est un symbole signifiant “n’importe quel caractère” :</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" data-line-number="1"><span class="kw">str_count</span>(d<span class="op">$</span>nom, <span class="st">&quot;.&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1"><span class="kw">str_count</span>(d<span class="op">$</span>nom, <span class="st">&quot;.&quot;</span>)</a></code></pre></div>
 <pre><code>[1] 18 19 15 18</code></pre>
 <p>Il faut donc spécifier que notre point est bien un point avec <code data-pkg="stringr">fixed</code> :</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" data-line-number="1"><span class="kw">str_count</span>(d<span class="op">$</span>nom, <span class="kw">fixed</span>(<span class="st">&quot;.&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1"><span class="kw">str_count</span>(d<span class="op">$</span>nom, <span class="kw">fixed</span>(<span class="st">&quot;.&quot;</span>))</a></code></pre></div>
 <pre><code>[1] 0 0 1 0</code></pre>
 <p>On peut aussi modifier le comportement des expressions régulières à l’aide de la fonction <code data-pkg="stringr">regex</code>. On peut ainsi rendre les motifs insensibles à la casse avec <code>ignore_case</code> :</p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" data-line-number="1"><span class="kw">str_detect</span>(d<span class="op">$</span>nom, <span class="st">&quot;mme&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" title="1"><span class="kw">str_detect</span>(d<span class="op">$</span>nom, <span class="st">&quot;mme&quot;</span>)</a></code></pre></div>
 <pre><code>[1] FALSE FALSE FALSE FALSE</code></pre>
-<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" data-line-number="1"><span class="kw">str_detect</span>(d<span class="op">$</span>nom, <span class="kw">regex</span>(<span class="st">&quot;mme&quot;</span>, <span class="dt">ignore_case =</span> <span class="ot">TRUE</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" title="1"><span class="kw">str_detect</span>(d<span class="op">$</span>nom, <span class="kw">regex</span>(<span class="st">&quot;mme&quot;</span>, <span class="dt">ignore_case =</span> <span class="ot">TRUE</span>))</a></code></pre></div>
 <pre><code>[1] FALSE  TRUE FALSE  TRUE</code></pre>
 <p>On peut également permettre aux regex d’être multilignes avec l’option <code>multiline = TRUE</code>, etc.</p>
 </div>
 <div id="inserer-une-variable-dans-une-chaine-de-caracteres" class="section level2">
 <h2>Insérer une variable dans une chaîne de caractères</h2>
 <p>La fonction <code data-pkg="stringr">str_glue</code> repose sur l’extension <code class="pkg">glue</code>. Elle permet, à l’aide d’une syntaxe un peu spécifique, de pouvoir insérer facilement les valeurs d’une ou plusieurs variables dans une chaîne de caractères. Prenons un exemple :</p>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" data-line-number="1">prenom &lt;-<span class="st"> &quot;Fred&quot;</span></a>
-<a class="sourceLine" id="cb53-2" data-line-number="2">age &lt;-<span class="st"> </span><span class="dv">28</span></a>
-<a class="sourceLine" id="cb53-3" data-line-number="3">anniversaire &lt;-<span class="st"> </span><span class="kw">as.Date</span>(<span class="st">&quot;1991-10-12&quot;</span>)</a>
-<a class="sourceLine" id="cb53-4" data-line-number="4"><span class="kw">str_glue</span>(<span class="st">&quot;Je m&#39;appelle {prenom}. &quot;</span>, <span class="st">&quot;L&#39;année prochaine j&#39;aurai {age + 1} ans, &quot;</span>, </a>
-<a class="sourceLine" id="cb53-5" data-line-number="5">  <span class="st">&quot;car je suis né le {format(anniversaire, &#39;%A %d %B %Y&#39;)}.&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" title="1">prenom &lt;-<span class="st"> &quot;Fred&quot;</span></a>
+<a class="sourceLine" id="cb53-2" title="2">age &lt;-<span class="st"> </span><span class="dv">28</span></a>
+<a class="sourceLine" id="cb53-3" title="3">anniversaire &lt;-<span class="st"> </span><span class="kw">as.Date</span>(<span class="st">&quot;1991-10-12&quot;</span>)</a>
+<a class="sourceLine" id="cb53-4" title="4"><span class="kw">str_glue</span>(<span class="st">&quot;Je m&#39;appelle {prenom}. &quot;</span>, <span class="st">&quot;L&#39;année prochaine j&#39;aurai {age + 1} ans, &quot;</span>, </a>
+<a class="sourceLine" id="cb53-5" title="5">  <span class="st">&quot;car je suis né le {format(anniversaire, &#39;%A %d %B %Y&#39;)}.&quot;</span>)</a></code></pre></div>
 <pre><code>Je m&#39;appelle Fred. L&#39;année prochaine j&#39;aurai 29 ans, car je suis né le samedi 12 octobre 1991.</code></pre>
 <p>Sa variante <code data-pkg="stringr" data-rdoc="str_glue">str_glue_data</code> est adaptée lorsque l’on travaille sur un tableau de données avec <code class="pkg">dplyr</code>.</p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">phrase =</span> <span class="kw">str_glue_data</span>(d, <span class="st">&quot;{nom} habite à {ville}.&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" title="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">phrase =</span> <span class="kw">str_glue_data</span>(d, <span class="st">&quot;{nom} habite à {ville}.&quot;</span>))</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["nom"],"name":[1],"type":["chr"],"align":["left"]},{"label":["adresse"],"name":[2],"type":["chr"],"align":["left"]},{"label":["ville"],"name":[3],"type":["chr"],"align":["left"]},{"label":["phrase"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"Mr Félicien Machin","2":"3 rue des Fleurs","3":"Nouméa","4":"Mr Félicien Machin habite à Nouméa."},{"1":"Mme Raymonde Bidule","2":"47 ave de la Libération","3":"Marseille","4":"Mme Raymonde Bidule habite à Marseille."},{"1":"M. Martial Truc","2":"12 rue du 17 octobre 1961","3":"Vénissieux","4":"M. Martial Truc habite à Vénissieux."},{"1":"Mme Huguette Chose","2":"221 avenue de la Libération","3":"Marseille","4":"Mme Huguette Chose habite à Marseille."}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -799,7 +882,8 @@ $(document).ready(function () {
   <div class="row">
     <div class="col-lg-12">
       <p>Contenus sous licence <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/" rel="nofollow">Creative Commons Attribution - Pas d’utilisation commerciale - Partage dans les mêmes conditions</a>.<br />
-      Propulsé par <a href="http://www.r-project.org/" rel="nofollow">R</a>, </a><a href="http://www.rstudio.com/" rel="nofollow">RStudio</a>, <a href="http://rmarkdown.rstudio.com/" rel="nofollow">R Markdown</a>, <a href="http://yihui.name/knitr/" rel="nofollow">knitr</a>, <a href="http://pandoc.org/" rel="nofollow">pandoc</a> et <a href="http://www.princexml.com/" rel="nofollow">Prince XML</a>. Hébergé par <a href="https://github.com/" rel="nofollow">GitHub</a>.</p>
+      Propulsé par <a href="http://www.r-project.org/" rel="nofollow">R</a>, </a><a href="http://www.rstudio.com/" rel="nofollow">RStudio</a>, <a href="http://rmarkdown.rstudio.com/" rel="nofollow">R Markdown</a>, <a href="http://yihui.name/knitr/" rel="nofollow">knitr</a>, <a href="http://pandoc.org/" rel="nofollow">pandoc</a> et <a href="http://www.princexml.com/" rel="nofollow">Prince XML</a>. Hébergé par <a href="https://github.com/" rel="nofollow">GitHub</a>.<br />
+      <a href="https://www.zenodo.org/badge/latestdoi/34986666"><img src="https://www.zenodo.org/badge/34986666.svg" alt="DOI"></a></p>
     </div>
   </div>
 </footer>

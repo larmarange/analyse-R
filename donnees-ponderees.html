@@ -57,10 +57,10 @@
 
 
 <style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
+<style type="text/css" data-origin="pandoc">
 a.sourceLine { display: inline-block; line-height: 1.25; }
 a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; position: absolute; }
+a.sourceLine:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -73,13 +73,11 @@ code.sourceCode { white-space: pre-wrap; }
 a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
 pre.numberSource a.sourceLine
-  { position: relative; }
-pre.numberSource a.sourceLine:empty
-  { position: absolute; }
+  { position: relative; left: -4em; }
 pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
-    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all;
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -121,7 +119,29 @@ code span.st { color: #4070a0; } /* String */
 code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
 </style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 <style type="text/css">
   pre:not([class]) {
     background-color: white;
@@ -184,6 +204,9 @@ img {
 button.code-folding-btn:focus {
   outline: none;
 }
+summary {
+  display: list-item;
+}
 </style>
 
 
@@ -191,14 +214,74 @@ button.code-folding-btn:focus {
 <div class="container-fluid main-container">
 
 <!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
 <script>
 $(document).ready(function () {
   window.buildTabsets("TOC");
 });
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
 </script>
 
 <!-- code folding -->
-
 
 
 
@@ -400,10 +483,10 @@ $(document).ready(function () {
 </div>
 <p>S’il est tout à fait possible de travailler avec des <dfn>données pondérées</dfn> sous R, cette fonctionnalité n’est pas aussi bien intégrée que dans la plupart des autres logiciels de traitement statistique. En particulier, il y a plusieurs manières possibles de gérer la <dfn>pondération</dfn>. Cependant, lorsque l’on doit également prendre un compte un <dfn>plan d’échantillonnage</dfn><dfn data-index="échantillonnage, plan"></dfn> complexe (voir section dédiée ci-après), <strong>R</strong> fournit tous les outils nécessaires, alors que dans la plupart des logiciels propriétaires, il faut disposer d’une extension adéquate, pas toujours vendue de base avec le logiciel.</p>
 <p>Dans ce qui suit, on utilisera le jeu de données tiré de l’enquête <em>Histoire de vie</em> et notamment sa variable de pondération <em>poids</em><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(questionr)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">data</span>(hdv2003)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">d &lt;-<span class="st"> </span>hdv2003</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw">range</span>(d<span class="op">$</span>poids)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(questionr)</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">data</span>(hdv2003)</a>
+<a class="sourceLine" id="cb1-3" title="3">d &lt;-<span class="st"> </span>hdv2003</a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="kw">range</span>(d<span class="op">$</span>poids)</a></code></pre></div>
 <pre><code>[1]    78.07834 31092.14132</code></pre>
 <div id="options-de-certaines-fonctions" class="section level2">
 <h2>Options de certaines fonctions</h2>
@@ -419,19 +502,19 @@ $(document).ready(function () {
 <li><code data-pkg="questionr">wtd.table</code> : tris à plat et tris croisés pondérés</li>
 </ul>
 <p>On les utilise de la manière suivante :</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">library</span>(questionr)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw">mean</span>(d<span class="op">$</span>age)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">library</span>(questionr)</a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="kw">mean</span>(d<span class="op">$</span>age)</a></code></pre></div>
 <pre><code>[1] 48.157</code></pre>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">wtd.mean</span>(d<span class="op">$</span>age, <span class="dt">weights =</span> d<span class="op">$</span>poids)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">wtd.mean</span>(d<span class="op">$</span>age, <span class="dt">weights =</span> d<span class="op">$</span>poids)</a></code></pre></div>
 <pre><code>[1] 46.34726</code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">wtd.var</span>(d<span class="op">$</span>age, <span class="dt">weights =</span> d<span class="op">$</span>poids)</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">wtd.var</span>(d<span class="op">$</span>age, <span class="dt">weights =</span> d<span class="op">$</span>poids)</a></code></pre></div>
 <pre><code>[1] 325.2658</code></pre>
 <p>Pour les tris à plat, on utilise la fonction wtd.table à laquelle on passe la variable en paramètre :</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw">wtd.table</span>(d<span class="op">$</span>sexe, <span class="dt">weights =</span> d<span class="op">$</span>poids)</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">wtd.table</span>(d<span class="op">$</span>sexe, <span class="dt">weights =</span> d<span class="op">$</span>poids)</a></code></pre></div>
 <pre><code>  Homme   Femme 
 5149382 5921844 </code></pre>
 <p>Pour un tri croisé, il suffit de passer deux variables en paramètres :</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">wtd.table</span>(d<span class="op">$</span>sexe, d<span class="op">$</span>hard.rock, <span class="dt">weights =</span> d<span class="op">$</span>poids)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">wtd.table</span>(d<span class="op">$</span>sexe, d<span class="op">$</span>hard.rock, <span class="dt">weights =</span> d<span class="op">$</span>poids)</a></code></pre></div>
 <pre><code>             Non        Oui
 Homme 5109366.41   40016.02
 Femme 5872596.42   49247.49</code></pre>
@@ -446,16 +529,16 @@ Femme 5872596.42   49247.49</code></pre>
 <h2>Données pondérées avec l’extension survey</h2>
 <p>L’extension <code class="pkg">survey</code> est spécialement dédiée au traitement d’enquêtes ayant des techniques d’échantillonnage et de pondération potentiellement très complexes.</p>
 <p>L’extension s’installe comme la plupart des autres :</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">install.packages</span>(<span class="st">&quot;survey&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">install.packages</span>(<span class="st">&quot;survey&quot;</span>)</a></code></pre></div>
 <p>Le site officiel (en anglais) comporte beaucoup d’informations, mais pas forcément très accessibles : <br /><a href="http://r-survey.r-forge.r-project.org/" class="uri">http://r-survey.r-forge.r-project.org/</a>.</p>
 <p>Pour utiliser les fonctionnalités de l’extension, on doit d’abord définir le <dfn>plan d’échantillonnage</dfn> ou <dfn lang="en">design</dfn> de notre enquête, c’est-à-dire indiquer quel type de pondération nous souhaitons lui appliquer.</p>
 <p>Dans un premier temps, nous utiliserons le plan d’échantillonnage le plus simple, avec une variable de pondération déjà calculée<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>. Ceci se fait à l’aide de la fonction <code data-pkg="survey">svydesign</code> :</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw">library</span>(survey)</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2">dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> <span class="op">~</span>d<span class="op">$</span>poids)</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">library</span>(survey)</a>
+<a class="sourceLine" id="cb14-2" title="2">dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> <span class="op">~</span>d<span class="op">$</span>poids)</a></code></pre></div>
 <p>Cette fonction crée un nouvel objet, que nous avons nommé <code>dw</code>. Cet objet n’est pas à proprement parler un tableau de données, mais plutôt un tableau de données plus une méthode de pondération. <code>dw</code> et <code>d</code> sont des objets distincts, les opérations effectuées sur l’un n’ont pas d’influence sur l’autre. On peut cependant retrouver le contenu de <code>d</code> depuis <code>dw</code> en utilisant <code>dw$variables</code> :</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw">str</span>(d<span class="op">$</span>age)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">str</span>(d<span class="op">$</span>age)</a></code></pre></div>
 <pre><code> int [1:2000] 28 23 59 34 71 35 60 47 20 28 ...</code></pre>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="kw">str</span>(dw<span class="op">$</span>variables<span class="op">$</span>age)</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">str</span>(dw<span class="op">$</span>variables<span class="op">$</span>age)</a></code></pre></div>
 <pre><code> int [1:2000] 28 23 59 34 71 35 60 47 20 28 ...</code></pre>
 <p>Lorsque notre plan d’échantillonnage est déclaré, on peut lui appliquer une série de fonctions permettant d’effectuer diverses opérations statistiques en tenant compte de la pondération. On citera notamment :</p>
 <ul>
@@ -471,10 +554,10 @@ Femme 5872596.42   49247.49</code></pre>
 <p>D’autres fonctions sont disponibles, comme <code data-pkg="survey">svyratio</code>, mais elles ne seront pas abordées ici.</p>
 <p>Pour ne rien arranger, ces fonctions prennent leurs arguments sous forme de formules<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a>, c’est-à-dire pas de la manière habituelle. En général l’appel de fonction se fait en spécifiant d’abord les variables d’intérêt sous forme de formule, puis l’objet <em>survey.design</em>.</p>
 <p>Voyons tout de suite quelques exemples<a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a> :</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw">svymean</span>(<span class="op">~</span>age, dw)</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1"><span class="kw">svymean</span>(<span class="op">~</span>age, dw)</a></code></pre></div>
 <pre><code>      mean     SE
 age 46.347 0.5284</code></pre>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="kw">svyquantile</span>(<span class="op">~</span>age, dw, <span class="dt">quantile =</span> <span class="kw">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="dt">ci =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">svyquantile</span>(<span class="op">~</span>age, dw, <span class="dt">quantile =</span> <span class="kw">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="dt">ci =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>$quantiles
     0.25 0.5 0.75
 age   31  45   60
@@ -485,52 +568,52 @@ $CIs
        0.25 0.5 0.75
 (lower   30  43   58
 upper)   32  47   62</code></pre>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="kw">svyvar</span>(<span class="op">~</span>heures.tv, dw, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1"><span class="kw">svyvar</span>(<span class="op">~</span>heures.tv, dw, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>          variance     SE
 heures.tv   2.9886 0.1836</code></pre>
 <p>Les tris à plat se déclarent en passant comme argument le nom de la variable précédé d’un tilde (<code>~</code>), tandis que les tableaux croisés utilisent les noms des deux variables séparés par un signe plus (<code>+</code>) et précédés par un tilde (<code>~</code>).</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="kw">svytable</span>(<span class="op">~</span>sexe, dw)</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">svytable</span>(<span class="op">~</span>sexe, dw)</a></code></pre></div>
 <pre><code>sexe
   Homme   Femme 
 5149382 5921844 </code></pre>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="kw">svytable</span>(<span class="op">~</span>sexe <span class="op">+</span><span class="st"> </span>clso, dw)</a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">svytable</span>(<span class="op">~</span>sexe <span class="op">+</span><span class="st"> </span>clso, dw)</a></code></pre></div>
 <pre><code>       clso
 sexe           Oui        Non Ne sait pas
   Homme 2658744.04 2418187.64    72450.75
   Femme 2602031.76 3242389.36    77422.79</code></pre>
 <p>La fonction <code data-pkg="questionr">freq</code> peut être utilisée si on lui passe en argument non pas la variable elle-même, mais son tri à plat obtenu avec <code data-pkg="survey">svytable</code> :</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1">tab &lt;-<span class="st"> </span><span class="kw">svytable</span>(<span class="op">~</span>peche.chasse, dw)</a>
-<a class="sourceLine" id="cb29-2" data-line-number="2"><span class="kw">freq</span>(tab, <span class="dt">total =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1">tab &lt;-<span class="st"> </span><span class="kw">svytable</span>(<span class="op">~</span>peche.chasse, dw)</a>
+<a class="sourceLine" id="cb29-2" title="2"><span class="kw">freq</span>(tab, <span class="dt">total =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>             n     %  val%
 Non    9716683  87.8  87.8
 Oui    1354544  12.2  12.2
 Total 11071226 100.0 100.0</code></pre>
 <p>On peut également récupérer le tableau issu de <code data-pkg="survey">svytable</code> dans un objet et le réutiliser ensuite comme n’importe quel tableau croisé :</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1">tab &lt;-<span class="st"> </span><span class="kw">svytable</span>(<span class="op">~</span>sexe <span class="op">+</span><span class="st"> </span>clso, dw)</a>
-<a class="sourceLine" id="cb31-2" data-line-number="2">tab</a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1">tab &lt;-<span class="st"> </span><span class="kw">svytable</span>(<span class="op">~</span>sexe <span class="op">+</span><span class="st"> </span>clso, dw)</a>
+<a class="sourceLine" id="cb31-2" title="2">tab</a></code></pre></div>
 <pre><code>       clso
 sexe           Oui        Non Ne sait pas
   Homme 2658744.04 2418187.64    72450.75
   Femme 2602031.76 3242389.36    77422.79</code></pre>
 <p>Les fonctions <code data-pkg="questionr" data-rdoc="rprop">lprop</code> et <code data-pkg="questionr">cprop</code> de <code class="pkg">questionr</code> sont donc tout à fait compatibles avec l’utilisation de <code class="pkg">survey</code>.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="kw">lprop</span>(tab)</a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1"><span class="kw">lprop</span>(tab)</a></code></pre></div>
 <pre><code>          clso
 sexe       Oui   Non   Ne sait pas Total
   Homme     51.6  47.0   1.4       100.0
   Femme     43.9  54.8   1.3       100.0
   Ensemble  47.5  51.1   1.4       100.0</code></pre>
 <p>Le principe de la fonction <code data-pkg="survey">svyby</code> est similaire à celui de <code data-pkg="base">tapply</code><a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a>. Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur. Par exemple :</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="kw">svyby</span>(<span class="op">~</span>age, <span class="op">~</span>sexe, dw, svymean)</a></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1"><span class="kw">svyby</span>(<span class="op">~</span>age, <span class="op">~</span>sexe, dw, svymean)</a></code></pre></div>
 <pre><code>       sexe      age        se
 Homme Homme 45.20200 0.7419450
 Femme Femme 47.34313 0.7420836</code></pre>
 <p><code class="pkg">survey</code> est également capable de produire des graphiques à partir des données pondérées. Quelques exemples :</p>
 <figure>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb37-2" data-line-number="2"><span class="kw">svyplot</span>(<span class="op">~</span>age <span class="op">+</span><span class="st"> </span>heures.tv, dw, <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">main =</span> <span class="st">&quot;Bubble plot&quot;</span>)</a>
-<a class="sourceLine" id="cb37-3" data-line-number="3"><span class="kw">svyhist</span>(<span class="op">~</span>heures.tv, dw, <span class="dt">col =</span> <span class="st">&quot;peachpuff&quot;</span>, <span class="dt">main =</span> <span class="st">&quot;Histogramme&quot;</span>)</a>
-<a class="sourceLine" id="cb37-4" data-line-number="4"><span class="kw">svyboxplot</span>(age <span class="op">~</span><span class="st"> </span><span class="dv">1</span>, dw, <span class="dt">main =</span> <span class="st">&quot;Boxplot simple&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Âge&quot;</span>)</a>
-<a class="sourceLine" id="cb37-5" data-line-number="5"><span class="kw">svyboxplot</span>(age <span class="op">~</span><span class="st"> </span>sexe, dw, <span class="dt">main =</span> <span class="st">&quot;Boxplot double&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Âge&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Sexe&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" title="1"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</a>
+<a class="sourceLine" id="cb37-2" title="2"><span class="kw">svyplot</span>(<span class="op">~</span>age <span class="op">+</span><span class="st"> </span>heures.tv, dw, <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">main =</span> <span class="st">&quot;Bubble plot&quot;</span>)</a>
+<a class="sourceLine" id="cb37-3" title="3"><span class="kw">svyhist</span>(<span class="op">~</span>heures.tv, dw, <span class="dt">col =</span> <span class="st">&quot;peachpuff&quot;</span>, <span class="dt">main =</span> <span class="st">&quot;Histogramme&quot;</span>)</a>
+<a class="sourceLine" id="cb37-4" title="4"><span class="kw">svyboxplot</span>(age <span class="op">~</span><span class="st"> </span><span class="dv">1</span>, dw, <span class="dt">main =</span> <span class="st">&quot;Boxplot simple&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Âge&quot;</span>)</a>
+<a class="sourceLine" id="cb37-5" title="5"><span class="kw">svyboxplot</span>(age <span class="op">~</span><span class="st"> </span>sexe, dw, <span class="dt">main =</span> <span class="st">&quot;Boxplot double&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Âge&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Sexe&quot;</span>)</a></code></pre></div>
 <img src="graphs/donnees-ponderees/unnamed-chunk-14-1.png" width="1050" />
 <figcaption>
 Fonctions graphiques de l’extension survey
@@ -539,7 +622,7 @@ Fonctions graphiques de l’extension survey
 <div id="extraire-un-sous-echantillon" class="section level3">
 <h3>Extraire un sous-échantillon</h3>
 <p>Si l’on souhaite travailler sur un <dfn>sous-échantillon</dfn> tout en gardant les informations d’échantillonnage, on utilisera la fonction <code data-pkg="survey" data-rdoc="subset.survey.design">subset</code> présentée en détail dans le chapitre <a href="sous-ensembles.html">Sous-ensembles</a>.</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1">sous &lt;-<span class="st"> </span><span class="kw">subset</span>(dw, sexe <span class="op">==</span><span class="st"> &quot;Femme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>age <span class="op">&gt;=</span><span class="st"> </span><span class="dv">40</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1">sous &lt;-<span class="st"> </span><span class="kw">subset</span>(dw, sexe <span class="op">==</span><span class="st"> &quot;Femme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>age <span class="op">&gt;=</span><span class="st"> </span><span class="dv">40</span>)</a></code></pre></div>
 </div>
 <div id="modeles-logistiques" class="section level3">
 <h3>Modèles logistiques</h3>
@@ -723,7 +806,8 @@ $(document).ready(function () {
   <div class="row">
     <div class="col-lg-12">
       <p>Contenus sous licence <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/" rel="nofollow">Creative Commons Attribution - Pas d’utilisation commerciale - Partage dans les mêmes conditions</a>.<br />
-      Propulsé par <a href="http://www.r-project.org/" rel="nofollow">R</a>, </a><a href="http://www.rstudio.com/" rel="nofollow">RStudio</a>, <a href="http://rmarkdown.rstudio.com/" rel="nofollow">R Markdown</a>, <a href="http://yihui.name/knitr/" rel="nofollow">knitr</a>, <a href="http://pandoc.org/" rel="nofollow">pandoc</a> et <a href="http://www.princexml.com/" rel="nofollow">Prince XML</a>. Hébergé par <a href="https://github.com/" rel="nofollow">GitHub</a>.</p>
+      Propulsé par <a href="http://www.r-project.org/" rel="nofollow">R</a>, </a><a href="http://www.rstudio.com/" rel="nofollow">RStudio</a>, <a href="http://rmarkdown.rstudio.com/" rel="nofollow">R Markdown</a>, <a href="http://yihui.name/knitr/" rel="nofollow">knitr</a>, <a href="http://pandoc.org/" rel="nofollow">pandoc</a> et <a href="http://www.princexml.com/" rel="nofollow">Prince XML</a>. Hébergé par <a href="https://github.com/" rel="nofollow">GitHub</a>.<br />
+      <a href="https://www.zenodo.org/badge/latestdoi/34986666"><img src="https://www.zenodo.org/badge/34986666.svg" alt="DOI"></a></p>
     </div>
   </div>
 </footer>
