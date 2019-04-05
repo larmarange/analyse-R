@@ -480,7 +480,6 @@ Pour cela, il est d'abord nécessaire d'installer la version de développement d
 devtools::install_github("hrbrmstr/ggalt")
 ```
 
-<figure>
 ```{r, warning=FALSE}
 library(ggalt)
 ggplot(tab) +
@@ -490,8 +489,7 @@ ggplot(tab) +
   ylab("Effectifs") +
   coord_flip()
 ```
-<figcaption>Diagramme en "sucettes" (lollipop)</figcaption>
-</figure>
+
 </div>
 
 
@@ -546,10 +544,60 @@ ggplot(d) +
 <figcaption>Diagramme en barres cumulées</figcaption>
 </figure>
 
+<div class="note">
+**Ajouter des étiquettes sur un diagramme en barre**
+
+Il est facile d'ajouter des étiquettes en ayant recours à `geom_text`{data-pkg="ggplot2" data-rdoc="geom_label"}, à condition de lui passer les bon paramètres.
+
+Tout d'abord, il faudra préciser `stat = "count"` pour indiquer que l'on souhaite utiliser la statistique `stat_count`{data-pkg="ggplot2" data-rdoc="geom_bar"} qui est celle utilisé par défaut par `geom_bar`{data-pkg="ggplot2"}. C'est elle qui permets de compter le nombre d'observation.
+
+Il faut ensuite utiliser l'esthétique `label` pour indiquer ce que l'on souhaite afficher comme étiquettes. `..count..` permets d'accéder à la variable calculée par `stat_count`{data-pkg="ggplot2" data-rdoc="geom_bar"}.
+
+Enfin, il faut indiquer la position verticale avec `position_stack`{data-pkg="ggplot2"}. En précisant un ajustement de vertical de `0.5`, on indique que l'on souhaite positionner l'étiquette au milieu.
+
+```{r, warning=FALSE}
+ggplot(d) +
+  aes(x = qualreg, fill = sport) +
+  geom_bar() +
+  geom_text(aes(label = ..count..), stat = "count", position = position_stack(.5)) +
+  xlab("CSP") +
+  ylab("Effectifs") +
+  labs(fill = "Pratique du sport")
+```
+
+Pour un graphique en barre cumulées, on peut utiliser de manière similaire `position_fill`{data-pkg="ggplot2" data-rdoc="position_stack"}.
+
+```{r}
+ggplot(d) +
+  aes(x = qualreg, fill = sport) +
+  geom_bar(position = "fill") +
+  geom_text(aes(label = ..count..), stat = "count", position = position_fill(.5)) +
+  xlab("CSP") +
+  ylab("Proportion") +
+  labs(fill = "Pratique du sport") +
+  scale_y_continuous(labels = percent)
+```
+
+Pour cela, on pourra avoir recours à `stat_fill_labels`{data-pkg="JLutils"} de l'extension `JLutils`{.pkg}^[Cette extension n'est disponible que sur [GitHub](https://github.com/larmarange/JLutils). On peut l'installer avec la commande suivante : `source("https://install-github.me/larmarange/JLutils")`].
+
+```{r}
+ggplot(d) +
+  aes(x = qualreg, fill = sport) +
+  geom_bar(position = "fill") +
+  JLutils::stat_fill_labels() +
+  xlab("CSP") +
+  ylab("Proportion") +
+  labs(fill = "Pratique du sport") +
+  scale_y_continuous(labels = percent)
+```
+
+</div>
+
 ## Graphe en mosaïque
 
 Il n'y a pas, à ce jour, d'implémentation officielle des <dfn data-index="graphique en mosaïque">graphiques en mosaïque</dfn><dfn data-index="mosaïque, graphique"></dfn> sous `ggplot2`{.pkg}. On pourra néanmoins se référer à l'extension `ggmosaic`{.pkg} et sa fonction `geom_mosaic`{data-pkg="ggmosaic"}^[Pour information, une première implémentation expérimentale avait été proposée avec l'extension `productplots`{.pkg}, voir <https://github.com/hadley/productplots> et <http://vita.had.co.nz/papers/prodplots.html>].
 
+<figure>
 ```{r, message=FALSE, warning=FALSE}
 library(ggmosaic)
 levels(d$sport) <- c("Ne fait pas de sport", "Pratique un sport")
@@ -561,6 +609,8 @@ ggplot(data = d) +
   xlab("") + ylab("") +
   theme(legend.position = "bottom")  
 ```
+<figcaption>Graphique en mosaïque</figcaption>
+</figure>
 
 ## Données labellisées et ggplot2
 
