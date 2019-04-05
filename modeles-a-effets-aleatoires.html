@@ -15,7 +15,7 @@
 
 <script src="libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
 <script src="libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -24,7 +24,10 @@
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
-<script type="text/javascript" src="./libs/zeroclipboard-2.2.0/ZeroClipboard.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
+<script type="text/javascript" src="./libs/bigfoot-2.1.4/bigfoot.min.js"></script>
+<link rel="stylesheet" href="./libs/bigfoot-2.1.4/bigfoot-number.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
 <link rel="stylesheet" href="./libs/colorbox-1.6.1/colorbox.css" />
 <script type="text/javascript" src="./libs/colorbox-1.6.1/jquery.colorbox-min.js"></script>
 <!--- favicon --->
@@ -86,9 +89,7 @@ h6 {
 </style>
 
 
-</head>
 
-<body>
 
 <style type = "text/css">
 .main-container {
@@ -119,8 +120,6 @@ summary {
 </style>
 
 
-
-<div class="container-fluid main-container">
 
 <!-- tabsets -->
 
@@ -192,6 +191,15 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
 
 
 
@@ -362,7 +370,7 @@ $(document).ready(function () {
 
 <div class="row">
 
-<a href="https://github.com/larmarange/analyse-R"><img style="position: absolute; top: 60px; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Contribuer sur GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
+<a href="https://github.com/larmarange/analyse-R"><img style="position: absolute; top: 60px; right: 0; border: 0;" src="./images/fork_me.png" alt="Contribuer sur GitHub" ></a>
 
 <div class="col-sm-9" role="main">
 <article>
@@ -494,33 +502,51 @@ $(document).ready(function () {
     });
     jQuery('figure img').css('cursor', 'pointer');
 
-    // ZeroClipboard
-    $('pre.r').parent().each(function(){
-      $(this).children('pre.r').first().before('<div class="zero-clipboard hidden-print hidden-xs"><button class="btn-clipboard">Copier</button></div>');
-    }); // Il peut arriver que le pre ne soit pas précédé (cf. figures)
-    $('*:not(pre):not(.zero-clipboard) + pre.r').before('<div class="zero-clipboard hidden-print hidden-xs"><button class="btn-clipboard">Copier</button></div>');
-    $('pre.last').after(function() {
-      if ($(this).hasClass("r")) res = $(this).text(); else res = "";
-      $(this).prevUntil('*:not(pre)','pre.r').each(function() {
-        res = $(this).text() + '\n' + res;
-      });
-      return '<div class="clipboard">' + res + '</div>';
-    });
-    $('.zero-clipboard').each(function(index){
-      $(this).children('.btn-clipboard').attr('data-clipboard-target','clipboard_'+index);
-      $(this).nextAll("div.clipboard").first().attr('id','clipboard_'+index);
-    });
-    var client = new ZeroClipboard( $(".btn-clipboard") );
-    client.on( "ready", function( readyEvent ) {
-      // alert( "ZeroClipboard SWF is ready!" );
-      client.on( "aftercopy", function( event ) {
-        // `this` === `client`
-        // `event.target` === the element that was clicked
-        //event.target.style.display = "none";
-        $(event.target).parent().before('<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>Le code <strong>R</strong> de l’exemple a été copié dans le presse-papier.</div>');
-      } );
-    } );
+    /* Clipboard --------------------------*/
 
+  function changeTooltipMessage(element, msg) {
+    var tooltipOriginalTitle=element.getAttribute('data-original-title');
+    element.setAttribute('data-original-title', msg);
+    $(element).tooltip('show');
+    element.setAttribute('data-original-title', tooltipOriginalTitle);
+  }
+
+  if(ClipboardJS.isSupported()) {
+    $(document).ready(function() {
+      var copyButton = "<button type='button' class='btn btn-primary btn-copy-ex' type = 'submit' title='Copier dans le presse-papier' aria-label='Copier dans le presse-papier' data-toggle='tooltip' data-placement='left auto' data-trigger='hover' data-clipboard-copy><i class='fa fa-copy'></i></button>";
+
+      $(".examples, div.sourceCode").addClass("hasCopyButton");
+
+      // Insert copy buttons:
+      $(copyButton).prependTo(".hasCopyButton");
+
+      // Initialize tooltips:
+      $('.btn-copy-ex').tooltip({container: 'body'});
+
+      // Initialize clipboard:
+      var clipboardBtnCopies = new ClipboardJS('[data-clipboard-copy]', {
+        text: function(trigger) {
+          return trigger.parentNode.textContent;
+        }
+      });
+
+      clipboardBtnCopies.on('success', function(e) {
+        changeTooltipMessage(e.trigger, 'Copié !');
+        e.clearSelection();
+      });
+
+      clipboardBtnCopies.on('error', function() {
+        changeTooltipMessage(e.trigger,'Appuyez sur Ctrl+C ou Command+C pour copier');
+      });
+    });
+  }
+
+  // Bigfoot
+  $(".footnotes > li").addClass("footnote");
+  $.bigfoot({
+    activateOnHover: true,
+    actionOriginalFN: "ignore"
+});
 });
 </script>
 

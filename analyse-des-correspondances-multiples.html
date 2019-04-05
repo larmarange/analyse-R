@@ -15,7 +15,7 @@
 
 <script src="libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
 <script src="libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -24,7 +24,10 @@
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
-<script type="text/javascript" src="./libs/zeroclipboard-2.2.0/ZeroClipboard.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
+<script type="text/javascript" src="./libs/bigfoot-2.1.4/bigfoot.min.js"></script>
+<link rel="stylesheet" href="./libs/bigfoot-2.1.4/bigfoot-number.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
 <link rel="stylesheet" href="./libs/colorbox-1.6.1/colorbox.css" />
 <script type="text/javascript" src="./libs/colorbox-1.6.1/jquery.colorbox-min.js"></script>
 <!--- favicon --->
@@ -177,9 +180,7 @@ h6 {
 </style>
 
 
-</head>
 
-<body>
 
 <style type = "text/css">
 .main-container {
@@ -210,8 +211,6 @@ summary {
 </style>
 
 
-
-<div class="container-fluid main-container">
 
 <!-- tabsets -->
 
@@ -283,6 +282,15 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
 
 
 
@@ -453,7 +461,7 @@ $(document).ready(function () {
 
 <div class="row">
 
-<a href="https://github.com/larmarange/analyse-R"><img style="position: absolute; top: 60px; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Contribuer sur GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
+<a href="https://github.com/larmarange/analyse-R"><img style="position: absolute; top: 60px; right: 0; border: 0;" src="./images/fork_me.png" alt="Contribuer sur GitHub" ></a>
 
 <div class="col-sm-9" role="main">
 <article>
@@ -471,6 +479,10 @@ $(document).ready(function () {
 <li><a href="#principe-general">Principe général</a></li>
 <li><a href="#acm-avec-ade4">ACM avec ade4</a></li>
 <li><a href="#factominer">ACM avec FactoMineR</a></li>
+<li><a href="#extensions-complementaires">Extensions complémentaires</a><ul>
+<li><a href="#factoshiny">Factoshiny</a></li>
+<li><a href="#factoinvestigate">FactoInvestigate</a></li>
+</ul></li>
 </ul>
 </div>
 
@@ -541,13 +553,15 @@ $(document).ready(function () {
 <a class="sourceLine" id="cb3-2" title="2"><span class="kw">data</span>(hdv2003)</a>
 <a class="sourceLine" id="cb3-3" title="3">d &lt;-<span class="st"> </span>hdv2003</a></code></pre></div>
 <p>En premier lieu, comme dans le <a href="regression-logistique.html">chapitre sur la régression logistique</a>, nous allons créer une variable groupe d’âges et regrouper les modalités de la variable « niveau d’étude ».</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">d<span class="op">$</span>grpage &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">93</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb4-2" title="2">d<span class="op">$</span>etud &lt;-<span class="st"> </span>d<span class="op">$</span>nivetud</a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="kw">levels</span>(d<span class="op">$</span>etud) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, </a>
-<a class="sourceLine" id="cb4-4" title="4">  <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Supérieur&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">d<span class="op">$</span>grpage &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">93</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, </a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb4-3" title="3">d<span class="op">$</span>etud &lt;-<span class="st"> </span>d<span class="op">$</span>nivetud</a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="kw">levels</span>(d<span class="op">$</span>etud) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, </a>
+<a class="sourceLine" id="cb4-5" title="5">  <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, </a>
+<a class="sourceLine" id="cb4-6" title="6">  <span class="st">&quot;Supérieur&quot;</span>)</a></code></pre></div>
 <p>Ensuite, nous allons créer un tableau de données ne contenant que les variables que nous souhaitons prendre en compte pour notre analyse factorielle.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">d2 &lt;-<span class="st"> </span>d[, <span class="kw">c</span>(<span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;peche.chasse&quot;</span>, <span class="st">&quot;cinema&quot;</span>, <span class="st">&quot;cuisine&quot;</span>, <span class="st">&quot;bricol&quot;</span>, </a>
-<a class="sourceLine" id="cb5-2" title="2">  <span class="st">&quot;sport&quot;</span>, <span class="st">&quot;lecture.bd&quot;</span>)]</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">d2 &lt;-<span class="st"> </span>d[, <span class="kw">c</span>(<span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;peche.chasse&quot;</span>, <span class="st">&quot;cinema&quot;</span>, </a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="st">&quot;cuisine&quot;</span>, <span class="st">&quot;bricol&quot;</span>, <span class="st">&quot;sport&quot;</span>, <span class="st">&quot;lecture.bd&quot;</span>)]</a></code></pre></div>
 <p>Le calcul de l’ACM se fait tout simplement avec la fonction <code>dudi.acm</code>{data-pkg=“ade4”&gt;.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">acm &lt;-<span class="st"> </span><span class="kw">dudi.acm</span>(d2)</a></code></pre></div>
 <p>Par défaut, la fonction affichera le graphique des <dfn data-index="valeur propre, ACM">valeurs propres</dfn> de chaque axe (nous y reviendrons) et vous demandera le nombre d’axes que vous souhaitez conserver dans les résultats. Le plus souvent, cinq axes seront largement plus que suffisants. Vous pouvez également éviter cette étape en indiquant directement à <code data-pkg="ade4">dudi.acm</code> de vous renvoyer les cinq premiers axes ainsi :</p>
@@ -607,8 +621,8 @@ Répartition des modalités selon le second axe
 <p>Le tableau <code>acm$cr</code> contient les rapports de corrélation (variant de 0 à 1) entre les variables et les axes choisis au départ de l’ACM. Pour représenter graphiquement ces rapports, utiliser la fonction <code data-pkg="graphics">barplot</code> ainsi : <code>barplot(acm$cr[,num],names.arg=row.names( acm$cr),las=2)</code> où <code>num</code> est le numéro de l’axe à représenter. Pour l’interprétation des axes, se concentrer sur les variables les plus structurantes, c’est-à-dire dont le rapport de corrélation est le plus proche de 1.</p>
 <figure>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb14-2" title="2"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>) <span class="kw">barplot</span>(acm<span class="op">$</span>cr[, i], <span class="dt">names.arg =</span> <span class="kw">row.names</span>(acm<span class="op">$</span>cr), <span class="dt">las =</span> <span class="dv">2</span>, <span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;Axe&quot;</span>, </a>
-<a class="sourceLine" id="cb14-3" title="3">  i))</a></code></pre></div>
+<a class="sourceLine" id="cb14-2" title="2"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>) <span class="kw">barplot</span>(acm<span class="op">$</span>cr[, i], <span class="dt">names.arg =</span> <span class="kw">row.names</span>(acm<span class="op">$</span>cr), </a>
+<a class="sourceLine" id="cb14-3" title="3">  <span class="dt">las =</span> <span class="dv">2</span>, <span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;Axe&quot;</span>, i))</a></code></pre></div>
 <p><img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-13-1.png" width="1050" /></p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</a></code></pre></div>
 <figcaption>
@@ -760,41 +774,71 @@ The analysis was performed on 2000 individuals, described by 9 variables
 12 &quot;$call$marge.col&quot; &quot;weights of columns&quot;              
 13 &quot;$call$marge.li&quot;  &quot;weights of rows&quot;                 </code></pre>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1">acm2<span class="op">$</span>eig</a></code></pre></div>
-<pre><code>       eigenvalue percentage of variance cumulative percentage of variance
-dim 1  0.25757489              15.454493                          15.45449
-dim 2  0.18363502              11.018101                          26.47259
-dim 3  0.16164626               9.698776                          36.17137
-dim 4  0.12871623               7.722974                          43.89434
-dim 5  0.12135737               7.281442                          51.17579
-dim 6  0.11213331               6.727999                          57.90378
-dim 7  0.10959377               6.575626                          64.47941
-dim 8  0.10340564               6.204338                          70.68375
-dim 9  0.09867478               5.920487                          76.60424
-dim 10 0.09192693               5.515616                          82.11985
-dim 11 0.07501208               4.500725                          86.62058
-dim 12 0.06679676               4.007805                          90.62838
-dim 13 0.06002063               3.601238                          94.22962
-dim 14 0.05832024               3.499215                          97.72883
-dim 15 0.03785276               2.271166                         100.00000</code></pre>
+<pre><code>       eigenvalue percentage of variance
+dim 1  0.25757489              15.454493
+dim 2  0.18363502              11.018101
+dim 3  0.16164626               9.698776
+dim 4  0.12871623               7.722974
+dim 5  0.12135737               7.281442
+dim 6  0.11213331               6.727999
+dim 7  0.10959377               6.575626
+dim 8  0.10340564               6.204338
+dim 9  0.09867478               5.920487
+dim 10 0.09192693               5.515616
+dim 11 0.07501208               4.500725
+dim 12 0.06679676               4.007805
+dim 13 0.06002063               3.601238
+dim 14 0.05832024               3.499215
+dim 15 0.03785276               2.271166
+       cumulative percentage of variance
+dim 1                           15.45449
+dim 2                           26.47259
+dim 3                           36.17137
+dim 4                           43.89434
+dim 5                           51.17579
+dim 6                           57.90378
+dim 7                           64.47941
+dim 8                           70.68375
+dim 9                           76.60424
+dim 10                          82.11985
+dim 11                          86.62058
+dim 12                          90.62838
+dim 13                          94.22962
+dim 14                          97.72883
+dim 15                         100.00000</code></pre>
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1"><span class="kw">sum</span>(acm2<span class="op">$</span>eig[, <span class="dv">1</span>])</a></code></pre></div>
 <pre><code>[1] 1.666667</code></pre>
 <p>En premier lieu, il apparait que l’inertie totale obtenue avec <code data-pkg="FactoMineR">MCA</code> est différente de celle observée avec <code data-pkg="ade4">dudi.acm</code>. Cela est dû à un traitement différents des <dfn data-index="valeur manquante">valeurs manquantes</dfn><dfn data-index="manquante, valeur"></dfn>. Alors que <code data-pkg="ade4">dudi.acm</code> exclu les valeurs manquantes, <code data-pkg="FactoMineR">MCA</code> les considèrent, par défaut, comme une modalité additionnelle. Pour calculer l’ACM uniquement sur les individus n’ayant pas de valeur manquante, on aura recours à <code data-pkg="stats">complete.cases</code> :</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" title="1">acm2 &lt;-<span class="st"> </span><span class="kw">MCA</span>(d2[<span class="kw">complete.cases</span>(d2), ], <span class="dt">ncp =</span> <span class="dv">5</span>, <span class="dt">graph =</span> <span class="ot">FALSE</span>)</a>
 <a class="sourceLine" id="cb37-2" title="2">acm2<span class="op">$</span>eig</a></code></pre></div>
-<pre><code>       eigenvalue percentage of variance cumulative percentage of variance
-dim 1  0.24790700              17.162792                          17.16279
-dim 2  0.16758465              11.602014                          28.76481
-dim 3  0.13042357               9.029324                          37.79413
-dim 4  0.12595105               8.719688                          46.51382
-dim 5  0.11338629               7.849820                          54.36364
-dim 6  0.10976674               7.599236                          61.96287
-dim 7  0.10060204               6.964757                          68.92763
-dim 8  0.09802387               6.786268                          75.71390
-dim 9  0.09283131               6.426783                          82.14068
-dim 10 0.07673502               5.312425                          87.45311
-dim 11 0.06609694               4.575942                          92.02905
-dim 12 0.05950655               4.119684                          96.14873
-dim 13 0.05562942               3.851267                         100.00000</code></pre>
+<pre><code>       eigenvalue percentage of variance
+dim 1  0.24790700              17.162792
+dim 2  0.16758465              11.602014
+dim 3  0.13042357               9.029324
+dim 4  0.12595105               8.719688
+dim 5  0.11338629               7.849820
+dim 6  0.10976674               7.599236
+dim 7  0.10060204               6.964757
+dim 8  0.09802387               6.786268
+dim 9  0.09283131               6.426783
+dim 10 0.07673502               5.312425
+dim 11 0.06609694               4.575942
+dim 12 0.05950655               4.119684
+dim 13 0.05562942               3.851267
+       cumulative percentage of variance
+dim 1                           17.16279
+dim 2                           28.76481
+dim 3                           37.79413
+dim 4                           46.51382
+dim 5                           54.36364
+dim 6                           61.96287
+dim 7                           68.92763
+dim 8                           75.71390
+dim 9                           82.14068
+dim 10                          87.45311
+dim 11                          92.02905
+dim 12                          96.14873
+dim 13                         100.00000</code></pre>
 <div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" title="1"><span class="kw">sum</span>(acm2<span class="op">$</span>eig[, <span class="dv">1</span>])</a></code></pre></div>
 <pre><code>[1] 1.444444</code></pre>
 <p>Les possibilités graphiques de <code class="pkg">FactoMineR</code> sont différentes de celles de <code class="pkg">ade4</code>. Un recours à la fonction <code data-pkg="FactoMineR" data-rdoc="plot.MCA">plot</code> affichera par défaut les individus, les modalités et les variables. La commande <code>?plot.MCA</code> permet d’accéder au fichier d’aide de cette fonction (i.e. de la méthode générique <code>plot</code> appliquée aux objets de type <code>MCA</code>) et de voir toutes les options graphiques. L’argument <code>choix</code> permet de spécifier ce que l’on souhaite afficher (« ind » pour les individus et les catégories, « var » pour les variables). L’argument <code>invisible</code> quant à lui permet de spécifier ce que l’on souhaite masquer. Les axes à afficher se précisent avec <code>axes</code>. Voir les exemples ci-dessous.</p>
@@ -929,6 +973,20 @@ bricol_Non              -0.18590016  8.014713e-95
 peche.chasse_Non        -0.35922450 1.161746e-154
 Femme                   -0.32598031  0.000000e+00</code></pre>
 </div>
+<div id="extensions-complementaires" class="section level2">
+<h2>Extensions complémentaires</h2>
+<div id="factoshiny" class="section level3">
+<h3>Factoshiny</h3>
+<p>L’extension <code class="pkg">Factoshiny</code> permet d’améliorer facilement et de façon interactive les graphiques produits par <code class="pkg">FactoMineR</code> pour les rendre beaucoup plus lisibles.</p>
+<p>Plus d’informations sur <a href="http://factominer.free.fr/graphs/factoshiny-fr.html" class="uri">http://factominer.free.fr/graphs/factoshiny-fr.html</a>.</p>
+</div>
+<div id="factoinvestigate" class="section level3">
+<h3>FactoInvestigate</h3>
+<p>L’extension <code class="pkg">FactoInvestigate</code> décrit et interprète automatiquement les résultats de votre analyse factorielle (ACP, AFC ou ACM) en choisissant les graphes les plus appropriés pour un rapport.</p>
+<p>Vous avez juste à faire l’analyse comme habituellement avec <code class="pkg">FactoMineR</code> ou <code class="pkg">Factoshiny</code>, et ensuite utiliser <code class="pkg">FactoInvestigate</code> pour obtenir un rapport automatisé.</p>
+<p>Plus d’informations sur <a href="http://factominer.free.fr/reporting/index_fr.html" class="uri">http://factominer.free.fr/reporting/index_fr.html</a>.</p>
+</div>
+</div>
 <div class="footnotes">
 <hr />
 <ol>
@@ -1038,33 +1096,51 @@ $(document).ready(function () {
     });
     jQuery('figure img').css('cursor', 'pointer');
 
-    // ZeroClipboard
-    $('pre.r').parent().each(function(){
-      $(this).children('pre.r').first().before('<div class="zero-clipboard hidden-print hidden-xs"><button class="btn-clipboard">Copier</button></div>');
-    }); // Il peut arriver que le pre ne soit pas précédé (cf. figures)
-    $('*:not(pre):not(.zero-clipboard) + pre.r').before('<div class="zero-clipboard hidden-print hidden-xs"><button class="btn-clipboard">Copier</button></div>');
-    $('pre.last').after(function() {
-      if ($(this).hasClass("r")) res = $(this).text(); else res = "";
-      $(this).prevUntil('*:not(pre)','pre.r').each(function() {
-        res = $(this).text() + '\n' + res;
-      });
-      return '<div class="clipboard">' + res + '</div>';
-    });
-    $('.zero-clipboard').each(function(index){
-      $(this).children('.btn-clipboard').attr('data-clipboard-target','clipboard_'+index);
-      $(this).nextAll("div.clipboard").first().attr('id','clipboard_'+index);
-    });
-    var client = new ZeroClipboard( $(".btn-clipboard") );
-    client.on( "ready", function( readyEvent ) {
-      // alert( "ZeroClipboard SWF is ready!" );
-      client.on( "aftercopy", function( event ) {
-        // `this` === `client`
-        // `event.target` === the element that was clicked
-        //event.target.style.display = "none";
-        $(event.target).parent().before('<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>Le code <strong>R</strong> de l’exemple a été copié dans le presse-papier.</div>');
-      } );
-    } );
+    /* Clipboard --------------------------*/
 
+  function changeTooltipMessage(element, msg) {
+    var tooltipOriginalTitle=element.getAttribute('data-original-title');
+    element.setAttribute('data-original-title', msg);
+    $(element).tooltip('show');
+    element.setAttribute('data-original-title', tooltipOriginalTitle);
+  }
+
+  if(ClipboardJS.isSupported()) {
+    $(document).ready(function() {
+      var copyButton = "<button type='button' class='btn btn-primary btn-copy-ex' type = 'submit' title='Copier dans le presse-papier' aria-label='Copier dans le presse-papier' data-toggle='tooltip' data-placement='left auto' data-trigger='hover' data-clipboard-copy><i class='fa fa-copy'></i></button>";
+
+      $(".examples, div.sourceCode").addClass("hasCopyButton");
+
+      // Insert copy buttons:
+      $(copyButton).prependTo(".hasCopyButton");
+
+      // Initialize tooltips:
+      $('.btn-copy-ex').tooltip({container: 'body'});
+
+      // Initialize clipboard:
+      var clipboardBtnCopies = new ClipboardJS('[data-clipboard-copy]', {
+        text: function(trigger) {
+          return trigger.parentNode.textContent;
+        }
+      });
+
+      clipboardBtnCopies.on('success', function(e) {
+        changeTooltipMessage(e.trigger, 'Copié !');
+        e.clearSelection();
+      });
+
+      clipboardBtnCopies.on('error', function() {
+        changeTooltipMessage(e.trigger,'Appuyez sur Ctrl+C ou Command+C pour copier');
+      });
+    });
+  }
+
+  // Bigfoot
+  $(".footnotes > li").addClass("footnote");
+  $.bigfoot({
+    activateOnHover: true,
+    actionOriginalFN: "ignore"
+});
 });
 </script>
 
