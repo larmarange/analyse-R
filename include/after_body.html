@@ -98,32 +98,44 @@ $(document).ready(function () {
     });
     jQuery('figure img').css('cursor', 'pointer');
 
-    // ZeroClipboard
-    $('pre.r').parent().each(function(){
-      $(this).children('pre.r').first().before('<div class="zero-clipboard hidden-print hidden-xs"><button class="btn-clipboard">Copier</button></div>');
-    }); // Il peut arriver que le pre ne soit pas précédé (cf. figures)
-    $('*:not(pre):not(.zero-clipboard) + pre.r').before('<div class="zero-clipboard hidden-print hidden-xs"><button class="btn-clipboard">Copier</button></div>');
-    $('pre.last').after(function() {
-      if ($(this).hasClass("r")) res = $(this).text(); else res = "";
-      $(this).prevUntil('*:not(pre)','pre.r').each(function() {
-        res = $(this).text() + '\n' + res;
+    /* Clipboard --------------------------*/
+
+  function changeTooltipMessage(element, msg) {
+    var tooltipOriginalTitle=element.getAttribute('data-original-title');
+    element.setAttribute('data-original-title', msg);
+    $(element).tooltip('show');
+    element.setAttribute('data-original-title', tooltipOriginalTitle);
+  }
+
+  if(ClipboardJS.isSupported()) {
+    $(document).ready(function() {
+      var copyButton = "<button type='button' class='btn btn-primary btn-copy-ex' type = 'submit' title='Copier dans le presse-papier' aria-label='Copier dans le presse-papier' data-toggle='tooltip' data-placement='left auto' data-trigger='hover' data-clipboard-copy><i class='fa fa-copy'></i></button>";
+
+      $(".examples, div.sourceCode").addClass("hasCopyButton");
+
+      // Insert copy buttons:
+      $(copyButton).prependTo(".hasCopyButton");
+
+      // Initialize tooltips:
+      $('.btn-copy-ex').tooltip({container: 'body'});
+
+      // Initialize clipboard:
+      var clipboardBtnCopies = new ClipboardJS('[data-clipboard-copy]', {
+        text: function(trigger) {
+          return trigger.parentNode.textContent;
+        }
       });
-      return '<div class="clipboard">' + res + '</div>';
+
+      clipboardBtnCopies.on('success', function(e) {
+        changeTooltipMessage(e.trigger, 'Copié !');
+        e.clearSelection();
+      });
+
+      clipboardBtnCopies.on('error', function() {
+        changeTooltipMessage(e.trigger,'Appuyez sur Ctrl+C ou Command+C pour copier');
+      });
     });
-    $('.zero-clipboard').each(function(index){
-      $(this).children('.btn-clipboard').attr('data-clipboard-target','clipboard_'+index);
-      $(this).nextAll("div.clipboard").first().attr('id','clipboard_'+index);
-    });
-    var client = new ZeroClipboard( $(".btn-clipboard") );
-    client.on( "ready", function( readyEvent ) {
-      // alert( "ZeroClipboard SWF is ready!" );
-      client.on( "aftercopy", function( event ) {
-        // `this` === `client`
-        // `event.target` === the element that was clicked
-        //event.target.style.display = "none";
-        $(event.target).parent().before('<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>Le code <strong>R</strong> de l’exemple a été copié dans le presse-papier.</div>');
-      } );
-    } );
+  }
 
 });
 </script>
