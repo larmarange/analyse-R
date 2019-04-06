@@ -6,7 +6,7 @@ title: "Étendre ggplot2"
 source("options_communes.R")
 ```
 
-De nombreuses extensions permettent d'étendre les possibilités graphiques de `ggplot2`{.pkg}. Certaines ont déjà été abordées dans les différents chapitres d'**analyse-R**. 
+De nombreuses extensions permettent d'étendre les possibilités graphiques de `ggplot2`{.pkg}. Certaines ont déjà été abordées dans les différents chapitres d'**analyse-R**. Le présent chapitre ne se veut pas exhaustif et ne présente qu'une sélection choisie d'extensions.
 
 Le site **ggplot2 extensions** (<http://www.ggplot2-exts.org/>) recense diverses extensions pour `ggplot2`{.pkg}.
 
@@ -17,7 +17,7 @@ Pour une présentation des fonctions des base et des concepts de `ggplot2`{.pkg}
 
 ### pirate : alternative aux boîtes à moustache
 
-Cette représentation alternative aux boîtes à moustache s'obtient avec la géométrie `geom_pirate`{data-pkg="ggpirate"} de l'extension `ggpirate`{.pkg}.
+Cette représentation alternative aux boîtes à moustache s'obtient avec la géométrie `geom_pirate`{data-pkg="ggpirate"} de l'extension `ggpirate`{.pkg}^[Cette extension n'étant pas sur CRAN, on l'installera avec la commande `devtools::install_github("mikabr/ggpirate")`.].
 
 ```{r}
 library(ggplot2)
@@ -27,9 +27,31 @@ ggplot(mpg, aes(x = class, y = cty)) +
   theme_bw()
 ```
 
+## Étiquettes non superposées
+
+Lorsque l'on affiche des étiquettes de texte, ces dernières peuvent se supperposer lorsqu'elles sont proches. Les géométries `geom_text_repel`{data-pkg="ggrepel" data-rdoc="geom_label_repel"} et `geom_label_repel`{data-pkg="ggrepel"} de l'extension `ggrepel`{.pkg} prennent en compte la position des différentes étiquettes pour éviter qu'elles ne se chevauchent.
+
+```{r}
+library(ggplot2)
+library(ggrepel)
+library(ggrepel)
+
+dat <- subset(mtcars, wt > 2.75 & wt < 3.45)
+dat$car <- rownames(dat)
+p <- ggplot(dat) +
+  aes(wt, mpg, label = car) +
+  geom_point(color = "red")
+
+p1 <- p + geom_text() + 
+  labs(title = "geom_text()")
+p2 <- p + geom_text_repel() + 
+  labs(title = "geom_text_repel()")
+
+cowplot::plot_grid(p1, p2, nrow = 1)
+```
 
 
-## Graphiques complexes
+
 
 
 ## Axes, légende et facettes
@@ -38,7 +60,7 @@ ggplot(mpg, aes(x = class, y = cty)) +
 
 `coord_capped_cart`{data-pkg="lemon"} et `coord_capped_flip`{data-pkg="lemon" data-rdoc="coord_capped_cart"} de l'extension `lemon`{.pkg} permet de limiter le dessin des axes au minimum et au maximum. Voir l'exemple ci-dessous.
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(ggplot2)
 library(lemon)
 p <- ggplot(mtcars) +
@@ -81,6 +103,40 @@ ggplot(mpg) +
 
 Voir le [chapitre dédié](cartes.html).
 
+## Graphiques complexes
+
+### Graphiques animés
+
+L'extension `gganimate`{.pkg} permets de réaliser des graphiques animés.
+
+Voici un exemple :
+
+```{r include=FALSE}
+# requise pour le rendu GIF
+# code pour forcer l'installation dans le script de vérification des dépendances
+library(gifski)
+```
+
+
+```{r}
+library(ggplot2)
+library(gganimate)
+library(gapminder)
+
+ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop, colour = country)) +
+  geom_point(alpha = 0.7, show.legend = FALSE) +
+  scale_colour_manual(values = country_colors) +
+  scale_size(range = c(2, 12)) +
+  scale_x_log10() +
+  facet_wrap(~continent) +
+  # Here comes the gganimate specific bits
+  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'life expectancy') +
+  transition_time(year) +
+  ease_aes('linear')
+```
+
+Voir le site de l'extension (<https://gganimate.com/>) pour la documentation et des tutoriels. Il est conseillé d'installer également l'extension `gifski`{.pkg} avec `gganimate`{.pkg}.
+
 ## Thèmes et couleurs
 
 Voir le chapitre [Couleurs et palettes](couleurs.html) pour une sélection d'extensions proposant des palettes de couleurs additionnelles.
@@ -101,6 +157,28 @@ ggplot(mtcars, aes(mpg, wt)) +
        caption="Brought to you by the letter 'g'") + 
   scale_color_ipsum() +
   theme_ipsum_rc()
+```
+
+### ggthemes
+
+`ggthemes`{.pkg} propose une vingtaine de thèmes différentes présentés sur le site de l'extension : <https://jrnold.github.io/ggthemes/>.
+
+Voir ci-dessous un exemple du thème `theme_tufte`{data-pkg="ggthemes"} inspiré d'Edward Tufte.
+
+```{r}
+library(ggplot2)
+library(ggthemes)
+
+p <- ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point() +
+  scale_x_continuous(breaks = extended_range_breaks()(mtcars$wt)) +
+  scale_y_continuous(breaks = extended_range_breaks()(mtcars$mpg)) +
+  ggtitle("Cars")
+
+p + geom_rangeframe() +
+  theme_tufte()
+p + geom_rug() +
+ theme_tufte(ticks = FALSE)
 ```
 
 
