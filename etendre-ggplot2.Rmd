@@ -6,7 +6,106 @@ title: "Étendre ggplot2"
 source("options_communes.R")
 ```
 
-De nombreuses extensions permettent d'étendre les possibilités graphiques de `ggplot2`{.pkg}. Pour une présentation des fonctions des base et des concepts de `ggplot2`{.pkg}, on pourra se référer au [chapitre dédié](ggplot2.html) ainsi qu'au deux chapitres introductifs : [introduction à ggplot2](intro-ggplot2.html) et [graphiques bivariés avec ggplot2](graphiques-bivaries-ggplot2.html).
+De nombreuses extensions permettent d'étendre les possibilités graphiques de `ggplot2`{.pkg}. Certaines ont déjà été abordées dans les différents chapitres d'**analyse-R**. 
 
+Le site **ggplot2 extensions** (<http://www.ggplot2-exts.org/>) recense diverses extensions pour `ggplot2`{.pkg}.
+
+Pour une présentation des fonctions des base et des concepts de `ggplot2`{.pkg}, on pourra se référer au [chapitre dédié](ggplot2.html) ainsi qu'au deux chapitres introductifs : [introduction à ggplot2](intro-ggplot2.html) et [graphiques bivariés avec ggplot2](graphiques-bivaries-ggplot2.html).
+
+
+## Nouvelles géométries
+
+### pirate : alternative aux boîtes à moustache
+
+Cette représentation alternative aux boîtes à moustache s'obtient avec la géométrie `geom_pirate`{data-pkg="ggpirate"} de l'extension `ggpirate`{.pkg}.
+
+```{r}
+library(ggplot2)
+library(ggpirate)
+ggplot(mpg, aes(x = class, y = cty)) +
+  geom_pirate(aes(colour = class, fill = class)) +
+  theme_bw()
+```
+
+
+
+## Graphiques complexes
+
+
+## Axes, légende et facettes
+
+### Axes <q>limités</q>
+
+`coord_capped_cart`{data-pkg="lemon"} et `coord_capped_flip`{data-pkg="lemon" data-rdoc="coord_capped_cart"} de l'extension `lemon`{.pkg} permet de limiter le dessin des axes au minimum et au maximum. Voir l'exemple ci-dessous.
+
+```{r}
+library(ggplot2)
+library(lemon)
+p <- ggplot(mtcars) +
+  aes(x=cyl, y=mpg) + 
+  geom_point() +
+  theme_classic() +
+  ggtitle("Axes classiques")
+pcapped <- p +
+  coord_capped_cart(bottom = "both", left = "both") +
+  ggtitle("Axes limités")
+cowplot::plot_grid(p, pcapped, nrow = 1)
+```
+
+
+
+
+### Répéter les étiquettes des axes sur des facettes
+
+Lorsque l'on réalise des facettes, les étiquettes des axes ne sont pas répétées.
+
+```{r}
+library(ggplot2)
+ggplot(mpg) +
+  aes(displ, cty) + 
+  geom_point() +
+  facet_wrap(~ cyl)
+```
+
+L'extension `lemon`{.pkg} propose `facet_rep_grid`{data-pkg="lemon"} et `facet_rep_wrap`{data-pkg="lemon" data-rdoc="facet_rep_grid"} qui répètent les axes sur chaque facette.
+
+```{r}
+library(lemon)
+ggplot(mpg) +
+  aes(displ, cty) + 
+  geom_point() +
+  facet_rep_wrap(~ cyl, repeat.tick.labels = TRUE)
+```
+
+## Cartes
+
+Voir le [chapitre dédié](cartes.html).
+
+## Thèmes et couleurs
+
+Voir le chapitre [Couleurs et palettes](couleurs.html) pour une sélection d'extensions proposant des palettes de couleurs additionnelles.
+
+
+### hrbrthemes
+
+L'extension `hrbrthemes`{.pkg} fournit plusieurs thèmes graphiques pour `ggplot2`{.pkg}. Un exemple ci-dessous. Pour plus d'informations, voir <https://github.com/hrbrmstr/hrbrthemes>.
+
+```{r}
+library(ggplot2)
+library(hrbrthemes)
+ggplot(mtcars, aes(mpg, wt)) +
+  geom_point(aes(color=factor(carb))) +
+  labs(x="Fuel efficiency (mpg)", y="Weight (tons)",
+       title="Seminal ggplot2 scatterplot example",
+       subtitle="A plot that is only useful for demonstration purposes",
+       caption="Brought to you by the letter 'g'") + 
+  scale_color_ipsum() +
+  theme_ipsum_rc()
+```
+
+
+## Combiner plusieurs graphiques
+
+Voir le [chapitre dédié](combiner-plusieurs-graphiques.html).
 
 
