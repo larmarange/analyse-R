@@ -495,11 +495,11 @@ $(document).ready(function () {
 <pre><code>     Non      Oui 
 48.30211 27.57143 </code></pre>
 <p>L’écart est important. Est-il statistiquement significatif ? Pour cela on peut faire un <dfn>test t de Student</dfn><dfn data-index="Student, test t"></dfn> de <dfn>comparaison de moyennes</dfn><dfn data-index="moyenne, comparaison"></dfn> à l’aide de la fonction <code data-pkg="stats">t.test</code> :</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">t.test</span>(d<span class="op">$</span>age <span class="op">~</span><span class="st"> </span>d<span class="op">$</span>hard.rock)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">t.test</span>(age <span class="op">~</span><span class="st"> </span>hard.rock, <span class="dt">data =</span> d)</a></code></pre></div>
 <pre><code>
     Welch Two Sample t-test
 
-data:  d$age by d$hard.rock
+data:  age by hard.rock
 t = 9.6404, df = 13.848, p-value = 1.611e-07
 alternative hypothesis: true difference in means is not equal to 0
 95 percent confidence interval:
@@ -516,8 +516,11 @@ mean in group Non mean in group Oui
 <p>Pour rétablir la notation scientifique :</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">options</span>(<span class="dt">scipen =</span> <span class="dv">0</span>)</a></code></pre></div>
 </div>
-<p>Nous sommes cependant allés un peu vite en besogne, car nous avons négligé une hypothèse fondamentale du test <em>t</em> : les ensembles de valeur comparés doivent suivre approximativement une <dfn>loi normale</dfn><dfn data-index="normale, loi"></dfn> et être de même <dfn>variance</dfn><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. Comment le vérifier ?</p>
-<p>D’abord avec un petit graphique composés de deux <dfn data-index="histogramme">histogrammes</dfn> :</p>
+<p>Nous sommes cependant allés un peu vite en besogne, car nous avons négligé une hypothèse fondamentale du test <em>t</em> : les ensembles de valeur comparés doivent suivre approximativement une <dfn>loi normale</dfn><dfn data-index="normale, loi"></dfn> et être de même <dfn>variance</dfn><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>.</p>
+<div class="note">
+<p>Dans le test de Student, on suppose l’égalité des variances parentes, ce qui permet de former une estimation commune de la variance des deux échantillons (on parle de <dfn lang = "en">pooled variance</dfn><dfn data-index="variance, pooled" lang = "en"></dfn>), qui revient à une moyenne pondérée des variances estimées à partir des deux échantillons. Dans le cas où l’on souhaite relaxer cette hypothèse, le test de Welch ou la correction de Satterthwaite reposent sur l’idée que l’on utilise les deux estimations de variance séparément, suivie d’une approximation des degrés de liberté pour la somme de ces deux variances. Le même principe s’applique dans le cas de l’analyse de variance à un facteur (cf. <code data-pkg="stats">oneway.test</code>).</p>
+</div>
+<p>Comment vérifier que l’hypothèse de normalité est acceptable pour ces données ? D’abord avec un petit graphique composés de deux <dfn data-index="histogramme">histogrammes</dfn> :</p>
 <figure>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</a>
 <a class="sourceLine" id="cb8-2" title="2"><span class="kw">hist</span>(d<span class="op">$</span>age[d<span class="op">$</span>hard.rock <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>], <span class="dt">main =</span> <span class="st">&quot;Hard rock&quot;</span>, <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)</a>
@@ -527,10 +530,11 @@ mean in group Non mean in group Oui
 Distribution des âges pour appréciation de la normalité
 </figcaption>
 </figure>
+<p>Une alternative consisterait à utiliser des graphiques de type QQ-plot, à l’aide de la fonction <code data-pkg="stats">qnorm</code>, même si leur utilisation et leur interprétation ne sera pas détaillée ici.</p>
 <div class="note">
-<p>La fonction <code data-pkg="graphics">par</code> permet de modifier de nombreux paramètres graphiques. <code>par(mfrow = c(1, 2))</code> sert à indiquer que l’on souhaite afficher deux graphiques sur une même fenêtre, plus précisément que la fenêtre doit comporter une ligne et deux colonnes.</p>
+<p>La fonction <code data-pkg="graphics">par</code> permet de modifier de nombreux paramètres graphiques. Ici, l’instruction <code>par(mfrow = c(1, 2))</code> sert à indiquer que l’on souhaite afficher deux graphiques sur une même fenêtre, plus précisément que la fenêtre doit comporter une ligne et deux colonnes.</p>
 </div>
-<p>Ça a l’air à peu près bon pour les « Sans hard rock », mais un peu plus limite pour les fans de <em>Metallica</em>, dont les effectifs sont d’ailleurs assez faibles. Si on veut en avoir le coeur net on peut utiliser le <dfn>test de normalité de Shapiro-Wilk</dfn><dfn data-index="normalité, test de Shapiro-Wilk"></dfn><dfn data-index="Shapiro-Wilk, test de normalité"></dfn> avec la fonction <code data-pkg="stats">shapiro.test</code> :</p>
+<p>Ça a l’air à peu près bon pour les « Sans hard rock », mais un peu plus limite pour les fans de <em>Metallica</em>, dont les effectifs sont d’ailleurs assez faibles. Si on veut en avoir le cœur net on peut utiliser le <dfn>test de normalité de Shapiro-Wilk</dfn><dfn data-index="normalité, test de Shapiro-Wilk"></dfn><dfn data-index="Shapiro-Wilk, test de normalité"></dfn> avec la fonction <code data-pkg="stats">shapiro.test</code> :</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">shapiro.test</span>(d<span class="op">$</span>age[d<span class="op">$</span>hard.rock <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>])</a></code></pre></div>
 <pre><code>
     Shapiro-Wilk normality test
@@ -549,11 +553,11 @@ W = 0.98141, p-value = 2.079e-15</code></pre>
 <pre><code>      Non       Oui 
 285.62858  62.72527 </code></pre>
 <p>L’écart n’a pas l’air négligeable. On peut le vérifier avec le <dfn>test d’égalité des variances</dfn><dfn data-index="variance, test d'égalité"></dfn> fourni par la fonction <code data-pkg="stats">var.test</code> :</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">var.test</span>(d<span class="op">$</span>age <span class="op">~</span><span class="st"> </span>d<span class="op">$</span>hard.rock)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">var.test</span>(age <span class="op">~</span><span class="st"> </span>hard.rock, <span class="dt">data =</span> d)</a></code></pre></div>
 <pre><code>
     F test to compare two variances
 
-data:  d$age by d$hard.rock
+data:  age by hard.rock
 F = 4.5536, num df = 1985, denom df = 13, p-value =
 0.003217
 alternative hypothesis: true ratio of variances is not equal to 1
@@ -562,30 +566,39 @@ alternative hypothesis: true ratio of variances is not equal to 1
 sample estimates:
 ratio of variances 
           4.553644 </code></pre>
-<p>La différence est très significative. En toute rigueur le test <em>t</em> n’aurait donc pas pu être utilisé.</p>
-<p><em>Damned</em> ! Ces maudits tests statistiques vont-ils nous empêcher de faire connaître au monde entier notre fabuleuse découverte sur l’âge des fans de <em>Sepultura</em> ? Non ! Car voici qu’approche à l’horizon un nouveau test, connu sous le nom de <dfn data-index="test de Wilcoxon/Mann-Whitney">Wilcoxon/Mann-Whitney</dfn><dfn data-index="Wilcoxon, test"></dfn><dfn data-index="Mann-Whitney, test"></dfn><dfn data-index="médiane, test de comparaison"></dfn><dfn data-index="comparaison de médianes, test"></dfn>. Celui-ci a l’avantage d’être non-paramétrique, c’est à dire de ne faire aucune hypothèse sur la distribution des échantillons comparés. Par contre il ne compare pas des différences de moyennes mais des différences de <dfn data-index="médiane">médianes</dfn> :</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">wilcox.test</span>(d<span class="op">$</span>age <span class="op">~</span><span class="st"> </span>d<span class="op">$</span>hard.rock)</a></code></pre></div>
+<p>La différence est très significative. En toute rigueur le test <em>t</em> n’aurait donc pas pu être utilisé. Cela dit, il convient de rappeler que ce test statistique (1) suppose la normalité des distributions et (2) considère comme hypothèse nulle l’égalité des variances (parentes) – ce que l’on souhaiterait vérifier alors qu’on ne peut pas accepter l’hypothèse nulle dans un cadre d’inférence fréquentiste – sans que l’on définisse réellement ce que signifie des variances différentes sur le plan pratique. Est-ce qu’une variation de la variance du simple au double est pertinente au regard du domaine d’étude, ou bien faut-il décider qu’à partir d’un rapport de 4 on peut considérer qu’il y a bien une différence importante entre deux variances ? Sans avoir fixé au préalable cette hypothèse alternative, on ne peut guère conclure à partir de ce test. Une alternative consiste à comparer la forme des distributions à l’aide, par exemple, de diagrammes de type boîtes à moustaches.</p>
+<p><em>Damned</em> ! Ces maudits tests statistiques vont-ils nous empêcher de faire connaître au monde entier notre fabuleuse découverte sur l’âge des fans de <em>Sepultura</em> ? Non ! Car voici qu’approche à l’horizon un nouveau test, connu sous le nom de <dfn data-index="test de Wilcoxon/Mann-Whitney">Wilcoxon/Mann-Whitney</dfn><dfn data-index="Wilcoxon, test"></dfn><dfn data-index="Mann-Whitney, test"></dfn><dfn data-index="médiane, test de comparaison"></dfn><dfn data-index="comparaison de médianes, test"></dfn>. Celui-ci a l’avantage d’être non-paramétrique, c’est à dire de ne faire aucune hypothèse sur la distribution des échantillons comparés, à l’exception que celles-ci ont des formes à peu près comparables (essentiellement en termes de variance). Attention, il ne s’agit pas d’un test comparant les différences de <dfn data-index="médiane">médianes</dfn> (pour cela il existe le test de Mood) mais d’un test reposant sur la somme des rangs des observations, au lieu des valeurs brutes, dans les deux groupes :</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">wilcox.test</span>(age <span class="op">~</span><span class="st"> </span>hard.rock, <span class="dt">data =</span> d)</a></code></pre></div>
 <pre><code>
     Wilcoxon rank sum test with continuity correction
 
-data:  d$age by d$hard.rock
+data:  age by hard.rock
 W = 23980, p-value = 2.856e-06
 alternative hypothesis: true location shift is not equal to 0</code></pre>
 <p>Ouf ! La différence est hautement significative<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>. Nous allons donc pouvoir entamer la rédaction de notre article pour la <em>Revue française de sociologie</em>.</p>
 </div>
 <div id="comp_prop" class="section level2">
 <h2>Comparaison de proportions</h2>
-<p>La fonction <code data-pkg="stats">prop.test</code>, que nous avons déjà rencontrer pour calculer l’intervalle de confiance d’une proportion (voir le chapitre dédié aux <a href="intervalles-de-confiance.html">intervalles de confiance</a>) permets également d’effectuer un <dfn>test de comparaison de deux proportions</dfn><dfn data-index="comparaison de proportions, test"></dfn><dfn data-index="proportion, test de comparaison"></dfn>.</p>
+<p>La fonction <code data-pkg="stats">prop.test</code>, que nous avons déjà rencontrée pour calculer l’intervalle de confiance d’une proportion (voir le chapitre dédié aux <a href="intervalles-de-confiance.html">intervalles de confiance</a>) permets également d’effectuer un <dfn>test de comparaison de deux proportions</dfn><dfn data-index="comparaison de proportions, test"></dfn><dfn data-index="proportion, test de comparaison"></dfn>.</p>
 <p>Supposons que l’on souhaite comparer la proportion de personnes faisant du sport entre ceux qui lisent des bandes dessinées et les autres :</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">tab &lt;-<span class="st"> </span><span class="kw">xtabs</span>(<span class="op">~</span>lecture.bd <span class="op">+</span><span class="st"> </span>sport, d)</a>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">tab &lt;-<span class="st"> </span><span class="kw">xtabs</span>(<span class="op">~</span>lecture.bd <span class="op">+</span><span class="st"> </span>sport, <span class="dt">data =</span> d)</a>
 <a class="sourceLine" id="cb19-2" title="2"><span class="kw">lprop</span>(tab)</a></code></pre></div>
 <pre><code>          sport
 lecture.bd Non   Oui   Total
   Non       64.2  35.8 100.0
   Oui       48.9  51.1 100.0
   Ensemble  63.8  36.1 100.0</code></pre>
+<p>Une représentation graphique sous forme de diagramme en barres peut être définie comme suit :</p>
+<figure>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">barplot</span>(<span class="kw">prop.table</span>(tab, <span class="dt">margin =</span> <span class="dv">1</span>) <span class="op">*</span><span class="st"> </span><span class="dv">100</span>, <span class="dt">beside =</span> <span class="ot">TRUE</span>, <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="dv">0</span>, </a>
+<a class="sourceLine" id="cb21-2" title="2">  <span class="dv">100</span>), <span class="dt">xlab =</span> <span class="st">&quot;Sport&quot;</span>, <span class="dt">legend.text =</span> <span class="kw">c</span>(<span class="st">&quot;Lecture : non&quot;</span>, <span class="st">&quot;Lecture : oui&quot;</span>))</a></code></pre></div>
+<img src="graphs/comparaisons-moyennes-et-proportions/unnamed-chunk-12-1.png" width="1050" />
+<figcaption>
+Répartition des individus (en %) selon les variables sport et lecture
+</figcaption>
+</figure>
 <p>Il suffit de transmettre notre tableau croisé (à 2×2 dimensions) à <code data-pkg="stats">prop.test</code> :</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">prop.test</span>(tab)</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">prop.test</span>(tab)</a></code></pre></div>
 <pre><code>
     2-sample test for equality of proportions with
     continuity correction
@@ -599,11 +612,11 @@ sample estimates:
    prop 1    prop 2 
 0.6420891 0.4893617 </code></pre>
 <p>On pourra également avoir recours à la fonction <code data-pkg="stats">fisher.test</code> qui renverra notamment l’<dfn>odds ratio</dfn> et son intervalle de confiance correspondant :</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1"><span class="kw">fisher.test</span>(<span class="kw">table</span>(d<span class="op">$</span>lecture.bd, d<span class="op">$</span>sport))</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1"><span class="kw">fisher.test</span>(tab)</a></code></pre></div>
 <pre><code>
     Fisher&#39;s Exact Test for Count Data
 
-data:  table(d$lecture.bd, d$sport)
+data:  tab
 p-value = 0.0445
 alternative hypothesis: true odds ratio is not equal to 1
 95 percent confidence interval:
@@ -611,8 +624,11 @@ alternative hypothesis: true odds ratio is not equal to 1
 sample estimates:
 odds ratio 
   1.871433 </code></pre>
+<div class="note">
+<p>Formellement, le test de Fisher suppose que les marges du tableau (totaux lignes et colonnes) sont fixées, puisqu’il repose sur une loi hypergéométrique, et donc celui-ci se prête plus au cas des situations expérimentales (plans d’expérience, essais cliniques) qu’au cas des données tirées d’études observationnelles.</p>
+</div>
 <p>On pourra aussi avoir recours à la fonction <code data-pkg="questionr">odds.ratio</code> de l’extension <code class="pkg">questionr</code> qui réalise le même calcul mais présente le résultat légèrement différemment :</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">odds.ratio</span>(tab)</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">odds.ratio</span>(tab)</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["OR"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["2.5 %"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["97.5 %"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["p"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"1.871433","2":"1.003372","3":"3.497759","4":"0.04450155","_rn_":"Fisher's test"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -622,43 +638,50 @@ odds ratio
 </div>
 <div id="chi2" class="section level2">
 <h2>χ² et dérivés</h2>
-<p>Dans le cadre d’un tableau croisée, on peut tester l’existence d’un lien entre les modalités de deux variables, avec le très classique <dfn data-index="test du Chi²">test du χ²</dfn><dfn data-index="Chi², test"></dfn><a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>. Celui-ci s’obtient grâce à la fonction <code data-pkg="stats">chisq.test</code>, appliquée au tableau croisé obtenu avec <code data-pkg="base">table</code> ou <code data-pacakge="stats">xtabs</code><a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a> :</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1">d<span class="op">$</span>qualreg &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>qualif)</a>
-<a class="sourceLine" id="cb26-2" title="2">d<span class="op">$</span>qualreg[d<span class="op">$</span>qualif <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>)] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a>
-<a class="sourceLine" id="cb26-3" title="3">d<span class="op">$</span>qualreg[d<span class="op">$</span>qualif <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Profession intermediaire&quot;</span>, <span class="st">&quot;Technicien&quot;</span>)] &lt;-<span class="st"> &quot;Intermediaire&quot;</span></a>
-<a class="sourceLine" id="cb26-4" title="4"></a>
-<a class="sourceLine" id="cb26-5" title="5">tab &lt;-<span class="st"> </span><span class="kw">table</span>(d<span class="op">$</span>sport, d<span class="op">$</span>qualreg)</a>
-<a class="sourceLine" id="cb26-6" title="6">tab</a></code></pre></div>
+<p>Dans le cadre d’un tableau croisé, on peut tester l’existence d’un lien entre les modalités de deux variables, avec le très classique <dfn data-index="test du Chi²">test du χ²</dfn><dfn data-index="Chi², test"></dfn> de Pearson<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>. Celui-ci s’obtient grâce à la fonction <code data-pkg="stats">chisq.test</code>, appliquée au tableau croisé obtenu avec <code data-pkg="base">table</code> ou <code data-pacakge="stats">xtabs</code><a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a> :</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1">d<span class="op">$</span>qualreg &lt;-<span class="st"> </span><span class="kw">as.character</span>(d<span class="op">$</span>qualif)</a>
+<a class="sourceLine" id="cb27-2" title="2">d<span class="op">$</span>qualreg[d<span class="op">$</span>qualif <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>)] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a>
+<a class="sourceLine" id="cb27-3" title="3">d<span class="op">$</span>qualreg[d<span class="op">$</span>qualif <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Profession intermediaire&quot;</span>, <span class="st">&quot;Technicien&quot;</span>)] &lt;-<span class="st"> &quot;Intermediaire&quot;</span></a>
+<a class="sourceLine" id="cb27-4" title="4"></a>
+<a class="sourceLine" id="cb27-5" title="5">tab &lt;-<span class="st"> </span><span class="kw">table</span>(d<span class="op">$</span>sport, d<span class="op">$</span>qualreg)</a>
+<a class="sourceLine" id="cb27-6" title="6">tab</a></code></pre></div>
 <pre><code>     
       Autre Cadre Employe Intermediaire Ouvrier
   Non    38   117     401           127     381
   Oui    20   143     193           119     114</code></pre>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="kw">chisq.test</span>(tab)</a></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1"><span class="kw">chisq.test</span>(tab)</a></code></pre></div>
 <pre><code>
     Pearson&#39;s Chi-squared test
 
 data:  tab
 X-squared = 96.798, df = 4, p-value &lt; 2.2e-16</code></pre>
-<p>Le test est hautement significatif, on ne peut pas considérer qu’il y a indépendance entre les lignes et les colonnes du tableau.</p>
-<p>On peut affiner l’interprétation du test en déterminant dans quelle case l’écart à l’indépendance est le plus significatif en utilisant les <dfn data-index="résidus, test du Chi²">résidus</dfn><dfn data-index="test du Chi², résidus"></dfn><dfn data-index="Chi², résidus"></dfn> du test. Ceux-ci sont notamment affichables avec la fonction <code data-pkg="questionr">chisq.residuals</code> de <code class="pkg">questionr</code> :</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1"><span class="kw">chisq.residuals</span>(tab)</a></code></pre></div>
+<p>Le test est hautement significatif : on ne peut donc pas considérer qu’il y a indépendance entre les lignes et les colonnes du tableau.</p>
+<div class="note">
+<p>Notons que l’agrégation des niveaux d’une variable catégorielle peut être réalisée d’une manière différente en utilisant les fonctions de gestion des niveaux d’un facteur. Les expressions précédentes sont donc équivalentes à l’approche ci-après, qui ne nécessite pas de convertir <code>d$qualif</code> en chaîne de caractères :</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1">d<span class="op">$</span>qualreg &lt;-<span class="st"> </span>d<span class="op">$</span>qualif</a>
+<a class="sourceLine" id="cb31-2" title="2"><span class="kw">levels</span>(d<span class="op">$</span>qualreg)[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>] &lt;-<span class="st"> &quot;Ouvrier&quot;</span></a>
+<a class="sourceLine" id="cb31-3" title="3"><span class="kw">levels</span>(d<span class="op">$</span>qualreg)[<span class="dv">2</span><span class="op">:</span><span class="dv">3</span>] &lt;-<span class="st"> &quot;Intermédiaire&quot;</span></a>
+<a class="sourceLine" id="cb31-4" title="4">tab &lt;-<span class="st"> </span><span class="kw">table</span>(d<span class="op">$</span>sport, d<span class="op">$</span>qualreg)</a></code></pre></div>
+</div>
+<p>On peut affiner l’interprétation du test en déterminant dans quelle cas l’écart à l’indépendance est le plus significatif en utilisant les <dfn data-index="résidus, test du Chi²">résidus</dfn><dfn data-index="test du Chi², résidus"></dfn><dfn data-index="Chi², résidus"></dfn> du test. Ceux-ci sont notamment affichables avec la fonction <code data-pkg="questionr">chisq.residuals</code> de <code class="pkg">questionr</code> :</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1"><span class="kw">chisq.residuals</span>(tab)</a></code></pre></div>
 <pre><code>     
       Autre Cadre Employe Intermediaire Ouvrier
   Non  0.11 -3.89    0.95         -2.49    3.49
   Oui -0.15  5.23   -1.28          3.35   -4.70</code></pre>
-<p>Les cases pour lesquelles l’écart à l’indépendance est significatif ont un résidu dont la valeur est supérieure à 2 ou inférieure à -2. Ici on constate que la pratique d’un sport est sur-représentée parmi les cadres et, à un niveau un peu moindre, parmi les professions intermédiaires, tandis qu’elle est sousreprésentée chez les ouvriers.</p>
-<p>Enfin, on peut calculer le <dfn>coefficient de contingence de Cramer</dfn><dfn data-index="Cramer, coefficient de contingence"></dfn><dfn data-index="tableau croisé, coefficient de contingence de Cramer"></dfn> du tableau, qui peut nous permettre de le comparer par la suite à d’autres tableaux croisés. On peut pour cela utiliser la fonction <code data-pkg="questionr">cramer.v</code> de <code class="pkg">questionr</code> :</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1"><span class="kw">cramer.v</span>(tab)</a></code></pre></div>
+<p>Les cases pour lesquelles l’écart à l’indépendance est significatif ont un résidu dont la valeur est supérieure à 2 ou inférieure à -2 (le fameux nombre 2 issu de la loi normale, au-delà duquel on s’attend à observer au maximum 2,5 % des observations). Ici on constate que la pratique d’un sport est sur-représentée parmi les cadres et, à un niveau un peu moindre, parmi les professions intermédiaires, tandis qu’elle est sous-représentée chez les ouvriers.</p>
+<p>Enfin, on peut calculer le <dfn>coefficient de contingence de Cramer</dfn><dfn data-index="Cramer, coefficient de contingence"></dfn><dfn data-index="tableau croisé, coefficient de contingence de Cramer"></dfn> du tableau, qui présente l’avantage de pouvoir être comparé par la suite à celui calculé sur d’autres tableaux croisés. On peut pour cela utiliser la fonction <code data-pkg="questionr">cramer.v</code> de <code class="pkg">questionr</code> :</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">cramer.v</span>(tab)</a></code></pre></div>
 <pre><code>[1] 0.24199</code></pre>
 <div class="note">
-<p>Pour un tableau à 2×2 entrées, il est possible de calculer le <dfn>test exact de Fisher</dfn><dfn data-index="Fisher, test exact"></dfn><dfn data-index="tableau croisé, test exact de Fisher"></dfn> avec la fonction <code data-pkg="stats">fisher.test</code>. On peut soit lui passer le résultat de <code data-pkg="base">table</code> ou <code data-pkg="stats">xtabs</code>, soit directement les deux variables à croiser.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">lprop</span>(<span class="kw">table</span>(d<span class="op">$</span>sexe, d<span class="op">$</span>cuisine))</a></code></pre></div>
+<p>Pour un tableau à 2×2 entrées, comme discuté plus haut, il est également possible de calculer le <dfn>test exact de Fisher</dfn><dfn data-index="Fisher, test exact"></dfn><dfn data-index="tableau croisé, test exact de Fisher"></dfn> avec la fonction <code data-pkg="stats">fisher.test</code>. On peut soit lui passer le résultat de <code data-pkg="base">table</code> ou <code data-pkg="stats">xtabs</code>, soit directement les deux variables à croiser.</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" title="1"><span class="kw">lprop</span>(<span class="kw">table</span>(d<span class="op">$</span>sexe, d<span class="op">$</span>cuisine))</a></code></pre></div>
 <pre><code>          
            Non   Oui   Total
   Homme     70.0  30.0 100.0
   Femme     44.5  55.5 100.0
   Ensemble  56.0  44.0 100.0</code></pre>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" title="1"><span class="kw">fisher.test</span>(<span class="kw">table</span>(d<span class="op">$</span>sexe, d<span class="op">$</span>cuisine))</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="kw">fisher.test</span>(<span class="kw">table</span>(d<span class="op">$</span>sexe, d<span class="op">$</span>cuisine))</a></code></pre></div>
 <pre><code>
     Fisher&#39;s Exact Test for Count Data
 
@@ -670,16 +693,17 @@ alternative hypothesis: true odds ratio is not equal to 1
 sample estimates:
 odds ratio 
   2.903253 </code></pre>
+<p>Le test du χ² de Pearson étant assez robuste quant aux déviations par rapport aux hypothèses d’applications du test (effectifs théoriques tous ≥ 5), le test de Fisher présente en général peu d’intérêt dans le cas de l’analyse des tableaux de contingence.</p>
 </div>
 </div>
 <div id="survey" class="section level2">
 <h2>Données pondérées et l’extension survey</h2>
 <p>Lorsque l’on utilise des données pondérées, on aura recours à l’extension <code class="pkg">survey</code><a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>.</p>
 <p>Préparons des données d’exemple :</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="kw">library</span>(survey)</a>
-<a class="sourceLine" id="cb38-2" title="2">dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> <span class="op">~</span>poids)</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1"><span class="kw">library</span>(survey)</a>
+<a class="sourceLine" id="cb40-2" title="2">dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> <span class="op">~</span>poids)</a></code></pre></div>
 <p>Pour comparer deux moyennes à l’aide d’un test <em>t</em> on aura recours à <code data-pkg="survey">svyttest</code> :</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" title="1"><span class="kw">svyttest</span>(age <span class="op">~</span><span class="st"> </span>sexe, dw)</a></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">svyttest</span>(age <span class="op">~</span><span class="st"> </span>sexe, dw)</a></code></pre></div>
 <pre><code>
     Design-based t-test
 
@@ -692,7 +716,7 @@ sample estimates:
 difference in mean 
           2.141129 </code></pre>
 <p>Pour le test de Wilcoxon/Mann-Whitney, on pourra avoir recours à <code data-pkg="survey">svyranktest</code> :</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">svyranktest</span>(age <span class="op">~</span><span class="st"> </span>hard.rock, dw)</a></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1"><span class="kw">svyranktest</span>(age <span class="op">~</span><span class="st"> </span>hard.rock, dw)</a></code></pre></div>
 <pre><code>
     Design-based KruskalWallis test
 
@@ -703,13 +727,13 @@ sample estimates:
 difference in mean rank score 
                    -0.3636859 </code></pre>
 <p>On ne peut pas utiliser <code data-pkg="stats">chisq.test</code> directement sur un tableau généré par <code data-pkg="survey">svytable</code>. Les effectifs étant extrapolés à partir de la pondération, les résultats du test seraient complètement faussés. Si on veut faire un test du χ² sur un tableau croisé pondéré, il faut utiliser <code data-pkg="survey" data-rdoc="svytable">svychisq</code> :</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1"><span class="kw">rprop</span>(<span class="kw">svytable</span>(<span class="op">~</span>sexe <span class="op">+</span><span class="st"> </span>clso, dw))</a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1"><span class="kw">rprop</span>(<span class="kw">svytable</span>(<span class="op">~</span>sexe <span class="op">+</span><span class="st"> </span>clso, dw))</a></code></pre></div>
 <pre><code>          clso
 sexe       Oui   Non   Ne sait pas Total
   Homme     51.6  47.0   1.4       100.0
   Femme     43.9  54.8   1.3       100.0
   Ensemble  47.5  51.1   1.4       100.0</code></pre>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1"><span class="kw">svychisq</span>(<span class="op">~</span>sexe <span class="op">+</span><span class="st"> </span>clso, dw)</a></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1"><span class="kw">svychisq</span>(<span class="op">~</span>sexe <span class="op">+</span><span class="st"> </span>clso, dw)</a></code></pre></div>
 <pre><code>
     Pearson&#39;s X^2: Rao &amp; Scott adjustment
 
@@ -717,13 +741,13 @@ data:  svychisq(~sexe + clso, dw)
 F = 3.3331, ndf = 1.9734, ddf = 3944.9000, p-value =
 0.03641</code></pre>
 <p>L’extension <code class="pkg">survey</code> ne propose pas de version adaptée du test exact de Fisher. Pour comparer deux proportions, on aura donc recours au test du χ² :</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1"><span class="kw">rprop</span>(<span class="kw">svytable</span>(<span class="op">~</span>lecture.bd <span class="op">+</span><span class="st"> </span>sport, dw))</a></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" title="1"><span class="kw">rprop</span>(<span class="kw">svytable</span>(<span class="op">~</span>lecture.bd <span class="op">+</span><span class="st"> </span>sport, dw))</a></code></pre></div>
 <pre><code>          sport
 lecture.bd Non   Oui   Total
   Non       61.0  39.0 100.0
   Oui       46.8  53.2 100.0
   Ensemble  60.7  39.3 100.0</code></pre>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" title="1"><span class="kw">svychisq</span>(<span class="op">~</span>lecture.bd <span class="op">+</span><span class="st"> </span>sport, dw)</a></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" title="1"><span class="kw">svychisq</span>(<span class="op">~</span>lecture.bd <span class="op">+</span><span class="st"> </span>sport, dw)</a></code></pre></div>
 <pre><code>
     Pearson&#39;s X^2: Rao &amp; Scott adjustment
 
@@ -734,7 +758,7 @@ F = 2.6213, ndf = 1, ddf = 1999, p-value = 0.1056</code></pre>
 <hr />
 <ol>
 <li id="fn1"><p>La fonction <code data-pkg="base">tapply</code> est présentée plus en détails dans le chapitre <a href="pem_manipulation.html#tapply">Manipulation de données</a>.<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>Concernant cette seconde condition, <code data-pkg="stats">t.test</code> propose une option nommée <code>var.equal</code> qui permet d’utiliser une approximation dans le cas où les variances ne sont pas égales.<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>Concernant cette seconde condition, <code data-pkg="stats">t.test</code> utilise par défaut un test de Welch qui ne suppose pas l’égalité des variances parentes ; il est toutefois possible d’utiliser le test classique de Student en spécifiant l’option <code>var.equal = TRUE</code>.<a href="#fnref2" class="footnote-back">↩</a></p></li>
 <li id="fn3"><p>Ce test peut également fournir un intervalle de confiance avec l’option <code>conf.int=TRUE</code>.<a href="#fnref3" class="footnote-back">↩</a></p></li>
 <li id="fn4"><p>On ne donnera pas plus d’indications sur le test du χ² ici. Les personnes désirant une présentation plus détaillée pourront se reporter (attention, séance d’autopromotion !) à la page suivante : <a href="http://alea.fr.eu.org/pages/khi2" class="uri">http://alea.fr.eu.org/pages/khi2</a>.<a href="#fnref4" class="footnote-back">↩</a></p></li>
 <li id="fn5"><p>On peut aussi appliquer directement le test en spécifiant les deux variables à croiser via <code>chisq.test(d$qualreg, d$sport)</code>.<a href="#fnref5" class="footnote-back">↩</a></p></li>
@@ -786,7 +810,7 @@ $(document).ready(function () {
       $(this).children('pre').last().addClass('last');
     }); // Si <pre> est le dernier enfant de son parent
 
-    // Ajout liens rdocumentation et tooltip
+    // Ajout liens documentation et tooltip
     $("code[data-pkg]").each(function( index ) {
       pkg = $(this).attr('data-pkg');
       if ($(this).attr('data-rdoc') !== undefined) {
@@ -796,6 +820,12 @@ $(document).ready(function () {
       }
       fonction = $(this).text();
       $(this).wrap('<a href="http://www.rdocumentation.org/packages/'+pkg+'/functions/'+rdocumentation+'">');
+      //var rcore = ["base",  "compiler", "datasets", "graphics", "grDevices", "grid", "methods", "parallel", "splines", "stats", "stats4", "tcltk", "tools", "utils"];
+      //if (jQuery.inArray(pkg, rcore) > -1) {
+        //$(this).wrap('<a href="https://rdrr.io/r/'+pkg+'/'+rdocumentation+'.html">');
+      //} else {
+        //$(this).wrap('<a href="https://rdrr.io/cran/'+pkg+'/man/'+rdocumentation+'.html">');
+      //}
       $(this).attr('data-toggle','tooltip');
       $(this).attr('data-placement','top');
       $(this).attr('title','package : ' + pkg);
