@@ -6,8 +6,7 @@ title: "Comparaisons (moyennes et proportions)"
 source("options_communes.R")
 ```
 
-Nous utiliserons dans ce chapitre les données de l'enquête *Histoire de vie 2003*
-fournies avec l'extension `questionr`{.pkg}.
+Nous utiliserons dans ce chapitre les données de l'enquête *Histoire de vie 2003* fournies avec l'extension `questionr`{.pkg}.
 
 ```{r}
 library(questionr)
@@ -17,32 +16,22 @@ d <- hdv2003
 
 ## Comparaison de moyennes{#comp_moyennes}
 
-On peut calculer la <dfn>moyenne</dfn> d'âge des deux groupes en utilisant la
-fonction `tapply`{data-pkg="base"}^[La fonction `tapply`{data-pkg="base"} est présentée plus en 
-détails dans le chapitre [Manipulation de données](pem_manipulation.html#tapply).] :
+On peut calculer la <dfn>moyenne</dfn> d'âge des deux groupes en utilisant la fonction `tapply`{data-pkg="base"}^[La fonction `tapply`{data-pkg="base"} est présentée plus en détails dans le chapitre [Manipulation de données](pem_manipulation.html#tapply).] :
 
 ```{r}
 tapply(d$age, d$hard.rock, mean)
 ```
 
-L'écart est important. Est-il statistiquement significatif ? Pour cela on peut faire un 
-<dfn>test t de Student</dfn><dfn data-index="Student, test t"></dfn>
-de <dfn>comparaison de moyennes</dfn><dfn data-index="moyenne, comparaison"></dfn>
-à l'aide de la fonction `t.test`{data-pkg="stats"} :
+L'écart est important. Est-il statistiquement significatif ? Pour cela on peut faire un <dfn>test t de Student</dfn><dfn data-index="Student, test t"></dfn> de <dfn>comparaison de moyennes</dfn><dfn data-index="moyenne, comparaison"></dfn> à l'aide de la fonction `t.test`{data-pkg="stats"} :
 
 ```{r}
-t.test(d$age ~ d$hard.rock)
+t.test(age ~ hard.rock, data = d)
 ```
 
-Le test est extrêmement significatif. L'<dfn>intervalle de confiance</dfn>
-à 95 % de la différence entre les deux
-moyennes va de 16,1 ans à 25,3 ans.
+Le test est extrêmement significatif. L'<dfn>intervalle de confiance</dfn> à 95 % de la différence entre les deux moyennes va de 16,1 ans à 25,3 ans.
 
 <div class="note">
-La valeur affichée pour *p* est de `1.611e-07`. Cette valeur peut paraître étrange pour les non avertis. Cela
-signifie tout simplement 1,611 multiplié par 10 à la puissance -7, autrement dit 0,0000001611. Cette manière
-de représenter un nombre est couramment appelée 
-<dfn>notation scientifique</dfn><dfn data-index="scientifique, notation"></dfn>. 
+La valeur affichée pour *p* est de `1.611e-07`. Cette valeur peut paraître étrange pour les non avertis. Cela signifie tout simplement 1,611 multiplié par 10 à la puissance -7, autrement dit 0,0000001611. Cette manière de représenter un nombre est couramment appelée <dfn>notation scientifique</dfn><dfn data-index="scientifique, notation"></dfn>. 
 
 Pour plus de détails, voir <http://fr.wikipedia.org/wiki/Notation_scientifique>.
 
@@ -57,19 +46,15 @@ Pour rétablir la notation scientifique :
 ```{r eval=FALSE}
 options(scipen = 0)
 ```
-
 </div>
 
-Nous sommes cependant allés un peu vite en besogne, car nous avons négligé une hypothèse fondamentale
-du test *t* : les ensembles de valeur comparés doivent suivre approximativement une 
-<dfn>loi normale</dfn><dfn data-index="normale, loi"></dfn>
-et être de même <dfn>variance</dfn>^[Concernant cette seconde condition, 
-`t.test`{data-pkg="stats"} propose 
-une option nommée `var.equal` qui permet d'utiliser une approximation
-dans le cas où les variances ne sont pas égales.]. Comment le vérifier ?
+Nous sommes cependant allés un peu vite en besogne, car nous avons négligé une hypothèse fondamentale du test *t* : les ensembles de valeur comparés doivent suivre approximativement une <dfn>loi normale</dfn><dfn data-index="normale, loi"></dfn> et être de même <dfn>variance</dfn>^[Concernant cette seconde condition, `t.test`{data-pkg="stats"} utilise par défaut un test de Welch qui ne suppose pas l'égalité des variances parentes ; il est toutefois possible d'utiliser le test classique de Student en spécifiant l'option `var.equal = TRUE`.]. 
 
-D'abord avec un petit graphique composés de deux 
-<dfn data-index="histogramme">histogrammes</dfn> :
+<div class="note">
+Dans le test de Student, on suppose l'égalité des variances parentes, ce qui permet de former une estimation commune de la variance des deux échantillons (on parle de "*pooled variance*"), qui revient à une moyenne pondérée des variances estimées à partir des deux échantillons. Dans le cas où l'on souhaite relaxer cette hypothèse, le test de Welch ou la correction de Satterthwaite reposent sur l'idée que l'on utilise les deux estimations de variance séparément, suivie d'une approximation des degrés de liberté pour la somme de ces deux variances. Le même principe s'applique dans le cas de l'analyse de variance à un facteur (cf. `oneway.test`{data-pkg="stats"}).
+</div>
+
+Comment vérifier que l'hypothèse de normalité est acceptable pour ces données ? D'abord avec un petit graphique composés de deux <dfn data-index="histogramme">histogrammes</dfn> :
 
 <figure>
 ```{r}
@@ -80,25 +65,20 @@ hist(d$age[d$hard.rock == "Non"], main = "Sans hard rock", col = "red")
 <figcaption>Distribution des âges pour appréciation de la normalité</figcaption>
 </figure>
 
+Une alternative consisterait à utiliser des graphiques de type QQ-plot, à l'aide de la fonction `qnorm`{data-pkg="stats"}, même si leur utilisation et leur interprétation ne sera pas détaillée ici.
+
 <div class="note">
-La fonction `par`{data-pkg="graphics"} permet de modifier de nombreux paramètres graphiques.
-`par(mfrow = c(1, 2))` sert à indiquer que l'on souhaite afficher deux graphiques sur une même fenêtre,
-plus précisément que la fenêtre doit comporter une ligne et deux colonnes.
+La fonction `par`{data-pkg="graphics"} permet de modifier de nombreux paramètres graphiques. Ici, l'instruction `par(mfrow = c(1, 2))` sert à indiquer que l'on souhaite afficher deux graphiques sur une même fenêtre, plus précisément que la fenêtre doit comporter une ligne et deux colonnes.
 </div>
 
-Ça a l'air à peu près bon pour les « Sans hard rock », mais un peu plus limite pour les fans de
-*Metallica*, dont les effectifs sont d'ailleurs assez faibles. Si on veut en avoir le coeur net 
-on peut utiliser le 
-<dfn>test de normalité de Shapiro-Wilk</dfn><dfn data-index="normalité, test de Shapiro-Wilk"></dfn><dfn data-index="Shapiro-Wilk, test de normalité"></dfn>
-avec la fonction `shapiro.test`{data-pkg="stats"} :
+Ça a l'air à peu près bon pour les « Sans hard rock », mais un peu plus limite pour les fans de *Metallica*, dont les effectifs sont d'ailleurs assez faibles. Si on veut en avoir le cœur net on peut utiliser le <dfn>test de normalité de Shapiro-Wilk</dfn><dfn data-index="normalité, test de Shapiro-Wilk"></dfn><dfn data-index="Shapiro-Wilk, test de normalité"></dfn> avec la fonction `shapiro.test`{data-pkg="stats"} :
 
 ```{r}
 shapiro.test(d$age[d$hard.rock == "Oui"])
 shapiro.test(d$age[d$hard.rock == "Non"])
 ```
 
-Visiblement, le test estime que les distributions ne sont pas suffisamment proches de la normalité dans
-les deux cas.
+Visiblement, le test estime que les distributions ne sont pas suffisamment proches de la normalité dans les deux cas.
 
 Et concernant l'égalité des variances ?
 
@@ -106,47 +86,42 @@ Et concernant l'égalité des variances ?
 tapply(d$age, d$hard.rock, var)
 ```
 
-L'écart n'a pas l'air négligeable. On peut le vérifier avec le 
-<dfn>test d'égalité des variances</dfn><dfn data-index="variance, test d'égalité"></dfn>
-fourni par la fonction `var.test`{data-pkg="stats"} :
+L'écart n'a pas l'air négligeable. On peut le vérifier avec le <dfn>test d'égalité des variances</dfn><dfn data-index="variance, test d'égalité"></dfn> fourni par la fonction `var.test`{data-pkg="stats"} :
 
 ```{r}
-var.test(d$age ~ d$hard.rock)
+var.test(age ~ hard.rock, data = d)
 ```
 
-La différence est très significative. En toute rigueur le test *t* n'aurait donc pas pu être utilisé.
+La différence est très significative. En toute rigueur le test *t* n'aurait donc pas pu être utilisé. Cela dit, il convient de rappeler que ce test statistique (1) suppose la normalité des distributions et (2) considère comme hypothèse nulle l'égalité des variances (parentes) -- ce que l'on souhaiterait vérifier alors qu'on ne peut pas accepter l'hypothèse nulle dans un cadre d'inférence fréquentiste -- sans que l'on définisse réellement ce que signifie des variances différentes sur le plan pratique. Est-ce qu'une variation de la variance du simple au double est pertinente au regard du domaine d'étude, ou bien faut-il décider qu'à partir d'un rapport de 4 on peut considérer qu'il y a bien une différence importante entre deux variances ? Sans avoir fixé au préalable cette hypothèse alternative, on ne peut guère conclure à partir de ce test. Une alternative consiste à comparer la forme des distributions à l'aide, par exemple, de diagrammes de type boîtes à moustaches.
 
-*Damned* ! Ces maudits tests statistiques vont-ils nous empêcher de faire connaître au monde entier
-notre fabuleuse découverte sur l'âge des fans de *Sepultura* ? Non ! Car voici qu'approche à 
-l'horizon un nouveau test, connu sous le nom de 
-<dfn data-index="test de Wilcoxon/Mann-Whitney">Wilcoxon/Mann-Whitney</dfn><dfn data-index="Wilcoxon, test"></dfn><dfn data-index="Mann-Whitney, test"></dfn><dfn data-index="médiane, test de comparaison"></dfn><dfn data-index="comparaison de médianes, test"></dfn>. 
-Celui-ci a l'avantage d'être non-paramétrique,
-c'est à dire de ne faire aucune hypothèse sur la distribution des échantillons comparés. 
-Par contre il ne compare pas des différences de moyennes mais des différences de 
-<dfn data-index="médiane">médianes</dfn> :
+*Damned* ! Ces maudits tests statistiques vont-ils nous empêcher de faire connaître au monde entier notre fabuleuse découverte sur l'âge des fans de *Sepultura* ? Non ! Car voici qu'approche à l'horizon un nouveau test, connu sous le nom de <dfn data-index="test de Wilcoxon/Mann-Whitney">Wilcoxon/Mann-Whitney</dfn><dfn data-index="Wilcoxon, test"></dfn><dfn data-index="Mann-Whitney, test"></dfn><dfn data-index="médiane, test de comparaison"></dfn><dfn data-index="comparaison de médianes, test"></dfn>. Celui-ci a l'avantage d'être non-paramétrique, c'est à dire de ne faire aucune hypothèse sur la distribution des échantillons comparés, à l'exception que celles-ci ont des formes à peu près comparables (essentiellement en termes de variance). Attention, il ne s'agit pas d'un test comparant les différences de  <dfn data-index="médiane">médianes</dfn> (pour cela il existe le test de Mood) mais d'un test reposant sur la somme des rangs des observations, au lieu des valeurs brutes, dans les deux groupes :
 
 ```{r}
-wilcox.test(d$age ~ d$hard.rock)
+wilcox.test(age ~ hard.rock, data = d)
 ```
 
-Ouf ! La différence est hautement significative^[Ce test peut également fournir un intervalle de confiance 
-avec l'option `conf.int=TRUE`.]. Nous allons donc pouvoir entamer la rédaction de
-notre article pour la *Revue française de sociologie*.
+Ouf ! La différence est hautement significative^[Ce test peut également fournir un intervalle de confiance avec l'option `conf.int=TRUE`.]. Nous allons donc pouvoir entamer la rédaction de notre article pour la *Revue française de sociologie*.
 
 ## Comparaison de proportions{#comp_prop}
 
-La fonction `prop.test`{data-pkg="stats"}, que nous avons déjà rencontrer pour 
-calculer l'intervalle de confiance d'une proportion (voir le chapitre dédié aux
-[intervalles de confiance](intervalles-de-confiance.html)) permets également d'effectuer
-un <dfn>test de comparaison de deux proportions</dfn><dfn data-index="comparaison de proportions, test"></dfn><dfn data-index="proportion, test de comparaison"></dfn>.
+La fonction `prop.test`{data-pkg="stats"}, que nous avons déjà rencontrée pour calculer l'intervalle de confiance d'une proportion (voir le chapitre dédié aux [intervalles de confiance](intervalles-de-confiance.html)) permets également d'effectuer un <dfn>test de comparaison de deux proportions</dfn><dfn data-index="comparaison de proportions, test"></dfn><dfn data-index="proportion, test de comparaison"></dfn>.
 
-Supposons que l'on souhaite comparer la proportion de personnes faisant du sport entre
-ceux qui lisent des bandes dessinées et les autres :
+Supposons que l'on souhaite comparer la proportion de personnes faisant du sport entre ceux qui lisent des bandes dessinées et les autres :
 
 ```{r}
-tab <- xtabs(~ lecture.bd + sport, d)
+tab <- xtabs(~ lecture.bd + sport, data = d)
 lprop(tab)
 ```
+
+Une représentation graphique sous forme de diagramme en barres peut être définie comme suit :
+
+<figure>
+```{r}
+barplot(prop.table(tab, margin = 1)*100, beside = TRUE, ylim = c(0,100), xlab = "Sport", legend.text=c("Lecture : non", "Lecture : oui"))
+```
+<figcaption>Répartition des individus (en %) selon les variables sport et lecture</figcaption>
+</figure>
+
 
 Il suffit de transmettre notre tableau croisé (à 2×2 dimensions) à `prop.test`{data-pkg="stats"} :
 
@@ -154,36 +129,28 @@ Il suffit de transmettre notre tableau croisé (à 2×2 dimensions) à `prop.tes
 prop.test(tab)
 ```
 
-On pourra également avoir recours à la fonction `fisher.test`{data-pkg="stats"} qui
-renverra notamment l'<dfn>odds ratio</dfn> et son intervalle de confiance correspondant :
+On pourra également avoir recours à la fonction `fisher.test`{data-pkg="stats"} qui renverra notamment l'<dfn>odds ratio</dfn> et son intervalle de confiance correspondant :
 
 ```{r}
-fisher.test(table(d$lecture.bd, d$sport))
+fisher.test(tab)
 ```
 
-On pourra aussi avoir recours à la fonction `odds.ratio`{data-pkg="questionr"} de l'extension
-`questionr`{.pkg} qui réalise le même calcul mais présente le
-résultat légèrement différemment :
+<div class="note">
+Formellement, le test de Fisher suppose que les marges du tableau (totaux lignes et colonnes) sont fixées, puisqu'il repose sur une loi hypergéométrique, et donc celui-ci se prête plus au cas des situations expérimentales (plans d'expérience, essais cliniques) qu'au cas des données tirées d'études observationnelles.
+</div>
+
+On pourra aussi avoir recours à la fonction `odds.ratio`{data-pkg="questionr"} de l'extension `questionr`{.pkg} qui réalise le même calcul mais présente le résultat légèrement différemment :
 
 ```{r}
 odds.ratio(tab)
 ```
 
-
-Note : pour le calcul du <dfn>risque relatif</dfn>, on pourra regarder du côté de la fonction
-`relrisk`{data-pkg="mosaic"} de l'extension `mosaic`{.pkg}.
+Note : pour le calcul du <dfn>risque relatif</dfn>, on pourra regarder du côté de la fonction `relrisk`{data-pkg="mosaic"} de l'extension `mosaic`{.pkg}.
 
 
 ## &chi;² et dérivés {#chi2}
 
-Dans le cadre d'un tableau croisée, on peut tester l'existence d'un lien entre les modalités de deux variables, avec le très classique
-<dfn data-index="test du Chi²">test du &chi;²</dfn><dfn data-index="Chi², test"></dfn>^[On ne
-donnera pas plus d'indications sur le test du &chi;² ici. Les personnes désirant une 
-présentation plus détaillée pourront se reporter (attention, séance d'autopromotion !) à la page suivante :
-<http://alea.fr.eu.org/pages/khi2>.]. Celui-ci s'obtient grâce à la fonction
-`chisq.test`{data-pkg="stats"}, appliquée au tableau croisé obtenu avec `table`{data-pkg="base"} 
-ou `xtabs`{data-pacakge="stats"}^[On peut aussi appliquer directement le test 
-en spécifiant les deux variables à croiser via `chisq.test(d$qualreg, d$sport)`.] :
+Dans le cadre d'un tableau croisé, on peut tester l'existence d'un lien entre les modalités de deux variables, avec le très classique <dfn data-index="test du Chi²">test du &chi;²</dfn><dfn data-index="Chi², test"></dfn> de Pearson^[On ne donnera pas plus d'indications sur le test du &chi;² ici. Les personnes désirant une présentation plus détaillée pourront se reporter (attention, séance d'autopromotion !) à la page suivante : <http://alea.fr.eu.org/pages/khi2>.]. Celui-ci s'obtient grâce à la fonction `chisq.test`{data-pkg="stats"}, appliquée au tableau croisé obtenu avec `table`{data-pkg="base"} ou `xtabs`{data-pacakge="stats"}^[On peut aussi appliquer directement le test en spécifiant les deux variables à croiser via `chisq.test(d$qualreg, d$sport)`.] :
 
 ```{r}
 d$qualreg <- as.character(d$qualif)
@@ -196,44 +163,42 @@ tab
 chisq.test(tab)
 ```
 
-Le test est hautement significatif, on ne peut pas considérer qu'il y a indépendance entre les lignes et
-les colonnes du tableau.
+Le test est hautement significatif : on ne peut donc pas considérer qu'il y a indépendance entre les lignes et les colonnes du tableau.
 
-On peut affiner l'interprétation du test en déterminant dans quelle case l'écart à l'indépendance est
-le plus significatif en utilisant les <dfn data-index="résidus, test du Chi²">résidus</dfn><dfn data-index="test du Chi², résidus"></dfn><dfn data-index="Chi², résidus"></dfn>
-du test. Ceux-ci sont notamment affichables avec la fonction
-`chisq.residuals`{data-pkg="questionr"} de `questionr`{.pkg} :
+<div class="note">
+Notons que l'agrégation des niveaux d'une variable catégorielle peut être réalisée d'une manière différente en utilisant les fonctions de gestion des niveaux d'un facteur. Les expressions précédentes sont donc équivalentes à l'approche ci-après, qui ne nécessite pas de convertir `d$qualif` en chaîne de caractères :
+
+```{r, eval = FALSE}
+d$qualreg <- d$qualif
+levels(d$qualreg)[1:2] <- "Ouvrier"
+levels(d$qualreg)[2:3] <- "Intermédiaire"
+tab <- table(d$sport, d$qualreg)
+```
+</div>
+
+On peut affiner l'interprétation du test en déterminant dans quelle cas l'écart à l'indépendance est le plus significatif en utilisant les <dfn data-index="résidus, test du Chi²">résidus</dfn><dfn data-index="test du Chi², résidus"></dfn><dfn data-index="Chi², résidus"></dfn> du test. Ceux-ci sont notamment affichables avec la fonction `chisq.residuals`{data-pkg="questionr"} de `questionr`{.pkg} :
 
 ```{r}
 chisq.residuals(tab)
 ```
 
-Les cases pour lesquelles l'écart à l'indépendance est significatif ont un résidu dont la valeur est
-supérieure à 2 ou inférieure à -2. Ici on constate que la pratique d'un sport est sur-représentée parmi
-les cadres et, à un niveau un peu moindre, parmi les professions intermédiaires, tandis qu'elle est sousreprésentée
-chez les ouvriers.
+Les cases pour lesquelles l'écart à l'indépendance est significatif ont un résidu dont la valeur est supérieure à 2 ou inférieure à -2 (le fameux nombre 2 issu de la loi normale, au-delà duquel on s'attend à observer au maximum 2,5 % des observations). Ici on constate que la pratique d'un sport est sur-représentée parmi les cadres et, à un niveau un peu moindre, parmi les professions intermédiaires, tandis qu'elle est sous-représentée chez les ouvriers.
 
-Enfin, on peut calculer le 
-<dfn>coefficient de contingence de Cramer</dfn><dfn data-index="Cramer, coefficient de contingence"></dfn><dfn data-index="tableau croisé, coefficient de contingence de Cramer"></dfn>
-du tableau, qui peut nous permettre de le comparer par la suite à d'autres tableaux croisés. 
-On peut pour cela utiliser la fonction 
-`cramer.v`{data-pkg="questionr"} de `questionr`{.pkg} :
+Enfin, on peut calculer le <dfn>coefficient de contingence de Cramer</dfn><dfn data-index="Cramer, coefficient de contingence"></dfn><dfn data-index="tableau croisé, coefficient de contingence de Cramer"></dfn> du tableau, qui présente l'avantage de pouvoir être comparé par la suite à celui calculé sur d'autres tableaux croisés. On peut pour cela utiliser la fonction  `cramer.v`{data-pkg="questionr"} de `questionr`{.pkg} :
 
 ```{r}
 cramer.v(tab)
 ```
 
 <div class="note">
-Pour un tableau à 2×2 entrées, il est possible de calculer le 
-<dfn>test exact de Fisher</dfn><dfn data-index="Fisher, test exact"></dfn><dfn data-index="tableau croisé, test exact de Fisher"></dfn>
-avec la fonction `fisher.test`{data-pkg="stats"}. On peut soit lui passer le résultat 
-de `table`{data-pkg="base"} ou `xtabs`{data-pkg="stats"}, 
-soit directement les deux variables à croiser.
+Pour un tableau à 2×2 entrées, comme discuté plus haut, il est également possible de calculer le <dfn>test exact de Fisher</dfn><dfn data-index="Fisher, test exact"></dfn><dfn data-index="tableau croisé, test exact de Fisher"></dfn> avec la fonction `fisher.test`{data-pkg="stats"}. On peut soit lui passer le résultat de `table`{data-pkg="base"} ou `xtabs`{data-pkg="stats"},  soit directement les deux variables à croiser.
 
 ```{r}
 lprop(table(d$sexe, d$cuisine))
 fisher.test(table(d$sexe, d$cuisine))
 ```
+
+Le test du &chi;² de Pearson étant assez robuste quant aux déviations par rapport aux hypothèses d'applications du test (effectifs théoriques tous ≥ 5), le test de Fisher présente en général peu d'intérêt dans le cas de l'analyse des tableaux de contingence.
 </div>
 
 ## Données pondérées et l'extension survey{#survey}
@@ -260,11 +225,7 @@ Pour le test de Wilcoxon/Mann-Whitney, on pourra avoir recours à `svyranktest`{
 svyranktest(age~hard.rock, dw)
 ```
 
-On ne peut pas utiliser `chisq.test`{data-pkg="stats"} directement sur un tableau généré 
-par `svytable`{data-pkg="survey"}. Les effectifs étant extrapolés à partir de la pondération, 
-les résultats du test seraient complètement faussés. Si on veut faire
-un test du &chi;² sur un tableau croisé pondéré, il faut utiliser 
-`svychisq`{data-pkg="survey" data-rdoc="svytable"} :
+On ne peut pas utiliser `chisq.test`{data-pkg="stats"} directement sur un tableau généré par `svytable`{data-pkg="survey"}. Les effectifs étant extrapolés à partir de la pondération, les résultats du test seraient complètement faussés. Si on veut faire un test du &chi;² sur un tableau croisé pondéré, il faut utiliser `svychisq`{data-pkg="survey" data-rdoc="svytable"} :
 
 ```{r}
 rprop(svytable(~sexe + clso, dw))
