@@ -37,7 +37,7 @@ legend("top", levels(ToothGrowth$supp), col = c("coral", "cornflowerblue"), lty 
 <figcaption>Courbes de densité avec les graphiques de base</figcaption>
 </figure>
 
-Il y a plusieurs points à retenir dans les instructions ci-dessus : (1) il est nécessaire de définir les deux courbes de densité et les deux distributions univariées, en prenant garde à bien indiquer comment sélectionner les observations (`OJ` ou `VC`) en préfixant systématiquement le nom des variables par le nom du data frame ; (2) la définition des couleurs se fait manuellement et si l'on souhaite changer de thème de couleur, il faudra mettre à jour l'ensemble des instructions, en prenant garde à garder synchronisé les courbes de densité et les nuages de points avec la légende ; et, bien entendu, (3) il est nécessaire de gérer soi-même la légende, ce que signifie se rappeler les couleurs et l'ordre des niveaux du facteur considéré.
+Il y a plusieurs points à retenir dans les instructions ci-dessus : (1) il est nécessaire de définir les deux courbes de densité et les deux distributions univariées, en prenant garde à bien indiquer comment sélectionner les observations (`OJ` ou `VC`) en préfixant systématiquement le nom des variables par le nom du data frame ; (2) la définition des couleurs se fait manuellement et si l'on souhaite changer de thème de couleur, il faudra mettre à jour l'ensemble des instructions, en prenant garde à garder synchronisé les courbes de densité et les nuages de points avec la légende ; et, bien entendu, (3) il est nécessaire de gérer soi-même la légende, ce que signifie se rappeler les couleurs et l'ordre des niveaux du facteur considéré, ainsi que les axes graphiques dans le cas où l'on souhaite maintenir coordonnés plusieurs panneaux graphiques.
 
 Voici le même graphique avec `lattice`{.pkg} :
 
@@ -85,5 +85,127 @@ update(mod1, . ~ . -a:b:c)    # suppression de l'interaction ABC
 ```
 
 ## Principaux types de graphiques avec `lattice` (et `ggplot2`)
+
+Même si le package `lattice`{.pkg} fournit moins de commandes que `ggplot2`{.pkg}, il n'en demeure pas moins qu'il est tout aussi facile de réaliser des représentations graphiques simple en un tour de main. Voici quelques exemples de représentations graphiques uni- et bivariées. Les données d'illustration sont les mêmes que celles utilisées plus haut : il s'agit d'une expérience de biologie dans laquelle on s'intéresse à la croissance des odontoblastes de cochons d'inde quantifiée par leur longueur (variable `len`) lorsqu'on administre à ces derniers de la vitamine C soit sous forme d'acide ascorbique soit sous forme de jus d'orange (`supp`, `OJ` = jus d'orange), à différentes doses (`dose`, en mg).
+
+### Histogramme
+
+Un histogramme d'effectifs (ou par défaut, de densité) se construit avec `histogram`{data-pkg="lattice"}. Puisqu'il s'agit de décrire une seule variable, ou sa distribution plus précisément, la formule à employer ne contient pas de variable à gauche du symbole `~` et l'on se contente d'écrire la variable à résumer à droite dans la formule :
+
+<figure>
+```{r}
+histogram(~ len , data = ToothGrowth, type = "count")
+```
+<figcaption>Histogramme d'effectifs</figcaption>
+</figure>
+
+L'option `type = "count"` permet de forcer la représentation sous forme d'effectifs. La formulation équivalente sous `ggplot2`{.pkg} serait :
+
+```{r, eval = FALSE}
+ggplot(data = ToothGrowth, aes(x = len)) + geom_histogram(binwidth = 5)
+```
+
+(Ou alors `qplot(x = len, data = ToothGrowth, geom = "histogram", binwidth = 5)`.)
+
+En ajoutant une <q>facette</q> pour tenir compte de la variable `supp`, cela donne :
+
+<figure>
+```{r}
+histogram(~ len | supp , data = ToothGrowth, breaks = seq(0, 40, by = 5))
+```
+<figcaption>Histogramme d'effectifs conditionné sur une variable catégorielle</figcaption>
+</figure>
+
+Avec `ggplot2`.{.pkg}, les facettes sont gérées grâce aux commandes `facet_grid`{data-pkg="ggplot2"} et `facet_wrap`{data-pkg="ggplot2"}.
+
+
+### Courbe de densité
+
+Une courbe de densité se construit à l'aide de `densityplot`{data-pkg="lattice"} et la syntaxe est strictement identique à celle de `histogram`{data-pkg="lattice"}, à l'option `type=` près.
+
+<figure>
+```{r}
+densityplot(~ len , data = ToothGrowth, plot.points = FALSE, from = 0, to = 40)
+```
+<figcaption>Courbe de densité</figcaption>
+</figure>
+
+Il est possible de régler le paramètre de lissage à l'aide de l'option `bw=` : des valeurs plus élevées (essayez avec `bw = 10` !) résultent en une courbe beaucoup plus lissée, et donc beaucoup moins sensible aux variations locales de la densité.
+
+À ce stade, on peut en profiter pour discuter les options de conditionnement sur une variable catégorielle et la manière de gérer la présentation graphique : dans le cas d'un histogramme, il est délicat de superposer deux distributions ou plus sur le même graphique, même en ajoutant de la transparence, d'où l'idée de représenter les distributions dans des panneaux graphiques séparés. C'est ce qu'on a réalisé en indiquant que l'on souhaitait décrire la variable `len` conditionnellement aux valeurs prises par `supp` (`~ len | supp`). Dans ce cas, l'opérateur `|` invoque une facette et un decoupage en autant de panneaux graphiques qu'il y a de valeurs uniques dans la variable `supp`. Une autre approche consiste à utiliser l'option `groups=`, et dans ce cas les différentes distributions seront affichées dans le même panneau graphique. Dans le cas d'une courbe de densité, cela revient à les superposer sur la même fenêtre graphique, avec un système de coordonnées unique. Les deux options de conditionnement peuvent être combinées naturellement.
+
+Voici un exemple de graphique conditionnel un peu plus élaboré :
+
+<figure>
+```{r}
+densityplot(~ len , data = ToothGrowth, groups = supp, plot.points = FALSE, auto.key = TRUE, xlab = "len",
+            par.settings = list(superpose.line = list(col = c("coral","cornflowerblue"))))
+```
+<figcaption>Courbe de densité conditionnelle</figcaption>
+</figure>
+
+Au passage, on en a profité pour modifier le thème de couleur. Notez qu'en utilisant `par.settings=`, `lattice`{.pkg} se charge de coordonner les couleurs de la légende (`auto.key = TRUE`) avec celle des éléments graphiques correspondants.
+
+L'équivalent sous `ggplot2`{.pkg} revient à peu près à l'instruction suivante :
+
+```{r, eval = FALSE}
+p <- ggplot(data = ToothGrowth, aes(x = len, colour = supp))
+p + geom_line(stat = "density") + expand_limits(x = c(0, 40)) +
+  scale_colour_manual("", values = c("coral", "cornflowerblue")) +
+  theme_bw()
+```
+
+### Diagramme en barres
+
+Les diagrammes en barres peuvent avantageusement être remplacés par des diagrammes en points, de type diagramme de Cleveland (cf. plus loin), mais en attendant voici comment en réaliser un à l'aide de `barchart`{data-pkg="lattice"} à partir de données agrégées :
+
+<figure>
+```{r}
+library(lattice)
+m <- aggregate(len ~ supp + dose, data = ToothGrowth, mean)
+barchart(len ~ dose, data = m, groups = supp, horizontal = FALSE, auto.key = TRUE, par.settings = ggplot2like())
+```
+<figcaption>Diagramme en barres</figcaption>
+</figure>
+
+Notons que `par.settings=` permet non seulement de fournir des options additionnelles pour contrôler le rendu des éléments graphiques (couleur, type de ligne ou de symboles, etc.) mais également d'utiliser des thèmes graphiques disponibles dans le package `latticeExtra`{.pkg}.
+
+### Diagramme de type boîtes à moustaches
+
+Les diagrammes en forme de boîtes à moustaches sont obtenus à l'aide de la commande `bwplot`{data-pkg="lattice"}. Voici un exemple d'utilisation :
+
+<figure>
+```{r}
+bwplot(len ~ supp, data = ToothGrowth, pch = "|")
+```
+<figcaption>Diagramme en forme de boîtes à moustaches</figcaption>
+</figure>
+
+L'option `pch=` permet de contrôler la manière dont la médiane est figurée dans la boîte. Par défaut il s'agit d'un simple point, mais si l'on souhaite utiliser les représentations plus classiques, telles que celles trouvées dans `boxplot`{data-pkg="graphics"} ou `geom_boxplot`{data-pkg="ggplot2"}, il suffit de suivre l'exemple ci-dessus. Notons que dans le cas de cette représentation graphique, le conditionnement sur la variable `supp` est d'emblée réalisé par l'utilisation d'une formule invoquant la variable de conditionnement à droite de l'opérateur `~`.
+
+### Diagramme en points
+
+Le même type de représentation graphique peut être obtenu en utilisant directement les données individuelles, et non leur résumé en cinq points (tel que fournit par `summary`{data-pkg="base"}. Dans ce cas, il s'agit de la commande `dotplot`{data-pkg="lattice"}, qui permet de construire des diagrammes de Cleveland (moyenne ou effectif total calculé dans une variable en fonction des niveaux d'une autre variable) ou, dans le cas où la variable à résumer consiste en une série de mesures individuelles numériques, des diagrammes de dispersion. Voici une illustration pour ce dernier cas de figure :
+
+<figure>
+```{r}
+dotplot(len ~ supp, ToothGrowth, jitter.x = TRUE)
+```
+<figcaption>Diagramme en points</figcaption>
+</figure>
+
+### Diagramme de dispersion
+
+Enfin, un diagramme de dispersion est construit à l'aide de la commande `xyplot`{data-pkg="lattice"}.
+
+<figure>
+```{r}
+xyplot(len ~ dose, ToothGrowth, type = c("p", "smooth"))
+```
+<figcaption>Diagramme de dispersion</figcaption>
+</figure>
+
+Même si l'exemple ne s'y prête guère, on en a profité pour ajouter une [courbe lowess](https://en.wikipedia.org/wiki/Local_regression) de régression afin d'indiquer la tendance de covariation entre les deux variables numériques. L'aide en ligne pour `xyplot`{data-pkg="lattice"} n'est pas très utile dans ce cas, et il faut en fait aller regarder les options de personnalisation disponible dans la sous-fonction correspondante : `panel.xyplot`{data-pkg="lattice"}.
+
 
 
