@@ -485,6 +485,9 @@ $(document).ready(function () {
 <li><a href="#visualisation-bivariee">Visualisation bivariée</a></li>
 <li><a href="#visualisation-par-petits-multiples">Visualisation par <q>petits multiples</q></a></li>
 </ul></li>
+<li><a href="#specifier-des-modeles">Spécifier des modèles</a><ul>
+<li><a href="#les-formules-r">Les formules R</a></li>
+</ul></li>
 <li><a href="#pour-aller-plus-loin">Pour aller plus loin</a></li>
 </ul>
 </div>
@@ -671,40 +674,98 @@ occup                   Homme Femme
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1"><span class="co"># code équivalent avec l&#39;extension &#39;dplyr&#39;</span></a>
 <a class="sourceLine" id="cb23-2" title="2"><span class="kw">group_by</span>(hdv2003, occup, sexe) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb23-3" title="3"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">age =</span> <span class="kw">median</span>(age, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))</a></code></pre></div>
+<p>Si, comme dans le cas de <code data-pkg="dplyr">summarise</code>, on souhaite passer des arguments supplémentaires à la fonction <code data-pkg="stats">median</code>, il suffit de les lister à la suite du nom de la fonction. Par exemple, on écrirait : <code>aggregate(age ~ sexe + occup, hdv2003, median, na.rm = TRUE)</code>. Ceci étant, <code data-pkg="stats">aggregate</code> utilise par défaut l’option <code>na.action = na.omit</code>, donc il est bon de se rappeler que l’on peut désactiver cette option en utilisant l’option <code>na.action = na.pass</code>, ce qui permet éventuellement de conserver des lignes vides dans le tableau de résultat.</p>
 <p>La fonction <code data-pkg="stats">aggregate</code> permet, par ailleurs, d’obtenir des résultats à plusieurs colonnes. Dans l’exemple ci-dessus, on illustre ce principe avec la fonction <code data-pkg="stats">range</code>, qui renvoie deux résultats (la valeur minimale et la valeur maximale de la variable, qui est toujours la variable <var>age</var>), chacun présentés dans une colonne :</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1"><span class="kw">aggregate</span>(age <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>occup, hdv2003, range)</a></code></pre></div>
+<pre><code>    sexe                 occup age.1 age.2
+1  Homme Exerce une profession    18    63
+2  Femme Exerce une profession    18    67
+3  Homme               Chomeur    18    63
+4  Femme               Chomeur    18    63
+5  Homme       Etudiant, eleve    18    34
+6  Femme       Etudiant, eleve    18    35
+7  Homme              Retraite    48    92
+8  Femme              Retraite    41    96
+9  Homme   Retire des affaires    57    91
+10 Femme   Retire des affaires    57    93
+11 Femme              Au foyer    22    90
+12 Homme         Autre inactif    39    71
+13 Femme         Autre inactif    19    97</code></pre>
+<p>Cette fonction ne peut pas être facilement écrite dans <code class="pkg">dplyr</code> sans réécrire chacune des colonnes, ce que le bloc de code suivant illustre. On y gagne en lisibilité dans les intitulés de colonnes :</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">group_by</span>(hdv2003, occup, sexe) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb26-2" title="2"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">min =</span> <span class="kw">min</span>(age, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),</a>
+<a class="sourceLine" id="cb26-3" title="3">            <span class="dt">max =</span> <span class="kw">max</span>(age, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))</a></code></pre></div>
+<p>On pourrait de même définir sa propre fonction et la passer à <code data-pkg="stats">aggregate</code> :</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1">f &lt;-<span class="st"> </span><span class="cf">function</span>(x) <span class="kw">c</span>(<span class="dt">mean =</span> <span class="kw">mean</span>(x, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="dt">sd =</span> <span class="kw">sd</span>(x, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb27-2" title="2"><span class="kw">aggregate</span>(age <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>occup, hdv2003, f)</a></code></pre></div>
+<pre><code>    sexe                 occup  age.mean    age.sd
+1  Homme Exerce une profession 41.461538 10.438113
+2  Femme Exerce une profession 40.710775 10.203864
+3  Homme               Chomeur 38.925926 13.256329
+4  Femme               Chomeur 38.012500 11.648321
+5  Homme       Etudiant, eleve 20.895833  2.926326
+6  Femme       Etudiant, eleve 21.586957  3.249452
+7  Homme              Retraite 68.418269  8.018882
+8  Femme              Retraite 69.510870  8.228957
+9  Homme   Retire des affaires 71.179487  7.687556
+10 Femme   Retire des affaires 73.789474  7.651737
+11 Femme              Au foyer 50.730994 15.458412
+12 Homme         Autre inactif 54.166667  6.597196
+13 Femme         Autre inactif 59.962264 14.660206</code></pre>
+<p>Mais on réalisera vite une des limitations de <code data-pkg="stats">aggregate</code> dans ce cas-là : le tableau retourné ne contient pas 4 colonnes, mais 3 uniquement, ce que l’on peut vérifier à l’aide de <code data-pkg="base">dim</code> ou <code data-pkg="utils">str</code>.</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1"><span class="kw">str</span>(<span class="kw">aggregate</span>(age <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>occup, hdv2003, f))</a></code></pre></div>
+<pre><code>&#39;data.frame&#39;:   13 obs. of  3 variables:
+ $ sexe : Factor w/ 2 levels &quot;Homme&quot;,&quot;Femme&quot;: 1 2 1 2 1 2 1 2 1 2 ...
+ $ occup: Factor w/ 7 levels &quot;Exerce une profession&quot;,..: 1 1 2 2 3 3 4 4 5 5 ...
+ $ age  : num [1:13, 1:2] 41.5 40.7 38.9 38 20.9 ...
+  ..- attr(*, &quot;dimnames&quot;)=List of 2
+  .. ..$ : NULL
+  .. ..$ : chr  &quot;mean&quot; &quot;sd&quot;</code></pre>
+<p>Pour ce type d’opération, dans lequel on souhaite récupérer plusieurs variables calculées afin de travailler sur ces données agrégées soit dans le cadre d’opérations numériques soit de constructions graphiques, <code class="pkg">dplyr</code> ou <code class="pkg">Hmisc</code> s’avèrent plus commodes. Voici un exemple avec <code data-pkg="Hmisc">summarize</code> de l’extension <code class="pkg">Hmisc</code> :</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">library</span>(Hmisc, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb31-2" title="2"><span class="kw">with</span>(hdv2003, <span class="kw">summarize</span>(age, <span class="kw">llist</span>(sexe, occup), f))</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["sexe"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["occup"],"name":[2],"type":["fctr"],"align":["left"]},{"label":["age"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Homme","2":"Exerce une profession","3.1":"18","3.2":"63"},{"1":"Femme","2":"Exerce une profession","3.1":"18","3.2":"67"},{"1":"Homme","2":"Chomeur","3.1":"18","3.2":"63"},{"1":"Femme","2":"Chomeur","3.1":"18","3.2":"63"},{"1":"Homme","2":"Etudiant, eleve","3.1":"18","3.2":"34"},{"1":"Femme","2":"Etudiant, eleve","3.1":"18","3.2":"35"},{"1":"Homme","2":"Retraite","3.1":"48","3.2":"92"},{"1":"Femme","2":"Retraite","3.1":"41","3.2":"96"},{"1":"Homme","2":"Retire des affaires","3.1":"57","3.2":"91"},{"1":"Femme","2":"Retire des affaires","3.1":"57","3.2":"93"},{"1":"Femme","2":"Au foyer","3.1":"22","3.2":"90"},{"1":"Homme","2":"Autre inactif","3.1":"39","3.2":"71"},{"1":"Femme","2":"Autre inactif","3.1":"19","3.2":"97"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["sexe"],"name":[1],"type":["S3: labelled"],"align":["right"]},{"label":["occup"],"name":[2],"type":["S3: labelled"],"align":["right"]},{"label":["age"],"name":[3],"type":["S3: labelled"],"align":["right"]},{"label":["sd"],"name":[4],"type":["S3: labelled"],"align":["right"]}],"data":[{"1":"Homme","2":"Exerce une profession","3":"41.46154","4":"10.438113","_rn_":"11"},{"1":"Homme","2":"Chomeur","3":"38.92593","4":"13.256329","_rn_":"9"},{"1":"Homme","2":"Etudiant, eleve","3":"20.89583","4":"2.926326","_rn_":"10"},{"1":"Homme","2":"Retraite","3":"68.41827","4":"8.018882","_rn_":"13"},{"1":"Homme","2":"Retire des affaires","3":"71.17949","4":"7.687556","_rn_":"12"},{"1":"Homme","2":"Autre inactif","3":"54.16667","4":"6.597196","_rn_":"8"},{"1":"Femme","2":"Exerce une profession","3":"40.71078","4":"10.203864","_rn_":"5"},{"1":"Femme","2":"Chomeur","3":"38.01250","4":"11.648321","_rn_":"3"},{"1":"Femme","2":"Etudiant, eleve","3":"21.58696","4":"3.249452","_rn_":"4"},{"1":"Femme","2":"Retraite","3":"69.51087","4":"8.228957","_rn_":"7"},{"1":"Femme","2":"Retire des affaires","3":"73.78947","4":"7.651737","_rn_":"6"},{"1":"Femme","2":"Au foyer","3":"50.73099","4":"15.458412","_rn_":"1"},{"1":"Femme","2":"Autre inactif","3":"59.96226","4":"14.660206","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<p>Cette fonction ne peut pas être facilement écrite dans <code class="pkg">dplyr</code> sans réécrire chacune des colonnes, ce que le bloc de code suivant illustre. On y gagne en lisibilité dans les intitulés de colonnes :</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">group_by</span>(hdv2003, occup, sexe) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb25-2" title="2"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">min =</span> <span class="kw">min</span>(age, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),</a>
-<a class="sourceLine" id="cb25-3" title="3">            <span class="dt">max =</span> <span class="kw">max</span>(age, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))</a></code></pre></div>
+<p>Notons que <code class="pkg">Hmisc</code> offre déjà une telle fonction (<code data-pkg="Hmisc">smean.sd</code>), ce qui nous aurait épargné d’écrire notre propre fonction, <code>f</code>, et il en existe bien d’autres. Voici un exemple avec des intervalles de confiance estimés par bootstrap :</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1"><span class="kw">with</span>(hdv2003, <span class="kw">summarize</span>(age, <span class="kw">llist</span>(sexe, occup), smean.cl.boot))</a></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["sexe"],"name":[1],"type":["S3: labelled"],"align":["right"]},{"label":["occup"],"name":[2],"type":["S3: labelled"],"align":["right"]},{"label":["age"],"name":[3],"type":["S3: labelled"],"align":["right"]},{"label":["Lower"],"name":[4],"type":["S3: labelled"],"align":["right"]},{"label":["Upper"],"name":[5],"type":["S3: labelled"],"align":["right"]}],"data":[{"1":"Homme","2":"Exerce une profession","3":"41.46154","4":"40.60159","5":"42.35034","_rn_":"11"},{"1":"Homme","2":"Chomeur","3":"38.92593","4":"35.57361","5":"42.24167","_rn_":"9"},{"1":"Homme","2":"Etudiant, eleve","3":"20.89583","4":"20.12500","5":"21.81250","_rn_":"10"},{"1":"Homme","2":"Retraite","3":"68.41827","4":"67.41346","5":"69.46683","_rn_":"13"},{"1":"Homme","2":"Retire des affaires","3":"71.17949","4":"68.76923","5":"73.48718","_rn_":"12"},{"1":"Homme","2":"Autre inactif","3":"54.16667","4":"51.76583","5":"56.40000","_rn_":"8"},{"1":"Femme","2":"Exerce une profession","3":"40.71078","4":"39.85813","5":"41.58998","_rn_":"5"},{"1":"Femme","2":"Chomeur","3":"38.01250","4":"35.54937","5":"40.45000","_rn_":"3"},{"1":"Femme","2":"Etudiant, eleve","3":"21.58696","4":"20.78261","5":"22.60870","_rn_":"4"},{"1":"Femme","2":"Retraite","3":"69.51087","4":"68.26073","5":"70.77717","_rn_":"7"},{"1":"Femme","2":"Retire des affaires","3":"73.78947","4":"71.50000","5":"76.05263","_rn_":"6"},{"1":"Femme","2":"Au foyer","3":"50.73099","4":"48.44971","5":"53.08889","_rn_":"1"},{"1":"Femme","2":"Autre inactif","3":"59.96226","4":"56.13208","5":"64.00047","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Enfin, il est également possible d’utiliser plusieurs variables numériques à gauche de l’opérateur <code>~</code>. En voici une illustration :</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1"><span class="kw">aggregate</span>(<span class="kw">cbind</span>(age, poids) <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>occup, hdv2003, mean)</a></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["sexe"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["occup"],"name":[2],"type":["fctr"],"align":["left"]},{"label":["age"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["poids"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"Homme","2":"Exerce une profession","3":"41.46154","4":"5989.928"},{"1":"Femme","2":"Exerce une profession","3":"40.71078","4":"5186.020"},{"1":"Homme","2":"Chomeur","3":"38.92593","4":"4334.421"},{"1":"Femme","2":"Chomeur","3":"38.01250","4":"4168.980"},{"1":"Homme","2":"Etudiant, eleve","3":"20.89583","4":"8712.073"},{"1":"Femme","2":"Etudiant, eleve","3":"21.58696","4":"6809.416"},{"1":"Homme","2":"Retraite","3":"68.41827","4":"4459.116"},{"1":"Femme","2":"Retraite","3":"69.51087","4":"5195.785"},{"1":"Homme","2":"Retire des affaires","3":"71.17949","4":"8786.239"},{"1":"Femme","2":"Retire des affaires","3":"73.78947","4":"10314.848"},{"1":"Femme","2":"Au foyer","3":"50.73099","4":"5471.705"},{"1":"Homme","2":"Autre inactif","3":"54.16667","4":"3740.738"},{"1":"Femme","2":"Autre inactif","3":"59.96226","4":"4679.955"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 <div id="panels-graphiques-avec-lattice" class="section level2">
 <h2>Panels graphiques avec lattice</h2>
 <p>Les exemples suivants montreront ensuite comment la notation <q>formule</q> peut servir à produire des graphiques par panel avec l’extension <code class="pkg">lattice</code>.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">library</span>(lattice)</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">library</span>(lattice)</a></code></pre></div>
 <div class="note">
 <p>L’extension <code class="pkg">lattice</code> présente l’avantage d’être installée par défaut avec <strong>R</strong>. Il n’est donc pas nécessaire de l’installer préalablement.</p>
 </div>
 <p>Chargeons les mêmes données que le <a href="graphiques-bivaries.html">chapitre sur les graphiques bivariés</a>.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1"><span class="co"># charger l&#39;extension lisant le format CSV</span></a>
-<a class="sourceLine" id="cb27-2" title="2"><span class="kw">library</span>(readr)</a>
-<a class="sourceLine" id="cb27-3" title="3"></a>
-<a class="sourceLine" id="cb27-4" title="4"><span class="co"># emplacement souhaité pour le jeu de données</span></a>
-<a class="sourceLine" id="cb27-5" title="5">file =<span class="st"> &quot;data/debt.csv&quot;</span></a>
-<a class="sourceLine" id="cb27-6" title="6"></a>
-<a class="sourceLine" id="cb27-7" title="7"><span class="co"># télécharger le jeu de données s&#39;il n&#39;existe pas</span></a>
-<a class="sourceLine" id="cb27-8" title="8"><span class="cf">if</span>(<span class="op">!</span><span class="kw">file.exists</span>(file))</a>
-<a class="sourceLine" id="cb27-9" title="9">  <span class="kw">download.file</span>(<span class="st">&quot;http://www.stat.cmu.edu/~cshalizi/uADA/13/hw/11/debt.csv&quot;</span>,</a>
-<a class="sourceLine" id="cb27-10" title="10">                file, <span class="dt">mode =</span> <span class="st">&quot;wb&quot;</span>)</a>
-<a class="sourceLine" id="cb27-11" title="11"></a>
-<a class="sourceLine" id="cb27-12" title="12"><span class="co"># charger les données dans l&#39;objet &#39;debt&#39;</span></a>
-<a class="sourceLine" id="cb27-13" title="13">debt =<span class="st"> </span><span class="kw">read_csv</span>(file)</a></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1"><span class="co"># charger l&#39;extension lisant le format CSV</span></a>
+<a class="sourceLine" id="cb35-2" title="2"><span class="kw">library</span>(readr)</a>
+<a class="sourceLine" id="cb35-3" title="3"></a>
+<a class="sourceLine" id="cb35-4" title="4"><span class="co"># emplacement souhaité pour le jeu de données</span></a>
+<a class="sourceLine" id="cb35-5" title="5">file =<span class="st"> &quot;data/debt.csv&quot;</span></a>
+<a class="sourceLine" id="cb35-6" title="6"></a>
+<a class="sourceLine" id="cb35-7" title="7"><span class="co"># télécharger le jeu de données s&#39;il n&#39;existe pas</span></a>
+<a class="sourceLine" id="cb35-8" title="8"><span class="cf">if</span>(<span class="op">!</span><span class="kw">file.exists</span>(file))</a>
+<a class="sourceLine" id="cb35-9" title="9">  <span class="kw">download.file</span>(<span class="st">&quot;http://www.stat.cmu.edu/~cshalizi/uADA/13/hw/11/debt.csv&quot;</span>,</a>
+<a class="sourceLine" id="cb35-10" title="10">                file, <span class="dt">mode =</span> <span class="st">&quot;wb&quot;</span>)</a>
+<a class="sourceLine" id="cb35-11" title="11"></a>
+<a class="sourceLine" id="cb35-12" title="12"><span class="co"># charger les données dans l&#39;objet &#39;debt&#39;</span></a>
+<a class="sourceLine" id="cb35-13" title="13">debt =<span class="st"> </span><span class="kw">read_csv</span>(file)</a></code></pre></div>
 <pre><code>Warning: Missing column names filled in: &#39;X1&#39; [1]</code></pre>
 <pre><code>Parsed with column specification:
 cols(
@@ -715,8 +776,8 @@ cols(
   ratio = col_double()
 )</code></pre>
 <p>Rejetons rapidement un coup d’oeil à ces données, qui sont structurées par pays (variable <var>Country</var>) et par année (variable <var>Year</var>). On y trouve deux variables, <var>growth</var> (le taux de croissance du produit intérieur brut réel), et <var>ratio</var> (le ratio entre la dette publique et le produit intérieur brut), ainsi qu’une première colonne vide, ne contenant que des numéros lignes, dont on va se débarrasser :</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1"><span class="co"># inspection des données</span></a>
-<a class="sourceLine" id="cb30-2" title="2"><span class="kw">glimpse</span>(debt, <span class="dv">75</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="co"># inspection des données</span></a>
+<a class="sourceLine" id="cb38-2" title="2"><span class="kw">glimpse</span>(debt, <span class="dv">75</span>)</a></code></pre></div>
 <pre><code>Observations: 1,171
 Variables: 5
 $ X1      &lt;dbl&gt; 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157,...
@@ -724,28 +785,44 @@ $ Country &lt;chr&gt; &quot;Australia&quot;, &quot;Australia&quot;, &quot;Austra
 $ Year    &lt;dbl&gt; 1946, 1947, 1948, 1949, 1950, 1951, 1952, 1953, 1954, ...
 $ growth  &lt;dbl&gt; -3.5579515, 2.4594746, 6.4375341, 6.6119938, 6.9202012...
 $ ratio   &lt;dbl&gt; 190.41908, 177.32137, 148.92981, 125.82870, 109.80940,...</code></pre>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1"><span class="co"># suppression de la première colonne</span></a>
-<a class="sourceLine" id="cb32-2" title="2">debt =<span class="st"> </span>debt[, <span class="dv">-1</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1"><span class="co"># suppression de la première colonne</span></a>
+<a class="sourceLine" id="cb40-2" title="2">debt =<span class="st"> </span>debt[, <span class="dv">-1</span>]</a></code></pre></div>
 <div id="visualisation-bivariee" class="section level3">
 <h3>Visualisation bivariée</h3>
 <p>Le même graphique s’écrit de la manière suivante avec l’extension <code class="pkg">lattice</code> :</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1"><span class="kw">xyplot</span>(growth <span class="op">~</span><span class="st"> </span>Year, <span class="dt">data =</span> debt)</a></code></pre></div>
-<p><img src="graphs/formules/unnamed-chunk-23-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">xyplot</span>(growth <span class="op">~</span><span class="st"> </span>Year, <span class="dt">data =</span> debt)</a></code></pre></div>
+<p><img src="graphs/formules/unnamed-chunk-28-1.png" width="1050" /></p>
 </div>
 <div id="visualisation-par-petits-multiples" class="section level3">
 <h3>Visualisation par <q>petits multiples</q></h3>
 <p>Appliquons désormais la même visualisation par <q>petits multiples</q> que vue dans le chapitre :</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">xyplot</span>(growth <span class="op">~</span><span class="st"> </span>Year <span class="op">|</span><span class="st"> </span>Country, <span class="dt">data =</span> debt)</a></code></pre></div>
-<p><img src="graphs/formules/unnamed-chunk-24-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" title="1"><span class="kw">xyplot</span>(growth <span class="op">~</span><span class="st"> </span>Year <span class="op">|</span><span class="st"> </span>Country, <span class="dt">data =</span> debt)</a></code></pre></div>
+<p><img src="graphs/formules/unnamed-chunk-29-1.png" width="1050" /></p>
 <p>Enfin, rajoutons quelques options au graphique, afin de montrer comment l’extension <code class="pkg">lattice</code> fonctionne :</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1"><span class="kw">xyplot</span>(growth <span class="op">~</span><span class="st"> </span>Year <span class="op">|</span><span class="st"> </span>Country, <span class="dt">type =</span> <span class="kw">c</span>(<span class="st">&quot;o&quot;</span>, <span class="st">&quot;l&quot;</span>), <span class="dt">main =</span> <span class="st">&quot;Données Reinhart et Rogoff corrigées, 1946-2009&quot;</span>, </a>
-<a class="sourceLine" id="cb35-2" title="2">  <span class="dt">ylab =</span> <span class="st">&quot;Taux de croissance du PIB&quot;</span>, <span class="dt">xlab =</span> <span class="ot">NULL</span>, <span class="dt">data =</span> debt)</a></code></pre></div>
-<p><img src="graphs/formules/unnamed-chunk-25-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1"><span class="kw">xyplot</span>(growth <span class="op">~</span><span class="st"> </span>Year <span class="op">|</span><span class="st"> </span>Country, <span class="dt">type =</span> <span class="kw">c</span>(<span class="st">&quot;o&quot;</span>, <span class="st">&quot;l&quot;</span>), <span class="dt">main =</span> <span class="st">&quot;Données Reinhart et Rogoff corrigées, 1946-2009&quot;</span>, </a>
+<a class="sourceLine" id="cb43-2" title="2">  <span class="dt">ylab =</span> <span class="st">&quot;Taux de croissance du PIB&quot;</span>, <span class="dt">xlab =</span> <span class="ot">NULL</span>, <span class="dt">data =</span> debt)</a></code></pre></div>
+<p><img src="graphs/formules/unnamed-chunk-30-1.png" width="1050" /></p>
+</div>
+</div>
+<div id="specifier-des-modeles" class="section level2">
+<h2>Spécifier des modèles</h2>
+<div id="les-formules-r" class="section level3">
+<h3>Les formules R</h3>
+<p>En réalité, la notation par formule qu’utilise <strong>R</strong> est celle proposée par Wilkinson <em>et al.</em> dans les années 70 pour schématiser la relation entre plusieurs variables dans un plan d’expérience. Plus spécifiquement, l’idée revient à exprimer une <dfn>relation <q>fonctionnelle</q></dfn>, symbolisée par l’opérateur <code>~</code>, entre une variable réponse <code>y</code> et une ou plusieurs variables explicatives. Disons, pour simplifier, que <code>y</code> est une variable d’intérêt (numérique ou facteur selon le type de modèle), <code>x</code> une variable numérique et que <code>a</code> et <code>b</code> sont des variables catégorielles (des facteurs dans le langage <strong>R</strong>). Voici les principales relations auxquelles on peut s’intéresser dans un modèle statistique :</p>
+<ul>
+<li><code>y ~ x</code> : régression simple,</li>
+<li><code>y ~ x + 0</code> : idem avec suppression du terme d’ordonnée à l’origine,</li>
+<li><code>y ~ a + b</code> : régresse avec deux effets principaux indépendants,</li>
+<li><code>y ~ a * b</code> : idem avec interaction (équivalent à <code>1 + a + b + a:b</code>),</li>
+<li><code>y ~ a / b</code> : idem en considérant une relation d’emboîtement (équivalent à <code>1 + a + b + a %in% b</code>).</li>
+</ul>
+<p>L’opérateur <code>|</code> est quant à lui utilisé par l’extension <code class="pkg">lme4</code> dans le cadre de modèles mixtes avec effets aléatoires.</p>
+<p>Voir le chapitre dédié à la <a href="regression-logistique.html">régression logistique</a> pour des exemples de modèles multivariés et le chapitre dédié aux <a href="effets-d-interaction.html">effets d’interaction</a> pour plus de détails sur cette notion.</p>
 </div>
 </div>
 <div id="pour-aller-plus-loin" class="section level2">
 <h2>Pour aller plus loin</h2>
-<p>Comme vient de le voir dans ce chapitre, la notation <q>formule</q> apparaît çà et là dans les différentes fonctions de <strong>R</strong> est de ses extensions. Il est par conséquent utile d’en connaître les rudiments, et en particulier les opérateurs <code>~</code> (<em>tilde</em>) et <code>+</code>, ne serait-ce que pour pouvoir se servir des différentes fonctions présentées sur cette page.</p>
+<p>Comme vient de le voir dans ce chapitre, la notation <q>formule</q> apparaît çà et là dans les différentes fonctions de <strong>R</strong> est de ses extensions. Il est par conséquent utile d’en connaître les rudiments, et en particulier les opérateurs <code>~</code> (<em>tilde</em>) et <code>+</code>, ne serait-ce que pour pouvoir se servir des différentes fonctions présentées sur cette page. Le chapitre <a href="lattice-graphiques-et-formules.html">lattice et les formules</a> fournit plus de détails sur ces aspects.</p>
 <p>La notation <q>formule</q> devient cruciale dès que l’on souhaite rédiger des modèles : la formule <code>y ~ x</code>, par exemple, qui est équivalente à la formule <code>y ~ 1 + x</code>, correspond à l’équation mathématique <span class="math inline"><em>Y</em> = <em>a</em> + <em>b</em><em>X</em></span>. On trouvera de nombreux exemples d’usage de cette notation dans les chapitres consacrés, notamment, à la régression linéaire ou à la <a href="regression-logistique.html">régression logistique</a>.</p>
 <p>De la même manière, l’opérateur <code>|</code> (<em>pipe</em>) utilisé par l’extension <code class="pkg">lattice</code> joue aussi un rôle très important dans la rédaction de modèles multi-niveaux, où il sert à indiquer les variables à pentes ou à coefficients aléatoires. Ces modèles sont présentés dans un <a href="modeles-lineaires-a-effets-mixtes.html">chapitre dédié</a>.</p>
 </div>
