@@ -126,6 +126,8 @@ group_by(hdv2003, occup, sexe) %>%
   summarise(age = median(age, na.rm = TRUE))
 ```
 
+Si, comme dans le cas de `summarise`{data-pkg="dplyr"}, on souhaite passer des arguments supplémentaires à la fonction `median`{data-pkg="stats"}, il suffit de les lister à la suite du nom de la fonction. Par exemple, on écrirait : `aggregate(age ~ sexe + occup, hdv2003, median, na.rm = TRUE)`. Ceci étant, `aggregate`{data-pkg="stats"} utilise par défaut l'option `na.action = na.omit`, donc il est bon de se rappeler que l'on peut désactiver cette option en utilisant l'option `na.action = na.pass`, ce qui permet éventuellement de conserver des lignes vides dans le tableau de résultat.
+
 La fonction `aggregate`{data-pkg="stats"} permet, par ailleurs, d'obtenir des résultats à plusieurs colonnes. Dans l'exemple ci-dessus, on illustre ce principe avec la fonction `range`{data-pkg="stats"}, qui renvoie deux résultats (la valeur minimale et la valeur maximale de la variable, qui est toujours la variable <var>age</var>), chacun présentés dans une colonne :
 
 ```{r}
@@ -138,6 +140,32 @@ Cette fonction ne peut pas être facilement écrite dans `dplyr`{.pkg} sans ré�
 group_by(hdv2003, occup, sexe) %>%
   summarise(min = min(age, na.rm = TRUE),
             max = max(age, na.rm = TRUE))
+```
+
+On pourrait de même définir sa propre fonction et la passer à `aggregate`{data-pkg="stats"} :
+
+```{r}
+f <- function(x) c(mean = mean(x, na.rm = TRUE), sd = sd(x, na.rm = TRUE))
+aggregate(age ~ sexe + occup, hdv2003, f)
+```
+
+Mais on réalisera vite une des limitations de `aggregate`{data-pkg="stats"} dans ce cas-là : le tableau retourné ne contient pas 4 colonnes, mais 3 uniquement, ce que l'on peut vérifier à l'aide de `dim`{data-pkg="base"} ou `str`{data-pkg="utils"}. Pour ce type d'opération, dans lequel on souhaite récupérer plusieurs variables calculées afin de travailler sur ces données agrégées soit dans le cadre d'opérations numériques soit de constructions graphiques, `dplyr`{.pkg} ou `Hmisc`{.pkg} s'avèrent plus commodes. Voici un exemple avec `summarize`{data-pkg="Hmisc"} :
+
+```{r}
+library(Hmisc)
+with(hdv2003, summarize(age, llist(sexe, occup), f))
+```
+
+Notons que `Hmisc`{.pkg} offre déjà une telle fonction (`smean.sd`{data-pkg="Hmisc"}), ce qui nous aurait épargné d'écrire notre propre fonction, `f`, et il en existe bien d'autres. Voici un exemple avec des intervalles de confiance estimés par bootstrap :
+
+```{r}
+with(hdv2003, summarize(age, llist(sexe, occup), smean.cl.boot))
+```
+
+Enfin, il est également possible d'utiliser plusieurs variables numériques à gauche de l'opérateur `~`. En voici une illustration :
+
+```{r}
+aggregate(cbind(age,poids) ~  sexe + occup, hdv2003, mean)
 ```
 
 ## Panels graphiques avec lattice
@@ -209,7 +237,7 @@ xyplot(growth ~ Year | Country,
 
 ## Pour aller plus loin
 
-Comme vient de le voir dans ce chapitre, la notation <q>formule</q> apparaît çà et là dans les différentes fonctions de **R** est de ses extensions. Il est par conséquent utile d'en connaître les rudiments, et en particulier les opérateurs `~` (_tilde_) et `+`, ne serait-ce que pour pouvoir se servir des différentes fonctions présentées sur cette page.
+Comme vient de le voir dans ce chapitre, la notation <q>formule</q> apparaît çà et là dans les différentes fonctions de **R** est de ses extensions. Il est par conséquent utile d'en connaître les rudiments, et en particulier les opérateurs `~` (_tilde_) et `+`, ne serait-ce que pour pouvoir se servir des différentes fonctions présentées sur cette page. Le chapitre [lattice et les formules](lattice-graphiques-et-formules.html) fournit plus de détails sur ces aspects.
 
 La notation <q>formule</q> devient cruciale dès que l'on souhaite rédiger des modèles : la formule `y ~ x`, par exemple, qui est équivalente à la formule `y ~ 1 + x`, correspond à l'équation mathématique $Y = a + bX$. On trouvera de nombreux exemples d'usage de cette notation dans les chapitres consacrés, notamment, à la régression linéaire ou à la [régression logistique](regression-logistique.html).
 
