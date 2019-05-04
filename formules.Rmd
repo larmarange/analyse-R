@@ -126,11 +126,11 @@ group_by(hdv2003, occup, sexe) %>%
   summarise(age = median(age, na.rm = TRUE))
 ```
 
-Si, comme dans le cas de `summarise`{data-pkg="dplyr"}, on souhaite passer des arguments supplémentaires à la fonction `median`{data-pkg="stats"}, il suffit de les lister à la suite du nom de la fonction. Par exemple, on écrirait : `aggregate(age ~ sexe + occup, hdv2003, median, na.rm = TRUE)`. Ceci étant, `aggregate`{data-pkg="stats"} utilise par défaut l'option `na.action = na.omit`, donc il est bon de se rappeler que l'on peut désactiver cette option en utilisant l'option `na.action = na.pass`, ce qui permet éventuellement de conserver des lignes vides dans le tableau de résultat.
+Si, comme dans le cas de `summarise`{data-pkg="dplyr"}, on souhaite passer des arguments supplémentaires à la fonction `median`{data-pkg="stats"}, il suffit de les lister à la suite du nom de la fonction. Par exemple, on écrirait : `aggregate(age ~ sexe + occup, hdv2003, median, na.rm = TRUE)`. Ceci étant, `aggregate`{data-pkg="stats"} utilise par défaut l'option `na.action = na.omit`, donc il est bon de se rappeler que l'on peut désactiver cette option en utilisant l'option `na.action = na.pass`, ce qui permet éventuellement de conserver des lignes vides dans le tableau de résultat.
 
 La fonction `aggregate`{data-pkg="stats"} permet, par ailleurs, d'obtenir des résultats à plusieurs colonnes. Dans l'exemple ci-dessus, on illustre ce principe avec la fonction `range`{data-pkg="stats"}, qui renvoie deux résultats (la valeur minimale et la valeur maximale de la variable, qui est toujours la variable <var>age</var>), chacun présentés dans une colonne :
 
-```{r}
+```{r, paged.print = FALSE}
 aggregate(age ~ sexe + occup, hdv2003, range)
 ```
 
@@ -142,30 +142,37 @@ group_by(hdv2003, occup, sexe) %>%
             max = max(age, na.rm = TRUE))
 ```
 
-On pourrait de même définir sa propre fonction et la passer à `aggregate`{data-pkg="stats"} :
+On pourrait de même définir sa propre fonction et la passer à `aggregate`{data-pkg="stats"} :
 
-```{r}
+```{r, paged.print = FALSE}
 f <- function(x) c(mean = mean(x, na.rm = TRUE), sd = sd(x, na.rm = TRUE))
 aggregate(age ~ sexe + occup, hdv2003, f)
 ```
 
-Mais on réalisera vite une des limitations de `aggregate`{data-pkg="stats"} dans ce cas-là : le tableau retourné ne contient pas 4 colonnes, mais 3 uniquement, ce que l'on peut vérifier à l'aide de `dim`{data-pkg="base"} ou `str`{data-pkg="utils"}. Pour ce type d'opération, dans lequel on souhaite récupérer plusieurs variables calculées afin de travailler sur ces données agrégées soit dans le cadre d'opérations numériques soit de constructions graphiques, `dplyr`{.pkg} ou `Hmisc`{.pkg} s'avèrent plus commodes. Voici un exemple avec `summarize`{data-pkg="Hmisc"} :
+Mais on réalisera vite une des limitations de `aggregate`{data-pkg="stats"} dans ce cas-là : le tableau retourné ne contient pas 4 colonnes, mais 3 uniquement, ce que l'on peut vérifier à l'aide de `dim`{data-pkg="base"} ou `str`{data-pkg="utils"}. 
 
 ```{r}
-library(Hmisc)
+str(aggregate(age ~ sexe + occup, hdv2003, f))
+```
+
+
+Pour ce type d'opération, dans lequel on souhaite récupérer plusieurs variables calculées afin de travailler sur ces données agrégées soit dans le cadre d'opérations numériques soit de constructions graphiques, `dplyr`{.pkg} ou `Hmisc`{.pkg} s'avèrent plus commodes. Voici un exemple avec `summarize`{data-pkg="Hmisc"} de l'extension `Hmisc`{.pkg} :
+
+```{r}
+library(Hmisc, quietly = TRUE)
 with(hdv2003, summarize(age, llist(sexe, occup), f))
 ```
 
-Notons que `Hmisc`{.pkg} offre déjà une telle fonction (`smean.sd`{data-pkg="Hmisc"}), ce qui nous aurait épargné d'écrire notre propre fonction, `f`, et il en existe bien d'autres. Voici un exemple avec des intervalles de confiance estimés par bootstrap :
+Notons que `Hmisc`{.pkg} offre déjà une telle fonction (`smean.sd`{data-pkg="Hmisc"}), ce qui nous aurait épargné d'écrire notre propre fonction, `f`, et il en existe bien d'autres. Voici un exemple avec des intervalles de confiance estimés par bootstrap :
 
 ```{r}
 with(hdv2003, summarize(age, llist(sexe, occup), smean.cl.boot))
 ```
 
-Enfin, il est également possible d'utiliser plusieurs variables numériques à gauche de l'opérateur `~`. En voici une illustration :
+Enfin, il est également possible d'utiliser plusieurs variables numériques à gauche de l'opérateur `~`. En voici une illustration :
 
 ```{r}
-aggregate(cbind(age,poids) ~  sexe + occup, hdv2003, mean)
+aggregate(cbind(age,poids) ~ sexe + occup, hdv2003, mean)
 ```
 
 ## Panels graphiques avec lattice
