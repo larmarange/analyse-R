@@ -482,14 +482,12 @@ $(document).ready(function () {
 <li><a href="#survey">Données pondérées avec l’extension survey</a><ul>
 <li><a href="#extraire-un-sous-echantillon">Extraire un sous-échantillon</a></li>
 <li><a href="#modeles-logistiques">Modèles logistiques</a></li>
+<li><a href="#dplyr-et-survey">dplyr et survey</a></li>
 </ul></li>
 <li><a href="#conclusion">Conclusion</a></li>
 </ul>
 </div>
 
-<div class="note">
-<p>La version originale de ce chapitre a été écrite par Julien Barnier dans le cadre du support de cours <a href="https://github.com/juba/intro-r">Introduction à R</a>, complétée par Joseph Larmarange dans <a href="https://github.com/larmarange/intro-r/tree/CoursM2">Introduction à l’analyse d’enquêtes avec R</a>.</p>
-</div>
 <p>S’il est tout à fait possible de travailler avec des <dfn>données pondérées</dfn> sous R, cette fonctionnalité n’est pas aussi bien intégrée que dans la plupart des autres logiciels de traitement statistique. En particulier, il y a plusieurs manières possibles de gérer la <dfn>pondération</dfn>. Cependant, lorsque l’on doit également prendre un compte un <dfn>plan d’échantillonnage</dfn><dfn data-index="échantillonnage, plan"></dfn> complexe (voir section dédiée ci-après), <strong>R</strong> fournit tous les outils nécessaires, alors que dans la plupart des logiciels propriétaires, il faut disposer d’une extension adéquate, pas toujours vendue de base avec le logiciel.</p>
 <p>Dans ce qui suit, on utilisera le jeu de données tiré de l’enquête <em>Histoire de vie</em> et notamment sa variable de pondération <em>poids</em><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(questionr)</a>
@@ -541,7 +539,8 @@ Femme 5872596.42   49247.49</code></pre>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">install.packages</span>(<span class="st">&quot;survey&quot;</span>)</a></code></pre></div>
 <p>Le site officiel (en anglais) comporte beaucoup d’informations, mais pas forcément très accessibles : <br /><a href="http://r-survey.r-forge.r-project.org/" class="uri">http://r-survey.r-forge.r-project.org/</a>.</p>
 <p>Pour utiliser les fonctionnalités de l’extension, on doit d’abord définir le <dfn>plan d’échantillonnage</dfn> ou <dfn lang="en">design</dfn> de notre enquête, c’est-à-dire indiquer quel type de pondération nous souhaitons lui appliquer.</p>
-<p>Dans un premier temps, nous utiliserons le plan d’échantillonnage le plus simple, avec une variable de pondération déjà calculée<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>. Ceci se fait à l’aide de la fonction <code data-pkg="survey">svydesign</code> :</p>
+<p>Dans un premier temps, nous utiliserons le plan d’échantillonnage le plus simple, avec une variable de pondération déjà calculée. Pour d’autres types de plan d’échantillonnage, voir la chapitre sur les <a href="definir-un-plan-d-echantillonnage-complexe.html">plans d’échantillonnage complexes</a>.</p>
+<p>Ceci se fait à l’aide de la fonction <code data-pkg="survey">svydesign</code> :</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">library</span>(survey)</a>
 <a class="sourceLine" id="cb14-2" title="2">dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> <span class="op">~</span>d<span class="op">$</span>poids)</a></code></pre></div>
 <p>Cette fonction crée un nouvel objet, que nous avons nommé <code>dw</code>. Cet objet n’est pas à proprement parler un tableau de données, mais plutôt un tableau de données plus une méthode de pondération. <code>dw</code> et <code>d</code> sont des objets distincts, les opérations effectuées sur l’un n’ont pas d’influence sur l’autre. On peut cependant retrouver le contenu de <code>d</code> depuis <code>dw</code> en utilisant <code>dw$variables</code> :</p>
@@ -561,8 +560,8 @@ Femme 5872596.42   49247.49</code></pre>
 <li><code data-pkg="survey">svyplot</code>, <code data-pkg="survey">svyhist</code>, <code data-pkg="survey" data-rdoc="svyhist">svyboxplot</code> : fonctions graphiques</li>
 </ul>
 <p>D’autres fonctions sont disponibles, comme <code data-pkg="survey">svyratio</code>, mais elles ne seront pas abordées ici.</p>
-<p>Pour ne rien arranger, ces fonctions prennent leurs arguments sous forme de formules<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a>, c’est-à-dire pas de la manière habituelle. En général l’appel de fonction se fait en spécifiant d’abord les variables d’intérêt sous forme de formule, puis l’objet <em>survey.design</em>.</p>
-<p>Voyons tout de suite quelques exemples<a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a> :</p>
+<p>Pour ne rien arranger, ces fonctions prennent leurs arguments sous forme de formules<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>, c’est-à-dire pas de la manière habituelle. En général l’appel de fonction se fait en spécifiant d’abord les variables d’intérêt sous forme de formule, puis l’objet <em>survey.design</em>.</p>
+<p>Voyons tout de suite quelques exemples<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a> :</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1"><span class="kw">svymean</span>(<span class="op">~</span>age, dw)</a></code></pre></div>
 <pre><code>      mean     SE
 age 46.347 0.5284</code></pre>
@@ -612,7 +611,7 @@ sexe       Oui   Non   Ne sait pas Total
   Homme     51.6  47.0   1.4       100.0
   Femme     43.9  54.8   1.3       100.0
   Ensemble  47.5  51.1   1.4       100.0</code></pre>
-<p>Le principe de la fonction <code data-pkg="survey">svyby</code> est similaire à celui de <code data-pkg="base">tapply</code><a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a>. Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur. Par exemple :</p>
+<p>Le principe de la fonction <code data-pkg="survey">svyby</code> est similaire à celui de <code data-pkg="base">tapply</code><a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a>. Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur. Par exemple :</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">svyby</span>(<span class="op">~</span>age, <span class="op">~</span>sexe, dw, svymean)</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
@@ -641,6 +640,10 @@ Fonctions graphiques de l’extension survey
 <h3>Modèles logistiques</h3>
 <p>Pour réaliser des modèles logistiques (binaires, multinomiaux ou ordinaux) avec prise en compte d’un plan d’échantillonnage, on pourra se référer à la <a href="regression-logistique.html#survey">sous-section dédiée du chapitre Régression logistique</a>.</p>
 </div>
+<div id="dplyr-et-survey" class="section level3">
+<h3>dplyr et survey</h3>
+<p>L’extension <code class="pkg">srvyr</code> vise à permettre d’utiliser les verbes de <code class="pkg">dplyr</code> avec <code class="pkg">survey</code>. Le fonctionnement de cette extension est expliqué dans une vignette dédiée : <a href="https://cran.r-project.org/web/packages/srvyr/vignettes/srvyr-vs-survey.html" class="uri">https://cran.r-project.org/web/packages/srvyr/vignettes/srvyr-vs-survey.html</a>.</p>
+</div>
 </div>
 <div id="conclusion" class="section level2">
 <h2>Conclusion</h2>
@@ -660,10 +663,9 @@ Fonctions graphiques de l’extension survey
 <li id="fn3"><p>Voir le chapitre sur la <a href="regression-logistique.html">régression logistique</a>.<a href="#fnref3" class="footnote-back">↩</a></p></li>
 <li id="fn4"><p>Voir le chapitre dédié à l’<a href="analyse-des-correspondances-multiples.html">analyse des correspondances</a>.<a href="#fnref4" class="footnote-back">↩</a></p></li>
 <li id="fn5"><p>Les fonctions <code data-pkg="questionr">wtd.mean</code> et <code data-pkg="questionr" data-rdoc="wtd.mean">wtd.var</code> sont des copies conformes des fonctions du même nom de l’extension <code class="pkg">Hmisc</code> de Frank Harrel. <code class="pkg">Hmisc</code> étant une extension « de taille », on a préféré recopié les fonctions pour limiter le poids des dépendances.<a href="#fnref5" class="footnote-back">↩</a></p></li>
-<li id="fn6"><p>Pour d’autres types de plan d’échantillonnage, voir la chapitre sur les <a href="definir-un-plan-d-echantillonnage-complexe.html">plans d’échantillonnage complexes</a>.<a href="#fnref6" class="footnote-back">↩</a></p></li>
-<li id="fn7"><p>Pour plus de détails sur les formules, voir le <a href="formules.html">chapitre dédié</a>.<a href="#fnref7" class="footnote-back">↩</a></p></li>
-<li id="fn8"><p>Pour d’autres exemples, voir <a href="http://www.ats.ucla.edu/stat/r/faq/svy_r_oscluster.htm" class="uri">http://www.ats.ucla.edu/stat/r/faq/svy_r_oscluster.htm</a> (en anglais).<a href="#fnref8" class="footnote-back">↩</a></p></li>
-<li id="fn9"><p>La fonction <code data-pkg="base">tapply</code> est présentée plus en détails dans le chapitre <a href="pem_manipulation.html#tapply">Manipulation de données</a>.<a href="#fnref9" class="footnote-back">↩</a></p></li>
+<li id="fn6"><p>Pour plus de détails sur les formules, voir le <a href="formules.html">chapitre dédié</a>.<a href="#fnref6" class="footnote-back">↩</a></p></li>
+<li id="fn7"><p>Pour d’autres exemples, voir <a href="http://www.ats.ucla.edu/stat/r/faq/svy_r_oscluster.htm" class="uri">http://www.ats.ucla.edu/stat/r/faq/svy_r_oscluster.htm</a> (en anglais).<a href="#fnref7" class="footnote-back">↩</a></p></li>
+<li id="fn8"><p>La fonction <code data-pkg="base">tapply</code> est présentée plus en détails dans le chapitre <a href="pem_manipulation.html#tapply">Manipulation de données</a>.<a href="#fnref8" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
 
