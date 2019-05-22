@@ -326,6 +326,58 @@ plot(allEffects(reg))
 <figcaption>Représentation graphique de l'effet de chaque variable du modèle logistique</figcaption>
 </figure>
 
+Nous pouvons alternativement avoir recours à l'extension `ggeffects`{.pkg}^[Cette extension est livrée avec de nombreuses vignettes dont une [vignette d'introduction](https://cran.r-project.org/web/packages/ggeffects/vignettes/marginaleffects.html) présentant le fonctionnement des différentes fonctions.] et sa fonction `ggeffect`{data-pkg="ggeffects"} qui permettent de récupérer les résultats de `effects`{.pkg} dans un format utilisable avec `ggplot2`{.pkg}.
+
+Ainsi, la fonction `ggeffect`{data-pkg="ggeffects"}, quand on lui précise un terme spécifique, produit un tableau de données avec les effets marginaux pour cette variable.
+
+```{r}
+library(ggeffects)
+ggeffect(reg, "sexe")
+```
+
+En combinant ce résultat avec `plot`{data-pkg="effects"}, on obtient un graphique `ggplot2`{.pkg} de l'effet en question.
+
+<figure>
+```{r}
+plot(ggeffect(reg, "sexe"))
+```
+<figcaption>Effet du sexe représenté avec ggeffect</figcaption>
+</figure>
+
+Si l'on ne précise pas de terme, `ggeffect(reg)` calcule les effets pour chaque variable du modèle et `plot(ggeffect(reg))` renvoie une liste de graphiques. Il faut donc utiliser la fonction `plot_grid`{data-pkg="cowplot"} de `cowplot`{.pkg} pour combiner ces graphiques en un seul (voir le [chapitre dédié](combiner-plusieurs-graphiques.html)).
+
+<figure>
+```{r, fig.width=12, fig.height=8}
+library(ggeffects)
+cowplot::plot_grid(plotlist = plot(ggeffect(reg)))
+```
+<figcaption>Effet du modèles représentés avec ggeffect</figcaption>
+</figure>
+
+
+Si l'on souhaite avoir des noms de variables plus explicites, il faut ajouter des étiquettes des variables avec `var_label`{data-pkg="labelled"} de l'extension `labelled`{.pkg} (voir le [chapitre sur les vecteurs labellisés](facteurs-et-vecteurs-labellises.html#les-etiquettes-de-variable)).
+
+Par contre, cette étape doit avoir eu lieu avant le calcul de la régression linéaire.
+
+```{r}
+library(labelled)
+var_label(d$sport) <- "Pratique du sport ?"
+var_label(d$sexe) <- "Sexe"
+var_label(d$grpage) <- "Groupe d'âges"
+var_label(d$etud) <- "Niveau d'étude"
+var_label(d$relig) <- "Pratique religieuse"
+var_label(d$heures.tv) <- "Nombre d'heures passées devant la télévision par jour"
+reg <- glm(sport ~ sexe + grpage + etud + relig + heures.tv, data = d, family = binomial(logit))
+```
+
+<figure>
+```{r, fig.width=12, fig.height=8}
+cowplot::plot_grid(plotlist = plot(ggeffect(reg)))
+```
+<figcaption>Effet du modèles avec étiquettes de variable</figcaption>
+</figure>
+
+### Matrice de confusion
 
 Une manière de tester la qualité d'un modèle est le calcul d'une 
 <dfn>matrice de confusion</dfn><dfn data-index="confusion, matrice"></dfn>, c'est-à-dire le
@@ -439,21 +491,15 @@ tab <- summary_factorlist(d, dep, vars, p=TRUE, add_dependent_label=TRUE)
 tab
 ```
 
-Si l'on souhaite avoir des noms de variables plus explicites, il faut ajouter des étiquettes des variables avec `var_label`{data-pkg="labelled"} de l'extension `labelled`{.pkg} (voir le [chapitre sur les vecteurs labellisés](facteurs-et-vecteurs-labellises.html#les-etiquettes-de-variable)).
+On peut remarquer que `finalfit`{.pkg} a tenu compte des étiquettes de variables définies plus haut avec `var_label`{data-pkg="labelled"} de l'extension `labelled`{.pkg} (voir le [chapitre sur les vecteurs labellisés](facteurs-et-vecteurs-labellises.html#les-etiquettes-de-variable)).
 
-On peut aussi associer le résultat avec la fonction `kable`{data-pkg="knitr"} de `knitr`{.pkg} pour un rendu plus esthétique lorsque l'on produit un rapport **Rmarkdown** (voir le [chapitre dédié aux rapports automatisés](rmarkdown-les-rapports-automatises.html)).
+On peut associer le résultat avec la fonction `kable`{data-pkg="knitr"} de `knitr`{.pkg} pour un rendu plus esthétique lorsque l'on produit un rapport **Rmarkdown** (voir le [chapitre dédié aux rapports automatisés](rmarkdown-les-rapports-automatises.html)).
 
 ```{r}
-library(labelled)
-var_label(d$sport) <- "Pratique du sport ?"
-var_label(d$sexe) <- "Sexe"
-var_label(d$grpage) <- "Groupe d'âges"
-var_label(d$etud) <- "Niveau d'étude"
-var_label(d$relig) <- "Pratique religieuse"
-var_label(d$heures.tv) <- "Nombre d'heures passées devant la télévision par jour"
-tab <- summary_factorlist(d, dep, vars, p = TRUE, add_dependent_label = TRUE)
 knitr::kable(tab, row.names = FALSE)
 ```
+
+La fonction `finalfit`{data-pkg="finalfit"}, quant à elle, calcule à la fois les *odds ratios* univariés (modèles logistiques avec une seule variable inclue à la fois) et un modèle complet, présentant le tout dans un tableau synthétique.
 
 ```{r, message = FALSE}
 tab <- finalfit(d, dep, vars)
