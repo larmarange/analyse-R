@@ -190,7 +190,7 @@ Cette matrice des distances ou des dissimilarités entre séquences peut ensuite
 en un certain nombre de « classes » en fonction de leur proximité :
 
 ```{r}
-seq.agnes <- agnes(as.dist(seq.om), method = "ward", keep.diss = FALSE)
+seq.dist <- hclust(as.dist(seq.om), method = "ward.D2")
 ```
 
 Avec la fonction `plot`{data-pkg="stats" data-rdoc="dendrogram"}, 
@@ -198,7 +198,7 @@ il est possible de tracer l'arbre de la classification (<dfn>dendrogramme</dfn>)
 
 <figure>
 ```{r}
-plot(as.dendrogram(seq.agnes), leaflab = "none")
+plot(as.dendrogram(seq.dist), leaflab = "none")
 ```
 <figcaption>Dendrogramme de la classification des séquences</figcaption>
 </figure>
@@ -208,7 +208,7 @@ De même, on peut représenter les
 
 <figure>
 ```{r}
-plot(sort(seq.agnes$height, decreasing = TRUE)[1:20], type = "s", xlab = "nb de classes", ylab = "inertie")
+plot(sort(seq.dist$height, decreasing = TRUE)[1:20], type = "s", xlab = "nb de classes", ylab = "inertie")
 ```
 <figcaption>Sauts d'inertie de la classification des séquences</figcaption>
 </figure>
@@ -227,7 +227,7 @@ On fait ici le choix d'une <dfn>partition</dfn> en 5 classes :
 
 ```{r}
 nbcl <- 5
-seq.part <- cutree(seq.agnes, nbcl)
+seq.part <- cutree(seq.dist, nbcl)
 seq.part <- factor(seq.part, labels = paste("classe", 1:nbcl, sep = "."))
 ```
 
@@ -302,7 +302,7 @@ On peut ensuite générer le graphique ainsi :
 <figure>
 ```{r}
 library(JLutils)
-seq_heatmap(seq, seq.agnes, labCol = 14:50)
+seq_heatmap(seq, seq.dist, labCol = 14:50)
 ```
 <figcaption>Tapis des séquences trié selon le dendrogramme</figcaption>
 </figure>
