@@ -2,8 +2,6 @@
 title: "Modèles à effets aléatoires (modèles mixtes et GEE)"
 ---
 
-<!--- Fix #30 -->
-
 ```{r options_communes, include=FALSE}
 source("options_communes.R")
 ```
@@ -16,9 +14,9 @@ Dans un modèle de régression classique, il s'agit d'étudier la liaison statis
 
 $$y_{i}=\alpha +\beta x_{i}+\varepsilon_{i}$$
 
-où $\varepsilon_{i}$ est une variable aléatoire distribuée selon une loi normale d'espérance nulle et représentant les <dfn>résidus du modèle</dfn> ou erreurs, $\alpha$ correspond à ce qu'on appelle l'<dfn>intercept</dfn> et $\beta$ représente les <dfn>coefficients du modèle</dfn>.
+où $\varepsilon_{i}$ est une variable aléatoire distribuée selon une loi normale d'espérance nulle et représentant les <dfn>résidus du modèle</dfn><dfn data-index="modèle, résidus"></dfn> ou <dfn>erreurs</dfn>, $\alpha$ correspond à ce qu'on appelle l'<dfn>intercept</dfn> et $\beta$ représente les <dfn>coefficients du modèle</dfn><dfn data-index="modèle, coefficients"></dfn>.
 
-Dans un modèle classique, les erreurs sont supposées être indépendantes et identiquement distribuées selon une loi normale. Or, ce n'est pas le cas dans un certain nombres de cas : lorsque plusieurs réponses sont disponibles pour le même individu pour un même <var>x~i</var> (cas des mesures répétées), lorsque plusieurs observations sont naturellement groupées (p.ex., les membres d'une famille, des jumeaux homozygotes, des patients dans une même unité de soins, etc.), ou lorsque l'on collecte des données au cours du temps chez un même individu. Les modèles mixtes ou les modèles à effets aléatoires permettent de prendre en considération ce type d'information et de généraliser l'approche déjà connue pour l'estimation des paramètres d'un modèle de régression linéaire classique (pour observations indépendantes).
+Dans un modèle classique, les erreurs sont supposées être indépendantes et identiquement distribuées selon une loi normale. Or, ce n'est pas le cas dans un certain nombres de cas : lorsque plusieurs réponses sont disponibles pour le même individu pour un même <var>x~i~</var> (cas des mesures répétées), lorsque plusieurs observations sont naturellement groupées (par exemple, les membres d'une famille, des jumeaux homozygotes, des patients dans une même unité de soins, etc.), ou lorsque l'on collecte des données au cours du temps chez un même individu. Les <dfn data-index="modèle mixte">modèles mixtes<dfn><dfn data-index="mixte, modèle"></dfn> ou <dfn data-index="modèle à effets aléatoires">modèles à effets aléatoires</dfn> permettent de prendre en considération ce type d'information et de généraliser l'approche déjà connue pour l'estimation des paramètres d'un modèle de régression linéaire classique (pour observations indépendantes).
 
 <figure>
 ![Modèles de régression](images/img_models.png)
@@ -51,14 +49,14 @@ Ignorer la corrélation intra-unité résulte en test généralement moins puiss
 
 $$ \text{Var}(X_1-X_2)=\text{Var}(X_1)+\text{Var}(X_2)-2\text{Cov}(X_1,X_2). $$
 
-Considérer que $\text{Cov}(X_1,X_2)=0$ revient à sur-estimer la variance de la différence, dans la mesure où $\text{Cov}(X_1,X_2)$ est généralement positive, soulignant le fait que les individus ayant un njiveau plus élevé sur le premier niveau de la variable explicative ont généralement un niveau plus élevé que les autres sur le second niveau. On peut visualiser cette tendance très clairement avec les données "sleep" :
+Considérer que $\text{Cov}(X_1,X_2)=0$ revient à sur-estimer la variance de la différence, dans la mesure où $\text{Cov}(X_1,X_2)$ est généralement positive, soulignant le fait que les individus ayant un niveau plus élevé sur le premier niveau de la variable explicative ont généralement un niveau plus élevé que les autres sur le second niveau. On peut visualiser cette tendance très clairement avec les données "sleep" :
 
 <figure>
 
 ```{r}
 library(lattice)
 library(gridExtra)
-lattice.options(default.theme=brewer.theme)
+#lattice.options(default.theme=brewer.theme)
 trellis.par.set(strip.background = list(col = 'transparent'))
 data(sleep)
 xyplot(extra ~ group, data=sleep, groups=ID, type="l")
@@ -97,7 +95,9 @@ Voici les résultats que l'on obtient avec ces trois modèles résumés dans un 
 
 Le premier modèle, qui suppose les observations indépendantes, ne supprime pas la variance entre sujets (presque 78~\% de la variance résiduelle). Les deux modèles suivants, `M2` et `M3`, incorpore chacun des effets spécifiques aux sujets :
 
-$$ y_{ij} = \mu + \text{subject}_i + \text{pilltype}_j + \varepsilon_{ij},\quad \varepsilon_{ij}\sim{\cal N}(0,\sigma_{\varepsilon}^2). $$
+$$
+y_{ij} = \mu + \text{subject}_i + \text{pilltype}_j + \varepsilon_{ij},\quad \varepsilon_{ij}\sim{\cal N}(0,\sigma_{\varepsilon}^2). 
+$$
 
 Dans le troisième modèle (`M3`), on suppose de plus que $\text{subject}_i\sim{\cal N}(0,\sigma_{s}^2)$, indépendant de $\varepsilon_{ij}$. L'inclusion de termes aléatoires sujet-spécifique permet de modéliser différents types de corrélation intra-unité au niveau de la variable réponse. Considérons la corrélation entre des mesures prises successivement chez le même individu. On sait que :
 
@@ -427,6 +427,9 @@ Voici une petite illustration sur des données tirées d'une étude sur l'effet 
 Le modèle considéré s'écrit :
 
 $$
+
+$$
+
 et on parlera de "mean model" pour désigner un tel modèle dans lequel on s'intéresse à l'effet moyen (ici l'odds-ratio pour le status respiratoire) en fonction des prédicteurs, considérés à effets fixes dans ce modèle. Notons que ce modèle incorpore également un terme d'interaction ($\beta_3$).
 
 Il est également nécessaire de spécifier la fonction variance. Dans ce cas précis, on choisira $\mathbb{V}(\mu)=\phi\mu\cdot(1-\mu)$, avec $\phi=1$ pour le paramètre d'échelle. On ne fait aucune hypothèse sur la distribution des observations.
@@ -511,7 +514,7 @@ Le test $z$ de Wald est construit comme $\hat\beta_j/\text{SE}(\hat\beta_j)$ et 
 
 Finalement, on peut se demander quelle est la valeur estimée de l'odds-ratio ajusté pour l'âge, qui est significatif dans notre modèle initial. De même, quelle est la valeur de l'odds d'une réponse positive (respiration sifflante) chez des enfants de 8 ans _versus_ 10 ans lorsque la mère fume ou ne fume pas ?
 
-Voici les réponses avec R :
+Voici les réponses avec **R** :
 
 ```{r}
 gee.fit2 <- geeglm(update(fm, . ~ . -age:smoke), id = id,
@@ -521,8 +524,9 @@ exp(coef(gee.fit2)["age"])
 gee.fit3 <- geeglm(resp ~ as.factor(age) + smoke, id = id,
                    data = ohio, family = binomial,
                    corstr = "exch", scale.fix = TRUE)
-if (require(doBy)) esticon(gee.fit3, c(0, -1, 0, 1, 1))
-exp(.Last.value$Estimate)
+library(doBy) 
+e <- esticon(gee.fit3, c(0, -1, 0, 1, 1))
+exp(e$Estimate)
 ```
 
 Enfin, voici un dernier exemple, avec calcul des valeurs (marginales) prédites par un modèle considérant une matrice de corrélation symétrique et un estimateur sandwich :
@@ -549,7 +553,7 @@ On peut comparer les résultats précédents avec ceux que l'on obtiendrait _via
 
 ```{r}
 library(lme4)
-fit.glmm <- lmer(resp ~ age + smoke + (1|id), data = ohio,
+fit.glmm <- glmer(resp ~ age + smoke + (1|id), data = ohio,
                  family = binomial)
 fixef(fit.glmm)
 head(fitted(fit.glmm))
@@ -563,12 +567,14 @@ Voici les mêmes paramètres estimés par les modèle GEE et GLMM :
 gee.fitc <- geeglm(resp ~ as.numeric(age) + smoke, id = id,
                    data = ohio, family = binomial,
                    corstr = "exch", scale.fix = TRUE)
-glmm.fitc <- lmer(resp ~ as.numeric(age) + smoke + (1|id), data = ohio,
+glmm.fitc <- glmer(resp ~ as.numeric(age) + smoke + (1|id), data = ohio,
                   family = binomial)
 exp(cbind(coef(gee.fitc), fixef(glmm.fitc)))
 ```
 
 Quelle est la différence entre cette approche et la précédente ? Dans le cas du modèle mixte, on utilise une approche conditionnelle, d'où la nécessité de spécifier la distribution des effets aléatoires (dans ce cas précis, uniquement les intercepts individuels). Le modèle s'écrit :
+$$
+
 $$
 
 avec $\nu_i\sim N(0,\sigma_\nu^2)$ (les effets alatoires ont une moyenne nulle sur l'échelle de lien). En d'autres termes, au lieu de modéliser le log odds moyen de population, ce modèle à effet aléatoire permet de modéliser $\mu$ tout en tenant compte des variations inter-individuelles.
