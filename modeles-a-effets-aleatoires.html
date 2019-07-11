@@ -59,6 +59,97 @@
 </script>
 
 
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
 
 
 <style type="text/css">
@@ -387,24 +478,668 @@ $(document).ready(function () {
 
 </div>
 
-
-<div class="important">
-<p>Ce chapitre est en cours d’écriture.</p>
+<div id="TOC">
+<ul>
+<li><a href="#de-la-regression-lineaire-aux-modeles-mixtes">De la régression linéaire aux modèles mixtes</a><ul>
+<li><a href="#generalites">Généralités</a></li>
+<li><a href="#modeles-mixtes-glmm">Modèles mixtes (GLMM)</a></li>
+<li><a href="#cas-de-lanova-a-mesures-repetees">Cas de l’ANOVA à mesures répétées</a></li>
+<li><a href="#cas-des-donnees-longitudinales">Cas des données longitudinales</a></li>
+</ul></li>
+<li><a href="#cas-des-donnees-correlees-discretes">Cas des données corrélées discrètes</a><ul>
+<li><a href="#approche-gee">Approche GEE</a></li>
+<li><a href="#approche-glmm">Approche GLMM</a></li>
+</ul></li>
+</ul>
 </div>
-<div class="note">
-<p>Les exemples de ce chapitre sont repris d’un support de cours de Lionel Riou França disponible en ligne à <a href="http://christophe.genolini.free.fr/recherche/aTelecharger/Multilevel.pdf" class="uri">http://christophe.genolini.free.fr/recherche/aTelecharger/Multilevel.pdf</a>.</p>
+
+<div id="de-la-regression-lineaire-aux-modeles-mixtes" class="section level2">
+<h2>De la régression linéaire aux modèles mixtes</h2>
+<div id="generalites" class="section level3">
+<h3>Généralités</h3>
+<p>Dans un modèle de régression classique, il s’agit d’étudier la liaison statistique entre une variable à expliquer <var>Y</var> et des variables explicatives <var>X</var> non aléatoire. Soit <var>y<sub>i</sub></var> la réponse de l’individu <var>i</var> et <var>x<sub>i</sub></var> les valeurs prises par les variables explicatives pour cet individu. La relation entre <var>X</var> et <var>Y</var> peut s’écrire sous la forme :</p>
+<p><br /><span class="math display"><em>y</em><sub><em>i</em></sub> = <em>α</em> + <em>β</em><em>x</em><sub><em>i</em></sub> + <em>ε</em><sub><em>i</em></sub></span><br /></p>
+<p>où <span class="math inline"><em>ε</em><sub><em>i</em></sub></span> est une variable aléatoire distribuée selon une loi normale d’espérance nulle et représentant les <dfn>résidus du modèle</dfn><dfn data-index="modèle, résidus"></dfn> ou <dfn>erreurs</dfn>, <span class="math inline"><em>α</em></span> correspond à ce qu’on appelle l’<dfn>intercept</dfn> et <span class="math inline"><em>β</em></span> représente les <dfn>coefficients du modèle</dfn><dfn data-index="modèle, coefficients"></dfn>.</p>
+<p>Dans un modèle classique, les erreurs sont supposées être indépendantes et identiquement distribuées selon une loi normale. Or, ce n’est pas le cas dans un certain nombres de cas : lorsque plusieurs réponses sont disponibles pour le même individu pour un même <var>x<sub>i</sub></var> (cas des mesures répétées), lorsque plusieurs observations sont naturellement groupées (par exemple, les membres d’une famille, des jumeaux homozygotes, des patients dans une même unité de soins, etc.), ou lorsque l’on collecte des données au cours du temps chez un même individu. Les <dfn data-index="modèle mixte">modèles mixtes<dfn><dfn data-index="mixte, modèle"></dfn> ou <dfn data-index="modèle à effets aléatoires">modèles à effets aléatoires</dfn> permettent de prendre en considération ce type d’information et de généraliser l’approche déjà connue pour l’estimation des paramètres d’un modèle de régression linéaire classique (pour observations indépendantes).</p>
+<figure>
+<img src="images/img_models.png" alt="Modèles de régression" />
+<figcaption>
+Typologie des modèles de régression
+</figcaption>
+</figure>
 </div>
-<!---
+<div id="modeles-mixtes-glmm" class="section level3">
+<h3>Modèles mixtes (GLMM)</h3>
+<p>Par rapport au modèle linéaire (généralisé) classique, les modèles mixtes (GLMM dans la littérature anglo-saxonne) considèrent, en plus des effets fixes, des effets aléatoires qui permettent de refléter la corrélation entre les unités statistiques. Ce type de données en cluster s’observe lorsque des unités statistiques sont groupées ensemble (étudiants dans des écoles), en raison d’une corrélation intra-unité (données longitudinales) ou un mélange des deux (performance mesurée au cours du temps pour différents groupes de sujets).</p>
+<p>On rattache ce type de modèle aux approches conditionnelles, par opposition aux approches marginales telles que les GLS ou les GEE, décrites dans la deuxième partie de ce chapitre. Les modèles mixtes ne se limitent pas à un seul niveau de cluster, et il peut exister une hiérarchie de clusters imbriqués les uns dans les autres, d’où l’appelation de modèles hiérarchiques dans certains cas de figure.</p>
+<p>En ce qui concerne les effets fixes <em>versus</em> aléatoires, il existe peu de définition consensuelle, mais on peut considérer le schéma suivant pour décider si un effet doit être considéré comme fixe ou aléatoire :</p>
+<figure>
+<img src="images/img_random_vs_fixed.png" alt="Modèles de régression" />
+<figcaption>
+Schéma décisionnel pour définir un effet
+</figcaption>
+</figure>
+<p>L’analyse des données corrélées ou appariées permet de mettre en lumière l’importance de tenir compte de la structure de corrélation intra-unité. Voici l’exemple célèbre des données sur le sommeil utilisé par W. Gosset pour présenter son test de Student :</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">t.test</span>(extra <span class="op">~</span><span class="st"> </span>group, <span class="dt">data =</span> sleep)</a></code></pre></div>
+<pre><code>
+    Welch Two Sample t-test
 
-Dans un modèle de régression classique, il s'agit d'étudier la liaison statistique entre une variable à expliquer <var>Y</var> et des variables explicatives <var>X</var> non aléatoire. Soit <var>y~i~</var> la réponse de l'individu <var>i</var> et <var>x~i~</var> les valeurs prises par les variables explicatives pour cet individu. La relation entre <var>X</var> et <var>Y</var> peut s'écrire sous la forme :
+data:  extra by group
+t = -1.8608, df = 17.776, p-value = 0.07939
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -3.3654832  0.2054832
+sample estimates:
+mean in group 1 mean in group 2 
+           0.75            2.33 </code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">t.test</span>(extra <span class="op">~</span><span class="st"> </span>group, <span class="dt">data =</span> sleep, <span class="dt">paired =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<pre><code>
+    Paired t-test
 
-$$y_{i}=\alpha +\beta x_{i}+\varepsilon_{i}$$
+data:  extra by group
+t = -4.0621, df = 9, p-value = 0.002833
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -2.4598858 -0.7001142
+sample estimates:
+mean of the differences 
+                  -1.58 </code></pre>
+<p>Le résultat du test dans le premier cas de figure, qui ignore complètement l’appariement, se révèle non significatif alors que la prise en compte de l’appariement indique qu’il existe bien une différence significative dans le gain de sommeil selon le type d’hypnotique administré.</p>
+<p>Ignorer la corrélation intra-unité résulte en test généralement moins puissant sur le plan statistique. On sait que dans le cas où deux variables aléatoires, <span class="math inline"><em>X</em><sub>1</sub></span> et <span class="math inline"><em>X</em><sub>2</sub></span>, ne sont pas indépendantes, la variance de leur différence vaut :</p>
+<p><br /><span class="math display">Var(<em>X</em><sub>1</sub> − <em>X</em><sub>2</sub>) = Var(<em>X</em><sub>1</sub>) + Var(<em>X</em><sub>2</sub>) − 2Cov(<em>X</em><sub>1</sub>, <em>X</em><sub>2</sub>).</span><br /></p>
+<p>Considérer que <span class="math inline">Cov(<em>X</em><sub>1</sub>, <em>X</em><sub>2</sub>) = 0</span> revient à sur-estimer la variance de la différence, dans la mesure où <span class="math inline">Cov(<em>X</em><sub>1</sub>, <em>X</em><sub>2</sub>)</span> est généralement positive, soulignant le fait que les individus ayant un niveau plus élevé sur le premier niveau de la variable explicative ont généralement un niveau plus élevé que les autres sur le second niveau. On peut visualiser cette tendance très clairement avec les données “sleep” :</p>
+<figure>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">library</span>(lattice)</a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="kw">library</span>(gridExtra)</a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="co"># lattice.options(default.theme=brewer.theme)</span></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="kw">trellis.par.set</span>(<span class="dt">strip.background =</span> <span class="kw">list</span>(<span class="dt">col =</span> <span class="st">&quot;transparent&quot;</span>))</a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="kw">data</span>(sleep)</a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="kw">xyplot</span>(extra <span class="op">~</span><span class="st"> </span>group, <span class="dt">data =</span> sleep, <span class="dt">groups =</span> ID, <span class="dt">type =</span> <span class="st">&quot;l&quot;</span>)</a></code></pre></div>
+<p><img src="graphs/modeles-a-effets-aleatoires/unnamed-chunk-2-1.png" width="1050" /></p>
+<figcaption>
+Les données “sleep” de Student
+</figcaption>
+</figure>
+</div>
+<div id="cas-de-lanova-a-mesures-repetees" class="section level3">
+<h3>Cas de l’ANOVA à mesures répétées</h3>
+<p>Voici des données concernant l’excès de graisse dans les scelles suite à une défaillance des enzymes de digestion dans l’intestin. Des suppléments en enzyme pancréatique permettent de corriger ce problème, la question étant de déterminer quel est le meilleur mode d’administration (tablette, capsule, enrobé) :</p>
+<figure>
+<img src="images/img_fecal_fat.png" alt="Fecal fat study" />
+</figure>
+<p>Il n’y a qu’un seul prédicteur, le type de comprimé, qui est attaché au sujet et à la période d’administration dans le temps (répétition sur un même sujet). On dispose de plusieurs manières de décomposer la variance totale :</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">fat &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">fecfat =</span> <span class="kw">c</span>(<span class="fl">44.5</span>, <span class="dv">33</span>, <span class="fl">19.1</span>, <span class="fl">9.4</span>, <span class="fl">71.3</span>, <span class="fl">51.2</span>, </a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="fl">7.3</span>, <span class="dv">21</span>, <span class="dv">5</span>, <span class="fl">4.6</span>, <span class="fl">23.3</span>, <span class="dv">38</span>, <span class="fl">3.4</span>, <span class="fl">23.1</span>, <span class="fl">11.8</span>, <span class="fl">4.6</span>, <span class="fl">25.6</span>, <span class="dv">36</span>, </a>
+<a class="sourceLine" id="cb6-3" title="3">  <span class="fl">12.4</span>, <span class="fl">25.4</span>, <span class="dv">22</span>, <span class="fl">5.8</span>, <span class="fl">68.2</span>, <span class="fl">52.6</span>), <span class="dt">pilltype =</span> <span class="kw">gl</span>(<span class="dv">4</span>, <span class="dv">6</span>, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;None&quot;</span>, </a>
+<a class="sourceLine" id="cb6-4" title="4">  <span class="st">&quot;Tablet&quot;</span>, <span class="st">&quot;Capsule&quot;</span>, <span class="st">&quot;Coated&quot;</span>)), <span class="dt">subject =</span> <span class="kw">gl</span>(<span class="dv">6</span>, <span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="kw">summary</span>(aov1 &lt;-<span class="st"> </span><span class="kw">aov</span>(fecfat <span class="op">~</span><span class="st"> </span>pilltype, <span class="dt">data =</span> fat))  <span class="co"># (M1) one-way ANOVA</span></a></code></pre></div>
+<pre><code>            Df Sum Sq Mean Sq F value Pr(&gt;F)
+pilltype     3   2009   669.5   1.862  0.169
+Residuals   20   7193   359.7               </code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">summary</span>(aov2 &lt;-<span class="st"> </span><span class="kw">aov</span>(fecfat <span class="op">~</span><span class="st"> </span>pilltype <span class="op">+</span><span class="st"> </span>subject, <span class="dt">data =</span> fat))  <span class="co"># (M2) two-way ANOVA</span></a></code></pre></div>
+<pre><code>            Df Sum Sq Mean Sq F value   Pr(&gt;F)    
+pilltype     3   2009   669.5   6.257 0.005741 ** 
+subject      5   5588  1117.7  10.446 0.000182 ***
+Residuals   15   1605   107.0                     
+---
+Signif. codes:  
+0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">summary</span>(aov3 &lt;-<span class="st"> </span><span class="kw">aov</span>(fecfat <span class="op">~</span><span class="st"> </span>pilltype <span class="op">+</span><span class="st"> </span><span class="kw">Error</span>(subject), <span class="dt">data =</span> fat))  <span class="co"># (M3) RM ANOVA</span></a></code></pre></div>
+<pre><code>
+Error: subject
+          Df Sum Sq Mean Sq F value Pr(&gt;F)
+Residuals  5   5588    1118               
 
-où $\varepsilon_{i}$ est une variable aléatoire distribuée selon une loi normale d'espérance nulle et représentant les <dfn>résidus du modèle</dfn> ou erreurs, $\alpha$ correspond à ce qu'on appelle l'<dfn>intercept</dfn> et $\beta$ représente les <dfn>coefficients du modèle</dfn>. 
+Error: Within
+          Df Sum Sq Mean Sq F value  Pr(&gt;F)   
+pilltype   3   2009   669.5   6.257 0.00574 **
+Residuals 15   1605   107.0                   
+---
+Signif. codes:  
+0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>Voici les résultats que l’on obtient avec ces trois modèles résumés dans un tableau de synthèse :</p>
+<figure>
+<img src="images/img_fecal_fat_aov.png" alt="Fecal fat study" />
+</figure>
+<p>Le premier modèle, qui suppose les observations indépendantes, ne supprime pas la variance entre sujets (presque 78~% de la variance résiduelle). Les deux modèles suivants, <code>M2</code> et <code>M3</code>, incorpore chacun des effets spécifiques aux sujets :</p>
+<p><br /><span class="math display">$$
+y_{ij} = \mu + \text{subject}_i + \text{pilltype}_j + \varepsilon_{ij},\quad \varepsilon_{ij}\sim{\cal N}(0,\sigma_{\varepsilon}^2). 
+$$</span><br /></p>
+<p>Dans le troisième modèle (<code>M3</code>), on suppose de plus que <span class="math inline">$\text{subject}_i\sim{\cal N}(0,\sigma_{s}^2)$</span>, indépendant de <span class="math inline"><em>ε</em><sub><em>i</em><em>j</em></sub></span>. L’inclusion de termes aléatoires sujet-spécifique permet de modéliser différents types de corrélation intra-unité au niveau de la variable réponse. Considérons la corrélation entre des mesures prises successivement chez le même individu. On sait que :</p>
+<p><br /><span class="math display">$$ \text{Cor}(y_{ij},y_{ik})=\frac{\text{Cov}(y_{ij},y_{ik})}{\sqrt{\text{Var}(y_{ij})}. $$</span><br /></p>
+<p>Puisque <span class="math inline"><em>μ</em></span> et <span class="math inline">pilltype</span> sont fixes, et que <span class="math inline"><em>ε</em><sub><em>i</em><em>j</em></sub> ⊥ subject<sub><em>i</em></sub></span>, on a donc :</p>
+<p><br /><span class="math display">$$
+\begin{align}
+\text{Cov}(y_{ij},y_{ik}) &amp; = \text{Cov}(subject_i,subject_i) \cr
+&amp; = \text{Var}(subject_i) \cr
+&amp; = \sigma_{s}^2,
+\end{align}
+$$</span><br /></p>
+<p>et les composantes de variance résultent du fait que <span class="math inline">Var(<em>y</em><sub><em>i</em><em>j</em></sub>) = Var(<em>s</em><em>u</em><em>b</em><em>j</em><em>e</em><em>c</em><em>t</em><sub><em>i</em></sub>) + Var(<em>ε</em><sub><em>i</em><em>j</em></sub>) = <em>σ</em><sub><em>s</em></sub><sup>2</sup> + <em>σ</em><sub><em>ε</em></sub><sup>2</sup></span>, que l’on suppose vrai pour toutes les observations. De sorte qu’on arrive à la quantité que nous recherchions, à savoir la corrélation entre deux mesures, <span class="math inline"><em>j</em></span> et <span class="math inline"><em>k</em></span>, prises chez le même individu <span class="math inline"><em>i</em></span> :</p>
+<p><br /><span class="math display">$$ \text{Cor}(y_{ij},y_{ik})=\frac{\sigma_{s}^2}{\sigma_{s}^2+\sigma_{\varepsilon}^2}. $$</span><br /></p>
+<p>Cette valeur reflète la proportion de la variance totale qui est dûe aux individus eux-mêmes. On la dénomme également corrélation intraclasse, <span class="math inline"><em>ρ</em></span>, et elle permet de quantifier le degré de proximité entre les observations de différents individus (on parle également de similarité intra-cluster) :</p>
+<ul>
+<li>la variabilité entre sujets augmente ou diminue simultanément toutes les observations d’un même sujet ;</li>
+<li>la structure de variance-covariance du modèle ci-dessus est appelée “symétrie composée”.</li>
+</ul>
+<p>On retrouve alors l’égalité <span class="math inline"><em>σ</em><sup>2</sup> = <em>σ</em><sub><em>s</em></sub><sup>2</sup> + <em>σ</em><sub><em>ε</em></sub><sup>2</sup></span>, qui revient à :</p>
+<p><br /><span class="math display">$$
+\begin{bmatrix}
+\sigma_{s}^2+\sigma_{\varepsilon}^2 &amp; \sigma_{s}^2 &amp; \sigma_{s}^2 &amp; \sigma_{s}^2 \cr
+\sigma_{s}^2 &amp; \sigma_{s}^2+\sigma_{\varepsilon}^2 &amp; \sigma_{s}^2 &amp; \sigma_{s}^2 \cr
+\sigma_{s}^2 &amp; \sigma_{s}^2 &amp; \sigma_{s}^2+\sigma_{\varepsilon}^2 &amp; \sigma_{s}^2 \cr
+\sigma_{s}^2 &amp; \sigma_{s}^2 &amp; \sigma_{s}^2 &amp; \sigma_{s}^2+\sigma_{\varepsilon}^2 \cr
+\end{bmatrix} = \sigma^2
+\begin{bmatrix}
+1 &amp; \rho &amp; \dots &amp; \rho \cr
+\rho &amp; 1 &amp; &amp; \rho \cr
+\vdots &amp; &amp; \ddots &amp; \vdots \cr
+\rho &amp; \rho &amp; \dots &amp; 1 \cr
+\end{bmatrix}
+$$</span><br /></p>
+<p>L’estimation de <span class="math inline"><em>ρ</em></span> passe par l’observation suivante : les observations prises sur un même sujet sont modélisés <em>via</em> leur effet aléatoire (sujet-spécifique) partagé. En utilisant le modèle à intercept aléatoire considéré plus haut, il est possible d’estimer <span class="math inline"><em>ρ</em></span> à l’aide du package <code class="pkg">nlme</code> :</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">library</span>(nlme)</a>
+<a class="sourceLine" id="cb12-2" title="2">lme.fit &lt;-<span class="st"> </span><span class="kw">lme</span>(fecfat <span class="op">~</span><span class="st"> </span>pilltype, <span class="dt">data =</span> fat, <span class="dt">random =</span> <span class="op">~</span><span class="dv">1</span> <span class="op">|</span><span class="st"> </span>subject)</a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="kw">anova</span>(lme.fit)</a></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["numDF"],"name":[1],"type":["int"],"align":["right"]},{"label":["denDF"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["F-value"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["p-value"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"15","3":"14.265686","4":"0.001827199","_rn_":"(Intercept)"},{"1":"3","2":"15","3":"6.257391","4":"0.005740621","_rn_":"pilltype"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">intervals</span>(lme.fit)</a></code></pre></div>
+<pre><code>Approximate 95% confidence intervals
 
-Dans un modèle classique, les erreurs sont supposées être indépendantes et identiquement distribuées selon une loi normale. Or, ce n'est pas le cas dans un certain nombres de cas :
+ Fixed effects:
+                    lower       est.     upper
+(Intercept)      21.58081  38.083333 54.585860
+pilltypeTablet  -34.27929 -21.550000 -8.820713
+pilltypeCapsule -33.39595 -20.666667 -7.937380
+pilltypeCoated  -19.74595  -7.016667  5.712620
+attr(,&quot;label&quot;)
+[1] &quot;Fixed effects:&quot;
 
----->
+ Random Effects:
+  Level: subject 
+                   lower     est.    upper
+sd((Intercept)) 8.001119 15.89557 31.57924
+
+ Within-group standard error:
+    lower      est.     upper 
+ 7.232394 10.344027 14.794394 </code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">sigma.s &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="kw">VarCorr</span>(lme.fit)[<span class="dv">1</span>, <span class="dv">2</span>])</a>
+<a class="sourceLine" id="cb15-2" title="2">sigma.eps &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="kw">VarCorr</span>(lme.fit)[<span class="dv">2</span>, <span class="dv">2</span>])</a>
+<a class="sourceLine" id="cb15-3" title="3">sigma.s<span class="op">^</span><span class="dv">2</span><span class="op">/</span>(sigma.s<span class="op">^</span><span class="dv">2</span> <span class="op">+</span><span class="st"> </span>sigma.eps<span class="op">^</span><span class="dv">2</span>)</a></code></pre></div>
+<pre><code>[1] 0.7025064</code></pre>
+<p>On notera qu’une estimation par maximum de vraisemblance restreint (REML) est utilisée par défaut : les effets aléatoires sont estimés après avoir enlevé les effets fixes. On retiendra également que les tests de rapport de vraisemblance sur les termes aléatoires de ce genre de modèle (<span class="math inline"><em>H</em><sub>0</sub>: <em>σ</em><sup>2</sup> = 0</span>) sont conservateurs.</p>
+<p>Il est toujours possible de retrouver <span class="math inline"><em>ρ</em></span> à partir du tableau d’ANOVA et des composantes de variance :</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1">ms &lt;-<span class="st"> </span><span class="kw">anova</span>(<span class="kw">lm</span>(fecfat <span class="op">~</span><span class="st"> </span>pilltype <span class="op">+</span><span class="st"> </span>subject, <span class="dt">data =</span> fat))[[<span class="dv">3</span>]]</a>
+<a class="sourceLine" id="cb17-2" title="2">vs &lt;-<span class="st"> </span>(ms[<span class="dv">2</span>] <span class="op">-</span><span class="st"> </span>ms[<span class="dv">3</span>])<span class="op">/</span><span class="kw">nlevels</span>(fat<span class="op">$</span>pilltype)</a>
+<a class="sourceLine" id="cb17-3" title="3">vr &lt;-<span class="st"> </span>ms[<span class="dv">3</span>]</a>
+<a class="sourceLine" id="cb17-4" title="4">vs<span class="op">/</span>(vs <span class="op">+</span><span class="st"> </span>vr)</a></code></pre></div>
+<pre><code>[1] 0.7025066</code></pre>
+<p>Notons que l’on pourrait également procéder de même avec une approche (marginale) GLS :</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">gls.fit &lt;-<span class="st"> </span><span class="kw">gls</span>(fecfat <span class="op">~</span><span class="st"> </span>pilltype, <span class="dt">data =</span> fat, <span class="dt">corr =</span> <span class="kw">corCompSymm</span>(<span class="dt">form =</span> <span class="op">~</span><span class="dv">1</span> <span class="op">|</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb19-2" title="2"><span class="st">  </span>subject))</a>
+<a class="sourceLine" id="cb19-3" title="3"><span class="kw">anova</span>(gls.fit)</a></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["numDF"],"name":[1],"type":["int"],"align":["right"]},{"label":["F-value"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p-value"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"14.265652","3":"0.001184427","_rn_":"(Intercept)"},{"1":"3","2":"6.257396","3":"0.003593783","_rn_":"pilltype"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">intervals</span>(gls.fit)</a></code></pre></div>
+<pre><code>Approximate 95% confidence intervals
+
+ Coefficients:
+                    lower       est.     upper
+(Intercept)      21.93296  38.083333 54.233702
+pilltypeTablet  -34.00763 -21.550000 -9.092367
+pilltypeCapsule -33.12430 -20.666667 -8.209034
+pilltypeCoated  -19.47430  -7.016667  5.440966
+attr(,&quot;label&quot;)
+[1] &quot;Coefficients:&quot;
+
+ Correlation structure:
+        lower      est.     upper
+Rho 0.2722222 0.7025074 0.9143687
+attr(,&quot;label&quot;)
+[1] &quot;Correlation structure:&quot;
+
+ Residual standard error:
+   lower     est.    upper 
+11.64063 18.96494 30.89772 </code></pre>
+<p>On pourra vérifier que la structure ed variance-covariance imposée se reflète bien dans les données prédites par un tel modèle :</p>
+<figure>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1">fat<span class="op">$</span>pred &lt;-<span class="st"> </span><span class="kw">predict</span>(lme.fit)</a>
+<a class="sourceLine" id="cb22-2" title="2">p1 &lt;-<span class="st"> </span><span class="kw">xyplot</span>(fecfat <span class="op">~</span><span class="st"> </span><span class="kw">reorder</span>(pilltype, fecfat), <span class="dt">data =</span> fat, </a>
+<a class="sourceLine" id="cb22-3" title="3">  <span class="dt">groups =</span> subject, <span class="dt">type =</span> <span class="st">&quot;a&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Pill type&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Fecal fat (g/day)&quot;</span>, </a>
+<a class="sourceLine" id="cb22-4" title="4">  <span class="dt">scales =</span> <span class="kw">list</span>(<span class="dt">y =</span> <span class="kw">list</span>(<span class="dt">at =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">80</span>, <span class="dt">by =</span> <span class="dv">20</span>))))</a>
+<a class="sourceLine" id="cb22-5" title="5">p2 &lt;-<span class="st"> </span><span class="kw">xyplot</span>(pred <span class="op">~</span><span class="st"> </span><span class="kw">reorder</span>(pilltype, fecfat), <span class="dt">data =</span> fat, <span class="dt">groups =</span> subject, </a>
+<a class="sourceLine" id="cb22-6" title="6">  <span class="dt">type =</span> <span class="st">&quot;a&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Pill type&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Predicted fecal fat (g/day)&quot;</span>, </a>
+<a class="sourceLine" id="cb22-7" title="7">  <span class="dt">scales =</span> <span class="kw">list</span>(<span class="dt">y =</span> <span class="kw">list</span>(<span class="dt">at =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">80</span>, <span class="dt">by =</span> <span class="dv">20</span>))))</a>
+<a class="sourceLine" id="cb22-8" title="8"><span class="kw">grid.arrange</span>(p1, p2, <span class="dt">nrow =</span> <span class="dv">1</span>)</a></code></pre></div>
+<p><img src="graphs/modeles-a-effets-aleatoires/unnamed-chunk-7-1.png" width="1050" /></p>
+<figcaption>
+Valeurs observées et prédites pour l’étude “fecal fat”
+</figcaption>
+</figure>
+<p>Quelques remarques :</p>
+<ul>
+<li>pour un dessin expérimental équilibré, la variance résiduelle d’une ANOVA à effet intra (cas des mesures répétées) et celle d’un modèle à intercept aléatoire sont identiques (l’estimateur REML est équivalent au carré moyen de l’ANOVA) ; de même les effets liés au type de comprimé seront identiques aux moyennes marginales ;</li>
+<li>le test de la significativité des effets fixes peut être réalisé à l’aide de l’ANOVA (tests F) ou par comparaison de modèles emboîtés ; dans ce dernier cas, il est nécessaire d’estimer les paramètres du modèle mixte par maximum de vraismeblance et non par REML puisque les modèles emboîtés vont inclure des effets fixes différents :</li>
+</ul>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1"><span class="kw">anova</span>(lme.fit)</a></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["numDF"],"name":[1],"type":["int"],"align":["right"]},{"label":["denDF"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["F-value"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["p-value"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"15","3":"14.265686","4":"0.001827199","_rn_":"(Intercept)"},{"1":"3","2":"15","3":"6.257391","4":"0.005740621","_rn_":"pilltype"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1">lme.fit &lt;-<span class="st"> </span><span class="kw">update</span>(lme.fit, <span class="dt">method =</span> <span class="st">&quot;ML&quot;</span>)</a>
+<a class="sourceLine" id="cb24-2" title="2">lme.fit0 &lt;-<span class="st"> </span><span class="kw">update</span>(lme.fit, <span class="dt">fixed =</span> . <span class="op">~</span><span class="st"> </span><span class="op">-</span>pilltype)</a>
+<a class="sourceLine" id="cb24-3" title="3"><span class="kw">anova</span>(lme.fit, lme.fit0)</a></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["call"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["Model"],"name":[2],"type":["int"],"align":["right"]},{"label":["df"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["AIC"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["logLik"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["Test"],"name":[7],"type":["fctr"],"align":["left"]},{"label":["L.Ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p-value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"lme.formula(fixed = fecfat ~ pilltype, data = fat, random = ~1 |     subject, method = \"ML\")","2":"1","3":"6","4":"201.9581","5":"209.0264","6":"-94.97905","7":"","8":"NA","9":"NA","_rn_":"lme.fit"},{"1":"lme.formula(fixed = fecfat ~ 1, data = fat, random = ~1 | subject,     method = \"ML\")","2":"2","3":"3","4":"210.5667","5":"214.1008","6":"-102.28334","7":"1 vs 2","8":"14.60857","9":"0.002183635","_rn_":"lme.fit0"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>D’autres matrices de variance-covariance peuvent être retenues pour les modèles, en fonction du type de dessin expérimental. Le modèle à intercept aléatoire nous assure que la matrice e variance-covariance sera correctement contrainte. Dans le cas de l’ANOVA à mesures répétées, il est d’usage d’appliquer une correction de sphéricité (Greenhouse-Geisser ou Huynh-Feldt) ou d’utiliser une MANOVA mais celle-ci possède moins de puissance statistique. Les modèles mixtes restent donc plus souples dans la mesure où ils permettent de faire de l’inférence sur la structure de corrélation et de réaliser des comparaisons de modèle.</p>
+</div>
+<div id="cas-des-donnees-longitudinales" class="section level3">
+<h3>Cas des données longitudinales</h3>
+<p>Les données suivantes sont tirées du package <code class="pkg">lme4</code>:</p>
+<blockquote>
+<p>Average reaction time per day for subjects in a sleep deprivation study. On day 0 the subjects had their normal amount of sleep. Starting that night they were restricted to 3 hours of sleep per night. The observations represent the average reaction time on a series of tests given each day to each subject.</p>
+</blockquote>
+<figure>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">detach</span>(package<span class="op">:</span>nlme)</a>
+<a class="sourceLine" id="cb25-2" title="2"><span class="kw">library</span>(lme4)</a></code></pre></div>
+<pre><code>Loading required package: Matrix</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">data</span>(sleepstudy)</a>
+<a class="sourceLine" id="cb27-2" title="2"><span class="kw">xyplot</span>(Reaction <span class="op">~</span><span class="st"> </span>Days <span class="op">|</span><span class="st"> </span>Subject, <span class="dt">data =</span> sleepstudy, <span class="dt">layout =</span> <span class="kw">c</span>(<span class="dv">9</span>, </a>
+<a class="sourceLine" id="cb27-3" title="3">  <span class="dv">2</span>), <span class="dt">type =</span> <span class="kw">c</span>(<span class="st">&quot;g&quot;</span>, <span class="st">&quot;p&quot;</span>, <span class="st">&quot;r&quot;</span>), <span class="dt">index.cond =</span> <span class="cf">function</span>(x, y) <span class="kw">coef</span>(<span class="kw">lm</span>(y <span class="op">~</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb27-4" title="4"><span class="st">  </span>x))[<span class="dv">1</span>], <span class="dt">xlab =</span> <span class="st">&quot;Days of sleep deprivation&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Average reaction time (ms)&quot;</span>)</a></code></pre></div>
+<p><img src="graphs/modeles-a-effets-aleatoires/unnamed-chunk-9-1.png" width="1050" /></p>
+<figcaption>
+Temps de réaction en fonction de la durée de privation de sommeil
+</figcaption>
+</figure>
+<p>Considérons dans un premier temps de simples régressions linéaires pour chaque sujet :</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1">reg.subj &lt;-<span class="st"> </span><span class="kw">lmList</span>(Reaction <span class="op">~</span><span class="st"> </span>Days <span class="op">|</span><span class="st"> </span>Subject, sleepstudy)</a>
+<a class="sourceLine" id="cb28-2" title="2">reg.subj.df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">lapply</span>(reg.subj, coef))</a>
+<a class="sourceLine" id="cb28-3" title="3"><span class="kw">apply</span>(reg.subj.df, <span class="dv">1</span>, quantile, <span class="dt">prob =</span> <span class="kw">c</span>(<span class="fl">0.25</span>, <span class="fl">0.75</span>))</a></code></pre></div>
+<pre><code>    (Intercept)      Days
+25%    229.4167  6.194548
+75%    273.0255 13.548395</code></pre>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1"><span class="kw">coef</span>(<span class="kw">lm</span>(Reaction <span class="op">~</span><span class="st"> </span>Days, <span class="dt">data =</span> sleepstudy))</a></code></pre></div>
+<pre><code>(Intercept)        Days 
+  251.40510    10.46729 </code></pre>
+<p>Voici ce que cela donne visuellement :</p>
+<figure>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1">intcpt.dens &lt;-<span class="st"> </span><span class="kw">density</span>(<span class="kw">as.numeric</span>(reg.subj.df[<span class="dv">1</span>, ]), <span class="dt">adj =</span> <span class="fl">1.2</span>)</a>
+<a class="sourceLine" id="cb32-2" title="2">len &lt;-<span class="st"> </span><span class="kw">length</span>(intcpt.dens<span class="op">$</span>x)</a>
+<a class="sourceLine" id="cb32-3" title="3"><span class="kw">xyplot</span>(Reaction <span class="op">~</span><span class="st"> </span>Days, <span class="dt">data =</span> sleepstudy, <span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">8</span>), <span class="dt">ylab =</span> <span class="st">&quot;Fitted reaction time&quot;</span>, </a>
+<a class="sourceLine" id="cb32-4" title="4">  <span class="dt">scales =</span> <span class="kw">list</span>(<span class="dt">x =</span> <span class="kw">list</span>(<span class="dt">at =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">8</span>, <span class="dt">by =</span> <span class="dv">1</span>))), <span class="dt">panel =</span> <span class="cf">function</span>(x, </a>
+<a class="sourceLine" id="cb32-5" title="5">    y) {</a>
+<a class="sourceLine" id="cb32-6" title="6">    <span class="kw">apply</span>(reg.subj.df, <span class="dv">2</span>, panel.abline, <span class="dt">col =</span> <span class="st">&quot;lightgrey&quot;</span>)</a>
+<a class="sourceLine" id="cb32-7" title="7">    <span class="kw">panel.lines</span>(<span class="dt">x =</span> <span class="kw">c</span>(intcpt.dens<span class="op">$</span>y <span class="op">*</span><span class="st"> </span><span class="dv">100</span>, <span class="kw">rep</span>(<span class="dv">0</span>, len)), </a>
+<a class="sourceLine" id="cb32-8" title="8">      <span class="dt">y =</span> <span class="kw">c</span>(intcpt.dens<span class="op">$</span>x, <span class="kw">rev</span>(intcpt.dens<span class="op">$</span>x)))</a>
+<a class="sourceLine" id="cb32-9" title="9">    <span class="kw">panel.lmline</span>(x, y, <span class="dt">col =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">lwd =</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb32-10" title="10">  })</a></code></pre></div>
+<p><img src="graphs/modeles-a-effets-aleatoires/unnamed-chunk-11-1.png" width="1050" /></p>
+<figcaption>
+Droites de régression individuelles
+</figcaption>
+</figure>
+<p>On voit clairement que les sujets présentent des profils d’évolution différents et l’équation de la droite de régression globale est : <span class="math inline"><em>ỹ</em> = 251.4 + 10.5<em>x</em>.</span>. La question qui se pose est : dans quelle mesure cette équation capture t-elle la tendance observée entre les différents sujets ?</p>
+<p>Les estimations par moindres carrés sujet-spécifique sont bel et bien correctes mais l’erreur standard des paramètres de ces modèles sont biaisés puisque l’on suppose l’indépendance des observations. Les prédictions seront également incorrectes.</p>
+<p>Voici quelques modèles à effets aléatoires plausibles pour ce type de données :</p>
+<ul>
+<li>Random-intercept model : <code>Reaction ~ Days + (1 | Subject)</code></li>
+<li>Random-intercept and slope model : <code>Reaction ~ Days + (Days | Subject)</code></li>
+<li>Uncorrelated random effects (intercept and slope) : <code>Reaction ~ Days + (1 | Subject) + (0 + Days | Subject)</code></li>
+</ul>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1">lme.mod1 &lt;-<span class="st"> </span><span class="kw">lmer</span>(Reaction <span class="op">~</span><span class="st"> </span>Days <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">|</span><span class="st"> </span>Subject), <span class="dt">data =</span> sleepstudy)</a>
+<a class="sourceLine" id="cb33-2" title="2">lme.mod2 &lt;-<span class="st"> </span><span class="kw">lmer</span>(Reaction <span class="op">~</span><span class="st"> </span>Days <span class="op">+</span><span class="st"> </span>(Days <span class="op">|</span><span class="st"> </span>Subject), <span class="dt">data =</span> sleepstudy)</a>
+<a class="sourceLine" id="cb33-3" title="3">lme.mod3 &lt;-<span class="st"> </span><span class="kw">lmer</span>(Reaction <span class="op">~</span><span class="st"> </span>Days <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">|</span><span class="st"> </span>Subject) <span class="op">+</span><span class="st"> </span>(<span class="dv">0</span> <span class="op">+</span><span class="st"> </span>Days <span class="op">|</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb33-4" title="4"><span class="st">  </span>Subject), <span class="dt">data =</span> sleepstudy)</a>
+<a class="sourceLine" id="cb33-5" title="5"><span class="kw">anova</span>(lme.mod1, lme.mod2, lme.mod3)</a></code></pre></div>
+<pre><code>refitting model(s) with ML (instead of REML)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Df"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["AIC"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["logLik"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["deviance"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["Chisq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["Chi Df"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["Pr(>Chisq)"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"4","2":"1802.079","3":"1814.850","4":"-897.0393","5":"1794.079","6":"NA","7":"NA","8":"NA","_rn_":"lme.mod1"},{"1":"5","2":"1762.003","3":"1777.968","4":"-876.0016","5":"1752.003","6":"42.07538787","7":"1","8":"8.782158e-11","_rn_":"lme.mod3"},{"1":"6","2":"1763.939","3":"1783.097","4":"-875.9697","5":"1751.939","6":"0.06391068","7":"1","8":"8.004184e-01","_rn_":"lme.mod2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Concernant la prédiction des effets aléatoires, on retiendra que dans un modèle à effets aléatoires les coefficients de régression ne sont plus des paramètres et ils ne peuvent donc pas être estimés comme dans un modèle classique. de plus, leur espérance mathématique est nulle. Cela dit, il est toujours possible de reposer sur leur distribution <em>a posteriori</em>. En combinant les modes conditionnels des effets aléatoires et les estimés des effets fixes, on obtient ce que l’on appelle les modes conditionnels des coefficients intra-sujet (cf. <code data-pkg="lme4">mcmcsamp</code>). Les valeurs prédites s’écriront donc :</p>
+<p><br /><span class="math display">$$ \tilde y_i= (\underbrace{\hat\beta_0}_{\small\text{Fixed}}+\underbrace{\phantom{{\hat\beta_0}}\kern-2.3ex\hat u_{0i}}_{\small\text{Random}}) + (\hat\beta_1+\hat u_{1i})x. $$</span><br /></p>
+<p>Il est assez facile de vérifier que les effets aléatoires prédits sont reliés aux effets fixes :</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1">lm.mod1 &lt;-<span class="st"> </span><span class="kw">aov</span>(Reaction <span class="op">~</span><span class="st"> </span>Days <span class="op">+</span><span class="st"> </span>Subject, <span class="dt">data =</span> sleepstudy)</a>
+<a class="sourceLine" id="cb35-2" title="2">subj.fixef &lt;-<span class="st"> </span><span class="kw">model.tables</span>(lm.mod1, <span class="dt">cterms =</span> <span class="st">&quot;Subject&quot;</span>)[[<span class="dv">1</span>]]<span class="op">$</span>Subject</a>
+<a class="sourceLine" id="cb35-3" title="3"><span class="kw">ranef</span>(lme.mod1)<span class="op">$</span>Subject<span class="op">/</span>subj.fixef</a></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["(Intercept)"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.93485","_rn_":"308"},{"1":"0.93485","_rn_":"309"},{"1":"0.93485","_rn_":"310"},{"1":"0.93485","_rn_":"330"},{"1":"0.93485","_rn_":"331"},{"1":"0.93485","_rn_":"332"},{"1":"0.93485","_rn_":"333"},{"1":"0.93485","_rn_":"334"},{"1":"0.93485","_rn_":"335"},{"1":"0.93485","_rn_":"337"},{"1":"0.93485","_rn_":"349"},{"1":"0.93485","_rn_":"350"},{"1":"0.93485","_rn_":"351"},{"1":"0.93485","_rn_":"352"},{"1":"0.93485","_rn_":"369"},{"1":"0.93485","_rn_":"370"},{"1":"0.93485","_rn_":"371"},{"1":"0.93485","_rn_":"372"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<figure>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" title="1">df &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">lmList</span>(Reaction <span class="op">~</span><span class="st"> </span>Days <span class="op">|</span><span class="st"> </span>Subject, sleepstudy))</a>
+<a class="sourceLine" id="cb36-2" title="2">cc1 &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">coef</span>(lme.mod2)[[<span class="st">&quot;Subject&quot;</span>]])</a>
+<a class="sourceLine" id="cb36-3" title="3"><span class="kw">names</span>(cc1) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>)</a>
+<a class="sourceLine" id="cb36-4" title="4">df &lt;-<span class="st"> </span><span class="kw">cbind</span>(df, cc1)</a>
+<a class="sourceLine" id="cb36-5" title="5"><span class="kw">xyplot</span>(Reaction <span class="op">~</span><span class="st"> </span>Days <span class="op">|</span><span class="st"> </span>Subject, sleepstudy, <span class="dt">layout =</span> <span class="kw">c</span>(<span class="dv">9</span>, <span class="dv">2</span>), </a>
+<a class="sourceLine" id="cb36-6" title="6">  <span class="dt">type =</span> <span class="kw">c</span>(<span class="st">&quot;g&quot;</span>, <span class="st">&quot;r&quot;</span>), <span class="dt">coef.list =</span> df[, <span class="dv">3</span><span class="op">:</span><span class="dv">4</span>], <span class="dt">panel =</span> <span class="cf">function</span>(..., </a>
+<a class="sourceLine" id="cb36-7" title="7">    coef.list) {</a>
+<a class="sourceLine" id="cb36-8" title="8">    <span class="kw">panel.xyplot</span>(...)</a>
+<a class="sourceLine" id="cb36-9" title="9">    <span class="kw">panel.abline</span>(<span class="kw">as.numeric</span>(coef.list[<span class="kw">packet.number</span>(), ]), </a>
+<a class="sourceLine" id="cb36-10" title="10">      <span class="dt">col.line =</span> <span class="kw">trellis.par.get</span>(<span class="st">&quot;superpose.line&quot;</span>)<span class="op">$</span>col[<span class="dv">2</span>], </a>
+<a class="sourceLine" id="cb36-11" title="11">      <span class="dt">lty =</span> <span class="kw">trellis.par.get</span>(<span class="st">&quot;superpose.line&quot;</span>)<span class="op">$</span>lty[<span class="dv">2</span>])</a>
+<a class="sourceLine" id="cb36-12" title="12">  }, <span class="dt">index.cond =</span> <span class="cf">function</span>(x, y) <span class="kw">coef</span>(<span class="kw">lm</span>(y <span class="op">~</span><span class="st"> </span>x))[<span class="dv">1</span>], <span class="dt">xlab =</span> <span class="st">&quot;Days of sleep deprivation&quot;</span>, </a>
+<a class="sourceLine" id="cb36-13" title="13">  <span class="dt">ylab =</span> <span class="st">&quot;Average reaction time (ms)&quot;</span>, <span class="dt">key =</span> <span class="kw">list</span>(<span class="dt">space =</span> <span class="st">&quot;top&quot;</span>, </a>
+<a class="sourceLine" id="cb36-14" title="14">    <span class="dt">columns =</span> <span class="dv">2</span>, <span class="dt">cex =</span> <span class="fl">0.8</span>, <span class="dt">text =</span> <span class="kw">list</span>(<span class="kw">c</span>(<span class="st">&quot;Mixed model&quot;</span>, </a>
+<a class="sourceLine" id="cb36-15" title="15">      <span class="st">&quot;Within-group&quot;</span>)), <span class="dt">lines =</span> <span class="kw">list</span>(<span class="dt">col =</span> <span class="kw">trellis.par.get</span>(<span class="st">&quot;superpose.line&quot;</span>)<span class="op">$</span>col[<span class="dv">2</span><span class="op">:</span><span class="dv">1</span>], </a>
+<a class="sourceLine" id="cb36-16" title="16">      <span class="dt">lty =</span> <span class="kw">trellis.par.get</span>(<span class="st">&quot;superpose.line&quot;</span>)<span class="op">$</span>lty[<span class="dv">2</span><span class="op">:</span><span class="dv">1</span>])))</a></code></pre></div>
+<p><img src="graphs/modeles-a-effets-aleatoires/unnamed-chunk-14-1.png" width="1050" /></p>
+<figcaption>
+Valeurs prédites par les modèles
+</figcaption>
+</figure>
+<p>Les valeurs prédites d’un modèle mixte peuvent également être vues comme des estimateurs “shrinkage”. Dans les cas les plus simples, le coefficient de régularisation revient à :</p>
+<p><br /><span class="math display">$$ \tau = \frac{\sigma_u^2}{\sigma_u^2+\sigma_{\varepsilon}^2/n_i}, $$</span><br /></p>
+<p>où <span class="math inline"><em>n</em><sub><em>i</em></sub></span> désigne la taille du cluster <span class="math inline"><em>i</em></span>. Dans le cas présent, <span class="math inline"><em>τ</em> = 37.1<sup>2</sup>/(37.1<sup>2</sup> + 31.0<sup>2</sup>/10) = 0.935</span>. Il y aura peu de régularisation lorsque les unités statistiques sont très différentes ou que les mesures sont peu précises, ou dans le cas des grands échantillons.</p>
+<pre><code>    Random effects:                                    Reaction Days Subject     pred
+    Groups   Name        Variance Std.Dev.        1   249.5600    0     308 292.1888
+    Subject  (Intercept) 1378.18  37.124          2   258.7047    1     308 302.6561
+    Residual              960.46  30.991          3   250.8006    2     308 313.1234
+    Number of obs: 180, groups: Subject, 18        4   321.4398    3     308 323.5907
+                                                ...
+    Fixed effects:                                 177 334.4818    6     372 332.3246
+                Estimate Std. Error t value        178 343.2199    7     372 342.7919
+    (Intercept) 251.4051     9.7459   25.80        179 369.1417    8     372 353.2591
+    Days         10.4673     0.8042   13.02        180 364.1236    9     372 363.7264</code></pre>
+<figure>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1">intcpt.dens2 &lt;-<span class="st"> </span><span class="kw">density</span>(<span class="kw">as.numeric</span>(df[, <span class="dv">3</span>]), <span class="dt">adj =</span> <span class="fl">1.2</span>)</a>
+<a class="sourceLine" id="cb38-2" title="2">cc2 &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">coef</span>(lme.mod1)[[<span class="st">&quot;Subject&quot;</span>]])</a>
+<a class="sourceLine" id="cb38-3" title="3">df[, <span class="dv">3</span><span class="op">:</span><span class="dv">4</span>] &lt;-<span class="st"> </span>cc2</a>
+<a class="sourceLine" id="cb38-4" title="4"><span class="kw">xyplot</span>(Reaction <span class="op">~</span><span class="st"> </span>Days, <span class="dt">data =</span> sleepstudy, <span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">8</span>), <span class="dt">ylab =</span> <span class="st">&quot;Fitted reaction time&quot;</span>, </a>
+<a class="sourceLine" id="cb38-5" title="5">  <span class="dt">scales =</span> <span class="kw">list</span>(<span class="dt">x =</span> <span class="kw">list</span>(<span class="dt">at =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">8</span>, <span class="dt">by =</span> <span class="dv">1</span>))), <span class="dt">panel =</span> <span class="cf">function</span>(x, </a>
+<a class="sourceLine" id="cb38-6" title="6">    y) {</a>
+<a class="sourceLine" id="cb38-7" title="7">    <span class="kw">apply</span>(df[, <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dv">1</span>, panel.abline, <span class="dt">col =</span> <span class="st">&quot;grey30&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>)</a>
+<a class="sourceLine" id="cb38-8" title="8">    <span class="kw">apply</span>(df[, <span class="dv">3</span><span class="op">:</span><span class="dv">4</span>], <span class="dv">1</span>, panel.abline, <span class="dt">col =</span> <span class="st">&quot;#D95F02&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>)</a>
+<a class="sourceLine" id="cb38-9" title="9">    <span class="kw">panel.lines</span>(<span class="dt">x =</span> <span class="kw">c</span>(intcpt.dens<span class="op">$</span>y <span class="op">*</span><span class="st"> </span><span class="dv">100</span>, <span class="kw">rep</span>(<span class="dv">0</span>, len)), </a>
+<a class="sourceLine" id="cb38-10" title="10">      <span class="dt">y =</span> <span class="kw">c</span>(intcpt.dens<span class="op">$</span>x, <span class="kw">rev</span>(intcpt.dens<span class="op">$</span>x)), <span class="dt">col =</span> <span class="st">&quot;grey30&quot;</span>)</a>
+<a class="sourceLine" id="cb38-11" title="11">    <span class="kw">panel.lines</span>(<span class="dt">x =</span> <span class="kw">c</span>(intcpt.dens2<span class="op">$</span>y <span class="op">*</span><span class="st"> </span><span class="dv">100</span>, <span class="kw">rep</span>(<span class="dv">0</span>, len)), </a>
+<a class="sourceLine" id="cb38-12" title="12">      <span class="dt">y =</span> <span class="kw">c</span>(intcpt.dens2<span class="op">$</span>x, <span class="kw">rev</span>(intcpt.dens2<span class="op">$</span>x)), <span class="dt">col =</span> <span class="st">&quot;#D95F02&quot;</span>)</a>
+<a class="sourceLine" id="cb38-13" title="13">    </a>
+<a class="sourceLine" id="cb38-14" title="14">  })</a></code></pre></div>
+<p><img src="graphs/modeles-a-effets-aleatoires/unnamed-chunk-15-1.png" width="1050" /></p>
+<figcaption>
+Valeurs prédites et effet de régularisation
+</figcaption>
+</figure>
+<!--- TODO
+### Cas des modèles avec données groupées et prédicteur continu
+-->
+</div>
+</div>
+<div id="cas-des-donnees-correlees-discretes" class="section level2">
+<h2>Cas des données corrélées discrètes</h2>
+<div id="approche-gee" class="section level3">
+<h3>Approche GEE</h3>
+<p>Le cas des données discrètes pose en plus le problème du choix de la distribution pour la variable réponse (ou les erreurs). Une distribution binomiale ou multinomiale convient mieux aux cas où la variable modélisée correspond à un choix binaire ou à plus de deux catégories de réponse. De plus, le choix de la stratégie de modélisation influence également les conclusions que l’on peut tirer d’une étude. Comme on l’a vu plus haut, les modèles linéaires mixtes généralisés permettent d’estimer les paramètres sujet-spécifiques d’un modèle de régression en considérant des effets fixes et/ou aléatoires, éventuellement en considérant différentes structures de corrélation. Une alternative consiste à modéliser directement les effets moyens des facteurs fixes, sans se soucier des effets individuels, en supposant toutefois une matrice de corrélation de travail qui permette de rendre compte de la corrélation intra-unité. Cette approche est connue sous le terme Équations d’estimation généralisées (GEE dans la littérature anglo-saxonne).</p>
+<p>En ce qui concerne la matrice de corrélation de travail, voici 4 solutions qui peuvent constituer notre modèle de variance. Le premier cas correspond à une matrice d’indépendance (<code>ind</code>), où toutes les observations sont indépendantes les unes des autres :</p>
+<p><br /><span class="math display">$$
+\begin{pmatrix}
+1 &amp; 0 &amp; \cdots &amp; 0 \cr
+0 &amp; 1 &amp; \cdots &amp; 0 \cr
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \cr
+0 &amp; 0 &amp; \cdots &amp; 1
+\end{pmatrix}
+$$</span><br /></p>
+<p>On peut également considérer le cas d’une structure de corrélation symétrique ou échangeable (<code>exch</code>), telle que celle assumée dans une ANOVA à mesures répétées (cf. hypothèse de symétrie composée, ou sphéricité), où <span class="math inline"><em>ρ</em></span> désigne la corrélation intraclasse :</p>
+<p><br /><span class="math display">$$
+\begin{pmatrix}
+1 &amp; \rho &amp; \cdots &amp; \rho \cr
+\rho &amp; 1 &amp; \cdots &amp; \rho \cr
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \cr
+\rho &amp; \rho &amp; \cdots &amp; 1
+\end{pmatrix}
+$$</span><br /></p>
+<p>Une structure plus libérale consiste à supposer que les corrélations intra-unités sont libres de varier d’une unité à l’autre, et sont donc non structurées (<code>uns</code>) :</p>
+<p><br /><span class="math display">$$
+\begin{pmatrix}
+1 &amp; \rho*{1,2} &amp; \cdots &amp; \rho*{1,t} \cr
+\rho*{1,2} &amp; 1 &amp; \cdots &amp; \rho*{2,t} \cr
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \cr
+\rho*{1,t} &amp; \rho*{2,t} &amp; \cdots &amp; 1
+\end{pmatrix}
+$$</span><br /></p>
+<p>Enfin, il est également possible, surtout dans le cas des données temporelles, de considérer une structure de corrélation sérielle auto-régressive (<code>ar</code>) :</p>
+<p><br /><span class="math display">$$
+\begin{pmatrix}
+1 &amp; \rho &amp; \cdots &amp; \rho^{t-1} \cr
+\rho &amp; 1 &amp; \cdots &amp; \rho^{t-2} \cr
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \cr
+\rho^{t-1} &amp; \rho^{t-2} &amp; \cdots &amp; 1
+\end{pmatrix}
+$$</span><br /></p>
+<p>Comment choisir une bonne matrice de corrélation de travail pour notre modèle GEE ? En règle générale, on testera le modèle avec deux matrices de corrélation (p.ex. <code>exch</code> et <code>uns</code>) pour vérifier si l’une des deux améliore sensiblement la qualité de l’ajustement ou si une structure particulière est bien en accord avec notre modèle de variance présupposé. Voici également quelques critères globaux permettant de choisir l’une ou l’autre des structures de corrélation possibles :</p>
+<ul>
+<li>non structurée : peu d’unités par cluster, dessin expérimental équilibré ;</li>
+<li>échangeable : les unités d’un même cluster n’ont pas d’ordre particulier ;</li>
+<li>auto-régressive : afin de rendre compte d’une réponse variant avec le temps ;</li>
+<li>indépendante : lorsque le nombre de clusters est faible.</li>
+</ul>
+<p>Reste la question d’évaluer dans quelle mesure la matrice de corrélation retenue est appropriée, ce qui revient à formuler un test de spécification. La sensibilité à la mauvaise spécification de la matrice de corrélation se reflètera directement dans la précision des paramètres estimés, ou de manière équivalente au niveau de l’amplitude de leurs erreurs standard. Les estimateurs de variance peuvent de surcroît être de type “model-based” (pratique dans le cas d’un faible nombre de clusters, le cas échéant il est toujours possible d’utiliser un estimateur “jacknife”) ou empiriques (on parle d’estimateurs “sandwich”, et ils sont asymptotiquement sans bias). Mais on retiendra que même si la matrice de corrélation est mal spécifiée, le modèle GEE fournit des résultats valides sous réserve que l’estimateur de variance sandwich soit utilisé.</p>
+<p>Voici une petite illustration sur des données tirées d’une étude sur l’effet de la pollution de l’air sur la capacité respiratoires chez 537 enfants agés de 7 à 10 ans. Le fait que la mère fume et le temps constituent les prédicteurs d’intérêt, et la variable réponse est la présence d’un symptôme asthmatique (respiration sifflante). Les données collectées sont résumées dans le tableau suivant :</p>
+<div class="figure">
+<img src="images/img_wheezing-status.png" alt="Tableau des résultats sur l’étude wheeziness" />
+<p class="caption">Tableau des résultats sur l’étude wheeziness</p>
+</div>
+<p>Le modèle considéré s’écrit :</p>
+<p>$$</p>
+<p>$$</p>
+<p>et on parlera de “mean model” pour désigner un tel modèle dans lequel on s’intéresse à l’effet moyen (ici l’odds-ratio pour le status respiratoire) en fonction des prédicteurs, considérés à effets fixes dans ce modèle. Notons que ce modèle incorpore également un terme d’interaction (<span class="math inline"><em>β</em><sub>3</sub></span>).</p>
+<p>Il est également nécessaire de spécifier la fonction variance. Dans ce cas précis, on choisira <span class="math inline">𝕍(<em>μ</em>) = <em>ϕ</em><em>μ</em> ⋅ (1 − <em>μ</em>)</span>, avec <span class="math inline"><em>ϕ</em> = 1</span> pour le paramètre d’échelle. On ne fait aucune hypothèse sur la distribution des observations.</p>
+<p>Voici les données :</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" title="1"><span class="kw">library</span>(geepack)</a>
+<a class="sourceLine" id="cb39-2" title="2"><span class="kw">data</span>(ohio)</a>
+<a class="sourceLine" id="cb39-3" title="3"><span class="kw">head</span>(ohio, <span class="dt">n =</span> <span class="dv">8</span>)</a></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["resp"],"name":[1],"type":["int"],"align":["right"]},{"label":["id"],"name":[2],"type":["int"],"align":["right"]},{"label":["age"],"name":[3],"type":["int"],"align":["right"]},{"label":["smoke"],"name":[4],"type":["int"],"align":["right"]}],"data":[{"1":"0","2":"0","3":"-2","4":"0","_rn_":"1"},{"1":"0","2":"0","3":"-1","4":"0","_rn_":"2"},{"1":"0","2":"0","3":"0","4":"0","_rn_":"3"},{"1":"0","2":"0","3":"1","4":"0","_rn_":"4"},{"1":"0","2":"1","3":"-2","4":"0","_rn_":"5"},{"1":"0","2":"1","3":"-1","4":"0","_rn_":"6"},{"1":"0","2":"1","3":"0","4":"0","_rn_":"7"},{"1":"0","2":"1","3":"1","4":"0","_rn_":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1"><span class="kw">length</span>(<span class="kw">unique</span>(ohio<span class="op">$</span>id))</a></code></pre></div>
+<pre><code>[1] 537</code></pre>
+<figure>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" title="1">smoke.yes &lt;-<span class="st"> </span><span class="kw">xtabs</span>(resp <span class="op">~</span><span class="st"> </span>id <span class="op">+</span><span class="st"> </span>age, <span class="kw">subset</span>(ohio, smoke <span class="op">==</span><span class="st"> </span><span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb42-2" title="2">smoke.no &lt;-<span class="st"> </span><span class="kw">xtabs</span>(resp <span class="op">~</span><span class="st"> </span>id <span class="op">+</span><span class="st"> </span>age, <span class="kw">subset</span>(ohio, smoke <span class="op">==</span><span class="st"> </span><span class="dv">0</span>))</a>
+<a class="sourceLine" id="cb42-3" title="3">marg.means &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">resp =</span> <span class="kw">c</span>(<span class="kw">apply</span>(smoke.yes, <span class="dv">2</span>, mean), </a>
+<a class="sourceLine" id="cb42-4" title="4">  <span class="kw">apply</span>(smoke.no, <span class="dv">2</span>, mean)), <span class="dt">age =</span> <span class="kw">gl</span>(<span class="dv">4</span>, <span class="dv">1</span>, <span class="dt">labels =</span> <span class="dv">7</span><span class="op">:</span><span class="dv">10</span>, </a>
+<a class="sourceLine" id="cb42-5" title="5">  <span class="dt">ordered =</span> <span class="ot">TRUE</span>), <span class="dt">smoke =</span> <span class="kw">gl</span>(<span class="dv">2</span>, <span class="dv">4</span>, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;smoking&quot;</span>, <span class="st">&quot;not smoking&quot;</span>)))</a>
+<a class="sourceLine" id="cb42-6" title="6"><span class="kw">library</span>(latticeExtra)</a></code></pre></div>
+<pre><code>Warning: package &#39;latticeExtra&#39; was built under R version
+3.6.1</code></pre>
+<pre><code>Loading required package: RColorBrewer</code></pre>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1">p &lt;-<span class="st"> </span><span class="kw">xyplot</span>(resp <span class="op">~</span><span class="st"> </span>age, <span class="dt">data =</span> marg.means, <span class="dt">group =</span> smoke, <span class="dt">type =</span> <span class="kw">c</span>(<span class="st">&quot;l&quot;</span>, </a>
+<a class="sourceLine" id="cb45-2" title="2">  <span class="st">&quot;g&quot;</span>), <span class="dt">xlab =</span> <span class="st">&quot;Age (years)&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Wheeziness (%)&quot;</span>, <span class="dt">lwd =</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb45-3" title="3"><span class="kw">update</span>(p, <span class="dt">par.settings =</span> <span class="kw">custom.theme</span>())</a></code></pre></div>
+<p><img src="graphs/modeles-a-effets-aleatoires/unnamed-chunk-17-1.png" width="1050" /></p>
+<figcaption>
+Fréquence des symptômes respiratoires en fonction du groupe d’âge et du status fumeur de la mère
+</figcaption>
+</figure>
+<p>Et voici pour l’application numérique avec le package <code class="pkg">geepack</code>. Le premier modèle que nous considérerons figure une matrice de corrélation de travail de type symétrique :</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" title="1">fm &lt;-<span class="st"> </span>resp <span class="op">~</span><span class="st"> </span>age <span class="op">*</span><span class="st"> </span>smoke</a>
+<a class="sourceLine" id="cb46-2" title="2">gee.fit &lt;-<span class="st"> </span><span class="kw">geese</span>(fm, <span class="dt">id =</span> id, <span class="dt">data =</span> ohio, <span class="dt">family =</span> binomial, </a>
+<a class="sourceLine" id="cb46-3" title="3">  <span class="dt">corstr =</span> <span class="st">&quot;exch&quot;</span>, <span class="dt">scale.fix =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb46-4" title="4"><span class="kw">summary</span>(gee.fit)</a></code></pre></div>
+<pre><code>
+Call:
+geese(formula = fm, id = id, data = ohio, family = binomial, 
+    scale.fix = TRUE, corstr = &quot;exch&quot;)
+
+Mean Model:
+ Mean Link:                 logit 
+ Variance to Mean Relation: binomial 
+
+ Coefficients:
+               estimate     san.se        wald          p
+(Intercept) -1.90049529 0.11908698 254.6859841 0.00000000
+age         -0.14123592 0.05820089   5.8888576 0.01523698
+smoke        0.31382583 0.18784181   2.7912120 0.09478252
+age:smoke    0.07083184 0.08827886   0.6437892 0.42234200
+
+Scale is fixed.
+
+Correlation Model:
+ Correlation Structure:     exch 
+ Correlation Link:          identity 
+
+ Estimated Correlation Parameters:
+      estimate     san.se     wald p
+alpha 0.354531 0.03603439 96.79974 0
+
+Returned Error Value:    0 
+Number of clusters:   537   Maximum cluster size: 4 </code></pre>
+<p>La corrélation intra-cluster est estimée à <span class="math inline"><em>ρ̂</em> = 0.355</span>, et les résultats suggèrent que la fréquence des symptômes respiratoires diminue significativement (<span class="math inline"><em>p</em> &lt; 0.001</span>), mais sans effet du statut fumeur de la mère. L’usage d’une matrice de corrélation non structurée amènerait aux même conclusions. En utilisant le package <code class="pkg">gee</code>, qui repose sur un calcul de type “model-based” des erreurs standard, et une structure de corrélation indépedante, on se retrouverait à sous-estimer les paramètres de variance des effets stationnaires dans le temps :</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" title="1"><span class="kw">library</span>(gee)</a></code></pre></div>
+<pre><code>Warning: package &#39;gee&#39; was built under R version 3.6.1</code></pre>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" title="1">gee.fit.o &lt;-<span class="st"> </span><span class="kw">gee</span>(fm, <span class="dt">id =</span> id, <span class="dt">data =</span> ohio, <span class="dt">family =</span> binomial, </a>
+<a class="sourceLine" id="cb50-2" title="2">  <span class="dt">corstr =</span> <span class="st">&quot;independence&quot;</span>, <span class="dt">scale.fix =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<pre><code>Beginning Cgee S-function, @(#) geeformula.q 4.13 98/01/27</code></pre>
+<pre><code>running glm to get initial regression estimate</code></pre>
+<pre><code>(Intercept)         age       smoke   age:smoke 
+ -1.9008426  -0.1412531   0.3139540   0.0708441 </code></pre>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" title="1"><span class="kw">summary</span>(gee.fit.o)<span class="op">$</span>coefficients</a></code></pre></div>
+<pre><code>              Estimate Naive S.E.     Naive z Robust S.E.
+(Intercept) -1.9008426 0.08874166 -21.4199577  0.11907679
+age         -0.1412531 0.06951344  -2.0320261  0.05821418
+smoke        0.3139540 0.13943901   2.2515507  0.18783853
+age:smoke    0.0708441 0.11072327   0.6398303  0.08829469
+               Robust z
+(Intercept) -15.9631662
+age          -2.4264385
+smoke         1.6714036
+age:smoke     0.8023598</code></pre>
+<p>Les matrices de variance-covariance robuste et naïve pour les paramètres du modèle sont stockées dans l’objet <code>gee.fit</code> et sont accessibles, respectivement, à l’aide de <code>gee.fit$vbeta</code> et <code>gee.fit$vbeta.naiv</code>. Ces deux matrices sont numériquement proches l’une de l’autre, à 3 décimales près :</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" title="1"><span class="kw">summary</span>(<span class="kw">as.vector</span>(gee.fit<span class="op">$</span>vbeta <span class="op">-</span><span class="st"> </span>gee.fit<span class="op">$</span>vbeta.naiv))</a></code></pre></div>
+<pre><code>      Min.    1st Qu.     Median       Mean    3rd Qu. 
+-2.776e-04 -2.556e-04 -1.102e-04 -5.103e-05  1.447e-04 
+      Max. 
+ 2.933e-04 </code></pre>
+<p>Voici une autre syntaxe possible, en utilisant directement un estimateur sandwich :</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb58-1" title="1">gee.fit.exch &lt;-<span class="st"> </span><span class="kw">geeglm</span>(fm, <span class="dt">id =</span> id, <span class="dt">data =</span> ohio, <span class="dt">family =</span> binomial, </a>
+<a class="sourceLine" id="cb58-2" title="2">  <span class="dt">corstr =</span> <span class="st">&quot;exch&quot;</span>, <span class="dt">scale.fix =</span> <span class="ot">TRUE</span>, <span class="dt">std.err =</span> <span class="st">&quot;san.se&quot;</span>)</a>
+<a class="sourceLine" id="cb58-3" title="3"><span class="kw">summary</span>(gee.fit.exch)</a></code></pre></div>
+<pre><code>
+Call:
+geeglm(formula = fm, family = binomial, data = ohio, id = id, 
+    corstr = &quot;exch&quot;, scale.fix = TRUE, std.err = &quot;san.se&quot;)
+
+ Coefficients:
+            Estimate  Std.err    Wald Pr(&gt;|W|)    
+(Intercept) -1.90050  0.11909 254.686   &lt;2e-16 ***
+age         -0.14124  0.05820   5.889   0.0152 *  
+smoke        0.31383  0.18784   2.791   0.0948 .  
+age:smoke    0.07083  0.08828   0.644   0.4223    
+---
+Signif. codes:  
+0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Scale is fixed.
+
+Correlation: Structure = exchangeable  Link = identity 
+
+Estimated Correlation Parameters:
+      Estimate Std.err
+alpha   0.3545 0.03603
+Number of clusters:   537   Maximum cluster size: 4 </code></pre>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb60-1" title="1"><span class="kw">print</span>(rob.se &lt;-<span class="st"> </span><span class="kw">sqrt</span>(<span class="kw">diag</span>(gee.fit.exch<span class="op">$</span>geese<span class="op">$</span>vbeta)))</a></code></pre></div>
+<pre><code>[1] 0.11909 0.05820 0.18784 0.08828</code></pre>
+<p>On peut tester individuellement chaque facteur, par exemple le facteur <code>smoke</code>, à l’aide d’un test de Wald en comparant les deux modèles emboîtés grâce à la fonction <code data-pkg="geepack">anova</code> :</p>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb62-1" title="1">gee.fit.exch2 &lt;-<span class="st"> </span><span class="kw">geeglm</span>(<span class="kw">update</span>(fm, . <span class="op">~</span><span class="st"> </span>. <span class="op">-</span><span class="st"> </span>age), <span class="dt">id =</span> id, <span class="dt">data =</span> ohio, </a>
+<a class="sourceLine" id="cb62-2" title="2">  <span class="dt">family =</span> binomial, <span class="dt">corstr =</span> <span class="st">&quot;exch&quot;</span>, <span class="dt">scale.fix =</span> <span class="ot">TRUE</span>, <span class="dt">std.err =</span> <span class="st">&quot;san.se&quot;</span>)</a>
+<a class="sourceLine" id="cb62-3" title="3"><span class="kw">anova</span>(gee.fit.exch, gee.fit.exch2)</a></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Df"],"name":[1],"type":["int"],"align":["right"]},{"label":["X2"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["P(>|Chi|)"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"5.889","3":"0.01524","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Enfin, un intervalle de confiance à 95~% peut être estimé comme suit :</p>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb63-1" title="1"><span class="kw">exp</span>(<span class="kw">coef</span>(gee.fit.exch)[<span class="st">&quot;age&quot;</span>] <span class="op">+</span><span class="st"> </span><span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>) <span class="op">*</span><span class="st"> </span>rob.se[<span class="dv">2</span>] <span class="op">*</span><span class="st"> </span><span class="kw">qnorm</span>(<span class="fl">0.975</span>))</a></code></pre></div>
+<pre><code>[1] 0.7747 0.9732</code></pre>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" title="1"><span class="kw">library</span>(doBy)</a></code></pre></div>
+<pre><code>Warning: package &#39;doBy&#39; was built under R version 3.6.1</code></pre>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" title="1">gee.fit.ci &lt;-<span class="st"> </span><span class="kw">esticon</span>(gee.fit.exch, <span class="kw">diag</span>(<span class="dv">4</span>))</a>
+<a class="sourceLine" id="cb67-2" title="2"><span class="kw">exp</span>(gee.fit.ci[, <span class="kw">c</span>(<span class="st">&quot;Estimate&quot;</span>, <span class="st">&quot;Lower&quot;</span>, <span class="st">&quot;Upper&quot;</span>)])</a></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["Estimate"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["Lower"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Upper"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.1495","2":"0.1184","3":"0.1888"},{"1":"0.8683","2":"0.7747","3":"0.9732"},{"1":"1.3687","2":"0.9471","3":"1.9778"},{"1":"1.0734","2":"0.9029","3":"1.2762"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Le test <span class="math inline"><em>z</em></span> de Wald est construit comme <span class="math inline"><em>β̂</em><sub><em>j</em></sub>/SE(<em>β̂</em><sub><em>j</em></sub>)</span> et suit une loi du chi-deux à un degré de liberté. On pourra vérifier qu’en utilisant <span class="math inline">SE(<em>β̂</em><sub><em>j</em></sub>)</span> de la matrice de variance-covariance robuste (<code>rob.se</code> ci-dessus).</p>
+<p>Finalement, on peut se demander quelle est la valeur estimée de l’odds-ratio ajusté pour l’âge, qui est significatif dans notre modèle initial. De même, quelle est la valeur de l’odds d’une réponse positive (respiration sifflante) chez des enfants de 8 ans <em>versus</em> 10 ans lorsque la mère fume ou ne fume pas ?</p>
+<p>Voici les réponses avec <strong>R</strong> :</p>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb68-1" title="1">gee.fit2 &lt;-<span class="st"> </span><span class="kw">geeglm</span>(<span class="kw">update</span>(fm, . <span class="op">~</span><span class="st"> </span>. <span class="op">-</span><span class="st"> </span>age<span class="op">:</span>smoke), <span class="dt">id =</span> id, <span class="dt">data =</span> ohio, </a>
+<a class="sourceLine" id="cb68-2" title="2">  <span class="dt">family =</span> binomial, <span class="dt">corstr =</span> <span class="st">&quot;exch&quot;</span>, <span class="dt">scale.fix =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb68-3" title="3"><span class="kw">exp</span>(<span class="kw">coef</span>(gee.fit2)[<span class="st">&quot;age&quot;</span>])</a></code></pre></div>
+<pre><code>      age 
+0.8928068 </code></pre>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb70-1" title="1">gee.fit3 &lt;-<span class="st"> </span><span class="kw">geeglm</span>(resp <span class="op">~</span><span class="st"> </span><span class="kw">as.factor</span>(age) <span class="op">+</span><span class="st"> </span>smoke, <span class="dt">id =</span> id, <span class="dt">data =</span> ohio, </a>
+<a class="sourceLine" id="cb70-2" title="2">  <span class="dt">family =</span> binomial, <span class="dt">corstr =</span> <span class="st">&quot;exch&quot;</span>, <span class="dt">scale.fix =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb70-3" title="3"><span class="kw">library</span>(doBy)</a>
+<a class="sourceLine" id="cb70-4" title="4">e &lt;-<span class="st"> </span><span class="kw">esticon</span>(gee.fit3, <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">-1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb70-5" title="5"><span class="kw">exp</span>(e<span class="op">$</span>Estimate)</a></code></pre></div>
+<pre><code>[1] 0.8535773</code></pre>
+<p>Enfin, voici un dernier exemple, avec calcul des valeurs (marginales) prédites par un modèle considérant une matrice de corrélation symétrique et un estimateur sandwich :</p>
+<figure>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb72-1" title="1">gee.fit.exch3 &lt;-<span class="st"> </span><span class="kw">geeglm</span>(<span class="kw">update</span>(fm, . <span class="op">~</span><span class="st"> </span>. <span class="op">-</span><span class="st"> </span>age<span class="op">:</span>smoke), <span class="dt">id =</span> id, </a>
+<a class="sourceLine" id="cb72-2" title="2">  <span class="dt">data =</span> ohio, <span class="dt">family =</span> binomial, <span class="dt">corstr =</span> <span class="st">&quot;exch&quot;</span>, <span class="dt">scale.fix =</span> <span class="ot">TRUE</span>, </a>
+<a class="sourceLine" id="cb72-3" title="3">  <span class="dt">std.err =</span> <span class="st">&quot;san.se&quot;</span>)</a>
+<a class="sourceLine" id="cb72-4" title="4">newdf &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(<span class="dt">age =</span> <span class="kw">seq</span>(<span class="op">-</span><span class="dv">2</span>, <span class="dv">1</span>, <span class="dt">length =</span> <span class="dv">50</span>), <span class="dt">smoke =</span> <span class="kw">c</span>(<span class="dv">0</span>, </a>
+<a class="sourceLine" id="cb72-5" title="5">  <span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb72-6" title="6">newdf &lt;-<span class="st"> </span><span class="kw">cbind.data.frame</span>(<span class="dt">resp =</span> <span class="kw">predict</span>(gee.fit.exch3, <span class="dt">newdata =</span> newdf), </a>
+<a class="sourceLine" id="cb72-7" title="7">  newdf)</a>
+<a class="sourceLine" id="cb72-8" title="8">p &lt;-<span class="st"> </span><span class="kw">xyplot</span>(<span class="kw">exp</span>(resp) <span class="op">~</span><span class="st"> </span>age, <span class="dt">data =</span> newdf, <span class="dt">group =</span> smoke, <span class="dt">type =</span> <span class="kw">c</span>(<span class="st">&quot;l&quot;</span>, </a>
+<a class="sourceLine" id="cb72-9" title="9">  <span class="st">&quot;g&quot;</span>), <span class="dt">xlab =</span> <span class="st">&quot;Age (years)&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Wheeziness (%)&quot;</span>, <span class="dt">auto.key =</span> <span class="kw">list</span>(<span class="dt">corner =</span> <span class="kw">c</span>(<span class="dv">0</span>, </a>
+<a class="sourceLine" id="cb72-10" title="10">  <span class="dv">0</span>), <span class="dt">text =</span> <span class="kw">c</span>(<span class="st">&quot;No&quot;</span>, <span class="st">&quot;Yes&quot;</span>), <span class="dt">cex =</span> <span class="fl">0.8</span>))</a>
+<a class="sourceLine" id="cb72-11" title="11"><span class="kw">update</span>(p, <span class="dt">par.settings =</span> <span class="kw">custom.theme</span>())</a></code></pre></div>
+<p><img src="graphs/modeles-a-effets-aleatoires/unnamed-chunk-25-1.png" width="1050" /></p>
+<figcaption>
+Probabilités marginales prédites pour les deux groupes au cours du temps
+</figcaption>
+</figure>
+</div>
+<div id="approche-glmm" class="section level3">
+<h3>Approche GLMM</h3>
+<p>On peut comparer les résultats précédents avec ceux que l’on obtiendrait <em>via</em> une approche par modèle linéaire mixte. La syntaxe est la suivante :</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb73-1" title="1"><span class="kw">library</span>(lme4)</a>
+<a class="sourceLine" id="cb73-2" title="2">fit.glmm &lt;-<span class="st"> </span><span class="kw">glmer</span>(resp <span class="op">~</span><span class="st"> </span>age <span class="op">+</span><span class="st"> </span>smoke <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">|</span><span class="st"> </span>id), <span class="dt">data =</span> ohio, </a>
+<a class="sourceLine" id="cb73-3" title="3">  <span class="dt">family =</span> binomial)</a>
+<a class="sourceLine" id="cb73-4" title="4"><span class="kw">fixef</span>(fit.glmm)</a></code></pre></div>
+<pre><code>(Intercept)         age       smoke 
+ -3.3739539  -0.1767645   0.4147806 </code></pre>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb75-1" title="1"><span class="kw">head</span>(<span class="kw">fitted</span>(fit.glmm))</a></code></pre></div>
+<pre><code>         1          2          3          4          5 
+0.02880603 0.02425198 0.02040277 0.01715376 0.02880603 
+         6 
+0.02425198 </code></pre>
+<p>On retrouve un effet significatif de l’âge, que l’on pourrait d’ailleurs confirmer à l’aide d’un test du rapport de vraisemblance (<code>anova(fit.glmm, update(fit.glmm, . ~ . - age))</code>), <span class="math inline"><em>χ</em><sup>2</sup>(1) = 6.86</span> with <span class="math inline"><em>p</em> = 0.009</span>.</p>
+<p>Voici les mêmes paramètres estimés par les modèle GEE et GLMM :</p>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb77-1" title="1">gee.fitc &lt;-<span class="st"> </span><span class="kw">geeglm</span>(resp <span class="op">~</span><span class="st"> </span><span class="kw">as.numeric</span>(age) <span class="op">+</span><span class="st"> </span>smoke, <span class="dt">id =</span> id, <span class="dt">data =</span> ohio, </a>
+<a class="sourceLine" id="cb77-2" title="2">  <span class="dt">family =</span> binomial, <span class="dt">corstr =</span> <span class="st">&quot;exch&quot;</span>, <span class="dt">scale.fix =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb77-3" title="3">glmm.fitc &lt;-<span class="st"> </span><span class="kw">glmer</span>(resp <span class="op">~</span><span class="st"> </span><span class="kw">as.numeric</span>(age) <span class="op">+</span><span class="st"> </span>smoke <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">|</span><span class="st"> </span>id), </a>
+<a class="sourceLine" id="cb77-4" title="4">  <span class="dt">data =</span> ohio, <span class="dt">family =</span> binomial)</a>
+<a class="sourceLine" id="cb77-5" title="5"><span class="kw">exp</span>(<span class="kw">cbind</span>(<span class="kw">coef</span>(gee.fitc), <span class="kw">fixef</span>(glmm.fitc)))</a></code></pre></div>
+<pre><code>                     [,1]       [,2]
+(Intercept)     0.1525247 0.03425393
+as.numeric(age) 0.8928068 0.83797709
+smoke           1.3035395 1.51403848</code></pre>
+<p>Quelle est la différence entre cette approche et la précédente ? Dans le cas du modèle mixte, on utilise une approche conditionnelle, d’où la nécessité de spécifier la distribution des effets aléatoires (dans ce cas précis, uniquement les intercepts individuels). Le modèle s’écrit : $$</p>
+<p>$$</p>
+<p>avec <span class="math inline"><em>ν</em><sub><em>i</em></sub> ∼ <em>N</em>(0, <em>σ</em><sub><em>ν</em></sub><sup>2</sup>)</span> (les effets alatoires ont une moyenne nulle sur l’échelle de lien). En d’autres termes, au lieu de modéliser le log odds moyen de population, ce modèle à effet aléatoire permet de modéliser <span class="math inline"><em>μ</em></span> tout en tenant compte des variations inter-individuelles.</p>
+<p>Les approches GEE et GLMM sont équivalentes uniquement dans le cas d’une fonction de lien identité (cas de la régression liénaire), bien que seule l’interprétation, voire le bien fondé, des coefficients du modèle change dans le cas d’autres fonctions de lien.</p>
+</div>
+</div>
 
 </article>
 </div>
