@@ -17,7 +17,7 @@ for (f in list.files(pattern = "Rmd$")) {
 p <- gsub("library|require|\\(|\\)", "", p)
 p <- gsub("\"", "", p)
 p <- gsub(", quietly = TRUE", "", p)
-p <- unique(p)
+p <- unique(str_trim(p))
 m <- p[!p %in% installed.packages()[, 1]]
 
 if (!length(m)) {
