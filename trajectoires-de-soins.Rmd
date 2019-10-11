@@ -34,7 +34,7 @@ library(data.table, quietly = TRUE)
 Jetons un premier regard aux données.
 
 ```{r}
-care_trajectories
+head(care_trajectories)
 ```
 
 Il apparaît que les données sont dans un format <q>long</q> et *tidy* (voir le [chapitre sur **tidyr**](reorganiser-ses-donnees-avec-tidyr.html#tidy-data) pour une présentation du concept de <dfn lang="en">tidy data</dfn>), avec une ligne par individu et par pas de temps. Il apparait également que les données sont stockées sous formes de vecteurs labellisés (voir le [chapitre dédié aux vecteurs labellisés](facteurs-et-vecteurs-labellises.html#labelled)). Nous aurons donc besoin de l'extension `labelled`{.pkg}. 
@@ -327,7 +327,7 @@ library(tidyr)
 large <- care_trajectories %>%
   dplyr::select(id, m = month, care_status) %>%
   spread(key = m, value = care_status, sep = "") 
-large
+head(large)
 ```
 
 On utilise `seqdef`{data-pkg="TraMineR"} de `TraMineR`{.pkg} pour créer nos séquences, avec les arguments `alphabet` pour forcer l'ordre de l'alphabet, `states` pour spécifier des étiquettes courtes à chaque état et `cpal` pour indiquer le code couleur de chaque état (et être raccord avec nos graphiques précédents).
@@ -404,8 +404,9 @@ Reste maintenant à décider du nombre de classes à retenir. Encore une fois, c
 Pour faciliter ce choix, on peut avoir recours à la fonction `as.seqtree`{data-pkg="WeightedCluster"} de l'extension `WeightedCluster`{.pkg}, couplée à la fonction `seqtreedisplay`{data-pkg="TraMineR"}. **ATTENTION :** pour que le graphique puisse être produit, il faut que le logiciel libre **GraphViz** (<https://graphviz.gitlab.io/>) soit installé sur votre PC. On peut également installer **GraphViz** avec le code ci-dessous :
 
 ```{r, eval=FALSE}
-source("http://bioconductor.org/biocLite.R")
-biocLite("Rgraphviz")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("Rgraphviz")
 ```
 
 La combinaison des deux fonctions va permettre de représenter l'évolution des catégories au fur-et-à-mesure que l'on coupe le dendrogramme plus bas. On peut choisir le type de graphique utilisé avec l'argument `type` (voir l'aide de `seqplot`{data-pkg="TraMineR"}) et le nombre maximum de clusters avec `nclust`.
@@ -504,7 +505,7 @@ Nous voyons émerger quatre groupes distincts :
 
 Le graphique obtenu avec `seqIplot`{data-pkg="TraMineR" data-rdoc="seqplot"} affiche visuellement chaque groupe avec la même hauteur, pouvant laisser accroire que chaque groupe a le même poids dans l'échantillon. Pour produire une représentation graphique des tapis de séquences plus <q>correcte</q>, où chaque la hauteur de chaque groupe correspondrait à son poids dans l'échantillon, nous allons passer par `ggplot2`{.pkg}. Un tapis de séquences peut-être vu comme un <q>raster</q> et dès lors représenté avec `geom_raster`{data-pkg="ggplot2"}. Pour travailler avec `ggplot2`{.pkg}, nos données doivent être au format *tidy*, c'est-à-dire avec une ligne par point d'observation, soit une ligne par personne et par jour. Nous allons donc repartir du fichier `care_trajectories`. Le mois d'observation indiquera la position en abscisse. Quant à la position en ordonnée, il faudra que nous la calculions, séparément pour chaque groupe, afin d'éviter des <q>lignes vides</q> dans le graphique.
 
-```{r, fig.height=8}
+```{r, results="hide"}
 # nommer les groupes
 large_m18$groupe <- factor(
   large_m18$typo_pam,
@@ -535,7 +536,10 @@ long_m18 <- merge(
   by = "groupe",
   all.x = TRUE
 )
+```
 
+
+```{r, fig.height=8}
 # graphique des tapis de séquences
 ggplot(long_m18) +
   aes(x = month, y = rang_cmd, fill = care_statusF) +
@@ -674,7 +678,7 @@ Nous n'aborderons que brièvement ici ce type de modèles complexes. Sous **R**,
 
 Commençons par préparer les données.
 
-```{r}
+```{r, results="hide"}
 care_trajectories$num_status <- as.integer(to_factor(care_trajectories$care_status))
 care_trajectories[, sexF := to_factor(sex)]
 care_trajectories[, ageF := to_factor(age)]
@@ -796,9 +800,11 @@ ggplot(moyennes_mensuelles) +
 
 Il faut cependant rester vigilant, dans la mesure où ce type de représentation synthétique peut masquer la diversité des trajectoires sous-jacentes, notamment en termes de durée ou d'enchaînement des événements. Même si cela est peut-être plus difficile à lire, il est toujours bon de regarder les tapis de séquences.
 
-```{r, fig.width=6, fig.height=8}
+```{r, results="hide"}
 care_trajectories[, tmp_rang := as.integer(fct_infreq(factor(id))), by = mod4_class]
+```
 
+```{r, fig.width=6, fig.height=8}
 ggplot(care_trajectories[month <= 36]) +
   aes(x = month, y = tmp_rang, fill = care_statusF) +
   geom_raster() +
@@ -825,13 +831,13 @@ Vue la nature de notre variable d'intérêt (plusieurs modalités ordonnées), n
 
 Ici, nous allons utiliser `ordgee`{data-pkg="geepack"}. Il nous faut tout d'abord transformer notre variable d'intérêt en un facteur ordonné.
 
-```{r}
+```{r, results="hide"}
 care_trajectories[, care_statusF := to_factor(care_status, ordered = TRUE)]
 ```
 
 Nous allons transformer nos variables explicatives en facteurs. Pour le temps, dans la mesure où sont effet n'est pas forcément linéaire, nous allons l'intégrer en tant que variable catégorielle. Par contre, comme nous n'avons que très peu d'observations individuelles après 3 ans, nous ne prendrons en compte que les observations des 36 premiers mois. Nous allons aussi retirer les observations à M0 puisqu'à ce moment précis tous les individus sont dans la même situation (diagnostiqués mais pas en soins.)
 
-```{r}
+```{r, results="hide"}
 ct36 <- care_trajectories[month > 0 & month <= 36, ]
 ct36[, sexF := to_factor(sex)]
 ct36[, ageF := to_factor(age)]
