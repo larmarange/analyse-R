@@ -14,7 +14,7 @@ Certes, l'apprentissage de cette nouvelle syntaxe peut faire peur au début, mai
 Pour un tutoriel (en anglais et en ligne) écrit par les développeurs de `data.table`{.pkg}, voir <https://www.datacamp.com/courses/data-table-data-manipulation-r-tutorial>. On pourra aussi se référer au site officiel et ses différentes vignettes (en anglais) : <https://rdatatable.gitlab.io/>.
 
 
-# Convertir un data.frame en data.table
+## Convertir un data.frame en data.table
 
 Il suffit d'avoir recours à la fonction `as.data.table`{data-pkg="data.table"}.
 
@@ -26,7 +26,7 @@ class(iris2)
 
 Comme on le voit, cela ajoute plusieurs classes additionnelles au tableau de données, celui-ci restant malgré tout toujours un *data.frame*. Cependant, la syntaxe des crochets simples `[]` change radicalement, tandis que les crochets doubles `[[]]` restent inchangés. Par contre, comme il s'agit toujours d'un tableau de données classique, on pourra l'utiliser avec les fonctions des autres extensions de R. Si jamais vous rencontriez un problème, il est toujours possible de reconvertir en tableau de données classique avec `setDF`{data-pkg="data.table"} (voir ci-dessous).
 
-## setDT et setDF
+### setDT et setDF
 
 Lors de l'utilisation de `as.data.table`{data-pkg="data.table"}, le tableau de données original a d'abord été copié en mémoire, converti puis il a fallu le sauvegarder dans un objet avec `<-`. Lorsqu'on l'on manipule de gros tableaux, cela est gourmand en ressources système et prend du temps.
 
@@ -49,16 +49,16 @@ class(iris)
 ```
 
 
-## dplyr et data.table
+### dplyr et data.table
 
 Pour ceux travaillant également avec les extension `dplyr`{.pkg} et `tibble`{.pkg}, il est possible de concilier *tibble* et *data.table* avec l'extension `dtplyr`{.pkg}. Cette extension a connu une profonde évolution en 2019. Pour plus d'informations, voir <https://dtplyr.tidyverse.org/>.
 
 
-# La syntaxe des crochets
+## La syntaxe des crochets
 
 La syntaxe des crochets change radicalement avec `data.table`{.pkg}. Elle est de la forme `objet[i, j, by]` (dans sa forme la plus simple, pour une présentation exhaustive, voir le fichier d'aide de `data.table-package`{data-pkg="data.table"}).
 
-## Sélectionner des observations
+### Sélectionner des observations
 
 Cela se fait en indiquant une indiquant une condition au premier argument, à savoir `i`. Si l'on ne procède à une sélection en même temps sur les variables, il n'est pas nécessaire d'indiquer de virgule `,` dans les crochets. 
 
@@ -72,7 +72,7 @@ On notera que les noms indiquer entre les crochets sont évalués en fonction du
 Une différence de taille : lorsqu'il y a des observations pour lesquelles la condition indiquée en `i` renvoie `NA`, elles ne sont pas sélectionnées par `data.table`{.pkg} tandis que, pour un *data.frame* classique cela renvoie des lignes manquantes.
 </div>
 
-## Sélectionner des variables
+### Sélectionner des variables
 
 Pour sélectionner une variable, il suffit d'indiquer son nom dans la seconde partie, à savoir `j`. Noter la virgule qui permets d'indiquer que c'est une condition sur `j` et non sur `i`.
 
@@ -106,7 +106,7 @@ Attention : on ne peut pas directement sélectionner une variable par sa positio
 iris2[, .("Species", 3)]
 ```
 
-## Grouper les résultats
+### Grouper les résultats
 
 Si en `j` on utilise des fonctions qui à partir d'un vecteur renvoient une valeur unique (telles que `mean`{data-pkg="base"}, `median`{data-pkg="stats"}, `min`{data-pkg="base" data-rdoc="Extremes"}, `max`{data-pkg="base" data-rdoc="Extremes"}, `first`{data-pkg="data.table"}, `last`{data-pkg="data.table"}, `nth`{data-pkg="dplyr"}, etc.), on peut ainsi obtenir un résumé. On pourra également utiliser `.N`{data-pkg="data.table" data-rdoc="special-symbols"} pour obtenir le nombre d'observations.
 
@@ -120,7 +120,7 @@ Cela devient particulièrement intéressant en calculant ces mêmes valeurs par 
 iris2[, .(min_sepal_width = min(Sepal.Width), max_sepal_width = max(Sepal.Width), n_observations = .N), by = Species]
 ```
 
-## Ajouter / Modifier / Supprimer une variable
+### Ajouter / Modifier / Supprimer une variable
 
 `data.table`{.pkg} introduit un nouvel opérateur `:=` permettant de modifier une variable par assignation directe. Cela signifie que la modification a lieu directement en mémoire dans le tableau de données, sans qu'il soit besoin réaffecter le résultat avec `<-`.
 
@@ -137,7 +137,7 @@ iris2
 iris2[, .N, by = group]
 ```
 
-# Enchaîner les opérations
+## Enchaîner les opérations
 
 Il est possible d'enchaîner les opérations avec une succession de crochets.
 
@@ -145,3 +145,8 @@ Il est possible d'enchaîner les opérations avec une succession de crochets.
 iris2[, .(petal_area = Petal.Width * Petal.Length, Species)][, .(min_petal_area = min(petal_area)), by = Species]
 ```
 
+## Réorganiser un tableau
+
+L'extension `data.table`{.pkg} fournie également deux fonctions, `melt`{data-pkg="data.table" data-rdoc="melt.data.table"} et `dcast`{data-pkg="data.table" data-doc="dcast.data.table"}, dédiée à la réorganisation d'un tableau de données (respectivement *wide-to-long reshaping* et *long-to-wide reshaping*).
+
+Pour plus de détails, voir la vignette dédiée sur le site de l'extension : <https://rdatatable.gitlab.io/data.table/articles/datatable-reshape.html>
