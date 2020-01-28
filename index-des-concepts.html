@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr">
+<html lang="fr" xml:lang="fr">
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
@@ -165,6 +164,7 @@ summary {
   border: none;
   display: inline-block;
   border-radius: 4px;
+  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -361,7 +361,7 @@ summary {
 <div class="row">
 
 <div class="visible-lg">
-<a href="https://github.com/larmarange/analyse-R"><img style="position: absolute; top: 60px; left: 40px; border: 0;" src="./images/fork_me.png" alt="Contribuer sur GitHub"></a>
+<a href="https://github.com/larmarange/analyse-R"><img style="position: absolute; top: 60px; left: 40px; border: 0;" src="images/fork_me.png" alt="Contribuer sur GitHub"></a>
 </div>
 
 <div class="col-sm-9" role="main">
@@ -378,9 +378,6 @@ summary {
 
 <nav class="index">
 <ul class="pagination pagination-sm">
-<li>
-<a href="# "> </a>
-</li>
 <li>
 <a href="#A">A</a>
 </li>
@@ -450,190 +447,6 @@ summary {
 </ul>
 <p></nav></p>
 <div id="index_concepts" class="liste_index">
-<h2 id=" ">
-</h2>
-<p><dfn> ou modèles à effets aléatoires permettent de prendre en considération ce type d’information et de généraliser l’approche déjà connue pour l’estimation des paramètres d’un modèle de régression linéaire classique (pour observations indépendantes).</p>
-<p><img src="images/img_models.png" alt="Modèles de régression" /> Typologie des modèles de régression</p>
-<h3 id="modeles-mixtes-glmm">Modèles mixtes (GLMM)</h3>
-<p>Par rapport au modèle linéaire (généralisé) classique, les modèles mixtes (GLMM dans la littérature anglo-saxonne) considèrent, en plus des effets fixes, des effets aléatoires qui permettent de refléter la corrélation entre les unités statistiques. Ce type de données en cluster s’observe lorsque des unités statistiques sont groupées ensemble (étudiants dans des écoles), en raison d’une corrélation intra-unité (données longitudinales) ou un mélange des deux (performance mesurée au cours du temps pour différents groupes de sujets).</p>
-<p>On rattache ce type de modèle aux approches conditionnelles, par opposition aux approches marginales telles que les GLS ou les GEE, décrites dans la deuxième partie de ce chapitre. Les modèles mixtes ne se limitent pas à un seul niveau de cluster, et il peut exister une hiérarchie de clusters imbriqués les uns dans les autres, d’où l’appelation de modèles hiérarchiques dans certains cas de figure.</p>
-<p>En ce qui concerne les effets fixes <em>versus</em> aléatoires, il existe peu de définition consensuelle, mais on peut considérer le schéma suivant pour décider si un effet doit être considéré comme fixe ou aléatoire :</p>
-<p><img src="images/img_random_vs_fixed.png" alt="Modèles de régression" /> Schéma décisionnel pour définir un effet</p>
-<p>L’analyse des données corrélées ou appariées permet de mettre en lumière l’importance de tenir compte de la structure de corrélation intra-unité. Voici l’exemple célèbre des données sur le sommeil utilisé par W. Gosset pour présenter son test de Student :</p>
-<pre class="{r}"><code>t.test(extra ~ group, data=sleep)
-t.test(extra ~ group, data=sleep, paired = TRUE)</code></pre>
-<p>Le résultat du test dans le premier cas de figure, qui ignore complètement l’appariement, se révèle non significatif alors que la prise en compte de l’appariement indique qu’il existe bien une différence significative dans le gain de sommeil selon le type d’hypnotique administré.</p>
-<p>Ignorer la corrélation intra-unité résulte en test généralement moins puissant sur le plan statistique. On sait que dans le cas où deux variables aléatoires, <span class="math inline"><em>X</em><sub>1</sub></span> et <span class="math inline"><em>X</em><sub>2</sub></span>, ne sont pas indépendantes, la variance de leur différence vaut :</p>
-<p><br /><span class="math display">Var(<em>X</em><sub>1</sub> − <em>X</em><sub>2</sub>) = Var(<em>X</em><sub>1</sub>) + Var(<em>X</em><sub>2</sub>) − 2Cov(<em>X</em><sub>1</sub>, <em>X</em><sub>2</sub>).</span><br /></p>
-<p>Considérer que <span class="math inline">Cov(<em>X</em><sub>1</sub>, <em>X</em><sub>2</sub>) = 0</span> revient à sur-estimer la variance de la différence, dans la mesure où <span class="math inline">Cov(<em>X</em><sub>1</sub>, <em>X</em><sub>2</sub>)</span> est généralement positive, soulignant le fait que les individus ayant un niveau plus élevé sur le premier niveau de la variable explicative ont généralement un niveau plus élevé que les autres sur le second niveau. On peut visualiser cette tendance très clairement avec les données “sleep” :</p>
-<pre class="{r}"><code>library(lattice)
-library(gridExtra)
-#lattice.options(default.theme=brewer.theme)
-trellis.par.set(strip.background = list(col = &#39;transparent&#39;))
-data(sleep)
-xyplot(extra ~ group, data=sleep, groups=ID, type=&quot;l&quot;)</code></pre>
-<p>Les données “sleep” de Student</p>
-<h3 id="cas-de-lanova-a-mesures-repetees">Cas de l’ANOVA à mesures répétées</h3>
-<p>Voici des données concernant l’excès de graisse dans les scelles suite à une défaillance des enzymes de digestion dans l’intestin. Des suppléments en enzyme pancréatique permettent de corriger ce problème, la question étant de déterminer quel est le meilleur mode d’administration (tablette, capsule, enrobé) :</p>
-<div class="figure">
-<img src="images/img_fecal_fat.png" alt="Fecal fat study" />
-<p class="caption">Fecal fat study</p>
-</div>
-<p>Il n’y a qu’un seul prédicteur, le type de comprimé, qui est attaché au sujet et à la période d’administration dans le temps (répétition sur un même sujet). On dispose de plusieurs manières de décomposer la variance totale :</p>
-<p>```{r} fat <img src="images/img_fecal_fat_aov.png" alt="Fecal fat study" /></p>
-<p>Le premier modèle, qui suppose les observations indépendantes, ne supprime pas la variance entre sujets (presque 78~% de la variance résiduelle). Les deux modèles suivants, <code>M2</code> et <code>M3</code>, incorpore chacun des effets spécifiques aux sujets :</p>
-<p><br /><span class="math display">$$
-y_{ij} = \mu + \text{subject}_i + \text{pilltype}_j + \varepsilon_{ij},\quad \varepsilon_{ij}\sim{\cal N}(0,\sigma_{\varepsilon}^2). 
-$$</span><br /></p>
-<p>Dans le troisième modèle (<code>M3</code>), on suppose de plus que <span class="math inline">$\text{subject}_i\sim{\cal N}(0,\sigma_{s}^2)$</span>, indépendant de <span class="math inline"><em>ε</em><sub><em>i</em><em>j</em></sub></span>. L’inclusion de termes aléatoires sujet-spécifique permet de modéliser différents types de corrélation intra-unité au niveau de la variable réponse. Considérons la corrélation entre des mesures prises successivement chez le même individu. On sait que :</p>
-<p><br /><span class="math display">$$ \text{Cor}(y_{ij},y_{ik})=\frac{\text{Cov}(y_{ij},y_{ik})}{\sqrt{\text{Var}(y_{ij})}. $$</span><br /></p>
-<p>Puisque <span class="math inline"><em>μ</em></span> et <span class="math inline">pilltype</span> sont fixes, et que <span class="math inline"><em>ε</em><sub><em>i</em><em>j</em></sub> ⊥ subject<sub><em>i</em></sub></span>, on a donc :</p>
-<p><br /><span class="math display">$$
-\begin{align}
-\text{Cov}(y_{ij},y_{ik}) &amp; = \text{Cov}(subject_i,subject_i) \cr
-&amp; = \text{Var}(subject_i) \cr
-&amp; = \sigma_{s}^2,
-\end{align}
-$$</span><br /></p>
-<p>et les composantes de variance résultent du fait que <span class="math inline">Var(<em>y</em><sub><em>i</em><em>j</em></sub>) = Var(<em>s</em><em>u</em><em>b</em><em>j</em><em>e</em><em>c</em><em>t</em><sub><em>i</em></sub>) + Var(<em>ε</em><sub><em>i</em><em>j</em></sub>) = <em>σ</em><sub><em>s</em></sub><sup>2</sup> + <em>σ</em><sub><em>ε</em></sub><sup>2</sup></span>, que l’on suppose vrai pour toutes les observations. De sorte qu’on arrive à la quantité que nous recherchions, à savoir la corrélation entre deux mesures, <span class="math inline"><em>j</em></span> et <span class="math inline"><em>k</em></span>, prises chez le même individu <span class="math inline"><em>i</em></span> :</p>
-<p><br /><span class="math display">$$ \text{Cor}(y_{ij},y_{ik})=\frac{\sigma_{s}^2}{\sigma_{s}^2+\sigma_{\varepsilon}^2}. $$</span><br /></p>
-<p>Cette valeur reflète la proportion de la variance totale qui est dûe aux individus eux-mêmes. On la dénomme également corrélation intraclasse, <span class="math inline"><em>ρ</em></span>, et elle permet de quantifier le degré de proximité entre les observations de différents individus (on parle également de similarité intra-cluster) :</p>
-<ul>
-<li>la variabilité entre sujets augmente ou diminue simultanément toutes les observations d’un même sujet ;</li>
-<li>la structure de variance-covariance du modèle ci-dessus est appelée “symétrie composée”.</li>
-</ul>
-<p>On retrouve alors l’égalité <span class="math inline"><em>σ</em><sup>2</sup> = <em>σ</em><sub><em>s</em></sub><sup>2</sup> + <em>σ</em><sub><em>ε</em></sub><sup>2</sup></span>, qui revient à :</p>
-<p><br /><span class="math display">$$
-\begin{bmatrix}
-\sigma_{s}^2+\sigma_{\varepsilon}^2 &amp; \sigma_{s}^2 &amp; \sigma_{s}^2 &amp; \sigma_{s}^2 \cr
-\sigma_{s}^2 &amp; \sigma_{s}^2+\sigma_{\varepsilon}^2 &amp; \sigma_{s}^2 &amp; \sigma_{s}^2 \cr
-\sigma_{s}^2 &amp; \sigma_{s}^2 &amp; \sigma_{s}^2+\sigma_{\varepsilon}^2 &amp; \sigma_{s}^2 \cr
-\sigma_{s}^2 &amp; \sigma_{s}^2 &amp; \sigma_{s}^2 &amp; \sigma_{s}^2+\sigma_{\varepsilon}^2 \cr
-\end{bmatrix} = \sigma^2
-\begin{bmatrix}
-1 &amp; \rho &amp; \dots &amp; \rho \cr
-\rho &amp; 1 &amp; &amp; \rho \cr
-\vdots &amp; &amp; \ddots &amp; \vdots \cr
-\rho &amp; \rho &amp; \dots &amp; 1 \cr
-\end{bmatrix}
-$$</span><br /></p>
-<p>L’estimation de <span class="math inline"><em>ρ</em></span> passe par l’observation suivante : les observations prises sur un même sujet sont modélisés <em>via</em> leur effet aléatoire (sujet-spécifique) partagé. En utilisant le modèle à intercept aléatoire considéré plus haut, il est possible d’estimer <span class="math inline"><em>ρ</em></span> à l’aide du package <code class="pkg">nlme</code> :</p>
-<p>```{r} library(nlme) lme.fit</p>
-<p>```{r} fat$pred Valeurs observées et prédites pour l’étude “fecal fat”</p>
-<p>Quelques remarques :</p>
-<ul>
-<li>pour un dessin expérimental équilibré, la variance résiduelle d’une ANOVA à effet intra (cas des mesures répétées) et celle d’un modèle à intercept aléatoire sont identiques (l’estimateur REML est équivalent au carré moyen de l’ANOVA) ; de même les effets liés au type de comprimé seront identiques aux moyennes marginales ;</li>
-<li>le test de la significativité des effets fixes peut être réalisé à l’aide de l’ANOVA (tests F) ou par comparaison de modèles emboîtés ; dans ce dernier cas, il est nécessaire d’estimer les paramètres du modèle mixte par maximum de vraismeblance et non par REML puisque les modèles emboîtés vont inclure des effets fixes différents :</li>
-</ul>
-<p>```{r} anova(lme.fit) lme.fit Average reaction time per day for subjects in a sleep deprivation study. On day 0 the subjects had their normal amount of sleep. Starting that night they were restricted to 3 hours of sleep per night. The observations represent the average reaction time on a series of tests given each day to each subject.</p>
-<pre class="{r}"><code>detach(package:nlme)
-library(lme4)
-data(sleepstudy)
-xyplot(Reaction ~ Days | Subject, data = sleepstudy,
-       layout = c(9,2), type=c(&quot;g&quot;, &quot;p&quot;, &quot;r&quot;),
-       index.cond = function(x,y) coef(lm(y ~ x))[1],
-       xlab = &quot;Days of sleep deprivation&quot;,
-       ylab = &quot;Average reaction time (ms)&quot;)</code></pre>
-<p>Temps de réaction en fonction de la durée de privation de sommeil</p>
-<p>Considérons dans un premier temps de simples régressions linéaires pour chaque sujet :</p>
-<p>```{r} reg.subj</p>
-<p>```{r} intcpt.dens Droites de régression individuelles</p>
-<p>On voit clairement que les sujets présentent des profils d’évolution différents et l’équation de la droite de régression globale est : <span class="math inline"><em>ỹ</em> = 251.4 + 10.5<em>x</em>.</span>. La question qui se pose est : dans quelle mesure cette équation capture t-elle la tendance observée entre les différents sujets ?</p>
-<p>Les estimations par moindres carrés sujet-spécifique sont bel et bien correctes mais l’erreur standard des paramètres de ces modèles sont biaisés puisque l’on suppose l’indépendance des observations. Les prédictions seront également incorrectes.</p>
-<p>Voici quelques modèles à effets aléatoires plausibles pour ce type de données :</p>
-<ul>
-<li>Random-intercept model : <code>Reaction ~ Days + (1 | Subject)</code></li>
-<li>Random-intercept and slope model : <code>Reaction ~ Days + (Days | Subject)</code></li>
-<li>Uncorrelated random effects (intercept and slope) : <code>Reaction ~ Days + (1 | Subject) + (0 + Days | Subject)</code></li>
-</ul>
-<p>```{r} lme.mod1</p>
-<p>```{r} df Valeurs prédites par les modèles</p>
-<p>Les valeurs prédites d’un modèle mixte peuvent également être vues comme des estimateurs “shrinkage”. Dans les cas les plus simples, le coefficient de régularisation revient à :</p>
-<p><br /><span class="math display">$$ \tau = \frac{\sigma_u^2}{\sigma_u^2+\sigma_{\varepsilon}^2/n_i}, $$</span><br /></p>
-<p>où <span class="math inline"><em>n</em><sub><em>i</em></sub></span> désigne la taille du cluster <span class="math inline"><em>i</em></span>. Dans le cas présent, <span class="math inline"><em>τ</em> = 37.1<sup>2</sup>/(37.1<sup>2</sup> + 31.0<sup>2</sup>/10) = 0.935</span>. Il y aura peu de régularisation lorsque les unités statistiques sont très différentes ou que les mesures sont peu précises, ou dans le cas des grands échantillons.</p>
-<pre><code>    Random effects:                                    Reaction Days Subject     pred
-    Groups   Name        Variance Std.Dev.        1   249.5600    0     308 292.1888
-    Subject  (Intercept) 1378.18  37.124          2   258.7047    1     308 302.6561
-    Residual              960.46  30.991          3   250.8006    2     308 313.1234
-    Number of obs: 180, groups: Subject, 18        4   321.4398    3     308 323.5907
-                                                ...
-    Fixed effects:                                 177 334.4818    6     372 332.3246
-                Estimate Std. Error t value        178 343.2199    7     372 342.7919
-    (Intercept) 251.4051     9.7459   25.80        179 369.1417    8     372 353.2591
-    Days         10.4673     0.8042   13.02        180 364.1236    9     372 363.7264</code></pre>
-<p>```{r} intcpt.dens2 Valeurs prédites et effet de régularisation</p>
-<h2 id="cas-des-donnees-correlees-discretes">Cas des données corrélées discrètes</h2>
-<h3 id="approche-gee">Approche GEE</h3>
-<p>Le cas des données discrètes pose en plus le problème du choix de la distribution pour la variable réponse (ou les erreurs). Une distribution binomiale ou multinomiale convient mieux aux cas où la variable modélisée correspond à un choix binaire ou à plus de deux catégories de réponse. De plus, le choix de la stratégie de modélisation influence également les conclusions que l’on peut tirer d’une étude. Comme on l’a vu plus haut, les modèles linéaires mixtes généralisés permettent d’estimer les paramètres sujet-spécifiques d’un modèle de régression en considérant des effets fixes et/ou aléatoires, éventuellement en considérant différentes structures de corrélation. Une alternative consiste à modéliser directement les effets moyens des facteurs fixes, sans se soucier des effets individuels, en supposant toutefois une matrice de corrélation de travail qui permette de rendre compte de la corrélation intra-unité. Cette approche est connue sous le terme Équations d’estimation généralisées (GEE dans la littérature anglo-saxonne).</p>
-<p>En ce qui concerne la matrice de corrélation de travail, voici 4 solutions qui peuvent constituer notre modèle de variance. Le premier cas correspond à une matrice d’indépendance (<code>ind</code>), où toutes les observations sont indépendantes les unes des autres :</p>
-<p><br /><span class="math display">$$
-\begin{pmatrix}
-1 &amp; 0 &amp; \cdots &amp; 0 \cr
-0 &amp; 1 &amp; \cdots &amp; 0 \cr
-\vdots &amp; \vdots &amp; \ddots &amp; \vdots \cr
-0 &amp; 0 &amp; \cdots &amp; 1
-\end{pmatrix}
-$$</span><br /></p>
-<p>On peut également considérer le cas d’une structure de corrélation symétrique ou échangeable (<code>exch</code>), telle que celle assumée dans une ANOVA à mesures répétées (cf. hypothèse de symétrie composée, ou sphéricité), où <span class="math inline"><em>ρ</em></span> désigne la corrélation intraclasse :</p>
-<p><br /><span class="math display">$$
-\begin{pmatrix}
-1 &amp; \rho &amp; \cdots &amp; \rho \cr
-\rho &amp; 1 &amp; \cdots &amp; \rho \cr
-\vdots &amp; \vdots &amp; \ddots &amp; \vdots \cr
-\rho &amp; \rho &amp; \cdots &amp; 1
-\end{pmatrix}
-$$</span><br /></p>
-<p>Une structure plus libérale consiste à supposer que les corrélations intra-unités sont libres de varier d’une unité à l’autre, et sont donc non structurées (<code>uns</code>) :</p>
-<p><br /><span class="math display">$$
-\begin{pmatrix}
-1 &amp; \rho*{1,2} &amp; \cdots &amp; \rho*{1,t} \cr
-\rho*{1,2} &amp; 1 &amp; \cdots &amp; \rho*{2,t} \cr
-\vdots &amp; \vdots &amp; \ddots &amp; \vdots \cr
-\rho*{1,t} &amp; \rho*{2,t} &amp; \cdots &amp; 1
-\end{pmatrix}
-$$</span><br /></p>
-<p>Enfin, il est également possible, surtout dans le cas des données temporelles, de considérer une structure de corrélation sérielle auto-régressive (<code>ar</code>) :</p>
-<p><br /><span class="math display">$$
-\begin{pmatrix}
-1 &amp; \rho &amp; \cdots &amp; \rho^{t-1} \cr
-\rho &amp; 1 &amp; \cdots &amp; \rho^{t-2} \cr
-\vdots &amp; \vdots &amp; \ddots &amp; \vdots \cr
-\rho^{t-1} &amp; \rho^{t-2} &amp; \cdots &amp; 1
-\end{pmatrix}
-$$</span><br /></p>
-<p>Comment choisir une bonne matrice de corrélation de travail pour notre modèle GEE ? En règle générale, on testera le modèle avec deux matrices de corrélation (p.ex. <code>exch</code> et <code>uns</code>) pour vérifier si l’une des deux améliore sensiblement la qualité de l’ajustement ou si une structure particulière est bien en accord avec notre modèle de variance présupposé. Voici également quelques critères globaux permettant de choisir l’une ou l’autre des structures de corrélation possibles :</p>
-<ul>
-<li>non structurée : peu d’unités par cluster, dessin expérimental équilibré ;</li>
-<li>échangeable : les unités d’un même cluster n’ont pas d’ordre particulier ;</li>
-<li>auto-régressive : afin de rendre compte d’une réponse variant avec le temps ;</li>
-<li>indépendante : lorsque le nombre de clusters est faible.</li>
-</ul>
-<p>Reste la question d’évaluer dans quelle mesure la matrice de corrélation retenue est appropriée, ce qui revient à formuler un test de spécification. La sensibilité à la mauvaise spécification de la matrice de corrélation se reflètera directement dans la précision des paramètres estimés, ou de manière équivalente au niveau de l’amplitude de leurs erreurs standard. Les estimateurs de variance peuvent de surcroît être de type “model-based” (pratique dans le cas d’un faible nombre de clusters, le cas échéant il est toujours possible d’utiliser un estimateur “jacknife”) ou empiriques (on parle d’estimateurs “sandwich”, et ils sont asymptotiquement sans bias). Mais on retiendra que même si la matrice de corrélation est mal spécifiée, le modèle GEE fournit des résultats valides sous réserve que l’estimateur de variance sandwich soit utilisé.</p>
-<p>Voici une petite illustration sur des données tirées d’une étude sur l’effet de la pollution de l’air sur la capacité respiratoires chez 537 enfants agés de 7 à 10 ans. Le fait que la mère fume et le temps constituent les prédicteurs d’intérêt, et la variable réponse est la présence d’un symptôme asthmatique (respiration sifflante). Les données collectées sont résumées dans le tableau suivant :</p>
-<div class="figure">
-<img src="images/img_wheezing-status.png" alt="Tableau des résultats sur l’étude wheeziness" />
-<p class="caption">Tableau des résultats sur l’étude wheeziness</p>
-</div>
-<p>Le modèle considéré s’écrit :</p>
-<p>$$</p>
-<p>$$</p>
-<p>et on parlera de “mean model” pour désigner un tel modèle dans lequel on s’intéresse à l’effet moyen (ici l’odds-ratio pour le status respiratoire) en fonction des prédicteurs, considérés à effets fixes dans ce modèle. Notons que ce modèle incorpore également un terme d’interaction (<span class="math inline"><em>β</em><sub>3</sub></span>).</p>
-<p>Il est également nécessaire de spécifier la fonction variance. Dans ce cas précis, on choisira <span class="math inline">𝕍(<em>μ</em>) = <em>ϕ</em><em>μ</em> ⋅ (1 − <em>μ</em>)</span>, avec <span class="math inline"><em>ϕ</em> = 1</span> pour le paramètre d’échelle. On ne fait aucune hypothèse sur la distribution des observations.</p>
-<p>Voici les données :</p>
-<pre class="{r}"><code>library(geepack)
-data(ohio)
-head(ohio, n=8)
-length(unique(ohio$id))</code></pre>
-<p>```{r} smoke.yes Fréquence des symptômes respiratoires en fonction du groupe d’âge et du status fumeur de la mère</p>
-<p>Et voici pour l’application numérique avec le package <code class="pkg">geepack</code>. Le premier modèle que nous considérerons figure une matrice de corrélation de travail de type symétrique :</p>
-<p>```{r} fm</p>
-<p>```{r} gee.fit.exch3 Probabilités marginales prédites pour les deux groupes au cours du temps</p>
-<h3 id="approche-glmm">Approche GLMM</h3>
-<p>On peut comparer les résultats précédents avec ceux que l’on obtiendrait <em>via</em> une approche par modèle linéaire mixte. La syntaxe est la suivante :</p>
-<p>```{r} library(lme4) fit.glmm </dfn></p>
-<ul>
-<li><a href="modeles-a-effets-aleatoires.html">Modèles à effets aléatoires (modèles mixtes et GEE)</a></li>
-</ul>
 <h2 id="A">
 A
 </h2>
