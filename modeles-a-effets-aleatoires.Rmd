@@ -16,7 +16,7 @@ $$y_{i}=\alpha +\beta x_{i}+\varepsilon_{i}$$
 
 où $\varepsilon_{i}$ est une variable aléatoire distribuée selon une loi normale d'espérance nulle et représentant les <dfn>résidus du modèle</dfn><dfn data-index="modèle, résidus"></dfn> ou <dfn>erreurs</dfn>, $\alpha$ correspond à ce qu'on appelle l'<dfn>intercept</dfn> et $\beta$ représente les <dfn>coefficients du modèle</dfn><dfn data-index="modèle, coefficients"></dfn>.
 
-Dans un modèle classique, les erreurs sont supposées être indépendantes et identiquement distribuées selon une loi normale. Or, ce n'est pas le cas dans un certain nombres de cas : lorsque plusieurs réponses sont disponibles pour le même individu pour un même <var>x~i~</var> (cas des mesures répétées), lorsque plusieurs observations sont naturellement groupées (par exemple, les membres d'une famille, des jumeaux homozygotes, des patients dans une même unité de soins, etc.), ou lorsque l'on collecte des données au cours du temps chez un même individu. Les <dfn data-index="modèle mixte">modèles mixtes<dfn><dfn data-index="mixte, modèle"></dfn> ou <dfn data-index="modèle à effets aléatoires">modèles à effets aléatoires</dfn> permettent de prendre en considération ce type d'information et de généraliser l'approche déjà connue pour l'estimation des paramètres d'un modèle de régression linéaire classique (pour observations indépendantes).
+Dans un modèle classique, les erreurs sont supposées être indépendantes et identiquement distribuées selon une loi normale. Or, ce n'est pas le cas dans un certain nombres de cas : lorsque plusieurs réponses sont disponibles pour le même individu pour un même <var>x~i~</var> (cas des mesures répétées), lorsque plusieurs observations sont naturellement groupées (par exemple, les membres d'une famille, des jumeaux homozygotes, des patients dans une même unité de soins, etc.), ou lorsque l'on collecte des données au cours du temps chez un même individu. Les <dfn data-index="modèle mixte">modèles mixtes</dfn><dfn data-index="mixte, modèle"></dfn> ou <dfn data-index="modèle à effets aléatoires">modèles à effets aléatoires</dfn> permettent de prendre en considération ce type d'information et de généraliser l'approche déjà connue pour l'estimation des paramètres d'un modèle de régression linéaire classique (pour observations indépendantes).
 
 <figure>
 ![Modèles de régression](images/img_models.png)
@@ -507,7 +507,10 @@ Enfin, un intervalle de confiance à 95~\% peut être estimé comme suit :
 exp(coef(gee.fit.exch)["age"] + c(-1,1) * rob.se[2] * qnorm(0.975))
 library(doBy)
 gee.fit.ci <- esticon(gee.fit.exch, diag(4))
-exp(gee.fit.ci[,c("Estimate","Lower","Upper")])
+library(broom)
+tidy(gee.fit.ci, conf.int = TRUE)
+# odds ratio
+exp(tidy(gee.fit.ci, conf.int = TRUE)[,c("estimate","conf.low","conf.high")])
 ```
 
 Le test $z$ de Wald est construit comme $\hat\beta_j/\text{SE}(\hat\beta_j)$ et suit une loi du chi-deux à un degré de liberté. On pourra vérifier qu'en utilisant $\text{SE}(\hat\beta_j)$ de la matrice de variance-covariance robuste (`rob.se` ci-dessus).
@@ -526,7 +529,7 @@ gee.fit3 <- geeglm(resp ~ as.factor(age) + smoke, id = id,
                    corstr = "exch", scale.fix = TRUE)
 library(doBy) 
 e <- esticon(gee.fit3, c(0, -1, 0, 1, 1))
-exp(e$Estimate)
+exp(e$estimate)
 ```
 
 Enfin, voici un dernier exemple, avec calcul des valeurs (marginales) prédites par un modèle considérant une matrice de corrélation symétrique et un estimateur sandwich :
