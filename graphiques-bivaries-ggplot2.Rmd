@@ -601,18 +601,34 @@ ggplot(d) +
   scale_y_continuous(labels = percent)
 ```
 
-Pour cela, on pourra avoir recours à `stat_fill_labels`{data-pkg="JLutils"} de l'extension `JLutils`{.pkg}^[Cette extension n'est disponible que sur [GitHub](https://github.com/larmarange/JLutils). On peut l'installer avec la commande suivante : `source("https://install-github.me/larmarange/JLutils")`].
+On ne peut afficher directement les proportions avec `stat_count`{data-pkg="ggplot2"}. Cependant, l'extension `JLutils`{.pkg}^[Cette extension n'est disponible que sur [GitHub](https://github.com/larmarange/JLutils). On peut l'installer avec la commande suivante : `source("https://install-github.me/larmarange/JLutils")`] fournit une stat `stat_prop`{data-pkg="JLutils"} dont le dénominateur peut être personnalisé via l'esthétique `by` (attention : l'esthétique attendue doit impérativement être un facteur).
 
 ```{r, message=FALSE}
 library(JLutils)
+d$qualreg <- addNAstr(factor(d$qualreg))
 ggplot(d) +
   aes(x = qualreg, fill = sport) +
   geom_bar(position = "fill") +
-  stat_fill_labels() +
+  geom_text(aes(by = qualreg), stat = "prop", position = position_fill(.5))
   xlab("CSP") +
   ylab("Proportion") +
   labs(fill = "Pratique du sport") +
   scale_y_continuous(labels = percent)
+```
+
+On peut aussi comparer facilement deux distributions, ici la proportion de chaque niveau de qualification au sein chaque sexe.
+
+```{r}
+ggplot(d) +
+  aes(
+    x = qualreg, fill = sexe, by = sexe, y = ..prop..,
+    label = scales::percent(..prop.., accuracy = 1), 
+  ) +
+  geom_bar(stat = "prop", position = position_dodge(.9)) +
+  geom_text(
+    aes(y = ..prop.. + .01), stat = "prop", 
+    position = position_dodge(.9), vjust = "bottom"
+  )
 ```
 
 </div>

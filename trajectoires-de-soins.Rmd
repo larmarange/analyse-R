@@ -590,6 +590,8 @@ knitr::kable(tab, row.names = FALSE)
 
 Une manière de présenter ces mêmes données de manière plus visuelle consiste à réaliser un <dfn data-index="diagramme en barres cumulées">diagramme en barres cumulées</dfn><dfn data-index="barres cumulées, diagramme en"></dfn> (voir le chapitre sur les [graphiques bivariés](graphiques-bivaries-ggplot2.html#diagrammes-en-barres)). Ici, nous utilisons une boucle `for`{data-pkg="base" data-rdoc="Control"} (voir le chapitre sur les [structures conditionnelles](structures-conditionnelles.html)) pour calculer les différents tableaux croisés et les fusionner avec `bind_rows`{data-pkg="dplyr" data-rdoc="bind"} (voir la section [concaténation de tables](manipuler-les-donnees-avec-dplyr.html#concatenation) du chapitre dédié à `dplyr`{.pkg}). Nous en profitions également pour calculer le test du Chi² et l'afficher avec le nom de la variable sur le graphique.
 
+Note : pour afficher les proportions sur le graphique, aurons recours recours à la statistique `stat_prop`{data-pkg="JLutils"} de l'extension `JLutils`{.pkg}^[Cette extension n'est disponible que sur [GitHub](https://github.com/larmarange/JLutils). On peut l'installer avec la commande suivante : `source("https://install-github.me/larmarange/JLutils")`].
+
 ```{r, fig.height=6, fig.width=6, message=FALSE}
 res <- tibble()
 explanatory <- c(
@@ -609,10 +611,18 @@ for (v in names(explanatory)) {
   res <- bind_rows(res, tmp)
 }
 
-ggplot(data = res) +
+
+# stat_prop() a besoin d'un facteur
+res$level <- factor(res$level)
+
+library(JLutils)
+ggplot(res) +
   aes(x = level, fill = groupe, weight = n) +
   geom_bar(position = "fill") +
-  JLutils::stat_fill_labels() +
+  geom_text(
+    aes(by = level, label = scales::percent(..prop.., accuracy = 1)), 
+    stat = "prop", position = position_fill(.5)
+  ) +
   facet_grid(var ~ ., scales = "free", space = "free") +
   scale_y_continuous(labels = scales::percent, breaks = 0:5/5) +
   coord_flip() +
