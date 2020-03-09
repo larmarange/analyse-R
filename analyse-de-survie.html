@@ -562,27 +562,30 @@ min: 1 - max: 5 - NAs: 0 (0%) - 5 unique values
 5 value labels: [1] très pauvre [2] pauvre [3] moyen [4] riche [5] très riche</code></pre>
 <p>Les tableaux de données sont au format <em>tibble</em> (c’est-à-dire sont de la classe <code>tbl_df</code>) et les variables catégorielles sont du type <code>haven_labelled</code> (voir le chapitre sur les <a href="facteurs-et-vecteurs-labellises.html#labelled">vecteurs labellisés</a>). Ce format correspond au format de données si on les avait importées depuis SPSS avec l’extension <code class="pkg">haven</code> (voir le chapitre sur l’<a href="import-de-donnees.html#spss">import de données</a>).</p>
 <p>En premier lieu, il nous faut convertir les tableaux de données au format <code>data.table</code>, ce qui peut se faire avec la fonction <code data-pkg="data.table">setDT</code>. Par ailleurs, nous allons également charger en mémoire l’extension <code class="pkg">labelled</code> pour la gestion des vecteurs labellisés.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">library</span>(labelled)</a>
-<a class="sourceLine" id="cb8-2" title="2"><span class="kw">library</span>(data.table)</a>
-<a class="sourceLine" id="cb8-3" title="3"><span class="kw">setDT</span>(menages)</a>
-<a class="sourceLine" id="cb8-4" title="4"><span class="kw">setDT</span>(femmes)</a>
-<a class="sourceLine" id="cb8-5" title="5"><span class="kw">setDT</span>(enfants)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">library</span>(labelled)</a></code></pre></div>
+<pre><code>Warning: package &#39;labelled&#39; was built under R version 3.6.3</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">library</span>(data.table)</a></code></pre></div>
+<pre><code>Warning: package &#39;data.table&#39; was built under R version
+3.6.3</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">setDT</span>(menages)</a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="kw">setDT</span>(femmes)</a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="kw">setDT</span>(enfants)</a></code></pre></div>
 <p>En premier lieu, il nous faut calculer la durée d’observation des enfants, à savoir le temps passé entre la date de naissance (variable du fichier <code>enfants</code>) et la date de passation de l’entretien (fournie par le tableau de données <code>femmes</code>). Pour récupérer des variables du fichier <code>femmes</code> dans le fichier <code>enfants</code>, nous allons procéder à une fusion de table (voir le <a href="fusion-de-tables.html">chapitre dédié</a>). Pour le calcul de la durée d’observation, nous allons utiliser le package <code class="pkg">lubridate</code> (voir le chapitre <a href="calculer-un-age.html">calculer un âge</a> et celui sur la <a href="gestion-des-dates.html">gestion des dates</a>). Nous effectuerons l’analyse en mois (puisque l’âge au décès est connu en mois). Dès lors, la durée d’observation sera calculée en mois.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">enfants &lt;-<span class="st"> </span><span class="kw">merge</span>(</a>
-<a class="sourceLine" id="cb9-2" title="2">  enfants,</a>
-<a class="sourceLine" id="cb9-3" title="3">  femmes[, .(id_femme, date_entretien)],</a>
-<a class="sourceLine" id="cb9-4" title="4">  <span class="dt">by =</span> <span class="st">&quot;id_femme&quot;</span>,</a>
-<a class="sourceLine" id="cb9-5" title="5">  <span class="dt">all.x =</span> <span class="ot">TRUE</span></a>
-<a class="sourceLine" id="cb9-6" title="6">)</a>
-<a class="sourceLine" id="cb9-7" title="7"></a>
-<a class="sourceLine" id="cb9-8" title="8"><span class="co"># duree observation en mois</span></a>
-<a class="sourceLine" id="cb9-9" title="9"><span class="kw">library</span>(lubridate, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb9-10" title="10">enfants[, duree_observation <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">time_length</span>(<span class="kw">interval</span>(date_naissance, date_entretien), <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span>)]</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">enfants &lt;-<span class="st"> </span><span class="kw">merge</span>(</a>
+<a class="sourceLine" id="cb13-2" title="2">  enfants,</a>
+<a class="sourceLine" id="cb13-3" title="3">  femmes[, .(id_femme, date_entretien)],</a>
+<a class="sourceLine" id="cb13-4" title="4">  <span class="dt">by =</span> <span class="st">&quot;id_femme&quot;</span>,</a>
+<a class="sourceLine" id="cb13-5" title="5">  <span class="dt">all.x =</span> <span class="ot">TRUE</span></a>
+<a class="sourceLine" id="cb13-6" title="6">)</a>
+<a class="sourceLine" id="cb13-7" title="7"></a>
+<a class="sourceLine" id="cb13-8" title="8"><span class="co"># duree observation en mois</span></a>
+<a class="sourceLine" id="cb13-9" title="9"><span class="kw">library</span>(lubridate, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb13-10" title="10">enfants[, duree_observation <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">time_length</span>(<span class="kw">interval</span>(date_naissance, date_entretien), <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span>)]</a></code></pre></div>
 <p>ATTENTION : il y 11 enfants soi-disant nés après la date d’enquête ! Quelle que soit l’enquête, il est rare de ne pas observer d’incohérences. Dans le cas présent, il est fort possible que la date d’entretien puisse parfois être erronnée (par exemple si l’enquêteur a inscrit une date sur le questionnaire papier le jour du recensement du ménage mais n’ai pu effectué le questionnaire individuel que plus tard). Nous décidons ici de procéder à une correction en ajoutant un mois aux dates d’entretien problématiques. D’autres approches auraient pu être envisagées, comme par exemple exclure ces observations problématiques. Cependant, cela aurait impacté le calcul du range de naissance pour les autres enfants issus de la même mère. Quoiqu’il en soit, il n’y a pas de réponse unique. À vous de vous adapter au contexte particulier de votre analyse.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">enfants[duree_observation <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>, date_entretien <span class="op">:</span><span class="er">=</span><span class="st"> </span>date_entretien <span class="op">%m+%</span><span class="st"> </span><span class="kw">months</span>(<span class="dv">1</span>)]</a>
-<a class="sourceLine" id="cb10-2" title="2">enfants[, duree_observation <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">time_length</span>(<span class="kw">interval</span>(date_naissance, date_entretien), <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span>)]</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">enfants[duree_observation <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>, date_entretien <span class="op">:</span><span class="er">=</span><span class="st"> </span>date_entretien <span class="op">%m+%</span><span class="st"> </span><span class="kw">months</span>(<span class="dv">1</span>)]</a>
+<a class="sourceLine" id="cb14-2" title="2">enfants[, duree_observation <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">time_length</span>(<span class="kw">interval</span>(date_naissance, date_entretien), <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span>)]</a></code></pre></div>
 <p>Regardons maintenant comment les âges au décès ont été collectés.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">freq</span>(enfants<span class="op">$</span>age_deces)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">freq</span>(enfants<span class="op">$</span>age_deces)</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"62","2":"3.9","3":"43.7","_rn_":"0"},{"1":"5","2":"0.3","3":"3.5","_rn_":"1"},{"1":"6","2":"0.4","3":"4.2","_rn_":"2"},{"1":"5","2":"0.3","3":"3.5","_rn_":"3"},{"1":"4","2":"0.3","3":"2.8","_rn_":"4"},{"1":"5","2":"0.3","3":"3.5","_rn_":"5"},{"1":"5","2":"0.3","3":"3.5","_rn_":"6"},{"1":"4","2":"0.3","3":"2.8","_rn_":"7"},{"1":"3","2":"0.2","3":"2.1","_rn_":"8"},{"1":"6","2":"0.4","3":"4.2","_rn_":"9"},{"1":"1","2":"0.1","3":"0.7","_rn_":"10"},{"1":"5","2":"0.3","3":"3.5","_rn_":"11"},{"1":"10","2":"0.6","3":"7.0","_rn_":"12"},{"1":"3","2":"0.2","3":"2.1","_rn_":"13"},{"1":"1","2":"0.1","3":"0.7","_rn_":"14"},{"1":"1","2":"0.1","3":"0.7","_rn_":"16"},{"1":"2","2":"0.1","3":"1.4","_rn_":"19"},{"1":"1","2":"0.1","3":"0.7","_rn_":"21"},{"1":"10","2":"0.6","3":"7.0","_rn_":"24"},{"1":"2","2":"0.1","3":"1.4","_rn_":"36"},{"1":"1","2":"0.1","3":"0.7","_rn_":"48"},{"1":"1442","2":"91.0","3":"NA","_rn_":"NaN"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -595,99 +598,99 @@ min: 1 - max: 5 - NAs: 0 (0%) - 5 unique values
 <li>imputer un âge au décès exact en distribuant aléatoirement les décès à 3 mois révolus entre 3 et 4 mois exacts, autrement dit en ajoutant aléatoirement une partie décimale aux âges révolus.</li>
 </ol>
 <p>Nous allons ici adopter la troisième approche en considérant que les décès se répartissent de manière uniforme au sein d’un même mois. Nous aurons donc recours à la fonction <code data-pkg="stats" data-rdoc="Uniform">runif</code> qui permets de générer des valeurs aléatoires entre 0 et 1 selon une distribustion uniforme.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">enfants[, age_deces_impute <span class="op">:</span><span class="er">=</span><span class="st"> </span>age_deces <span class="op">+</span><span class="st"> </span><span class="kw">runif</span>(.N)]</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1">enfants[, age_deces_impute <span class="op">:</span><span class="er">=</span><span class="st"> </span>age_deces <span class="op">+</span><span class="st"> </span><span class="kw">runif</span>(.N)]</a></code></pre></div>
 <p>Pour définir notre objet de survie, il nous faudra deux variables. Une première, temporelle, indiquant la durée à laquelle survient l’évènement étudié (ici le décès) pour ceux ayant vécu l’évènement et la durée d’observation pour ceux n’ayant pas vécu l’évènement (<dfn>censure à droite</dfn><dfn data-index="droite, censure"></dfn>). Par ailleurs, une seconde variable indiquant si les individus ont vécu l’évènement (0 pour non, 1 pour oui). Or, ici, la variable <var>survie</var> est codée 0 pour les décès et 1 pour ceux ayant survécu. Pour plus de détails, voir l’aide de la fonction <code data-pkg="survival">Surv</code>.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">enfants[, deces <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="dv">0</span>]</a>
-<a class="sourceLine" id="cb13-2" title="2">enfants[survie <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, deces <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="dv">1</span>]</a>
-<a class="sourceLine" id="cb13-3" title="3"><span class="kw">var_label</span>(enfants<span class="op">$</span>deces) &lt;-<span class="st"> &quot;Est décédé ?&quot;</span></a>
-<a class="sourceLine" id="cb13-4" title="4"><span class="kw">val_labels</span>(enfants<span class="op">$</span>deces) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">non =</span> <span class="dv">0</span>, <span class="dt">oui =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb13-5" title="5"></a>
-<a class="sourceLine" id="cb13-6" title="6">enfants[, time <span class="op">:</span><span class="er">=</span><span class="st"> </span>duree_observation]</a>
-<a class="sourceLine" id="cb13-7" title="7">enfants[deces <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, time <span class="op">:</span><span class="er">=</span><span class="st"> </span>age_deces_impute]</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1">enfants[, deces <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="dv">0</span>]</a>
+<a class="sourceLine" id="cb17-2" title="2">enfants[survie <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, deces <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb17-3" title="3"><span class="kw">var_label</span>(enfants<span class="op">$</span>deces) &lt;-<span class="st"> &quot;Est décédé ?&quot;</span></a>
+<a class="sourceLine" id="cb17-4" title="4"><span class="kw">val_labels</span>(enfants<span class="op">$</span>deces) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">non =</span> <span class="dv">0</span>, <span class="dt">oui =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb17-5" title="5"></a>
+<a class="sourceLine" id="cb17-6" title="6">enfants[, time <span class="op">:</span><span class="er">=</span><span class="st"> </span>duree_observation]</a>
+<a class="sourceLine" id="cb17-7" title="7">enfants[deces <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, time <span class="op">:</span><span class="er">=</span><span class="st"> </span>age_deces_impute]</a></code></pre></div>
 <p>Occupons-nous maintenant des variables explicatives que nous allons inclure dans l’analyse. Tout d’abord, ajoutons à la table <code>enfants</code> les variables nécessaires des tables <code>femmes</code> et <code>menages</code>. Notons qu’il nous faudra importer <var>id_menage</var> de la table <code>femmes</code> pour pouvoir fusionner ensuite la table <code>enfants</code> avec la table <code>menages</code>. Par ailleurs, pour éviter une confusion sur la variable <var>date_naissance</var>, nous renommons à la volée cette variable de la table <code>femmes</code> en <var>date_naissance_mere</var>.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">enfants &lt;-<span class="st"> </span><span class="kw">merge</span>(</a>
-<a class="sourceLine" id="cb14-2" title="2">  enfants,</a>
-<a class="sourceLine" id="cb14-3" title="3">  femmes[, .(</a>
-<a class="sourceLine" id="cb14-4" title="4">    id_femme, id_menage, milieu, educ, </a>
-<a class="sourceLine" id="cb14-5" title="5">    <span class="dt">date_naissance_mere =</span> date_naissance, nb_enf_ideal</a>
-<a class="sourceLine" id="cb14-6" title="6">  )],</a>
-<a class="sourceLine" id="cb14-7" title="7">  <span class="dt">by =</span> <span class="st">&quot;id_femme&quot;</span>,</a>
-<a class="sourceLine" id="cb14-8" title="8">  <span class="dt">all.x =</span> <span class="ot">TRUE</span></a>
-<a class="sourceLine" id="cb14-9" title="9">)</a>
-<a class="sourceLine" id="cb14-10" title="10">enfants &lt;-<span class="st"> </span><span class="kw">merge</span>(</a>
-<a class="sourceLine" id="cb14-11" title="11">  enfants,</a>
-<a class="sourceLine" id="cb14-12" title="12">  menages[, .(id_menage, structure, richesse)],</a>
-<a class="sourceLine" id="cb14-13" title="13">  <span class="dt">by =</span> <span class="st">&quot;id_menage&quot;</span>,</a>
-<a class="sourceLine" id="cb14-14" title="14">  <span class="dt">all.x =</span> <span class="ot">TRUE</span></a>
-<a class="sourceLine" id="cb14-15" title="15">)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1">enfants &lt;-<span class="st"> </span><span class="kw">merge</span>(</a>
+<a class="sourceLine" id="cb18-2" title="2">  enfants,</a>
+<a class="sourceLine" id="cb18-3" title="3">  femmes[, .(</a>
+<a class="sourceLine" id="cb18-4" title="4">    id_femme, id_menage, milieu, educ, </a>
+<a class="sourceLine" id="cb18-5" title="5">    <span class="dt">date_naissance_mere =</span> date_naissance, nb_enf_ideal</a>
+<a class="sourceLine" id="cb18-6" title="6">  )],</a>
+<a class="sourceLine" id="cb18-7" title="7">  <span class="dt">by =</span> <span class="st">&quot;id_femme&quot;</span>,</a>
+<a class="sourceLine" id="cb18-8" title="8">  <span class="dt">all.x =</span> <span class="ot">TRUE</span></a>
+<a class="sourceLine" id="cb18-9" title="9">)</a>
+<a class="sourceLine" id="cb18-10" title="10">enfants &lt;-<span class="st"> </span><span class="kw">merge</span>(</a>
+<a class="sourceLine" id="cb18-11" title="11">  enfants,</a>
+<a class="sourceLine" id="cb18-12" title="12">  menages[, .(id_menage, structure, richesse)],</a>
+<a class="sourceLine" id="cb18-13" title="13">  <span class="dt">by =</span> <span class="st">&quot;id_menage&quot;</span>,</a>
+<a class="sourceLine" id="cb18-14" title="14">  <span class="dt">all.x =</span> <span class="ot">TRUE</span></a>
+<a class="sourceLine" id="cb18-15" title="15">)</a></code></pre></div>
 <p>Les variables catégorielles sont pour l’heure sous formes de vecteurs labellisés. Or, dans un modèle, il est impératif de les convertir en facteurs pour qu’elles soient bien traitées comme des variables catégorielles (autrement elles seraient traitées comme des variables continues). On aura donc recours à la fonction <code data-pkg="labelled">to_factor</code> de l’extension <code class="pkg">labelled</code>.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">enfants[, sexe <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(sexe)]</a>
-<a class="sourceLine" id="cb15-2" title="2">enfants[, richesse <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(richesse)]</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">enfants[, sexe <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(sexe)]</a>
+<a class="sourceLine" id="cb19-2" title="2">enfants[, richesse <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(richesse)]</a></code></pre></div>
 <p>Regardons plus attentivement, la variable <var>structure</var>.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">freq</span>(enfants<span class="op">$</span>structure)</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">freq</span>(enfants<span class="op">$</span>structure)</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"0","2":"0.0","3":"0.0","_rn_":"[0] pas d'adulte"},{"1":"45","2":"2.8","3":"2.8","_rn_":"[1] un adulte"},{"1":"505","2":"31.9","3":"31.9","_rn_":"[2] deux adultes de sexe opposé"},{"1":"71","2":"4.5","3":"4.5","_rn_":"[3] deux adultes de même sexe"},{"1":"764","2":"48.2","3":"48.2","_rn_":"[4] trois adultes ou plus avec lien de parenté"},{"1":"199","2":"12.6","3":"12.6","_rn_":"[5] adultes sans lien de parenté"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Tout d’abord, la modalité <q>pas d’adulte</q> n’est pas représentée dans l’échantillon. On aura donc recours à l’argument <code>drop_unused_labels</code> pour ne pas conserver cette modalité. Par ailleurs, nous considérons que la situation familiale à partir de laquelle nous voudrons comparer les autres dans notre modèle, donc celle qui doit être considérée comme la modalité de référence, est celle du ménage nucléaire. Cette modalité (<q>deux adultes de sexe opposé</q>) n’étant pas la première, nous aurons recours à la fonction <code data-pkg="stats">relevel</code>.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1">enfants[, structure <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(structure, <span class="dt">drop_unused_labels =</span> <span class="ot">TRUE</span>)]</a>
-<a class="sourceLine" id="cb17-2" title="2">enfants[, structure <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">relevel</span>(structure, <span class="st">&quot;deux adultes de sexe opposé&quot;</span>)]</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1">enfants[, structure <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(structure, <span class="dt">drop_unused_labels =</span> <span class="ot">TRUE</span>)]</a>
+<a class="sourceLine" id="cb21-2" title="2">enfants[, structure <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">relevel</span>(structure, <span class="st">&quot;deux adultes de sexe opposé&quot;</span>)]</a></code></pre></div>
 <p>Regardons la variable <var>educ</var>.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">freq</span>(enfants<span class="op">$</span>educ)</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">freq</span>(enfants<span class="op">$</span>educ)</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1084","2":"68.4","3":"68.4","_rn_":"[0] aucun"},{"1":"368","2":"23.2","3":"23.2","_rn_":"[1] primaire"},{"1":"115","2":"7.3","3":"7.3","_rn_":"[2] secondaire"},{"1":"17","2":"1.1","3":"1.1","_rn_":"[3] supérieur"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>La modalité <q>supérieur</q> est peu représentée dans notre échantillon. Nous allons la fusionner avec la modalité <q>secondaire</q> (voir la section <a href="recodage.html#regrouper_modalites">Regrouper les modalités d’une variable</a> du chapitre <a href="recodage.html">Recodage</a>).</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">enfants[, educ2 <span class="op">:</span><span class="er">=</span><span class="st"> </span>educ]</a>
-<a class="sourceLine" id="cb19-2" title="2">enfants[educ <span class="op">==</span><span class="st"> </span><span class="dv">3</span>, educ2 <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="dv">2</span>]</a>
-<a class="sourceLine" id="cb19-3" title="3"><span class="kw">val_label</span>(enfants<span class="op">$</span>educ2, <span class="dv">2</span>) &lt;-<span class="st"> &quot;secondaire ou plus&quot;</span></a>
-<a class="sourceLine" id="cb19-4" title="4"><span class="kw">val_label</span>(enfants<span class="op">$</span>educ2, <span class="dv">3</span>) &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
-<a class="sourceLine" id="cb19-5" title="5">enfants[, educ2 <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(educ2)]</a>
-<a class="sourceLine" id="cb19-6" title="6"><span class="kw">freq</span>(enfants<span class="op">$</span>educ2)</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1">enfants[, educ2 <span class="op">:</span><span class="er">=</span><span class="st"> </span>educ]</a>
+<a class="sourceLine" id="cb23-2" title="2">enfants[educ <span class="op">==</span><span class="st"> </span><span class="dv">3</span>, educ2 <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="dv">2</span>]</a>
+<a class="sourceLine" id="cb23-3" title="3"><span class="kw">val_label</span>(enfants<span class="op">$</span>educ2, <span class="dv">2</span>) &lt;-<span class="st"> &quot;secondaire ou plus&quot;</span></a>
+<a class="sourceLine" id="cb23-4" title="4"><span class="kw">val_label</span>(enfants<span class="op">$</span>educ2, <span class="dv">3</span>) &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb23-5" title="5">enfants[, educ2 <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">to_factor</span>(educ2)]</a>
+<a class="sourceLine" id="cb23-6" title="6"><span class="kw">freq</span>(enfants<span class="op">$</span>educ2)</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1084","2":"68.4","3":"68.4","_rn_":"aucun"},{"1":"368","2":"23.2","3":"23.2","_rn_":"primaire"},{"1":"132","2":"8.3","3":"8.3","_rn_":"secondaire ou plus"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Calculons maintenant l’âge de la mère à la naissance de l’enfant (voir le chapitre <a href="calculer-un-age.html">Calculer un âge</a>) et découpons le en groupes d’âges (voir la section <a href="recodage.html#decouper_en_classes">Découper une variable numérique en classes</a> du chapitre <a href="recodage.html">Recodage</a>).</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1">enfants[, age_mere_naissance <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">time_length</span>(</a>
-<a class="sourceLine" id="cb20-2" title="2">  <span class="kw">interval</span>(date_naissance_mere, date_naissance), </a>
-<a class="sourceLine" id="cb20-3" title="3">  <span class="dt">unit =</span> <span class="st">&quot;years&quot;</span></a>
-<a class="sourceLine" id="cb20-4" title="4">  )]</a>
-<a class="sourceLine" id="cb20-5" title="5"></a>
-<a class="sourceLine" id="cb20-6" title="6">enfants<span class="op">$</span>gpage_mere_naissance &lt;-<span class="st"> </span><span class="kw">cut</span>(</a>
-<a class="sourceLine" id="cb20-7" title="7">  enfants<span class="op">$</span>age_mere_naissance, </a>
-<a class="sourceLine" id="cb20-8" title="8">  <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>, <span class="dt">right =</span> <span class="ot">FALSE</span>,</a>
-<a class="sourceLine" id="cb20-9" title="9">  <span class="dt">breaks=</span><span class="kw">c</span>(<span class="dv">13</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">50</span>)</a>
-<a class="sourceLine" id="cb20-10" title="10">)</a>
-<a class="sourceLine" id="cb20-11" title="11"><span class="kw">levels</span>(enfants<span class="op">$</span>gpage_mere_naissance) &lt;-<span class="st"> </span><span class="kw">c</span>(</a>
-<a class="sourceLine" id="cb20-12" title="12">  <span class="st">&quot;19 ou moins&quot;</span>, <span class="st">&quot;20-29&quot;</span>, <span class="st">&quot;30 et plus&quot;</span></a>
-<a class="sourceLine" id="cb20-13" title="13">)</a>
-<a class="sourceLine" id="cb20-14" title="14">enfants<span class="op">$</span>gpage_mere_naissance &lt;-<span class="st"> </span><span class="kw">relevel</span>(enfants<span class="op">$</span>gpage_mere_naissance, <span class="st">&quot;20-29&quot;</span>)</a>
-<a class="sourceLine" id="cb20-15" title="15"><span class="kw">freq</span>(enfants<span class="op">$</span>gpage_mere_naissance)</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1">enfants[, age_mere_naissance <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">time_length</span>(</a>
+<a class="sourceLine" id="cb24-2" title="2">  <span class="kw">interval</span>(date_naissance_mere, date_naissance), </a>
+<a class="sourceLine" id="cb24-3" title="3">  <span class="dt">unit =</span> <span class="st">&quot;years&quot;</span></a>
+<a class="sourceLine" id="cb24-4" title="4">  )]</a>
+<a class="sourceLine" id="cb24-5" title="5"></a>
+<a class="sourceLine" id="cb24-6" title="6">enfants<span class="op">$</span>gpage_mere_naissance &lt;-<span class="st"> </span><span class="kw">cut</span>(</a>
+<a class="sourceLine" id="cb24-7" title="7">  enfants<span class="op">$</span>age_mere_naissance, </a>
+<a class="sourceLine" id="cb24-8" title="8">  <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>, <span class="dt">right =</span> <span class="ot">FALSE</span>,</a>
+<a class="sourceLine" id="cb24-9" title="9">  <span class="dt">breaks=</span><span class="kw">c</span>(<span class="dv">13</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">50</span>)</a>
+<a class="sourceLine" id="cb24-10" title="10">)</a>
+<a class="sourceLine" id="cb24-11" title="11"><span class="kw">levels</span>(enfants<span class="op">$</span>gpage_mere_naissance) &lt;-<span class="st"> </span><span class="kw">c</span>(</a>
+<a class="sourceLine" id="cb24-12" title="12">  <span class="st">&quot;19 ou moins&quot;</span>, <span class="st">&quot;20-29&quot;</span>, <span class="st">&quot;30 et plus&quot;</span></a>
+<a class="sourceLine" id="cb24-13" title="13">)</a>
+<a class="sourceLine" id="cb24-14" title="14">enfants<span class="op">$</span>gpage_mere_naissance &lt;-<span class="st"> </span><span class="kw">relevel</span>(enfants<span class="op">$</span>gpage_mere_naissance, <span class="st">&quot;20-29&quot;</span>)</a>
+<a class="sourceLine" id="cb24-15" title="15"><span class="kw">freq</span>(enfants<span class="op">$</span>gpage_mere_naissance)</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"888","2":"56.1","3":"56.1","_rn_":"20-29"},{"1":"257","2":"16.2","3":"16.2","_rn_":"19 ou moins"},{"1":"439","2":"27.7","3":"27.7","_rn_":"30 et plus"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Reste à calculer si le rang de naissance de l’enfant est supérieur au nombre idéal d’enfants tel que défini par la mère. On aura recours à la fonction <code data-pkg="base">rank</code> appliquée par groupe (ici calculé séparément pour chaque mère). L’argument <code>ties.method</code> permet d’indiquer comment gérer les égalités (ici les naissances multiples, e.g. les jumeaux). Comme nous voulons comparer le rang de l’enfant au nombre idéal d’enfants, nous allons retenir la méthode <code>"max"</code> pour obtenir, dans le cas présent, le nombre total d’enfants déjà nés<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. Avant de calculer un rang, il est impératif de trier préalablement le tableau (voir le chapitre <a href="tris.html">Tris</a>).</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">setorder</span>(enfants, id_femme, date_naissance)</a>
-<a class="sourceLine" id="cb21-2" title="2">enfants[, rang <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">rank</span>(date_naissance, <span class="dt">ties.method =</span> <span class="st">&quot;max&quot;</span>), by =<span class="st"> </span>id_femme]</a>
-<a class="sourceLine" id="cb21-3" title="3">enfants[, rang_apres_ideal <span class="op">:</span><span class="er">=</span><span class="st"> &quot;non&quot;</span>]</a>
-<a class="sourceLine" id="cb21-4" title="4">enfants[rang <span class="op">&gt;</span><span class="st"> </span>nb_enf_ideal, rang_apres_ideal <span class="op">:</span><span class="er">=</span><span class="st"> &quot;oui&quot;</span>]</a>
-<a class="sourceLine" id="cb21-5" title="5">enfants[, rang_apres_ideal <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">factor</span>(rang_apres_ideal)]</a>
-<a class="sourceLine" id="cb21-6" title="6">enfants[, rang_apres_ideal <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">relevel</span>(rang_apres_ideal, <span class="st">&quot;non&quot;</span>)]</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">setorder</span>(enfants, id_femme, date_naissance)</a>
+<a class="sourceLine" id="cb25-2" title="2">enfants[, rang <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">rank</span>(date_naissance, <span class="dt">ties.method =</span> <span class="st">&quot;max&quot;</span>), by =<span class="st"> </span>id_femme]</a>
+<a class="sourceLine" id="cb25-3" title="3">enfants[, rang_apres_ideal <span class="op">:</span><span class="er">=</span><span class="st"> &quot;non&quot;</span>]</a>
+<a class="sourceLine" id="cb25-4" title="4">enfants[rang <span class="op">&gt;</span><span class="st"> </span>nb_enf_ideal, rang_apres_ideal <span class="op">:</span><span class="er">=</span><span class="st"> &quot;oui&quot;</span>]</a>
+<a class="sourceLine" id="cb25-5" title="5">enfants[, rang_apres_ideal <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">factor</span>(rang_apres_ideal)]</a>
+<a class="sourceLine" id="cb25-6" title="6">enfants[, rang_apres_ideal <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">relevel</span>(rang_apres_ideal, <span class="st">&quot;non&quot;</span>)]</a></code></pre></div>
 </div>
 <div id="préparation-des-données-avec-dplyr" class="section level2">
 <h2>Préparation des données avec dplyr</h2>
 <p>Tout d’abord, regardons sous quel format elles sont stockées.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">data</span>(fecondite)</a>
-<a class="sourceLine" id="cb22-2" title="2"><span class="kw">class</span>(menages)</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">data</span>(fecondite)</a>
+<a class="sourceLine" id="cb26-2" title="2"><span class="kw">class</span>(menages)</a></code></pre></div>
 <pre><code>[1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1"><span class="kw">describe</span>(menages)</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="kw">describe</span>(menages)</a></code></pre></div>
 <pre><code>[1814 obs. x 5 variables] tbl_df tbl data.frame
 
 $id_menage: Identifiant du ménage
@@ -714,31 +717,31 @@ min: 1 - max: 5 - NAs: 0 (0%) - 5 unique values
 5 value labels: [1] très pauvre [2] pauvre [3] moyen [4] riche [5] très riche</code></pre>
 <p>Les tableaux de données sont déjà au format <em>tibble</em> (c’est-à-dire sont de la classe <code>tbl_df</code>)<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> et les variables catégorielles sont du type <code>labelled</code> (voir le chapitre sur les <a href="facteurs-et-vecteurs-labellises.html#labelled">vecteurs labellisés</a>). Ce format correspond au format de données si on les avait importées depuis SPSS avec l’extension <code class="pkg">haven</code> (voir le chapitre sur l’<a href="import-de-donnees.html#spss">import de données</a>).</p>
 <p>Nous allons charger en mémoire l’extension <code class="pkg">labelled</code> pour la gestion des vecteurs labellisés en plus de <code class="pkg">dplyr</code>.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">library</span>(dplyr)</a>
-<a class="sourceLine" id="cb26-2" title="2"><span class="kw">library</span>(labelled)</a></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1"><span class="kw">library</span>(dplyr)</a>
+<a class="sourceLine" id="cb30-2" title="2"><span class="kw">library</span>(labelled)</a></code></pre></div>
 <p>En premier lieu, il nous faut calculer la durée d’observation des enfants, à savoir le temps passé entre la date de naissance (variable du fichier <code>enfants</code>) et la date de passation de l’entretien (fournie par le tableau de données <code>femmes</code>). Pour récupérer des variables du fichier <code>femmes</code> dans le fichier <code>enfants</code>, nous allons procéder à une fusion de table (voir le <a href="fusion-de-tables.html">chapitre dédié</a>). Pour le calcul de la durée d’observation, nous allons utiliser le package <code class="pkg">lubridate</code> (voir le chapitre <a href="calculer-un-age.html">calculer un âge</a> et celui sur la <a href="gestion-des-dates.html">gestion des dates</a>). Nous effectuerons l’analyse en mois (puisque l’âge au décès est connu en mois). Dès lors, la durée d’observation sera calculée en mois.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">library</span>(lubridate)</a>
-<a class="sourceLine" id="cb27-2" title="2">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb27-3" title="3"><span class="st">  </span><span class="kw">left_join</span>(</a>
-<a class="sourceLine" id="cb27-4" title="4">    femmes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(id_femme, date_entretien),</a>
-<a class="sourceLine" id="cb27-5" title="5">    <span class="dt">by =</span> <span class="st">&quot;id_femme&quot;</span></a>
-<a class="sourceLine" id="cb27-6" title="6">  ) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb27-7" title="7"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">duree_observation =</span> <span class="kw">time_length</span>(</a>
-<a class="sourceLine" id="cb27-8" title="8">    <span class="kw">interval</span>(date_naissance, date_entretien), </a>
-<a class="sourceLine" id="cb27-9" title="9">    <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span></a>
-<a class="sourceLine" id="cb27-10" title="10">  ))</a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">library</span>(lubridate)</a>
+<a class="sourceLine" id="cb31-2" title="2">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb31-3" title="3"><span class="st">  </span><span class="kw">left_join</span>(</a>
+<a class="sourceLine" id="cb31-4" title="4">    femmes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(id_femme, date_entretien),</a>
+<a class="sourceLine" id="cb31-5" title="5">    <span class="dt">by =</span> <span class="st">&quot;id_femme&quot;</span></a>
+<a class="sourceLine" id="cb31-6" title="6">  ) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb31-7" title="7"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">duree_observation =</span> <span class="kw">time_length</span>(</a>
+<a class="sourceLine" id="cb31-8" title="8">    <span class="kw">interval</span>(date_naissance, date_entretien), </a>
+<a class="sourceLine" id="cb31-9" title="9">    <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span></a>
+<a class="sourceLine" id="cb31-10" title="10">  ))</a></code></pre></div>
 <pre><code>Warning: Column `id_femme` has different attributes on LHS
 and RHS of join</code></pre>
 <p>ATTENTION : il y 11 enfants soi-disant nés après la date d’enquête ! Quelle que soit l’enquête, il est rare de ne pas observer d’incohérences. Dans le cas présent, il est fort possible que la date d’entretien puisse parfois être erronnée (par exemple si l’enquêteur a inscrit une date sur le questionnaire papier le jour du recensement du ménage mais n’ai pu effectué le questionnaire individuel que plus tard). Nous décidons ici de procéder à une correction en ajoutant un mois aux dates d’entretien problématiques. D’autres approches auraient pu être envisagées, comme par exemple exclure ces observations problématiques. Cependant, cela aurait impacté le calcul du range de naissance pour les autres enfants issus de la même mère. Quoiqu’il en soit, il n’y a pas de réponse unique. À vous de vous adapter au contexte particulier de votre analyse.</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1">enfants<span class="op">$</span>date_entretien[enfants<span class="op">$</span>duree_observation <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>] &lt;-</a>
-<a class="sourceLine" id="cb29-2" title="2"><span class="st">  </span>enfants<span class="op">$</span>date_entretien[enfants<span class="op">$</span>duree_observation <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>] <span class="op">%m+%</span><span class="st"> </span><span class="kw">months</span>(<span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb29-3" title="3">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb29-4" title="4"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">duree_observation =</span> <span class="kw">time_length</span>(</a>
-<a class="sourceLine" id="cb29-5" title="5">    <span class="kw">interval</span>(date_naissance, date_entretien), </a>
-<a class="sourceLine" id="cb29-6" title="6">    <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span></a>
-<a class="sourceLine" id="cb29-7" title="7">  ))</a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1">enfants<span class="op">$</span>date_entretien[enfants<span class="op">$</span>duree_observation <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>] &lt;-</a>
+<a class="sourceLine" id="cb33-2" title="2"><span class="st">  </span>enfants<span class="op">$</span>date_entretien[enfants<span class="op">$</span>duree_observation <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>] <span class="op">%m+%</span><span class="st"> </span><span class="kw">months</span>(<span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb33-3" title="3">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb33-4" title="4"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">duree_observation =</span> <span class="kw">time_length</span>(</a>
+<a class="sourceLine" id="cb33-5" title="5">    <span class="kw">interval</span>(date_naissance, date_entretien), </a>
+<a class="sourceLine" id="cb33-6" title="6">    <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span></a>
+<a class="sourceLine" id="cb33-7" title="7">  ))</a></code></pre></div>
 <p>Regardons maintenant comment les âges au décès ont été collectés.</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1"><span class="kw">freq</span>(enfants<span class="op">$</span>age_deces)</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">freq</span>(enfants<span class="op">$</span>age_deces)</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"62","2":"3.9","3":"43.7","_rn_":"0"},{"1":"5","2":"0.3","3":"3.5","_rn_":"1"},{"1":"6","2":"0.4","3":"4.2","_rn_":"2"},{"1":"5","2":"0.3","3":"3.5","_rn_":"3"},{"1":"4","2":"0.3","3":"2.8","_rn_":"4"},{"1":"5","2":"0.3","3":"3.5","_rn_":"5"},{"1":"5","2":"0.3","3":"3.5","_rn_":"6"},{"1":"4","2":"0.3","3":"2.8","_rn_":"7"},{"1":"3","2":"0.2","3":"2.1","_rn_":"8"},{"1":"6","2":"0.4","3":"4.2","_rn_":"9"},{"1":"1","2":"0.1","3":"0.7","_rn_":"10"},{"1":"5","2":"0.3","3":"3.5","_rn_":"11"},{"1":"10","2":"0.6","3":"7.0","_rn_":"12"},{"1":"3","2":"0.2","3":"2.1","_rn_":"13"},{"1":"1","2":"0.1","3":"0.7","_rn_":"14"},{"1":"1","2":"0.1","3":"0.7","_rn_":"16"},{"1":"2","2":"0.1","3":"1.4","_rn_":"19"},{"1":"1","2":"0.1","3":"0.7","_rn_":"21"},{"1":"10","2":"0.6","3":"7.0","_rn_":"24"},{"1":"2","2":"0.1","3":"1.4","_rn_":"36"},{"1":"1","2":"0.1","3":"0.7","_rn_":"48"},{"1":"1442","2":"91.0","3":"NA","_rn_":"NaN"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -751,114 +754,116 @@ and RHS of join</code></pre>
 <li>imputer un âge au décès exact en distribuant aléatoirement les décès à 3 mois révolus entre 3 et 4 mois exacts, autrement dit en ajoutant aléatoirement une partie décimale aux âges révolus.</li>
 </ol>
 <p>Nous allons ici adopter la troisième approche en considérant que les décès se répartissent de manière uniforme au sein d’un même mois. Nous aurons donc recours à la fonction <code data-pkg="stats" data-rdoc="Uniform">runif</code> qui permets de générer des valeurs aléatoires entre 0 et 1 selon une distribustion uniforme.</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb31-2" title="2"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">age_deces_impute =</span> age_deces <span class="op">+</span><span class="st"> </span><span class="kw">runif</span>(<span class="kw">n</span>()))</a></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb35-2" title="2"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">age_deces_impute =</span> age_deces <span class="op">+</span><span class="st"> </span><span class="kw">runif</span>(<span class="kw">n</span>()))</a></code></pre></div>
 <p>Pour définir notre objet de survie, il nous faudra deux variables. Une première, temporelle, indiquant la durée à laquelle survient l’évènement étudié (ici le décès) pour ceux ayant vécu l’évènement et la durée d’observation pour ceux n’ayant pas vécu l’évènement (<dfn>censure à droite</dfn><dfn data-index="droite, censure"></dfn>). Par ailleurs, une seconde variable indiquant si les individus ont vécu l’évènement (0 pour non, 1 pour oui). Or, ici, la variable <var>survie</var> est codée 0 pour les décès et 1 pour ceux ayant survécu. Pour plus de détails, voir l’aide de la fonction <code data-pkg="survival">Surv</code>.</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb32-2" title="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">deces =</span> <span class="kw">if_else</span>(survie <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb32-3" title="3"><span class="st">  </span><span class="kw">set_variable_labels</span>(<span class="dt">deces =</span> <span class="st">&quot;Est décédé ?&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb32-4" title="4"><span class="st">  </span><span class="kw">set_value_labels</span>(<span class="dt">deces =</span> <span class="kw">c</span>(<span class="dt">non =</span> <span class="dv">0</span>, <span class="dt">oui =</span> <span class="dv">1</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb32-5" title="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">time =</span> <span class="kw">if_else</span>(deces <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, age_deces_impute, duree_observation))</a></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb36-2" title="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">deces =</span> <span class="kw">if_else</span>(survie <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb36-3" title="3"><span class="st">  </span><span class="kw">set_variable_labels</span>(<span class="dt">deces =</span> <span class="st">&quot;Est décédé ?&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb36-4" title="4"><span class="st">  </span><span class="kw">set_value_labels</span>(<span class="dt">deces =</span> <span class="kw">c</span>(<span class="dt">non =</span> <span class="dv">0</span>, <span class="dt">oui =</span> <span class="dv">1</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb36-5" title="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">time =</span> <span class="kw">if_else</span>(deces <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, age_deces_impute, duree_observation))</a></code></pre></div>
 <p>Occupons-nous maintenant des variables explicatives que nous allons inclure dans l’analyse. Tout d’abord, ajoutons à la table <code>enfants</code> les variables nécessaires des tables <code>femmes</code> et <code>menages</code>. Notons qu’il nous faudra importer <var>id_menage</var> de la table <code>femmes</code> pour pouvoir fusionner ensuite la table <code>enfants</code> avec la table <code>menages</code>. Par ailleurs, pour éviter une confusion sur la variable <var>date_naissance</var>, nous renommons à la volée cette variable de la table <code>femmes</code> en <var>date_naissance_mere</var>.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb33-2" title="2"><span class="st">  </span><span class="kw">left_join</span>(</a>
-<a class="sourceLine" id="cb33-3" title="3">    <span class="kw">select</span>(femmes,</a>
-<a class="sourceLine" id="cb33-4" title="4">      id_femme, id_menage, milieu, educ, </a>
-<a class="sourceLine" id="cb33-5" title="5">      <span class="dt">date_naissance_mere =</span> date_naissance, nb_enf_ideal</a>
-<a class="sourceLine" id="cb33-6" title="6">    ),</a>
-<a class="sourceLine" id="cb33-7" title="7">    <span class="dt">by =</span> <span class="st">&quot;id_femme&quot;</span></a>
-<a class="sourceLine" id="cb33-8" title="8">  ) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb33-9" title="9"><span class="st">  </span><span class="kw">left_join</span>(</a>
-<a class="sourceLine" id="cb33-10" title="10">    <span class="kw">select</span>(menages, id_menage, structure, richesse),</a>
-<a class="sourceLine" id="cb33-11" title="11">    <span class="dt">by =</span> <span class="st">&quot;id_menage&quot;</span></a>
-<a class="sourceLine" id="cb33-12" title="12">  )</a></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb37-2" title="2"><span class="st">  </span><span class="kw">left_join</span>(</a>
+<a class="sourceLine" id="cb37-3" title="3">    <span class="kw">select</span>(femmes,</a>
+<a class="sourceLine" id="cb37-4" title="4">      id_femme, id_menage, milieu, educ, </a>
+<a class="sourceLine" id="cb37-5" title="5">      <span class="dt">date_naissance_mere =</span> date_naissance, nb_enf_ideal</a>
+<a class="sourceLine" id="cb37-6" title="6">    ),</a>
+<a class="sourceLine" id="cb37-7" title="7">    <span class="dt">by =</span> <span class="st">&quot;id_femme&quot;</span></a>
+<a class="sourceLine" id="cb37-8" title="8">  ) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb37-9" title="9"><span class="st">  </span><span class="kw">left_join</span>(</a>
+<a class="sourceLine" id="cb37-10" title="10">    <span class="kw">select</span>(menages, id_menage, structure, richesse),</a>
+<a class="sourceLine" id="cb37-11" title="11">    <span class="dt">by =</span> <span class="st">&quot;id_menage&quot;</span></a>
+<a class="sourceLine" id="cb37-12" title="12">  )</a></code></pre></div>
 <pre><code>Warning: Column `id_femme` has different attributes on LHS
 and RHS of join</code></pre>
 <p>Les variables catégorielles sont pour l’heure sous formes de vecteurs labellisés. Or, dans un modèle, il est impératif de les convertir en facteurs pour qu’elles soient bien traitées comme des variables catégorielles (autrement elles seraient traitées comme des variables continues). On aura donc recours à la fonction <code data-pkg="labelled">to_factor</code> de l’extension <code class="pkg">labelled</code>.</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb35-2" title="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">sexe =</span> <span class="kw">to_factor</span>(sexe), <span class="dt">richesse =</span> <span class="kw">to_factor</span>(richesse))</a></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb39-2" title="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">sexe =</span> <span class="kw">to_factor</span>(sexe), <span class="dt">richesse =</span> <span class="kw">to_factor</span>(richesse))</a></code></pre></div>
 <p>Regardons plus attentivement, la variable <var>structure</var>.</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" title="1"><span class="kw">freq</span>(enfants<span class="op">$</span>structure)</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1"><span class="kw">freq</span>(enfants<span class="op">$</span>structure)</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"0","2":"0.0","3":"0.0","_rn_":"[0] pas d'adulte"},{"1":"45","2":"2.8","3":"2.8","_rn_":"[1] un adulte"},{"1":"505","2":"31.9","3":"31.9","_rn_":"[2] deux adultes de sexe opposé"},{"1":"71","2":"4.5","3":"4.5","_rn_":"[3] deux adultes de même sexe"},{"1":"764","2":"48.2","3":"48.2","_rn_":"[4] trois adultes ou plus avec lien de parenté"},{"1":"199","2":"12.6","3":"12.6","_rn_":"[5] adultes sans lien de parenté"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Tout d’abord, la modalité <q>pas d’adulte</q> n’est pas représentée dans l’échantillon. On aura donc recours à l’argument <code>drop_unused_labels</code> pour ne pas conserver cette modalité. Par ailleurs, nous considérons que la situation familiale à partir de laquelle nous voudrons comparer les autres dans notre modèle, donc celle qui doit être considérée comme la modalité de référence, est celle du ménage nucléaire. Cette modalité (<q>deux adultes de sexe opposé</q>) n’étant pas la première, nous aurons recours à la fonction <code>relevel</code>{data-pkg = “stats”}.</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb37-2" title="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">structure =</span> <span class="kw">relevel</span>(</a>
-<a class="sourceLine" id="cb37-3" title="3">    <span class="kw">to_factor</span>(structure, <span class="dt">drop_unused_labels =</span> <span class="ot">TRUE</span>),</a>
-<a class="sourceLine" id="cb37-4" title="4">    <span class="st">&quot;deux adultes de sexe opposé&quot;</span></a>
-<a class="sourceLine" id="cb37-5" title="5">  ))</a></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb41-2" title="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">structure =</span> <span class="kw">relevel</span>(</a>
+<a class="sourceLine" id="cb41-3" title="3">    <span class="kw">to_factor</span>(structure, <span class="dt">drop_unused_labels =</span> <span class="ot">TRUE</span>),</a>
+<a class="sourceLine" id="cb41-4" title="4">    <span class="st">&quot;deux adultes de sexe opposé&quot;</span></a>
+<a class="sourceLine" id="cb41-5" title="5">  ))</a></code></pre></div>
 <p>Regardons la variable <var>educ</var>.</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="kw">freq</span>(enfants<span class="op">$</span>educ)</a></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" title="1"><span class="kw">freq</span>(enfants<span class="op">$</span>educ)</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1084","2":"68.4","3":"68.4","_rn_":"[0] aucun"},{"1":"368","2":"23.2","3":"23.2","_rn_":"[1] primaire"},{"1":"115","2":"7.3","3":"7.3","_rn_":"[2] secondaire"},{"1":"17","2":"1.1","3":"1.1","_rn_":"[3] supérieur"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>La modalité <q>supérieur</q> est peu représentée dans notre échantillon. Nous allons la fusionner avec la modalité <q>secondaire</q> (voir la section <a href="recodage.html#regrouper_modalites">Regrouper les modalités d’une variable</a> du chapitre <a href="recodage.html">Recodage</a>).</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb39-2" title="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">educ2 =</span> <span class="kw">ifelse</span>(educ <span class="op">==</span><span class="st"> </span><span class="dv">3</span>, <span class="dv">2</span>, educ)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb39-3" title="3"><span class="st">  </span><span class="kw">set_value_labels</span>(<span class="dt">educ2 =</span> <span class="kw">c</span>(</a>
-<a class="sourceLine" id="cb39-4" title="4">    <span class="dt">aucun =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb39-5" title="5">    <span class="dt">primaire =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb39-6" title="6">    <span class="st">&quot;secondaire ou plus&quot;</span> =<span class="st"> </span><span class="dv">2</span></a>
-<a class="sourceLine" id="cb39-7" title="7">  )) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb39-8" title="8"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">educ2 =</span> <span class="kw">to_factor</span>(educ2))</a>
-<a class="sourceLine" id="cb39-9" title="9"><span class="kw">freq</span>(enfants<span class="op">$</span>educ2)</a></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb43-2" title="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">educ2 =</span> <span class="kw">ifelse</span>(educ <span class="op">==</span><span class="st"> </span><span class="dv">3</span>, <span class="dv">2</span>, educ)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb43-3" title="3"><span class="st">  </span><span class="kw">set_value_labels</span>(<span class="dt">educ2 =</span> <span class="kw">c</span>(</a>
+<a class="sourceLine" id="cb43-4" title="4">    <span class="dt">aucun =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb43-5" title="5">    <span class="dt">primaire =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb43-6" title="6">    <span class="st">&quot;secondaire ou plus&quot;</span> =<span class="st"> </span><span class="dv">2</span></a>
+<a class="sourceLine" id="cb43-7" title="7">  )) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb43-8" title="8"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">educ2 =</span> <span class="kw">to_factor</span>(educ2))</a>
+<a class="sourceLine" id="cb43-9" title="9"><span class="kw">freq</span>(enfants<span class="op">$</span>educ2)</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1084","2":"68.4","3":"68.4","_rn_":"aucun"},{"1":"368","2":"23.2","3":"23.2","_rn_":"primaire"},{"1":"132","2":"8.3","3":"8.3","_rn_":"secondaire ou plus"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Calculons maintenant l’âge de la mère à la naissance de l’enfant (voir le chapitre <a href="calculer-un-age.html">Caluler un âge</a>) et découpons le en groupes d’âges (voir la section <a href="recodage.html#decouper_en_classes">Découper une variable numérique en classes</a> du chapitre <a href="recodage.html">Recodage</a>).</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb40-2" title="2"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb40-3" title="3">    <span class="dt">age_mere_naissance =</span> <span class="kw">time_length</span>(</a>
-<a class="sourceLine" id="cb40-4" title="4">      <span class="kw">interval</span>(date_naissance_mere, date_naissance), </a>
-<a class="sourceLine" id="cb40-5" title="5">      <span class="dt">unit =</span> <span class="st">&quot;years&quot;</span></a>
-<a class="sourceLine" id="cb40-6" title="6">    ),</a>
-<a class="sourceLine" id="cb40-7" title="7">    <span class="dt">gpage_mere_naissance =</span> <span class="kw">cut</span>(</a>
-<a class="sourceLine" id="cb40-8" title="8">      age_mere_naissance, </a>
-<a class="sourceLine" id="cb40-9" title="9">      <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>, <span class="dt">right =</span> <span class="ot">FALSE</span>,</a>
-<a class="sourceLine" id="cb40-10" title="10">      <span class="dt">breaks=</span><span class="kw">c</span>(<span class="dv">13</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">50</span>)</a>
-<a class="sourceLine" id="cb40-11" title="11">    )</a>
-<a class="sourceLine" id="cb40-12" title="12">  )</a>
-<a class="sourceLine" id="cb40-13" title="13">  </a>
-<a class="sourceLine" id="cb40-14" title="14"><span class="kw">levels</span>(enfants<span class="op">$</span>gpage_mere_naissance) &lt;-<span class="st"> </span><span class="kw">c</span>(</a>
-<a class="sourceLine" id="cb40-15" title="15">  <span class="st">&quot;19 ou moins&quot;</span>, <span class="st">&quot;20-29&quot;</span>, <span class="st">&quot;30 et plus&quot;</span></a>
-<a class="sourceLine" id="cb40-16" title="16">)</a>
-<a class="sourceLine" id="cb40-17" title="17">enfants<span class="op">$</span>gpage_mere_naissance &lt;-<span class="st"> </span><span class="kw">relevel</span>(enfants<span class="op">$</span>gpage_mere_naissance, <span class="st">&quot;20-29&quot;</span>)</a>
-<a class="sourceLine" id="cb40-18" title="18"><span class="kw">freq</span>(enfants<span class="op">$</span>gpage_mere_naissance)</a></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb44-2" title="2"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb44-3" title="3">    <span class="dt">age_mere_naissance =</span> <span class="kw">time_length</span>(</a>
+<a class="sourceLine" id="cb44-4" title="4">      <span class="kw">interval</span>(date_naissance_mere, date_naissance), </a>
+<a class="sourceLine" id="cb44-5" title="5">      <span class="dt">unit =</span> <span class="st">&quot;years&quot;</span></a>
+<a class="sourceLine" id="cb44-6" title="6">    ),</a>
+<a class="sourceLine" id="cb44-7" title="7">    <span class="dt">gpage_mere_naissance =</span> <span class="kw">cut</span>(</a>
+<a class="sourceLine" id="cb44-8" title="8">      age_mere_naissance, </a>
+<a class="sourceLine" id="cb44-9" title="9">      <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>, <span class="dt">right =</span> <span class="ot">FALSE</span>,</a>
+<a class="sourceLine" id="cb44-10" title="10">      <span class="dt">breaks=</span><span class="kw">c</span>(<span class="dv">13</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">50</span>)</a>
+<a class="sourceLine" id="cb44-11" title="11">    )</a>
+<a class="sourceLine" id="cb44-12" title="12">  )</a>
+<a class="sourceLine" id="cb44-13" title="13">  </a>
+<a class="sourceLine" id="cb44-14" title="14"><span class="kw">levels</span>(enfants<span class="op">$</span>gpage_mere_naissance) &lt;-<span class="st"> </span><span class="kw">c</span>(</a>
+<a class="sourceLine" id="cb44-15" title="15">  <span class="st">&quot;19 ou moins&quot;</span>, <span class="st">&quot;20-29&quot;</span>, <span class="st">&quot;30 et plus&quot;</span></a>
+<a class="sourceLine" id="cb44-16" title="16">)</a>
+<a class="sourceLine" id="cb44-17" title="17">enfants<span class="op">$</span>gpage_mere_naissance &lt;-<span class="st"> </span><span class="kw">relevel</span>(enfants<span class="op">$</span>gpage_mere_naissance, <span class="st">&quot;20-29&quot;</span>)</a>
+<a class="sourceLine" id="cb44-18" title="18"><span class="kw">freq</span>(enfants<span class="op">$</span>gpage_mere_naissance)</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"888","2":"56.1","3":"56.1","_rn_":"20-29"},{"1":"257","2":"16.2","3":"16.2","_rn_":"19 ou moins"},{"1":"439","2":"27.7","3":"27.7","_rn_":"30 et plus"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Reste à calculer si le rang de naissance de l’enfant est supérieur au nombre idéal d’enfants tel que défini par la mère. On aura recours à la fonction <code data-pkg="base">rank</code> appliquée par groupe (ici calculé séparément pour chaque mère). L’argument <code>ties.method</code> permet d’indiquer comment gérer les égalités (ici les naissances multiples, e.g. les jumeaux). Comme nous voulons comparer le rang de l’enfant au nombre idéal d’enfants, nous allons retenir la méthode <code>"max"</code> pour obtenir, dans le cas présent, le nombre total d’enfants déjà nés<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>. Avant de calculer un rang, il est impératif de trier préalablement le tableau (voir le chapitre <a href="tris.html">Tris</a>).</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb41-2" title="2"><span class="st">  </span><span class="kw">arrange</span>(id_femme, date_naissance) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb41-3" title="3"><span class="st">  </span><span class="kw">group_by</span>(id_femme) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb41-4" title="4"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb41-5" title="5">    <span class="dt">rang =</span> <span class="kw">rank</span>(date_naissance, <span class="dt">ties.method =</span> <span class="st">&quot;max&quot;</span>),</a>
-<a class="sourceLine" id="cb41-6" title="6">    <span class="dt">rang_apres_ideal =</span> <span class="kw">ifelse</span>(rang <span class="op">&gt;</span><span class="st"> </span>nb_enf_ideal, <span class="st">&quot;oui&quot;</span>, <span class="st">&quot;non&quot;</span>),</a>
-<a class="sourceLine" id="cb41-7" title="7">    <span class="dt">rang_apres_ideal =</span> <span class="kw">factor</span>(rang_apres_ideal, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;non&quot;</span>, <span class="st">&quot;oui&quot;</span>))</a>
-<a class="sourceLine" id="cb41-8" title="8">  )</a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb45-2" title="2"><span class="st">  </span><span class="kw">arrange</span>(id_femme, date_naissance) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb45-3" title="3"><span class="st">  </span><span class="kw">group_by</span>(id_femme) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb45-4" title="4"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb45-5" title="5">    <span class="dt">rang =</span> <span class="kw">rank</span>(date_naissance, <span class="dt">ties.method =</span> <span class="st">&quot;max&quot;</span>),</a>
+<a class="sourceLine" id="cb45-6" title="6">    <span class="dt">rang_apres_ideal =</span> <span class="kw">ifelse</span>(rang <span class="op">&gt;</span><span class="st"> </span>nb_enf_ideal, <span class="st">&quot;oui&quot;</span>, <span class="st">&quot;non&quot;</span>),</a>
+<a class="sourceLine" id="cb45-7" title="7">    <span class="dt">rang_apres_ideal =</span> <span class="kw">factor</span>(rang_apres_ideal, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;non&quot;</span>, <span class="st">&quot;oui&quot;</span>))</a>
+<a class="sourceLine" id="cb45-8" title="8">  )</a></code></pre></div>
 </div>
 <div id="kaplan-meier" class="section level2">
 <h2>Kaplan-Meier</h2>
 <p>La courbe de survie de <dfn>Kaplan-Meier</dfn> s’obtient avec la fonction <code data-pkg="survival">survfit</code> de l’extension <code class="pkg">survival</code>.</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" title="1"><span class="kw">library</span>(survival)</a>
-<a class="sourceLine" id="cb42-2" title="2">km_global &lt;-<span class="st"> </span><span class="kw">survfit</span>(<span class="kw">Surv</span>(time, deces) <span class="op">~</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">data =</span> enfants)</a>
-<a class="sourceLine" id="cb42-3" title="3">km_global</a></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" title="1"><span class="kw">library</span>(survival)</a>
+<a class="sourceLine" id="cb46-2" title="2">km_global &lt;-<span class="st"> </span><span class="kw">survfit</span>(<span class="kw">Surv</span>(time, deces) <span class="op">~</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">data =</span> enfants)</a>
+<a class="sourceLine" id="cb46-3" title="3">km_global</a></code></pre></div>
 <pre><code>Call: survfit(formula = Surv(time, deces) ~ 1, data = enfants)
 
       n  events  median 0.95LCL 0.95UCL 
    1584     142      NA      NA      NA </code></pre>
 <p>Pour la représenter, on pourra avoir recours à la fonction <code data-pkg="survminer">ggsurvplot</code> de l’extension <code>survminer</code>.</p>
 <figure>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" title="1"><span class="kw">library</span>(survminer, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" title="1"><span class="kw">library</span>(survminer, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<pre><code>Warning: package &#39;survminer&#39; was built under R version 3.6.3</code></pre>
+<pre><code>Warning: package &#39;ggpubr&#39; was built under R version 3.6.3</code></pre>
 <pre><code>
 Attaching package: &#39;ggpubr&#39;</code></pre>
 <pre><code>The following object is masked from &#39;package:JLutils&#39;:
@@ -867,7 +872,7 @@ Attaching package: &#39;ggpubr&#39;</code></pre>
 <pre><code>The following object is masked from &#39;package:plyr&#39;:
 
     mutate</code></pre>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" title="1"><span class="kw">ggsurvplot</span>(km_global)</a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" title="1"><span class="kw">ggsurvplot</span>(km_global)</a></code></pre></div>
 <img src="graphs/analyse-de-survie/unnamed-chunk-33-1.png" width="1050" />
 <figcaption>
 Courbe de survie de Kaplan-Meier
@@ -875,22 +880,22 @@ Courbe de survie de Kaplan-Meier
 </figure>
 <p>On peut facilement représenter à la place la courbe cumulée des évènements (l’inverse de la courbe de survie) et la table des effectifs en fonction du temps.</p>
 <figure>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" title="1"><span class="kw">ggsurvplot</span>(km_global, <span class="dt">fun =</span> <span class="st">&quot;event&quot;</span>, <span class="dt">risk.table =</span> <span class="ot">TRUE</span>, <span class="dt">surv.scale =</span> <span class="st">&quot;percent&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" title="1"><span class="kw">ggsurvplot</span>(km_global, <span class="dt">fun =</span> <span class="st">&quot;event&quot;</span>, <span class="dt">risk.table =</span> <span class="ot">TRUE</span>, <span class="dt">surv.scale =</span> <span class="st">&quot;percent&quot;</span>)</a></code></pre></div>
 <img src="graphs/analyse-de-survie/unnamed-chunk-34-1.png" width="1050" />
 <figcaption>
 Courbe cumulée des évènements et table des effectifs
 </figcaption>
 </figure>
 <p>Pour comparer deux groupes (ici les filles et les garçons), il suffit d’indiquer la variable de comparaison à <code data-pkg="survival">survfit</code>.</p>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" title="1">km_sexe &lt;-<span class="st"> </span><span class="kw">survfit</span>(<span class="kw">Surv</span>(time, deces) <span class="op">~</span><span class="st"> </span>sexe, <span class="dt">data =</span> enfants)</a>
-<a class="sourceLine" id="cb50-2" title="2">km_sexe</a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" title="1">km_sexe &lt;-<span class="st"> </span><span class="kw">survfit</span>(<span class="kw">Surv</span>(time, deces) <span class="op">~</span><span class="st"> </span>sexe, <span class="dt">data =</span> enfants)</a>
+<a class="sourceLine" id="cb56-2" title="2">km_sexe</a></code></pre></div>
 <pre><code>Call: survfit(formula = Surv(time, deces) ~ sexe, data = enfants)
 
                 n events median 0.95LCL 0.95UCL
 sexe=masculin 762     94     NA      NA      NA
 sexe=féminin  822     48     NA      NA      NA</code></pre>
 <p>La fonction <code data-pkg="survival">survdiff</code> permets de calculer le <dfn data-index="test du logrank (comparaison de courbes de survie)">test du logrank</dfn><dfn data-index="logrank, test (comparaison de courbes de survie)"></dfn><dfn data-index="comparaison de courbes de survie (test du logrank)"></dfn> afin de comparer des courbes de survie. La mortalité infanto-juvénile diffère-t-elle significativement selon le sexe de l’enfant ?</p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" title="1"><span class="kw">survdiff</span>(<span class="kw">Surv</span>(time, deces) <span class="op">~</span><span class="st"> </span>sexe, <span class="dt">data =</span> enfants)</a></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb58-1" title="1"><span class="kw">survdiff</span>(<span class="kw">Surv</span>(time, deces) <span class="op">~</span><span class="st"> </span>sexe, <span class="dt">data =</span> enfants)</a></code></pre></div>
 <pre><code>Call:
 survdiff(formula = Surv(time, deces) ~ sexe, data = enfants)
 
@@ -901,7 +906,7 @@ sexe=féminin  822       48     75.8      10.2      21.8
  Chisq= 21.8  on 1 degrees of freedom, p= 3e-06 </code></pre>
 <p>Une fois encore, on aura recours à <code data-pkg="survminer">ggsurvplot</code> pour représenter les courbes de survie.</p>
 <figure>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" title="1"><span class="kw">ggsurvplot</span>(km_sexe, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>, <span class="dt">risk.table =</span> <span class="ot">TRUE</span>, <span class="dt">pval =</span> <span class="ot">TRUE</span>, <span class="dt">data =</span> enfants)</a></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb60-1" title="1"><span class="kw">ggsurvplot</span>(km_sexe, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>, <span class="dt">risk.table =</span> <span class="ot">TRUE</span>, <span class="dt">pval =</span> <span class="ot">TRUE</span>, <span class="dt">data =</span> enfants)</a></code></pre></div>
 <pre><code>Warning: Vectorized input to `element_text()` is not officially supported.
 Results may be unexpected or may change in future versions of ggplot2.</code></pre>
 <img src="graphs/analyse-de-survie/unnamed-chunk-37-1.png" width="1050" />
@@ -913,12 +918,12 @@ Courbes de Kaplan-Meier selon le sexe
 <div id="modèle-de-cox" class="section level2">
 <h2>Modèle de Cox</h2>
 <p>Un <dfn>modèle de Cox</dfn><dfn data-index="Cox, modèle"></dfn> se calcule aisément avec <code>coxph</code>{survival}.</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" title="1">mod1 &lt;-<span class="st"> </span><span class="kw">coxph</span>(</a>
-<a class="sourceLine" id="cb56-2" title="2">  <span class="kw">Surv</span>(time, deces) <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>milieu <span class="op">+</span><span class="st"> </span>richesse <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb56-3" title="3"><span class="st">  </span>structure <span class="op">+</span><span class="st"> </span>educ2 <span class="op">+</span><span class="st"> </span>gpage_mere_naissance <span class="op">+</span><span class="st"> </span>rang_apres_ideal, </a>
-<a class="sourceLine" id="cb56-4" title="4">  <span class="dt">data =</span> enfants</a>
-<a class="sourceLine" id="cb56-5" title="5">)</a>
-<a class="sourceLine" id="cb56-6" title="6">mod1</a></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb62-1" title="1">mod1 &lt;-<span class="st"> </span><span class="kw">coxph</span>(</a>
+<a class="sourceLine" id="cb62-2" title="2">  <span class="kw">Surv</span>(time, deces) <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>milieu <span class="op">+</span><span class="st"> </span>richesse <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb62-3" title="3"><span class="st">  </span>structure <span class="op">+</span><span class="st"> </span>educ2 <span class="op">+</span><span class="st"> </span>gpage_mere_naissance <span class="op">+</span><span class="st"> </span>rang_apres_ideal, </a>
+<a class="sourceLine" id="cb62-4" title="4">  <span class="dt">data =</span> enfants</a>
+<a class="sourceLine" id="cb62-5" title="5">)</a>
+<a class="sourceLine" id="cb62-6" title="6">mod1</a></code></pre></div>
 <pre><code>Call:
 coxph(formula = Surv(time, deces) ~ sexe + milieu + richesse + 
     structure + educ2 + gpage_mere_naissance + rang_apres_ideal, 
@@ -1008,7 +1013,7 @@ rang_apres_idealoui                                   0.0245
 Likelihood ratio test=38.16  on 15 df, p=0.0008546
 n= 1584, number of events= 142 </code></pre>
 <p>De nombreuses variables ne sont pas significatives. Voyons si nous pouvons, avec la fonction <code data-pkg="stats">step</code>, améliorer notre modèle par minimisation de l’<dfn>AIC</dfn> ou <dfn lang="en">Akaike Information Criterion</dfn> (voir la section <a href="regression-logistique.html#selection-de-modeles">Sélection de modèles</a> du chapitre sur la <a href="regression-logistique.html">Régression logistique</a>).</p>
-<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb58-1" title="1">mod2 &lt;-<span class="st"> </span><span class="kw">step</span>(mod1)</a></code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb64-1" title="1">mod2 &lt;-<span class="st"> </span><span class="kw">step</span>(mod1)</a></code></pre></div>
 <pre><code>Start:  AIC=2027.07
 Surv(time, deces) ~ sexe + milieu + richesse + structure + educ2 + 
     gpage_mere_naissance + rang_apres_ideal
@@ -1067,8 +1072,9 @@ Surv(time, deces) ~ sexe + milieu + rang_apres_ideal
 - milieu            1 2013.9
 - sexe              1 2031.6</code></pre>
 <p>On peut obtenir facilement les coefficients du modèle avec l’excellente fonction <code data-pkg="broom">tidy</code> de l’extension <code class="pkg">broom</code>. Ne pas oublier de préciser <code>exponentiate = TRUE</code>. En effet, dans le cas d’un modèle de Cox, l’exponentiel des coefficients corresponds au <dfn>ratio des risques instantannés</dfn> ou <dfn lang="en">hazard ratio (HR)</dfn> en anglais.</p>
-<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb60-1" title="1"><span class="kw">library</span>(broom, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb60-2" title="2"><span class="kw">tidy</span>(mod2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb66-1" title="1"><span class="kw">library</span>(broom, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<pre><code>Warning: package &#39;broom&#39; was built under R version 3.6.3</code></pre>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb68-1" title="1"><span class="kw">tidy</span>(mod2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"sexeféminin","2":"0.4429992","3":"0.1774811","4":"-4.587459","5":"4.486738e-06","6":"0.3128461","7":"0.6272998"},{"1":"milieu","2":"1.5206198","3":"0.1987723","4":"2.108533","5":"3.498491e-02","6":"1.0299718","7":"2.2449981"},{"1":"rang_apres_idealoui","2":"3.4410694","3":"0.5840690","4":"2.115816","5":"3.436049e-02","6":"1.0952998","7":"10.8107009"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1076,7 +1082,7 @@ Surv(time, deces) ~ sexe + milieu + rang_apres_ideal
 </div>
 <p>Pour représenter ces rapports de risque, on peut ici encore avoir recours à la fonction <code data-pkg="GGally">ggcoef</code> de l’extension <code class="pkg">GGally</code>.</p>
 <figure>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" title="1"><span class="kw">library</span>(GGally, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb69-1" title="1"><span class="kw">library</span>(GGally, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>Registered S3 method overwritten by &#39;GGally&#39;:
   method from   
   +.gg   ggplot2</code></pre>
@@ -1085,7 +1091,7 @@ Attaching package: &#39;GGally&#39;</code></pre>
 <pre><code>The following object is masked from &#39;package:dplyr&#39;:
 
     nasa</code></pre>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" title="1"><span class="kw">ggcoef</span>(mod2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb73-1" title="1"><span class="kw">ggcoef</span>(mod2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <img src="graphs/analyse-de-survie/unnamed-chunk-41-1.png" width="1050" />
 <figcaption>
 Coefficients du modèle avec ggcoef
@@ -1093,7 +1099,7 @@ Coefficients du modèle avec ggcoef
 </figure>
 <p>L’extension <code class="pkg">survminer</code> fournit également une fonction <code data-pkg="survminer">ggforest</code> qui permet de représenter de manière plus esthétique et complète les coefficients d’un modèle de Cox.</p>
 <figure>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb66-1" title="1"><span class="kw">ggforest</span>(mod2)</a></code></pre></div>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb74-1" title="1"><span class="kw">ggforest</span>(mod2)</a></code></pre></div>
 <img src="graphs/analyse-de-survie/unnamed-chunk-42-1.png" width="1050" />
 <figcaption>
 Coefficients du modèle avec ggforest
@@ -1103,8 +1109,8 @@ Coefficients du modèle avec ggforest
 <div id="vérification-de-la-validité-du-modèle" class="section level2">
 <h2>Vérification de la validité du modèle</h2>
 <p>Un modèle de Cox n’est valable que sous l’hypothèse de la proportionnalité des risques relatifs. Selon cette hypothèse les <dfn>résidus de Schoenfeld</dfn><dfn data-index="Schoenfeld, résidus"></dfn> ne dépendent pas du temps. Cette hypothèse peut être testée avec la fonction <code data-pkg="survival">cox.zph</code>.</p>
-<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" title="1">test &lt;-<span class="st"> </span><span class="kw">cox.zph</span>(mod2)</a>
-<a class="sourceLine" id="cb67-2" title="2">test</a></code></pre></div>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb75-1" title="1">test &lt;-<span class="st"> </span><span class="kw">cox.zph</span>(mod2)</a>
+<a class="sourceLine" id="cb75-2" title="2">test</a></code></pre></div>
 <pre><code>                 chisq df    p
 sexe             0.505  1 0.48
 milieu           0.136  1 0.71
@@ -1113,7 +1119,7 @@ GLOBAL           0.805  3 0.85</code></pre>
 <p>Une valeur de p inférieure à 5 % indique que l’hypothèse n’est pas vérifiée. Il apparaît que p est supérieur à 5 % globalement et pour chaque variable prise individuellement. Notre modèle est donc valide.</p>
 <p>Il est possible de représenter la distribution des résidus de Schoenfeld à l’aide de <code data-pkg="survminer">ggcoxzph</code> de l’extension <code class="pkg">survminer</code>, afin de voir si leur répartition change au cours du temps.</p>
 <figure>
-<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb69-1" title="1"><span class="kw">ggcoxzph</span>(test)</a></code></pre></div>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb77-1" title="1"><span class="kw">ggcoxzph</span>(test)</a></code></pre></div>
 <pre><code>Warning in regularize.values(x, y, ties, missing(ties)):
 collapsing to unique &#39;x&#39; values</code></pre>
 <img src="graphs/analyse-de-survie/unnamed-chunk-44-1.png" width="1050" />
