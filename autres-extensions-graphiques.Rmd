@@ -231,3 +231,98 @@ ggplot(data = as.data.frame(Titanic)) +
 
 
 Mentionnons également l'extension `riverplot`{.pkg} pour la création de diagrammes de Sankey.
+
+## DiagrammeR
+
+`DiagrammeR`{.pkg} est dédiée à la réalisation de diagrammes en ayant recours à la syntaxe **Graphviz** (via la fonction `grViz`{data-pkg="DiagrammeR"}) ou encore à la syntaxe **Mermaid** (via la fonction `mermaid`{data-pkg="DiagrammeR"}).
+
+```{r}
+library(DiagrammeR)
+grViz("
+digraph boxes_and_circles {
+
+  # a 'graph' statement
+  graph [overlap = true, fontsize = 10]
+
+  # several 'node' statements
+  node [shape = box,
+        fontname = Helvetica]
+  A; B; C; D; E; F
+
+  node [shape = circle,
+        fixedsize = true,
+        width = 0.9] // sets as circles
+  1; 2; 3; 4; 5; 6; 7; 8
+
+  # several 'edge' statements
+  A->1 B->2 B->3 B->4 C->A
+  1->D E->A 2->4 1->5 1->F
+  E->6 4->6 5->7 6->7 3->8
+}
+")
+```
+
+```{r}
+mermaid("
+graph LR
+A(Rounded)-->B[Rectangular]
+B-->C{A Rhombus}
+C-->D[Rectangle One]
+C-->E[Rectangle Two]
+")
+```
+
+
+```{r}
+mermaid("
+sequenceDiagram
+  customer->>ticket seller: ask ticket
+  ticket seller->>database: seats
+  alt tickets available
+    database->>ticket seller: ok
+    ticket seller->>customer: confirm
+    customer->>ticket seller: ok
+    ticket seller->>database: book a seat
+    ticket seller->>printer: print ticket
+  else sold out
+    database->>ticket seller: none left
+    ticket seller->>customer: sorry
+  end
+")
+```
+
+```{r}
+mermaid("
+gantt
+       dateFormat  YYYY-MM-DD
+       title Adding GANTT diagram functionality to mermaid
+
+       section A section
+       Completed task            :done,    des1, 2014-01-06,2014-01-08
+       Active task               :active,  des2, 2014-01-09, 3d
+       Future task               :         des3, after des2, 5d
+       Future task2              :         des4, after des3, 5d
+
+       section Critical tasks
+       Completed task in the critical line :crit, done, 2014-01-06,24h
+       Implement parser and jison          :crit, done, after des1, 2d
+       Create tests for parser             :crit, active, 3d
+       Future task in critical line        :crit, 5d
+       Create tests for renderer           :2d
+       Add to mermaid                      :1d
+
+       section Documentation
+       Describe gantt syntax               :active, a1, after des1, 3d
+       Add gantt diagram to demo page      :after a1  , 20h
+       Add another diagram to demo page    :doc1, after a1  , 48h
+
+       section Last section
+       Describe gantt syntax               :after doc1, 3d
+       Add gantt diagram to demo page      :20h
+       Add another diagram to demo page    :48h
+")
+```
+
+
+
+Plus d'informations : <https://rich-iannone.github.io/DiagrammeR/>
