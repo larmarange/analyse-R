@@ -1,0 +1,110 @@
+---
+title: "Autres extensions graphiques"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+Pour trouver l'inspiration et des exemples de code, rien ne vaut l'excellent site <https://www.r-graph-gallery.com/>.
+
+## GGally
+
+L'extension `GGally`{.pkg}, déjà abordée dans d'autres chapitres, fournit plusieurs fonctions graphiques d'exploration des résultats d'un modèle ou des relations entre variables. 
+
+```{r, message=FALSE}
+reg <- lm(Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, data = iris)
+library(GGally)
+ggcoef(reg)
+```
+
+```{r, message=FALSE}
+data(tips, package = "reshape")
+ggpairs(tips)
+```
+
+
+Plus d'information : <https://ggobi.github.io/ggally/>
+
+## ggpubr
+
+L'extension `ggpubr`{.pkg} fournit plusieurs fonctions pour produire <q>clés en main</q> différents graphiques bivariés avec une mise en forme allégée.
+
+```{r}
+library(ggpubr)
+data("ToothGrowth")
+df <- ToothGrowth
+ggboxplot(df, x = "dose", y = "len",
+                color = "dose", palette =c("#00AFBB", "#E7B800", "#FC4E07"),
+                add = "jitter", shape = "dose")
+```
+
+```{r}
+data("mtcars")
+dfm <- mtcars
+# Convert the cyl variable to a factor
+dfm$cyl <- as.factor(dfm$cyl)
+# Add the name colums
+dfm$name <- rownames(dfm)
+# Calculate the z-score of the mpg data
+dfm$mpg_z <- (dfm$mpg -mean(dfm$mpg))/sd(dfm$mpg)
+dfm$mpg_grp <- factor(ifelse(dfm$mpg_z < 0, "low", "high"), 
+                     levels = c("low", "high"))
+
+ggbarplot(dfm, x = "name", y = "mpg_z",
+          fill = "mpg_grp",           # change fill color by mpg_level
+          color = "white",            # Set bar border colors to white
+          palette = "jco",            # jco journal color palett. see ?ggpar
+          sort.val = "asc",           # Sort the value in ascending order
+          sort.by.groups = FALSE,     # Don't sort inside each group
+          x.text.angle = 90,          # Rotate vertically x axis texts
+          ylab = "MPG z-score",
+          xlab = FALSE,
+          legend.title = "MPG Group"
+          )
+```
+
+```{r}
+ggdotchart(dfm, x = "name", y = "mpg_z",
+           color = "cyl",                                # Color by groups
+           palette = c("#00AFBB", "#E7B800", "#FC4E07"), # Custom color palette
+           sorting = "descending",                       # Sort value in descending order
+           add = "segments",                             # Add segments from y = 0 to dots
+           add.params = list(color = "lightgray", size = 2), # Change segment color and size
+           group = "cyl",                                # Order by groups
+           dot.size = 6,                                 # Large dot size
+           label = round(dfm$mpg_z,1),                        # Add mpg values as dot labels
+           font.label = list(color = "white", size = 9, 
+                             vjust = 0.5),               # Adjust label parameters
+           ggtheme = theme_pubr()                        # ggplot2 theme
+           )+
+  geom_hline(yintercept = 0, linetype = 2, color = "lightgray")
+```
+
+
+Plus d'informations : <https://rpkgs.datanovia.com/ggpubr/>
+
+
+## ggdendro
+
+L'extension `ggendro`{.pkg} avec sa fonction `ggdendrogram`{data-pkg="ggdendro"} permet de représenter facilement des dendrogrammes avec `ggplot2`{.pkg}.
+
+```{r}
+library(ggplot2)
+library(ggdendro)
+hc <- hclust(dist(USArrests), "ave")
+hcdata <- dendro_data(hc, type="rectangle")
+ggplot() + 
+  geom_segment(data=segment(hcdata), aes(x=x, y=y, xend=xend, yend=yend)) +
+  geom_text(data=label(hcdata), aes(x=x, y=y, label=label, hjust=0), size=3) +
+  coord_flip() + 
+  scale_y_reverse(expand=c(0.2, 0))
+
+### demonstrate plotting directly from object class hclust
+ggdendrogram(hc)
+ggdendrogram(hc, rotate=TRUE)
+
+```
+
+Plus d'informations : <https://cran.r-project.org/web/packages/ggdendro/vignettes/ggdendro.html>
+
