@@ -27,7 +27,7 @@ ggplot(mpg, aes(x = class, y = cty)) +
   theme_bw()
 ```
 
-## Étiquettes non superposées
+### Étiquettes non superposées
 
 Lorsque l'on affiche des étiquettes de texte, ces dernières peuvent se supperposer lorsqu'elles sont proches. Les géométries `geom_text_repel`{data-pkg="ggrepel" data-rdoc="geom_label_repel"} et `geom_label_repel`{data-pkg="ggrepel"} de l'extension `ggrepel`{.pkg} prennent en compte la position des différentes étiquettes pour éviter qu'elles ne se chevauchent.
 
@@ -49,9 +49,6 @@ p2 <- p + geom_text_repel() +
 
 cowplot::plot_grid(p1, p2, nrow = 1)
 ```
-
-
-
 
 
 ## Axes, légende et facettes
@@ -136,6 +133,44 @@ ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop, colour = country)) +
 ```
 
 Voir le site de l'extension (<https://gganimate.com/>) pour la documentation et des tutoriels. Il est conseillé d'installer également l'extension `gifski`{.pkg} avec `gganimate`{.pkg}.
+
+### Surligner certaines données
+
+L'extension `gghighlight`{.pkg} fournit une fonction `gghiglight`{data-pkg="gghiglight"} qui permets de <q>surligner</q> les données qui remplissent des conditions spécifiées.
+
+```{r}
+d <- purrr::map_dfr(
+  letters,
+  ~ data.frame(
+      idx = 1:400,
+      value = cumsum(runif(400, -1, 1)),
+      type = .,
+      flag = sample(c(TRUE, FALSE), size = 400, replace = TRUE),
+      stringsAsFactors = FALSE
+    )
+)
+
+ggplot(d) +
+  aes(x = idx, y = value, colour = type) +
+  geom_line()
+```
+
+```{r}
+library(gghighlight)
+ggplot(d) +
+  aes(x = idx, y = value, colour = type) +
+  geom_line() +
+  gghighlight(max(value) > 20)
+```
+
+
+```{r, message=FALSE}
+ggplot(iris, aes(Sepal.Length, fill = Species)) +
+  geom_histogram() +
+  gghighlight() +
+  facet_wrap(~ Species)
+```
+
 
 ## Thèmes et couleurs
 
