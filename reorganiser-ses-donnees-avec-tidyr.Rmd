@@ -137,7 +137,7 @@ L'objectif de `tidyr`{.pkg} est de fournir des fonctions pour arranger ses donn�
 
 
 
-### gather : rassembler des colonnes
+### pivot_longer : rassembler des colonnes
 
 Prenons le tableau `d` suivant, qui liste la population de 6 pays en 2002 et 2007 :
 
@@ -155,29 +155,27 @@ kable(d)
 
 Dans ce tableau, une même variable (la population) est répartie sur plusieurs colonnes, chacune représentant une observation à un moment différent. On souhaite que la variable ne représente plus qu'une seule colonne, et que les observations soient réparties sur plusieurs lignes. 
 
-Pour cela on va utiliser la fonction `gather`{data-pkg="tidyr"} ("rassembler") : 
+Pour cela on va utiliser la fonction `pivot_longer`{data-pkg="tidyr"}^[`pivot_longer`{data-pkg="tidyr"} est une version plus récente et plus robuste de la fonction `gather`{data-pkg="tidyr"}.] : 
 
 ```{r warning=FALSE, paged.print=FALSE}
-d %>% gather(`2002`, `2007`, key = annee, value = population)
+d %>% pivot_longer(cols = c(`2002`,`2007`), names_to = "annee", values_to = "population")
 ```
 
-La fonction `gather`{data-pkg="tidyr"} prend comme arguments la liste des colonnes à rassembler (ici on a mis `2002` et `2007` entre *backticks* (`` `2002` ``) pour indiquer à `gather`{data-pkg="tidyr"} qu'il s'agit d'un nom de colonne et pas d'un nombre), ainsi que deux arguments `key` et `value` :
+La fonction `pivot_longer`{data-pkg="tidyr"} prend comme arguments la liste des colonnes à rassembler (on peut également y utiliser les différentes fonctions de sélection de variables utilisables avec `select`{data-pkg="dplyr"}, voir `select_helpers`{data-pkg="tidyselect"}), ainsi que deux arguments `names_to` et `values_to` :
 
-- `key` est le nom de la colonne qui va contenir les "clés", c'est-à-dire les identifiants des différentes observations
-- `value` est le nom de la colonne qui va contenir la valeur des observations
+- `names_to` est le nom de la colonne qui va contenir les "noms" des colonnes originelles, c'est-à-dire les identifiants des différentes observations
+- `values_to` est le nom de la colonne qui va contenir la valeur des observations
 
-Parfois il est plus rapide d'indiquer à `gather`{data-pkg="tidyr"} les colonnes qu'on ne souhaite pas rassembler. On peut le faire avec la syntaxe suivante :
+Parfois il est plus rapide d'indiquer à `pivot_longer`{data-pkg="tidyr"} les colonnes qu'on ne souhaite pas rassembler. On peut le faire avec la syntaxe suivante :
 
 ```{r warning=FALSE, paged.print=FALSE}
-d %>% gather(-country, key = annee, value = population)
+d %>% pivot_longer(-country, names_to = "annee", values_to = "population")
 ```
 
 
+### pivot_wider : disperser des lignes
 
-
-### spread : disperser des lignes
-
-La fonction `spread`{data-pkg="tidyr"} est l'inverse de `gather`{data-pkg="tidyr"}.
+La fonction `pivot_wider`{data-pkg="tidyr"}^[`pivot_wider`{data-pkg="tidyr"} est une version plus récente et plus robuste de la fonction `spread`{data-pkg="tidyr"}.] est l'inverse de `pivot_longer`{data-pkg="tidyr"}.
 
 Soit le tableau `d` suivant :
 
@@ -195,18 +193,18 @@ kable(d)
 
 Ce tableau a le problème inverse du précédent : on a deux variables, `lifeExp` et `pop` qui, plutôt que d'être réparties en deux colonnes, sont réparties entre plusieurs lignes.
 
-On va donc utiliser `spread`{data-pkg="tidyr"} pour <q>disperser</q> ces lignes dans deux colonnes différentes :
+On va donc utiliser `pivot_wider`{data-pkg="tidyr"} pour <q>disperser</q> ces lignes dans deux colonnes différentes :
 
 ```{r warning=FALSE, paged.print=FALSE}
-d %>% spread(key = variable, value = value)
+d %>% pivot_wider(names_from = variable, values_from = value)
 ```
 
-`spread`{data-pkg="tidyr"} prend deux arguments principaux :
+`pivot_wider`{data-pkg="tidyr"} prend deux arguments principaux :
 
-- `key` indique la colonne contenant les noms des nouvelles variables à créer
-- `value` indique la colonne contenant les valeurs de ces variables
+- `names_from` indique la colonne contenant les noms des nouvelles variables à créer
+- `values_from` indique la colonne contenant les valeurs de ces variables
 
-Il peut arriver que certaines variables soient absentes pour certaines observations. Dans ce cas l'argument `fill` permet de spécifier la valeur à utiliser pour ces données manquantes (par défaut `fill` vaut, logiquement, `NA`).
+Il peut arriver que certaines variables soient absentes pour certaines observations. Dans ce cas l'argument `values_fill` permet de spécifier la valeur à utiliser pour ces données manquantes (par défaut, les valauers manquantes sont indiquées avec `NA`).
 
 Exemple avec le tableau `d` suivant :
 
@@ -217,13 +215,13 @@ kable(d)
 
 ```{r warning=FALSE, paged.print=FALSE}
 d %>% 
-  spread(key = variable, value = value)
+  pivot_wider(names_from =  variable, values_from = value)
 ```
 
 
 ```{r warning=FALSE, paged.print=FALSE}
 d %>% 
-  spread(key = variable, value = value, fill = "-")
+  pivot_wider(names_from =  variable, values_from = value, values_fill = list(value = 0))
 ```
 
 ### separate : séparer une colonne en plusieurs {#separate}
@@ -371,6 +369,10 @@ Le livre *R for data science*, librement accessible en ligne, contient [un chapi
 L'article [Tidy data](https://www.jstatsoft.org/article/view/v059i10), publié en 2014 dans le *Journal of Statistical Software*, présente de manière détaillée le concept éponyme (mais il utilise des extensions désormais obsolètes qui ont depuis été remplacées par `dplyr`{.pkg} et`tidyr`{.pkg}).
 
 Le site de l'extension est accessible à l'adresse : <http://tidyr.tidyverse.org/> et contient une liste des fonctions et les pages d'aide associées.
+
+En particulier, on pourra se référer à la [vignette dédiée](https://tidyr.tidyverse.org/articles/pivot.html) à `pivot_wider`{data-pkg="tidyr"} et `pivot_longer`{data-pkg="tidyr"} pour des exemples avancés de réorganisation des données.
+
+Pour des usages avancés, il est possible avec `tidyr`{.pkg} de gérer des données nichées (<em lang="en">nested data</em>), c'est-à-dire des tableaux de données dans des tableaux de données. Ces fonctionnalités, réservées aux utilisateurs avancés, sont décrites dans une [vignette spécifique](https://tidyr.tidyverse.org/articles/nest.html).
 
 ## Fichiers volumineux
 
