@@ -472,8 +472,8 @@ summary {
 <li><a href="#tidy-data">Tidy data</a></li>
 <li><a href="#trois-règles-pour-des-données-bien-rangées">Trois règles pour des données bien rangées</a></li>
 <li><a href="#les-verbes-de-tidyr">Les verbes de tidyr</a><ul>
-<li><a href="#gather-rassembler-des-colonnes">gather : rassembler des colonnes</a></li>
-<li><a href="#spread-disperser-des-lignes">spread : disperser des lignes</a></li>
+<li><a href="#pivot_longer-rassembler-des-colonnes">pivot_longer : rassembler des colonnes</a></li>
+<li><a href="#pivot_wider-disperser-des-lignes">pivot_wider : disperser des lignes</a></li>
 <li><a href="#separate">separate : séparer une colonne en plusieurs</a></li>
 <li><a href="#unite-regrouper-plusieurs-colonnes-en-une-seule">unite : regrouper plusieurs colonnes en une seule</a></li>
 <li><a href="#extract">extract : créer de nouvelles colonnes à partir d’une colonne de texte</a></li>
@@ -913,8 +913,8 @@ summary {
 <div id="les-verbes-de-tidyr" class="section level2">
 <h2>Les verbes de tidyr</h2>
 <p>L’objectif de <code class="pkg">tidyr</code> est de fournir des fonctions pour arranger ses données et les convertir dans un format <em>tidy</em>. Ces fonctions prennent la forme de verbes qui viennent compléter ceux de <code class="pkg">dplyr</code> et s’intègrent parfaitement dans les séries de <em>pipes</em> (<code>%&gt;%</code>), les <em>pipelines</em>, permettant d’enchaîner les opérations.</p>
-<div id="gather-rassembler-des-colonnes" class="section level3">
-<h3>gather : rassembler des colonnes</h3>
+<div id="pivot_longer-rassembler-des-colonnes" class="section level3">
+<h3>pivot_longer : rassembler des colonnes</h3>
 <p>Prenons le tableau <code>d</code> suivant, qui liste la population de 6 pays en 2002 et 2007 :</p>
 <table>
 <thead>
@@ -958,49 +958,50 @@ summary {
 </tbody>
 </table>
 <p>Dans ce tableau, une même variable (la population) est répartie sur plusieurs colonnes, chacune représentant une observation à un moment différent. On souhaite que la variable ne représente plus qu’une seule colonne, et que les observations soient réparties sur plusieurs lignes.</p>
-<p>Pour cela on va utiliser la fonction <code data-pkg="tidyr">gather</code> (“rassembler”) :</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">gather</span>(<span class="st">`</span><span class="dt">2002</span><span class="st">`</span>, <span class="st">`</span><span class="dt">2007</span><span class="st">`</span>, <span class="dt">key =</span> annee, <span class="dt">value =</span> population)</a></code></pre></div>
+<p>Pour cela on va utiliser la fonction <code data-pkg="tidyr">pivot_longer</code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> :</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">c</span>(<span class="st">`</span><span class="dt">2002</span><span class="st">`</span>, <span class="st">`</span><span class="dt">2007</span><span class="st">`</span>), <span class="dt">names_to =</span> <span class="st">&quot;annee&quot;</span>, </a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="dt">values_to =</span> <span class="st">&quot;population&quot;</span>)</a></code></pre></div>
 <pre><code># A tibble: 12 x 3
    country     annee population
    &lt;fct&gt;       &lt;chr&gt;      &lt;int&gt;
  1 Belgium     2002    10311970
- 2 France      2002    59925035
- 3 Germany     2002    82350671
- 4 Italy       2002    57926999
- 5 Spain       2002    40152517
- 6 Switzerland 2002     7361757
- 7 Belgium     2007    10392226
- 8 France      2007    61083916
- 9 Germany     2007    82400996
-10 Italy       2007    58147733
-11 Spain       2007    40448191
+ 2 Belgium     2007    10392226
+ 3 France      2002    59925035
+ 4 France      2007    61083916
+ 5 Germany     2002    82350671
+ 6 Germany     2007    82400996
+ 7 Italy       2002    57926999
+ 8 Italy       2007    58147733
+ 9 Spain       2002    40152517
+10 Spain       2007    40448191
+11 Switzerland 2002     7361757
 12 Switzerland 2007     7554661</code></pre>
-<p>La fonction <code data-pkg="tidyr">gather</code> prend comme arguments la liste des colonnes à rassembler (ici on a mis <code>2002</code> et <code>2007</code> entre <em>backticks</em> (<code>`2002`</code>) pour indiquer à <code data-pkg="tidyr">gather</code> qu’il s’agit d’un nom de colonne et pas d’un nombre), ainsi que deux arguments <code>key</code> et <code>value</code> :</p>
+<p>La fonction <code data-pkg="tidyr">pivot_longer</code> prend comme arguments la liste des colonnes à rassembler (on peut également y utiliser les différentes fonctions de sélection de variables utilisables avec <code data-pkg="dplyr">select</code>, voir <code data-pkg="tidyselect">select_helpers</code>), ainsi que deux arguments <code>names_to</code> et <code>values_to</code> :</p>
 <ul>
-<li><code>key</code> est le nom de la colonne qui va contenir les “clés”, c’est-à-dire les identifiants des différentes observations</li>
-<li><code>value</code> est le nom de la colonne qui va contenir la valeur des observations</li>
+<li><code>names_to</code> est le nom de la colonne qui va contenir les “noms” des colonnes originelles, c’est-à-dire les identifiants des différentes observations</li>
+<li><code>values_to</code> est le nom de la colonne qui va contenir la valeur des observations</li>
 </ul>
-<p>Parfois il est plus rapide d’indiquer à <code data-pkg="tidyr">gather</code> les colonnes qu’on ne souhaite pas rassembler. On peut le faire avec la syntaxe suivante :</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">gather</span>(<span class="op">-</span>country, <span class="dt">key =</span> annee, <span class="dt">value =</span> population)</a></code></pre></div>
+<p>Parfois il est plus rapide d’indiquer à <code data-pkg="tidyr">pivot_longer</code> les colonnes qu’on ne souhaite pas rassembler. On peut le faire avec la syntaxe suivante :</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pivot_longer</span>(<span class="op">-</span>country, <span class="dt">names_to =</span> <span class="st">&quot;annee&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;population&quot;</span>)</a></code></pre></div>
 <pre><code># A tibble: 12 x 3
    country     annee population
    &lt;fct&gt;       &lt;chr&gt;      &lt;int&gt;
  1 Belgium     2002    10311970
- 2 France      2002    59925035
- 3 Germany     2002    82350671
- 4 Italy       2002    57926999
- 5 Spain       2002    40152517
- 6 Switzerland 2002     7361757
- 7 Belgium     2007    10392226
- 8 France      2007    61083916
- 9 Germany     2007    82400996
-10 Italy       2007    58147733
-11 Spain       2007    40448191
+ 2 Belgium     2007    10392226
+ 3 France      2002    59925035
+ 4 France      2007    61083916
+ 5 Germany     2002    82350671
+ 6 Germany     2007    82400996
+ 7 Italy       2002    57926999
+ 8 Italy       2007    58147733
+ 9 Spain       2002    40152517
+10 Spain       2007    40448191
+11 Switzerland 2002     7361757
 12 Switzerland 2007     7554661</code></pre>
 </div>
-<div id="spread-disperser-des-lignes" class="section level3">
-<h3>spread : disperser des lignes</h3>
-<p>La fonction <code data-pkg="tidyr">spread</code> est l’inverse de <code data-pkg="tidyr">gather</code>.</p>
+<div id="pivot_wider-disperser-des-lignes" class="section level3">
+<h3>pivot_wider : disperser des lignes</h3>
+<p>La fonction <code data-pkg="tidyr">pivot_wider</code><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> est l’inverse de <code data-pkg="tidyr">pivot_longer</code>.</p>
 <p>Soit le tableau <code>d</code> suivant :</p>
 <table>
 <thead>
@@ -1100,8 +1101,8 @@ summary {
 </tbody>
 </table>
 <p>Ce tableau a le problème inverse du précédent : on a deux variables, <code>lifeExp</code> et <code>pop</code> qui, plutôt que d’être réparties en deux colonnes, sont réparties entre plusieurs lignes.</p>
-<p>On va donc utiliser <code data-pkg="tidyr">spread</code> pour <q>disperser</q> ces lignes dans deux colonnes différentes :</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">spread</span>(<span class="dt">key =</span> variable, <span class="dt">value =</span> value)</a></code></pre></div>
+<p>On va donc utiliser <code data-pkg="tidyr">pivot_wider</code> pour <q>disperser</q> ces lignes dans deux colonnes différentes :</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pivot_wider</span>(<span class="dt">names_from =</span> variable, <span class="dt">values_from =</span> value)</a></code></pre></div>
 <pre><code># A tibble: 6 x 5
   country continent  year lifeExp      pop
   &lt;fct&gt;   &lt;fct&gt;     &lt;int&gt;   &lt;dbl&gt;    &lt;dbl&gt;
@@ -1111,12 +1112,12 @@ summary {
 4 France  Europe     2007    80.7 61083916
 5 Germany Europe     2002    78.7 82350671
 6 Germany Europe     2007    79.4 82400996</code></pre>
-<p><code data-pkg="tidyr">spread</code> prend deux arguments principaux :</p>
+<p><code data-pkg="tidyr">pivot_wider</code> prend deux arguments principaux :</p>
 <ul>
-<li><code>key</code> indique la colonne contenant les noms des nouvelles variables à créer</li>
-<li><code>value</code> indique la colonne contenant les valeurs de ces variables</li>
+<li><code>names_from</code> indique la colonne contenant les noms des nouvelles variables à créer</li>
+<li><code>values_from</code> indique la colonne contenant les valeurs de ces variables</li>
 </ul>
-<p>Il peut arriver que certaines variables soient absentes pour certaines observations. Dans ce cas l’argument <code>fill</code> permet de spécifier la valeur à utiliser pour ces données manquantes (par défaut <code>fill</code> vaut, logiquement, <code>NA</code>).</p>
+<p>Il peut arriver que certaines variables soient absentes pour certaines observations. Dans ce cas l’argument <code>values_fill</code> permet de spécifier la valeur à utiliser pour ces données manquantes (par défaut, les valauers manquantes sont indiquées avec <code>NA</code>).</p>
 <p>Exemple avec le tableau <code>d</code> suivant :</p>
 <table>
 <thead>
@@ -1222,26 +1223,27 @@ summary {
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">spread</span>(<span class="dt">key =</span> variable, <span class="dt">value =</span> value)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pivot_wider</span>(<span class="dt">names_from =</span> variable, <span class="dt">values_from =</span> value)</a></code></pre></div>
 <pre><code># A tibble: 6 x 6
-  country continent  year density lifeExp      pop
-  &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
-1 Belgium Europe     2002      NA    78.3 10311970
-2 Belgium Europe     2007      NA    79.4 10392226
-3 France  Europe     2002      94    79.6 59925035
-4 France  Europe     2007      NA    80.7 61083916
-5 Germany Europe     2002      NA    78.7 82350671
-6 Germany Europe     2007      NA    79.4 82400996</code></pre>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">spread</span>(<span class="dt">key =</span> variable, <span class="dt">value =</span> value, <span class="dt">fill =</span> <span class="st">&quot;-&quot;</span>)</a></code></pre></div>
+  country continent  year lifeExp      pop density
+  &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
+1 Belgium Europe     2002    78.3 10311970      NA
+2 Belgium Europe     2007    79.4 10392226      NA
+3 France  Europe     2002    79.6 59925035      94
+4 France  Europe     2007    80.7 61083916      NA
+5 Germany Europe     2002    78.7 82350671      NA
+6 Germany Europe     2007    79.4 82400996      NA</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pivot_wider</span>(<span class="dt">names_from =</span> variable, <span class="dt">values_from =</span> value, </a>
+<a class="sourceLine" id="cb12-2" title="2">  <span class="dt">values_fill =</span> <span class="kw">list</span>(<span class="dt">value =</span> <span class="dv">0</span>))</a></code></pre></div>
 <pre><code># A tibble: 6 x 6
-  country continent  year density lifeExp pop     
-  &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   
-1 Belgium Europe     2002 -       78.32   10311970
-2 Belgium Europe     2007 -       79.441  10392226
-3 France  Europe     2002 94      79.59   59925035
-4 France  Europe     2007 -       80.657  61083916
-5 Germany Europe     2002 -       78.67   82350671
-6 Germany Europe     2007 -       79.406  82400996</code></pre>
+  country continent  year lifeExp      pop density
+  &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
+1 Belgium Europe     2002    78.3 10311970       0
+2 Belgium Europe     2007    79.4 10392226       0
+3 France  Europe     2002    79.6 59925035      94
+4 France  Europe     2007    80.7 61083916       0
+5 Germany Europe     2002    78.7 82350671       0
+6 Germany Europe     2007    79.4 82400996       0</code></pre>
 </div>
 <div id="separate" class="section level3">
 <h3>separate : séparer une colonne en plusieurs</h3>
@@ -1513,12 +1515,21 @@ summary {
 <p>Le livre <em>R for data science</em>, librement accessible en ligne, contient <a href="http://r4ds.had.co.nz/tidy-data.html">un chapitre complet</a> sur la remise en forme des données.</p>
 <p>L’article <a href="https://www.jstatsoft.org/article/view/v059i10">Tidy data</a>, publié en 2014 dans le <em>Journal of Statistical Software</em>, présente de manière détaillée le concept éponyme (mais il utilise des extensions désormais obsolètes qui ont depuis été remplacées par <code class="pkg">dplyr</code> et<code class="pkg">tidyr</code>).</p>
 <p>Le site de l’extension est accessible à l’adresse : <a href="http://tidyr.tidyverse.org/" class="uri">http://tidyr.tidyverse.org/</a> et contient une liste des fonctions et les pages d’aide associées.</p>
+<p>En particulier, on pourra se référer à la <a href="https://tidyr.tidyverse.org/articles/pivot.html">vignette dédiée</a> à <code data-pkg="tidyr">pivot_wider</code> et <code data-pkg="tidyr">pivot_longer</code> pour des exemples avancés de réorganisation des données.</p>
+<p>Pour des usages avancés, il est possible avec <code class="pkg">tidyr</code> de gérer des données nichées (<em lang="en">nested data</em>), c’est-à-dire des tableaux de données dans des tableaux de données. Ces fonctionnalités, réservées aux utilisateurs avancés, sont décrites dans une <a href="https://tidyr.tidyverse.org/articles/nest.html">vignette spécifique</a>.</p>
 </div>
 <div id="fichiers-volumineux" class="section level2">
 <h2>Fichiers volumineux</h2>
 <p>Si l’on a des tableaux de données particulièrement volumineux (plusieurs Go), les fonctions de <code class="pkg">tidyr</code> ne sont pas forcéments les plus performantes.</p>
 <p>On aura alors intérêt à regarder du côté des fonctions <code data-pkg="data.table" data-rdoc="melt.data.table">melt</code> et <code data-pkg="data.table" data-doc="dcast.data.table">dcast</code> de l’extension <code class="pkg">data.table</code> développées pour optimiser la performance sur les grands tableaux de données.</p>
 <p>Pour plus de détails, voir la vignette dédiée : <a href="https://rdatatable.gitlab.io/data.table/articles/datatable-reshape.html" class="uri">https://rdatatable.gitlab.io/data.table/articles/datatable-reshape.html</a></p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><code data-pkg="tidyr">pivot_longer</code> est une version plus récente et plus robuste de la fonction <code data-pkg="tidyr">gather</code>.<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p><code data-pkg="tidyr">pivot_wider</code> est une version plus récente et plus robuste de la fonction <code data-pkg="tidyr">spread</code>.<a href="#fnref2" class="footnote-back">↩</a></p></li>
+</ol>
 </div>
 
 </article>
