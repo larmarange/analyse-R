@@ -244,9 +244,31 @@ library(questionr)
 odds.ratio(reg)
 ```
 
+La fonction `tidy`{data-pkg="broom" data-rdoc="gm_tidiers"} de l'extension `broom`{.pkg} pour récupérer les coefficients du modèle sous la forme d'un tableau de données. On précisera `conf.int = TRUE` pour obtenir les intervalles de confiance et `exponentiate = TRUE` pour avoir les odds ratio plutôt que les coefficients bruts.
+
+```{r}
+library(broom)
+tmp <- tidy(reg, conf.int = TRUE, exponentiate = TRUE)
+tmp
+```
+
+Si vous utilisez les rapports **Rmarkdown** (voir le [chapitre dédié](rmarkdown-les-rapports-automatises.html)), ce tableau peut être affiché avec la fonction `kable`{data-pkg="knitr"} de l'extension `knitr`{.pkg}.
+
+```{r}
+knitr::kable(tmp)
+```
+
+La fonction `tbl_regression`{data-pkg="gtsummary"} de l'extension `gtsummary`{.pkg}, qui a recours en interne à `tidy`{data-pkg="broom" data-rdoc="gm_tidiers"}, permet d'obtenir un tableau plus propre. Comme nous souhaitons afficher les *odds ratios* plutôt que les coefficients du modèle, on indiquera `exponentiate = TRUE`.
+
+```{r}
+library(gtsummary)
+tbl_regression(reg, exponentiate = TRUE)
+```
+
+
 ### Représentation graphique du modèle
 
-Il est possible de représenter graphiquement les différents odds ratios. Pour cela, on va utiliser la fonction `tidy`{data-pkg="broom" data-rdoc="gm_tidiers"} de l'extension `broom`{.pkg} pour récupérer les coefficients du modèle sous la forme d'un tableau de données exploitable avec `ggplot2`{.pkg}. On précisera `conf.int = TRUE` pour obtenir les intervalles de confiance et `exponentiate = TRUE` pour avoir les odds ratio plutôt que les coefficients bruts. `geom_errorbarh`{data-pkg="ggplot2" data-rdoc="geom_crossbar"} permets de représenter les intervalles de confiance sous forme de barres d'erreurs, `geom_vline`{data-pkg="ggplot2" data-rdoc="geom_abline"} une ligne verticale au niveau `x = 1`, `scale_x_log10`{data-pkg="ggplot2" data-rdoc="scale_continuous"} pour afficher l'axe des `x` de manière logarithmique, les odds ratios étant de nature multiplicative et non additive.
+Il est possible de représenter graphiquement les différents odds ratios. Pour cela, on va utiliser la fonction `tidy`{data-pkg="broom" data-rdoc="gm_tidiers"} de l'extension `broom`{.pkg} pour récupérer les coefficients du modèle sous la forme d'un tableau de données exploitable avec `ggplot2`{.pkg}. `geom_errorbarh`{data-pkg="ggplot2" data-rdoc="geom_crossbar"} permets de représenter les intervalles de confiance sous forme de barres d'erreurs, `geom_vline`{data-pkg="ggplot2" data-rdoc="geom_abline"} une ligne verticale au niveau `x = 1`, `scale_x_log10`{data-pkg="ggplot2" data-rdoc="scale_continuous"} pour afficher l'axe des `x` de manière logarithmique, les odds ratios étant de nature multiplicative et non additive.
 
 <figure>
 ```{r}
@@ -474,6 +496,8 @@ reg2bis <- stepAIC(reg)
 
 ### Tableaux <q>all-in-one</q>
 
+#### finalfit
+
 L'extension `finalfit`{.pkg} fournit une fonction `finalfit`{data-pkg="finalfit"} du type <q lang="en">all-in-one</q> qui calcule un tableau avec les tris croisés, les odds ratios univariés et un modèle multivarié.
 
 Il faut d'abord définir la variable dépendante et les variables explicatives.
@@ -528,6 +552,47 @@ or_plot(d, dep, vars_multi)
 </figure>
 
 **ATTENTION :** `or_plot`{data-pkg="final_fit"} n'est pas compatible avec les effets d'interactions (cf. ci-dessous).
+
+#### gtsummary
+
+Nous avons déjà vu précédemment la fonction `tbl_regression`{data-pkg="gtsummary"} de l'extension `gtsummary`{.pkg}. Une [vignette dédiée](http://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html) de l'extension explicite les possibilités de personnalisation des résultats. Par exemple `add_global_p`{data-pkg="gtsummary"} permet d'ajouter des p-valeurs globales pour chaque variable.
+
+```{r}
+tbl_regression(reg, exponentiate = TRUE) %>%
+  add_global_p(keep = TRUE)
+```
+
+On peut remarquer que `gtsummary`{.pkg} (comme d'autres extensions présentées précédemment) a tenu compte des étiquettes de variables définies plus haut avec `var_label`{data-pkg="labelled"} de l'extension `labelled`{.pkg} (voir le [chapitre sur les vecteurs labellisés](facteurs-et-vecteurs-labellises.html#les-etiquettes-de-variable)).
+
+Comme `tbl_regression`{data-pkg="gtsummary"} respose sur l'extension `broom`{.pkg}, `gtsummary`{.pkg} peut en principe couvrir un plus grand nombre de modèles que `finalfit`{.pkg}.
+
+`tbl_merge`{data-pkg="gtsummary"} permet de fusionner ensemble les résultats de plusieurs modèles.
+
+```{r}
+tbl_merge(
+  tbls = list(tbl_regression(reg), tbl_regression(reg2)),
+  tab_spanner = c("Modèle complet", "Modèle réduit")
+)
+```
+
+L'extension `gtsummary`{.pkg} fournit également la fonction `tbl_summary`{data-pkg="gtsummary"} pour effectuer des tris à plats et/ou un tri croisé.
+
+```{r}
+tbl_summary(
+  d[, c("sport", "sexe", "grpage", "etud", "relig", "heures.tv")]
+)
+```
+
+```{r}
+tbl_summary(
+  d[, c("sport", "sexe", "grpage", "etud", "relig", "heures.tv")],
+  by = "sport",
+  percent = "row"
+) %>%
+  add_p()
+```
+
+Il est à noter que `tbl_regression`{data-pkg="gtsummary"} sait prendre en comptre les effts d'interactions (voir ci-après).
 
 ### Effets d'interaction dans le modèle
 
@@ -691,25 +756,19 @@ rego <- clm(trav.satisf ~ sexe + etud + trav.imp, data = d)
 summary(rego)
 ```
 
-Une fois encore, il est possible de faire une sélection descendane pas à pas.
+Une fois encore, il est possible de faire une sélection descendante pas à pas.
 
 ```{r, message=FALSE}
 rego2 <- step(rego)
 ```
 
-L'extension `broom`{.pkg} ne propose pas de méthode `tidy`{data-pkg="broom"} pour les objets `clm`{data-pks="ordinal"}. Cependant, on pourra en trouver une dans l'extension `JLutils`{.pkg}. Pour rappel, cette extension est disponible uniquement sur [GitHub](https://github.com/larmarange/JLutils) et s'installe donc ainsi :
-
-```{r, eval=FALSE}
-install_github("larmarange/JLutils")
-```
-
+L'extension `broom`{.pkg} propose une méthode `tidy`{data-pkg="broom"} pour les objets `clm`{data-pks="ordinal"}.
 
 ```{r}
-library(JLutils)
 tidy(rego2, exponentiate = TRUE, conf.int = TRUE)
 ```
 
-La méthode `tidy.clm`{data-pkg="JLutils" data-rdoc="tidy_model"} étant disponible, on peut utiliser `ggcoef`{data-pkg="GGally"}.
+La méthode `tidy`{data-pkg="broom"} étant disponible, on peut utiliser `ggcoef`{data-pkg="GGally"} et `tbl_regression`{data-pkg="gtsummary"}.
 
 <figure>
 ```{r}
@@ -719,6 +778,11 @@ ggcoef(rego2, exponentiate = TRUE)
 ```
 <figcaption>Coefficients du modèle ordinal</figcaption>
 </figure>
+
+```{r}
+tbl_regression(rego, exponentiate = TRUE)
+```
+
 
 ## Données pondérées et l'extension survey{#survey}
 
@@ -760,6 +824,7 @@ odds.ratio(reg)
 ```{r}
 library(broom)
 tidy(reg, exponentiate = TRUE, conf.int = TRUE)
+tbl_regression(reg, exponentiate = TRUE)
 ```
 
 
