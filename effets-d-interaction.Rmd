@@ -26,6 +26,13 @@ levels(d$etud) <- c(
   "Technique/Professionnel", "Supérieur"
   )
 d$etud <- addNAstr(d$etud, "Manquant")
+library(labelled)
+var_label(d$sport) <- "Pratique du sport ?"
+var_label(d$sexe) <- "Sexe"
+var_label(d$grpage) <- "Groupe d'âges"
+var_label(d$etud) <- "Niveau d'étude"
+var_label(d$relig) <- "Pratique religieuse"
+var_label(d$heures.tv) <- "Nombre d'heures passées devant la télévision par jour"
 ```
 
 Nous avions alors exploré les facteurs associés au fait de pratiquer du sport.
@@ -33,7 +40,8 @@ Nous avions alors exploré les facteurs associés au fait de pratiquer du sport.
 
 ```{r}
 mod <- glm(sport ~ sexe + grpage + etud + heures.tv + relig, data = d, family = binomial())
-odds.ratio(mod)
+library(gtsummary)
+tbl_regression(mod, exponentiate = TRUE)
 ```
 
 Selon les résultats de notre modèle, les hommes pratiquent plus un sport que les femmes et la pratique du sport diminue avec l'âge. Pour représenter les effets différentes variables, on peut avoir recours à la fonction `allEffects`{data-pkg="effects" data-rdoc="effects"} de l'extension `effects`{.pkg}.
@@ -50,6 +58,7 @@ Cependant, l'effet de l'âge est-il le même selon le sexe ? Nous allons donc i
 
 ```{r}
 mod2 <- glm(sport ~ sexe * grpage + etud + heures.tv + relig, data = d, family = binomial())
+tbl_regression(mod2, exponentiate = TRUE)
 ```
 
 Commençons par regarder les effets du modèle.
@@ -144,6 +153,7 @@ Il est cependant possible d'écrire le même modèle différemment. En effet, `s
 
 ```{r}
 mod3 <- glm(sport ~ sexe : grpage + etud + heures.tv + relig, data = d, family = binomial())
+tbl_regression(mod3, exponentiate = TRUE)
 ```
 
 Au sens strict, ce modèle explique tout autant le phénomène étudié que le modèle précédent. On peut le vérifier facilement avec `anova`{data-pkg="stats"}.
@@ -223,7 +233,7 @@ ggcoef(mod4, exponentiate = TRUE)
 </figure>
 
 ```{r}
-odds.ratio(mod4)
+tbl_regression(mod4, exponentiate = TRUE)
 ```
 
 Si les coefficients associés au niveau d'étude sont significatifs, ceux de l'interaction ne le sont pas (sauf <q>sexeHomme:etudManquant</q>) et celui associé au sexe, précédemment significatif ne l'est plus. Testons avec `anova`{data-pkg="stats"} si l'interaction est belle et bien significative.
