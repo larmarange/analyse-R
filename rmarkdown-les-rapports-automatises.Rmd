@@ -481,6 +481,71 @@ mtcars[1:5, 1:4] %>%
   add_header_above(c(" ", "Hello" = 2, "World" = 2))
 ```
 
+#### gt
+
+L'extension `gt`{.pkg} en cours de développement par l'équipe de **RStudio** vise, un peu sur le modèle de `ggplot2`{.pkg}, à proposer une <dfn>grammaire des tableaux</dfn>. L'extension n'est pour le moment compatible qu'avec un rendu **HTML** mais la prise en compte du format **PDF** est prévue. C'est une extension encore assez nouvelle mais qui risque de se développer assez rapidement vu les équipes en charge de son développement.
+
+```{r}
+library(gt)
+exibble %>%
+  gt(
+    rowname_col = "row",
+    groupname_col = "group"
+  ) %>%
+   tab_spanner(
+    label = "Date et/ou Heure",
+    columns = vars(date, time, datetime)
+  ) %>%
+  fmt_number(
+    columns = vars(num),
+    decimals = 2,
+    locale = "fr") %>%
+  fmt_date(
+    columns = vars(date),
+    date_style = 7
+  ) %>%
+  fmt_time(
+    columns = vars(time),
+    time_style = 4
+  ) %>%
+  fmt_datetime(
+    columns = vars(datetime),
+    date_style = 6,
+    time_style = 4
+  ) %>%
+  fmt_currency(
+    columns = vars(currency),
+    currency = "EUR",
+    locale = "fr"
+  ) %>%
+  tab_options(
+    column_labels.font.size = "small",
+    table.font.size = "small",
+    row_group.font.size = "small",
+    data_row.padding = px(3)
+  ) %>%
+  summary_rows(
+    groups = TRUE,
+    columns = vars(num),
+    fns = list(
+    moyenne = ~mean(., na.rm = TRUE),
+    total = ~sum(., na.rm = TRUE)
+    )
+  ) %>%
+  grand_summary_rows(
+    columns = vars(currency),
+    fns = list("grand total" = ~sum(., na.rm = TRUE)),
+    formatter = fmt_currency,
+    currency = "EUR"
+  )
+
+```
+
+
+
+Pour en savoir plus : <https://gt.rstudio.com/>
+
+
 #### Autres extensions
 
 On peut également citer les extensions suivantes :
