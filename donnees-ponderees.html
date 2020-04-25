@@ -471,6 +471,7 @@ summary {
 <ul>
 <li><a href="#options-de-certaines-fonctions">Options de certaines fonctions</a></li>
 <li><a href="#survey">Données pondérées avec l’extension survey</a><ul>
+<li><a href="#graphiques-ggplot2">Graphiques ggplot2</a></li>
 <li><a href="#extraire-un-sous-échantillon">Extraire un sous-échantillon</a></li>
 <li><a href="#modèles-logistiques">Modèles logistiques</a></li>
 <li><a href="#dplyr-et-survey">dplyr et survey</a></li>
@@ -590,10 +591,31 @@ sexe       Oui   Non   Ne sait pas Total
 Fonctions graphiques de l’extension survey
 </figcaption>
 </figure>
+<div id="graphiques-ggplot2" class="section level3">
+<h3>Graphiques ggplot2</h3>
+<p><code class="pkg">ggplot2</code> accepte une esthétique <code>weight</code> pour indiquer des poids à prendre en compte dans les différents graphiques. La fonction <code data-pkg="survey" data-rdoc="weights.survei.design">weights</code> permets justement de récupérer les poids d’un objet <code>survey</code>. La fonction <code data-pkg="ggplot2">ggplot</code> n’accepte pas d’objet <code>survey</code> mais a besoin d’un tableau de données. Ce dernier peut être récupéré avec <code>$variables</code>.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb26-2" title="2"><span class="kw">ggplot</span>(dw<span class="op">$</span>variables) <span class="op">+</span><span class="st"> </span><span class="kw">aes</span>(<span class="dt">weight =</span> <span class="kw">weights</span>(dw), <span class="dt">x =</span> sexe, <span class="dt">fill =</span> clso) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb26-3" title="3"><span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">position =</span> <span class="st">&quot;fill&quot;</span>)</a></code></pre></div>
+<p><img src="graphs/donnees-ponderees/unnamed-chunk-12-1.png" width="1050" /></p>
+<p><strong>ATTENTION :</strong> les graphiques obtenus ne sont corrects qu’à la condition que seuls les poids soient nécessaires pour les construire, ce qui est le cas d’un nuage de points ou d’un diagramme en barres. Par contre, si le calcul du graphique implique le calcul de variance, la représentation sera incorrecte. Par exemple, avec <code data-pkg="ggplot2">geom_smooth</code>, les aires de confiance affichées ne prendront pas correctement en compte le plan d’échantillonnage.</p>
+<div class="note">
+<p>L’extenstion <code>JLutils</code> propose une fonction <code data-pkg="JLutils">ggsurvey</code> pour faciliter les choses. Elle prend un objet <code>survey</code>, extrait le tableau de données et les poids, associe les poids à l’esthétique correspondante et appelle <code data-pkg="ggplot2">ggplot</code>.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">library</span>(JLutils)</a>
+<a class="sourceLine" id="cb27-2" title="2"><span class="kw">ggsurvey</span>(dw) <span class="op">+</span><span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> sexe, <span class="dt">fill =</span> clso) <span class="op">+</span><span class="st"> </span><span class="kw">geom_bar</span>(<span class="dt">position =</span> <span class="st">&quot;fill&quot;</span>)</a></code></pre></div>
+<p><img src="graphs/donnees-ponderees/unnamed-chunk-13-1.png" width="1050" /></p>
+<p><code class="pkg">JLutils</code> n’est disponible que sur GitHub. Pour l’installer, on pourra utiliser la commande suivante :</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="cf">if</span> (<span class="op">!</span><span class="kw">require</span>(devtools)) {</a>
+<a class="sourceLine" id="cb28-2" title="2">  <span class="kw">install.packages</span>(<span class="st">&quot;devtools&quot;</span>)</a>
+<a class="sourceLine" id="cb28-3" title="3">  <span class="kw">library</span>(devtools)</a>
+<a class="sourceLine" id="cb28-4" title="4">}</a>
+<a class="sourceLine" id="cb28-5" title="5"><span class="kw">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</a></code></pre></div>
+</div>
+</div>
 <div id="extraire-un-sous-échantillon" class="section level3">
 <h3>Extraire un sous-échantillon</h3>
 <p>Si l’on souhaite travailler sur un <dfn>sous-échantillon</dfn> tout en gardant les informations d’échantillonnage, on utilisera la fonction <code data-pkg="survey" data-rdoc="subset.survey.design">subset</code> présentée en détail dans le chapitre <a href="sous-ensembles.html">Sous-ensembles</a>.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1">sous &lt;-<span class="st"> </span><span class="kw">subset</span>(dw, sexe <span class="op">==</span><span class="st"> &quot;Femme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>age <span class="op">&gt;=</span><span class="st"> </span><span class="dv">40</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1">sous &lt;-<span class="st"> </span><span class="kw">subset</span>(dw, sexe <span class="op">==</span><span class="st"> &quot;Femme&quot;</span> <span class="op">&amp;</span><span class="st"> </span>age <span class="op">&gt;=</span><span class="st"> </span><span class="dv">40</span>)</a></code></pre></div>
 </div>
 <div id="modèles-logistiques" class="section level3">
 <h3>Modèles logistiques</h3>

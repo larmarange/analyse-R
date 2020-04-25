@@ -182,6 +182,43 @@ svyboxplot(age ~ sexe, dw, main = "Boxplot double", ylab = "Âge", xlab = "Sexe"
 <figcaption>Fonctions graphiques de l'extension survey</figcaption>
 </figure>
 
+### Graphiques ggplot2
+
+`ggplot2`{.pkg} accepte une esthétique `weight` pour indiquer des poids à prendre en compte dans les différents graphiques. La fonction `weights`{data-pkg="survey" data-rdoc="weights.survei.design"} permets justement de récupérer les poids d'un objet `survey`. La fonction `ggplot`{data-pkg="ggplot2"} n'accepte pas d'objet `survey` mais a besoin d'un tableau de données. Ce dernier peut être récupéré avec `$variables`.
+
+```{r}
+library(ggplot2)
+ggplot(dw$variables) +
+  aes(weight = weights(dw), x = sexe, fill = clso) +
+  geom_bar(position = "fill")
+```
+
+**ATTENTION :** les graphiques obtenus ne sont corrects qu'à la condition que seuls les poids soient nécessaires pour les construire, ce qui est le cas d'un nuage de points ou d'un diagramme en barres. Par contre, si le calcul du graphique implique le calcul de variance, la représentation sera incorrecte. Par exemple, avec `geom_smooth`{data-pkg="ggplot2"}, les aires de confiance affichées ne prendront pas correctement en compte le plan d'échantillonnage.
+
+<div class="note">
+L'extenstion `JLutils` propose une fonction `ggsurvey`{data-pkg="JLutils"} pour faciliter les choses. Elle prend un objet `survey`, extrait le tableau de données et les poids, associe les poids à l'esthétique correspondante et appelle `ggplot`{data-pkg="ggplot2"}.
+
+```{r}
+library(JLutils)
+ggsurvey(dw) +
+  aes(x = sexe, fill = clso) +
+  geom_bar(position = "fill")
+```
+
+`JLutils`{.pkg} n'est disponible que sur GitHub. Pour l'installer, on pourra utiliser la commande suivante :
+
+```{r eval=FALSE}
+if (!require(devtools)){
+	install.packages('devtools')
+	library(devtools)
+}
+install_github("larmarange/JLutils")
+```
+
+
+</div>
+
+
 ### Extraire un sous-échantillon
 
 Si l'on souhaite travailler sur un <dfn>sous-échantillon</dfn> tout en gardant les informations d'échantillonnage,
