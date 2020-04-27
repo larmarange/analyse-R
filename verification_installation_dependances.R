@@ -42,19 +42,9 @@ for (i in m[m %in% github_pkgs])
 if (any(!p %in% installed.packages()[, 1]))
   warning("Certaines installations de package ont échoué.")
 
-# 3. Vérifications manuelles de certains packages --------------
+# 3. Mise à jour des packages --------------
 
-library(lubridate)
-if (!exists("time_length"))
-  install_github("tidyverse/lubridate")
-
-library(JLutils)
-if (!exists("tidy_model"))
-  install_github("larmarange/JLutils")
-
-library(questionr)
-if (is.null(getS3method("odds.ratio", "numeric", TRUE)))
-  install_github("juba/questionr")
+devtools::update_packages()
 
 # 4. Identifier la version minimal de R requise ---------------
 
