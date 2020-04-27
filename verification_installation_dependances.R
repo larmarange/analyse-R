@@ -33,11 +33,11 @@ if (!length(m)) {
 thru_github <- c("hadley/tidyverse", "juba/questionr", "larmarange/JLutils", "hrbrmstr/ggalt", "ropensci/plotly", "carlganz/svrepmisc", "ewenharrison/finalfit", "mikabr/ggpirate", "thomasp85/patchwork", "hrbrmstr/waffle")
 github_pkgs <- str_sub(thru_github, str_locate(thru_github, "/")[, 1] + 1)
 
-for (i in m[m %in% github_pkgs])
-  install_github(thru_github[which(github_pkgs == i)])
-
 for (i in m[!m %in% github_pkgs])
   install.packages(i, dependencies = TRUE)
+
+for (i in m[m %in% github_pkgs])
+  install_github(thru_github[which(github_pkgs == i)])
 
 if (any(!p %in% installed.packages()[, 1]))
   warning("Certaines installations de package ont échoué.")
