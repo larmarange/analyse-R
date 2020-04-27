@@ -42,6 +42,15 @@ for (i in m[m %in% github_pkgs])
 if (any(!p %in% installed.packages()[, 1]))
   warning("Certaines installations de package ont échoué.")
 
+## cas particulier
+
+if (!"Rgraphviz" %in% installed.packages()) {
+  if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+  BiocManager::install("Rgraphviz")
+}
+
+
 # 3. Mise à jour des packages --------------
 
 devtools::update_packages()
