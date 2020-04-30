@@ -143,11 +143,29 @@ as.numeric(as.character(vf))
 ATTENTION : la valeur numérique associée à chaque étiquette d'un facteur change lorsque l'on modifie l'ordre des étiquettes d'un facteur. Dès lors, il est **fortement déconseillé** de convertir un facteur en variable numérique.
 </div>
 
-### Conversion d'un vecteur labellisé
+## Conversion d'un vecteur labellisé {#labelled}
 
 Nous avons abordé dans un [chapitre précédent](facteurs-et-vecteurs-labellises.html#labelled) la gestion de données labellisées à l'aide de l'extension `labelled`{.pkg}. Les vecteurs labellisés sont beaucoup plus souples que les facteurs lors de la préparation des données, puisque la liste des modalités autorisées n'est pas fixée à l'avance. De plus, cela permet également de documenter au-fur-et-à-mesure les nouvelles variables que l'on créé.
 
-Nous verrons dans les chapitres d'analyse, notamment quand il s'agit de calculer des modèles, qu'il est nécessaire de coder les variables catégorielles sous forme de facteurs. Il est très facile de convertir ubn vecteur labellisé en facteur à l'aide la fonction `to_factor`{data-pkg="labelled"} de l'extension `labelled`{.pkg}^[On priviligiera la fonction `to_factor`{data-pkg="labelled"} à la fonction `as_factor`{data-pkg="haven" data-rdoc="labelled"} de l'extension `haven`{.pkg}, la première ayant plus de possibilités et un comportement plus consistent.].
+**Nous verrons dans les chapitres d'analyse, notamment quand il s'agit de calculer des modèles, qu'il est nécessaire de coder les variables catégorielles sous forme de facteurs. Et il est préférable pour les variables continues de leur retirer la classe `haven_labelled`**. 
+
+### Quand convertir les vecteurs labellisés ?
+
+La classe `haven_labelled` permets d'ajouter des métadonnées aux variables sous la forme d'étiquettes de valeurs. Lorsque les données sont importées depuis **SAS**, **SPSS** ou **Stata**, cela permet notamment de conserver le codage original du fichier importé.
+
+Mais il faut noter que ces *étiquettes de valeur* n'indique pas pour autant de manière systématique le type de variable (catégorielle ou continue). Les vecteurs labellisés n'ont donc pas vocation à être utilisés pour l'analyse, notamment le calcul de modèles statistiques. Ils doivent être convertis en facteurs (pour les variables catégorielles) ou en vecteurs numériques (pour les variables continues). 
+
+La question qui peut se poser est donc de choisirà quel moment cette conversion doit avoir lieu dans un processus d'analyse. On peut considérer deux approches principales.
+
+![Deux approches possibles](images/conversion_labelled.png){width=100%}
+
+Dans l'**approche A**, les vecteurs labellisés sont convertis juste après l'import des données, en utilisant les fonctions `unlabelled`{data-pkg="labelled"}, `to_factor`{data-pkg="labelled"} ou `unclass`{data-pkg="base"} qui sont présentées ci-après. Dès lors, toute la partie de nettoyage et de recodage des données se fera en utilisant les fonctions classiques de **R**.
+
+Dans l'**approche B**, les vecteurs labellisés sont conservés pour l'étape de nettoyage et de recodage des données. Dans ce cas là, on pourra avoir recours aux fonctions de l'extension `labelled`{.pkg} qui facilitent la gestion des données labellisées. Cette approche est particulièrement intéressante quand (i) on veut pouvoir se référer au dictionnaire de codification fourni avec les données sources et donc on veut conserver le codage original et/ou (ii) quand les données devront faire l'objet d'un réexport après transformation. Par contre, comme dans l'approche A, il faudra prévoir une conversion des variables labellisées au moment de l'analyse.
+
+### Convertir un vecteur labellisé en facteur
+
+Il est très facile de convertir un vecteur labellisé en facteur à l'aide la fonction `to_factor`{data-pkg="labelled"} de l'extension `labelled`{.pkg}^[On priviligiera la fonction `to_factor`{data-pkg="labelled"} à la fonction `as_factor`{data-pkg="haven" data-rdoc="labelled"} de l'extension `haven`{.pkg}, la première ayant plus de possibilités et un comportement plus consistent.].
 
 ```{r, warning=FALSE}
 library(labelled)
@@ -172,6 +190,82 @@ to_factor(v, sort_levels = 'l')
 ```
 
 D'autres options sont disponibles. On se réferra à la documentation complète de la fonction.
+
+### Convertir un vecteur labellisé en numérique ou en texte
+
+Pour rappel, il existe deux types de vecteurs labellisés : des vecteurs numériques labellisés (`x` dans l'exemple ci-dessous) et des vecteurs textuels labellisés (`x` dans l'exemple ci-dessous). 
+
+```{r}
+x <- labelled(c(1,2,9,3,3,2,NA), c(oui = 1, "peut-être" = 2, non = 3, "ne sait pas" = 9))
+y <- labelled(c("f", "f", "h", "f"), c(femme = "f", homme = "h"))
+x
+y
+```
+
+Pour leur retirer leur caractère labellisé et revenir à leur classe d'origine, on peut utiliser la fonction `unclass`{data-pkg="base"}.
+
+```{r}
+unclass(x)
+unclass(y)
+```
+
+À noter que dans ce cas-là, les étiquettes sont conservées comme attributs du vecteur.
+
+Une alternative est d'utiliser `remove_labels`{data-pkg="labelled"} qui supprimera toutes les étiquettes, y compris les étiquettes de variable. Pour conserver les étiquettes de variables et ne supprimer que les étiquettes de valeurs, on indiquera `keep_var_label = TRUE`.
+
+```{r}
+var_label(x) <- "Etiquette de variable"
+remove_labels(x)
+remove_labels(x, keep_var_label = TRUE)
+remove_labels(y)
+```
+
+Dans le cas d'un vecteur numérique labellisé que l'on souhaiterait convertir en variable textuelle, on pourra utiliser `to_character`{data-pkg="labelled"} à la place de `to_factor`{data-pkg="labelled"} qui comme sa soeur utilisera les étiquettes de valeurs.
+
+```{r}
+to_character(x)
+```
+
+### Conversion conditionnelle en facteurs
+
+Il n'est pas toujours possible de déterminer la nature d'une variable (continue ou catégorielle) juste à partir de la présence ou l'absence d'étiquettes de valeur. En effet, on peut utiliser des étiquettes de valeur dans le cadre d'une variable continue pour indiquer certaines valeurs spécifiques.
+
+Une bonne pratique est de vérifier chaque variable inclue dans une analyse, une à une.
+
+Cependant, une règle qui fonctionne dans 90% des cas est de convertir un vecteur labellisé en facteur seulement si toutes les valeurs observées dans le vecteur disposent d'une étiquette de valeur correspondante. C'est ce que propose la fonction `unlabelled`{data-pkg="labelled"} qui peut même être appliqué à tout un tableau de données. Par défaut, elle fonctionne ainsi :
+
+1. les variables non labellisées restent inchangées (variables *f* et *g* dans l'exemple ci-dessous);
+2. si toutes les valeurs observées d'une variable labellisées, elles sont converties en facteurs (variables *b* et *c*);
+3. sinon, on leur applique `unclass`{data-pkg="base"} (variables *a*, *d* et *e*).
+
+
+```{r}
+df <- data.frame(
+  a = labelled(c(1, 1, 2, 3), labels = c(No = 1, Yes = 2)),
+  b = labelled(c(1, 1, 2, 3), labels = c(No = 1, Yes = 2, DK = 3)),
+  c = labelled(c(1, 1, 2, 2), labels = c(No = 1, Yes = 2, DK = 3)),
+  d = labelled(c("a", "a", "b", "c"), labels = c(No = "a", Yes = "b")),
+  e = labelled_spss(
+    c(1, 9, 1, 2), 
+    labels = c(No = 1, Yes = 2),
+    na_values = 9
+    ),
+  f = 1:4,
+  g = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01"))
+)
+dplyr::glimpse(df)
+dplyr::glimpse(unlabelled(df))
+```
+
+On peut indiquer certaines options, par exemple `drop_unused_labels = TRUE` pour supprimer des facteurs créés les niveaux non observées dans les données (voir la variable *c*) ou `user_na_to_na = TRUE` pour convertir les valeurs manquantes de type SPSS en `NA` (voir la variable *e*, notez qu'ici, du fait de cette conversion, toutes les valeurs ont une étiquette et la variable est alors convertie en facteur.)
+
+```{r}
+dplyr::glimpse(unlabelled(df, levels = "prefixed"))
+dplyr::glimpse(unlabelled(df, user_na_to_na = TRUE))
+dplyr::glimpse(unlabelled(df, drop_unused_labels = TRUE))
+```
+
+
 
 ## Découper une variable numérique en classes {#decouper_en_classes}
 
@@ -200,6 +294,8 @@ ans (en fait de 17 à 32), etc.
 
 Les frontières de classe seraient plus présentables si elles utilisaient des nombres ronds. On va donc
 spécifier manuellement le découpage souhaité, par tranches de 20 ans :
+
+
 
 ```{r}
 d$age20 <- cut(d$age, c(0, 20, 40, 60, 80, 100))
