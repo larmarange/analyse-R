@@ -55,7 +55,7 @@ if (!"Rgraphviz" %in% installed.packages()) {
 
 # 3. Mise à jour des packages --------------
 
-devtools::update_packages()
+# devtools::update_packages()
 
 # 4. Identifier la version minimal de R requise ---------------
 
