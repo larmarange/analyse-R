@@ -718,16 +718,20 @@ min: 1 - max: 5 - NAs: 0 (0%) - 5 unique values
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">library</span>(dplyr)</a>
 <a class="sourceLine" id="cb26-2" title="2"><span class="kw">library</span>(labelled)</a></code></pre></div>
 <p>En premier lieu, il nous faut calculer la durée d’observation des enfants, à savoir le temps passé entre la date de naissance (variable du fichier <code>enfants</code>) et la date de passation de l’entretien (fournie par le tableau de données <code>femmes</code>). Pour récupérer des variables du fichier <code>femmes</code> dans le fichier <code>enfants</code>, nous allons procéder à une fusion de table (voir le <a href="fusion-de-tables.html">chapitre dédié</a>). Pour le calcul de la durée d’observation, nous allons utiliser le package <code class="pkg">lubridate</code> (voir le chapitre <a href="calculer-un-age.html">calculer un âge</a> et celui sur la <a href="gestion-des-dates.html">gestion des dates</a>). Nous effectuerons l’analyse en mois (puisque l’âge au décès est connu en mois). Dès lors, la durée d’observation sera calculée en mois.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">library</span>(lubridate)</a>
-<a class="sourceLine" id="cb27-2" title="2">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb27-3" title="3"><span class="st">  </span><span class="kw">left_join</span>(</a>
-<a class="sourceLine" id="cb27-4" title="4">    femmes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(id_femme, date_entretien),</a>
-<a class="sourceLine" id="cb27-5" title="5">    <span class="dt">by =</span> <span class="st">&quot;id_femme&quot;</span></a>
-<a class="sourceLine" id="cb27-6" title="6">  ) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb27-7" title="7"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">duree_observation =</span> <span class="kw">time_length</span>(</a>
-<a class="sourceLine" id="cb27-8" title="8">    <span class="kw">interval</span>(date_naissance, date_entretien), </a>
-<a class="sourceLine" id="cb27-9" title="9">    <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span></a>
-<a class="sourceLine" id="cb27-10" title="10">  ))</a></code></pre></div>
+<p><strong>ATTENTION :</strong> les étiquettes de valeurs sont le plus souvent perdus lors des fusions de tables avec <code class="pkg">dplyr</code>. Pour les récupérer après fusion, nous allons conserver une version originale du tableau de données <em>enfants</em> et utiliser la fonction <code data-pkg="labelled">copy_labels_from</code> de l’extension <code>labelled</code>.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1">enfants_original &lt;-<span class="st"> </span>enfants</a>
+<a class="sourceLine" id="cb27-2" title="2"></a>
+<a class="sourceLine" id="cb27-3" title="3"><span class="kw">library</span>(lubridate)</a>
+<a class="sourceLine" id="cb27-4" title="4">enfants &lt;-<span class="st"> </span>enfants <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb27-5" title="5"><span class="st">  </span><span class="kw">left_join</span>(</a>
+<a class="sourceLine" id="cb27-6" title="6">    femmes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(id_femme, date_entretien),</a>
+<a class="sourceLine" id="cb27-7" title="7">    <span class="dt">by =</span> <span class="st">&quot;id_femme&quot;</span></a>
+<a class="sourceLine" id="cb27-8" title="8">  ) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb27-9" title="9"><span class="st">  </span><span class="kw">copy_labels_from</span>(enfants_original) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb27-10" title="10"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">duree_observation =</span> <span class="kw">time_length</span>(</a>
+<a class="sourceLine" id="cb27-11" title="11">    <span class="kw">interval</span>(date_naissance, date_entretien), </a>
+<a class="sourceLine" id="cb27-12" title="12">    <span class="dt">unit =</span> <span class="st">&quot;months&quot;</span></a>
+<a class="sourceLine" id="cb27-13" title="13">  ))</a></code></pre></div>
 <pre><code>Warning: Column `id_femme` has different attributes on LHS
 and RHS of join</code></pre>
 <p>ATTENTION : il y 11 enfants soi-disant nés après la date d’enquête ! Quelle que soit l’enquête, il est rare de ne pas observer d’incohérences. Dans le cas présent, il est fort possible que la date d’entretien puisse parfois être erronnée (par exemple si l’enquêteur a inscrit une date sur le questionnaire papier le jour du recensement du ménage mais n’ai pu effectué le questionnaire individuel que plus tard). Nous décidons ici de procéder à une correction en ajoutant un mois aux dates d’entretien problématiques. D’autres approches auraient pu être envisagées, comme par exemple exclure ces observations problématiques. Cependant, cela aurait impacté le calcul du range de naissance pour les autres enfants issus de la même mère. Quoiqu’il en soit, il n’y a pas de réponse unique. À vous de vous adapter au contexte particulier de votre analyse.</p>
@@ -772,7 +776,10 @@ and RHS of join</code></pre>
 <a class="sourceLine" id="cb33-9" title="9"><span class="st">  </span><span class="kw">left_join</span>(</a>
 <a class="sourceLine" id="cb33-10" title="10">    <span class="kw">select</span>(menages, id_menage, structure, richesse),</a>
 <a class="sourceLine" id="cb33-11" title="11">    <span class="dt">by =</span> <span class="st">&quot;id_menage&quot;</span></a>
-<a class="sourceLine" id="cb33-12" title="12">  )</a></code></pre></div>
+<a class="sourceLine" id="cb33-12" title="12">  ) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb33-13" title="13"><span class="st">  </span><span class="kw">copy_labels_from</span>(enfants_original) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb33-14" title="14"><span class="st">  </span><span class="kw">copy_labels_from</span>(femmes) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb33-15" title="15"><span class="st">  </span><span class="kw">copy_labels_from</span>(menages)</a></code></pre></div>
 <pre><code>Warning: Column `id_femme` has different attributes on LHS
 and RHS of join</code></pre>
 <p>Les variables catégorielles sont pour l’heure sous formes de vecteurs labellisés. Or, dans un modèle, il est impératif de les convertir en facteurs pour qu’elles soient bien traitées comme des variables catégorielles (autrement elles seraient traitées comme des variables continues). On aura donc recours à la fonction <code data-pkg="labelled">to_factor</code> de l’extension <code class="pkg">labelled</code>.</p>
@@ -843,7 +850,7 @@ and RHS of join</code></pre>
 <a class="sourceLine" id="cb41-3" title="3"><span class="st">  </span><span class="kw">group_by</span>(id_femme) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb41-4" title="4"><span class="st">  </span><span class="kw">mutate</span>(</a>
 <a class="sourceLine" id="cb41-5" title="5">    <span class="dt">rang =</span> <span class="kw">rank</span>(date_naissance, <span class="dt">ties.method =</span> <span class="st">&quot;max&quot;</span>),</a>
-<a class="sourceLine" id="cb41-6" title="6">    <span class="dt">rang_apres_ideal =</span> <span class="kw">ifelse</span>(rang <span class="op">&gt;</span><span class="st"> </span>nb_enf_ideal, <span class="st">&quot;oui&quot;</span>, <span class="st">&quot;non&quot;</span>),</a>
+<a class="sourceLine" id="cb41-6" title="6">    <span class="dt">rang_apres_ideal =</span> <span class="kw">ifelse</span>(rang <span class="op">&gt;</span><span class="st"> </span><span class="kw">as.integer</span>(nb_enf_ideal), <span class="st">&quot;oui&quot;</span>, <span class="st">&quot;non&quot;</span>),</a>
 <a class="sourceLine" id="cb41-7" title="7">    <span class="dt">rang_apres_ideal =</span> <span class="kw">factor</span>(rang_apres_ideal, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;non&quot;</span>, <span class="st">&quot;oui&quot;</span>))</a>
 <a class="sourceLine" id="cb41-8" title="8">  )</a></code></pre></div>
 </div>

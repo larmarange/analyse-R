@@ -241,13 +241,18 @@ library(labelled)
 
 En premier lieu, il nous faut calculer la durée d'observation des enfants, à savoir le temps passé entre la date de naissance (variable du fichier `enfants`) et la date de passation de l'entretien (fournie par le tableau de données `femmes`). Pour récupérer des variables du fichier `femmes` dans le fichier `enfants`, nous allons procéder à une fusion de table (voir le [chapitre dédié](fusion-de-tables.html)). Pour le calcul de la durée d'observation, nous allons utiliser le package `lubridate`{.pkg} (voir le chapitre [calculer un âge](calculer-un-age.html) et celui sur la [gestion des dates](gestion-des-dates.html)). Nous effectuerons l'analyse en mois (puisque l'âge au décès est connu en mois). Dès lors, la durée d'observation sera calculée en mois.
 
+**ATTENTION :** les étiquettes de valeurs sont le plus souvent perdus lors des fusions de tables avec `dplyr`{.pkg}. Pour les récupérer après fusion, nous allons conserver une version originale du tableau de données *enfants* et utiliser la fonction `copy_labels_from`{data-pkg="labelled"} de l'extension `labelled`.
+
 ```{r, message=FALSE}
+enfants_original <- enfants
+
 library(lubridate)
 enfants <- enfants %>%
   left_join(
     femmes %>% select(id_femme, date_entretien),
     by = "id_femme"
   ) %>%
+  copy_labels_from(enfants_original) %>%
   mutate(duree_observation = time_length(
     interval(date_naissance, date_entretien), 
     unit = "months"
@@ -310,7 +315,10 @@ enfants <- enfants %>%
   left_join(
     select(menages, id_menage, structure, richesse),
     by = "id_menage"
-  )
+  ) %>%
+  copy_labels_from(enfants_original) %>%
+  copy_labels_from(femmes) %>%
+  copy_labels_from(menages)
 ```
 
 Les variables catégorielles sont pour l'heure sous formes de vecteurs labellisés. Or, dans un modèle, il est impératif de les convertir en facteurs pour qu'elles soient bien traitées comme des variables catégorielles (autrement elles seraient traitées comme des variables continues). On aura donc recours à la fonction `to_factor`{data-pkg="labelled"} de l'extension `labelled`{.pkg}.
@@ -390,7 +398,7 @@ enfants <- enfants %>%
   group_by(id_femme) %>%
   mutate(
     rang = rank(date_naissance, ties.method = "max"),
-    rang_apres_ideal = ifelse(rang > nb_enf_ideal, "oui", "non"),
+    rang_apres_ideal = ifelse(rang > as.integer(nb_enf_ideal), "oui", "non"),
     rang_apres_ideal = factor(rang_apres_ideal, levels = c("non", "oui"))
   )
 ```
