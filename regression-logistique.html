@@ -61,9 +61,9 @@
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -73,14 +73,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -89,9 +91,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -499,19 +501,19 @@ summary {
 <div id="préparation-des-données" class="section level2">
 <h2>Préparation des données</h2>
 <p>Dans ce chapite, nous allons encore une fois utiliser les données de l’enquête <em>Histoire de vie</em>, fournies avec l’extension <code class="pkg">questionr</code>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(questionr)</a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="kw">data</span>(hdv2003)</a>
-<a class="sourceLine" id="cb1-3" title="3">d &lt;-<span class="st"> </span>hdv2003</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(questionr)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">data</span>(hdv2003)</span>
+<span id="cb1-3"><a href="#cb1-3"></a>d &lt;-<span class="st"> </span>hdv2003</span></code></pre></div>
 <p>À titre d’exemple, nous allons étudier l’effet de l’âge, du sexe, du niveau d’étude, de la pratique religieuse et du nombre moyen d’heures passées à regarder la télévision par jour sur le fait de pratiquer un sport.</p>
 <p>En premier lieu, il importe de vérifier que notre variable d’intérêt (ici <em>sport</em>) est correctement codée. Une possibilité consiste à créer une <dfn>variable booléenne</dfn><dfn data-index="booléenne, variable"></dfn> (vrai / faux) selon que l’individu a pratiqué du sport ou non :</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">d<span class="op">$</span>sport2 &lt;-<span class="st"> </span><span class="ot">FALSE</span></a>
-<a class="sourceLine" id="cb2-2" title="2">d<span class="op">$</span>sport2[d<span class="op">$</span>sport <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> </span><span class="ot">TRUE</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>d<span class="op">$</span>sport2 &lt;-<span class="st"> </span><span class="ot">FALSE</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>d<span class="op">$</span>sport2[d<span class="op">$</span>sport <span class="op">==</span><span class="st"> &quot;Oui&quot;</span>] &lt;-<span class="st"> </span><span class="ot">TRUE</span></span></code></pre></div>
 <p>Dans le cas présent, cette variable n’a pas de <dfn>valeur manquante</dfn><dfn data-index="manquante, valeur"></dfn>. Mais, le cas échéant, il importe de bien coder les valeurs manquantes en <code>NA</code>, les individus en question étant alors exclu de l’analyse.</p>
 <p>Il n’est pas forcément nécessaire de transformer notre variable d’intérêt en variable booléenne. En effet, <strong>R</strong> accepte sans problème une variable de type <dfn>facteur</dfn>. Cependant, l’ordre des valeurs d’un facteur a de l’importance. En effet, <strong>R</strong> considère toujours la première modalité comme étant la <dfn>modalité de référence</dfn><dfn data-index="référence, modalité"></dfn>. Dans le cas de la variable d’intérêt, la modalité de référence correspond au fait de ne pas remplir le critère étudié, dans notre exemple au fait de ne pas avoir eu d’activité sportive au cours des douze derniers mois.</p>
 <p>Pour connaître l’ordre des modalités d’une variable de type facteur, on peut utiliser la fonction <code data-pkg="base">levels</code> ou bien encore tout simplement la fonction <code data-pkg="questionr">freq</code> de l’extension <code class="pkg">questionr</code> :</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">levels</span>(d<span class="op">$</span>sport)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">levels</span>(d<span class="op">$</span>sport)</span></code></pre></div>
 <pre><code>[1] &quot;Non&quot; &quot;Oui&quot;</code></pre>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">freq</span>(d<span class="op">$</span>sport)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">freq</span>(d<span class="op">$</span>sport)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1277","2":"63.8","3":"63.8","_rn_":"Non"},{"1":"723","2":"36.1","3":"36.1","_rn_":"Oui"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -523,15 +525,15 @@ summary {
 </div>
 <p>La notion de modalité de référence s’applique également aux variables explicatives qualitatives. En effet, dans un modèle, tous les coefficients sont calculés par rapport à la modalité de référence. Il importe de choisir une modalité de référence qui fasse sens afin de faciliter l’interprétation. Par ailleurs, ce choix peut également dépendre de la manière dont on souhaite présenter les résultats. De manière générale on évitera de choisir comme référence une modalité peu représentée dans l’échantillon ou bien une modalité correspondant à une situation atypique.</p>
 <p>Prenons l’exemple de la variable <em>sexe</em>. Souhaite-t-on connaitre l’effet d’être une femme par rapport au fait d’être un homme ou bien l’effet d’être un homme par rapport au fait d’être une femme ? Si l’on opte pour le second, alors notre modalité de référence sera le sexe féminin. Comme est codée cette variable ?</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">freq</span>(d<span class="op">$</span>sexe)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">freq</span>(d<span class="op">$</span>sexe)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"899","2":"45","3":"45","_rn_":"Homme"},{"1":"1101","2":"55","3":"55","_rn_":"Femme"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>La modalité « Femme » s’avère ne pas être la première modalité. Nous devons appliquer la fonction <code data-pkg="stats">relevel</code> :</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">d<span class="op">$</span>sexe &lt;-<span class="st"> </span><span class="kw">relevel</span>(d<span class="op">$</span>sexe, <span class="st">&quot;Femme&quot;</span>)</a>
-<a class="sourceLine" id="cb7-2" title="2"><span class="kw">freq</span>(d<span class="op">$</span>sexe)</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>d<span class="op">$</span>sexe &lt;-<span class="st"> </span><span class="kw">relevel</span>(d<span class="op">$</span>sexe, <span class="st">&quot;Femme&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="kw">freq</span>(d<span class="op">$</span>sexe)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1101","2":"55","3":"55","_rn_":"Femme"},{"1":"899","2":"45","3":"45","_rn_":"Homme"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -542,44 +544,44 @@ summary {
 <p>Si l’on utilise des données labellisées (voir le <a href="facteurs-et-vecteurs-labellises.html#labelled">chapitre dédié</a>), nos variables catégorielles seront stockées sous la forme d’un vecteur numérique avec des étiquettes. Il sera donc nécessaire de convertir ces variables en facteurs, tout simplement avec la fonction <code data-pkg="labelled">to_factor</code> de l’extension <code class="pkg">labelled</code> qui pourra utiliser les étiquettes de valeurs comme modalités du facteur.</p>
 </div>
 <p>Les variables <em>age</em> et <em>heures.tv</em> sont des variables quantitatives. Il importe de vérifier qu’elles sont bien enregistrées en tant que variables numériques. En effet, il arrive parfois que dans le fichier source les variables quantitatives soient renseignées sous forme de valeur textuelle et non sous forme numérique.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">str</span>(d<span class="op">$</span>age)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">str</span>(d<span class="op">$</span>age)</span></code></pre></div>
 <pre><code> int [1:2000] 28 23 59 34 71 35 60 47 20 28 ...</code></pre>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">str</span>(d<span class="op">$</span>heures.tv)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">str</span>(d<span class="op">$</span>heures.tv)</span></code></pre></div>
 <pre><code> num [1:2000] 0 1 0 2 3 2 2.9 1 2 2 ...</code></pre>
 <p>Nos deux variables sont bien renseignées sous forme numérique.</p>
 <p>Cependant, l’effet de l’âge est rarement linéaire. Un exemple trivial est par exemple le fait d’occuper un emploi qui sera moins fréquent aux jeunes âges et aux âges élevés. Dès lors, on pourra transformer la variable <em>age</em> en groupe d’âges avec la fonction <code data-pkg="base">cut</code> (voir le chapitre <a href="pem_manipulation.html#decouper_en_classes">Manipulation de données</a>) :</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">d<span class="op">$</span>grpage &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">99</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, </a>
-<a class="sourceLine" id="cb12-2" title="2">  <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb12-3" title="3"><span class="kw">freq</span>(d<span class="op">$</span>grpage)</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>d<span class="op">$</span>grpage &lt;-<span class="st"> </span><span class="kw">cut</span>(d<span class="op">$</span>age, <span class="kw">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">99</span>), <span class="dt">right =</span> <span class="ot">FALSE</span>, </span>
+<span id="cb12-2"><a href="#cb12-2"></a>  <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="kw">freq</span>(d<span class="op">$</span>grpage)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"169","2":"8.5","3":"8.5","_rn_":"[16,25)"},{"1":"706","2":"35.3","3":"35.3","_rn_":"[25,45)"},{"1":"745","2":"37.2","3":"37.2","_rn_":"[45,65)"},{"1":"380","2":"19.0","3":"19.0","_rn_":"[65,99]"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Jetons maintenant un oeil à la variable <em>nivetud</em> :</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">freq</span>(d<span class="op">$</span>nivetud)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">freq</span>(d<span class="op">$</span>nivetud)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"39","2":"2.0","3":"2.1","_rn_":"N'a jamais fait d'etudes"},{"1":"86","2":"4.3","3":"4.6","_rn_":"A arrete ses etudes, avant la derniere annee d'etudes primaires"},{"1":"341","2":"17.0","3":"18.1","_rn_":"Derniere annee d'etudes primaires"},{"1":"204","2":"10.2","3":"10.8","_rn_":"1er cycle"},{"1":"183","2":"9.2","3":"9.7","_rn_":"2eme cycle"},{"1":"463","2":"23.2","3":"24.5","_rn_":"Enseignement technique ou professionnel court"},{"1":"131","2":"6.6","3":"6.9","_rn_":"Enseignement technique ou professionnel long"},{"1":"441","2":"22.0","3":"23.4","_rn_":"Enseignement superieur y compris technique superieur"},{"1":"112","2":"5.6","3":"NA","_rn_":"__NA__"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>En premier lieu, cette variable est détaillée en pas moins de huit modalités dont certaines sont peu représentées (seulement 39 individus soit 2 % n’ont jamais fait d’études par exemple). Afin d’améliorier notre modèle logistique, il peut être pertinent de regrouper certaines modalités (voir le chapitre <a href="pem_manipulation.html#regrouper_modalites">Manipulation de données</a>) :</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">d<span class="op">$</span>etud &lt;-<span class="st"> </span>d<span class="op">$</span>nivetud</a>
-<a class="sourceLine" id="cb14-2" title="2"><span class="kw">levels</span>(d<span class="op">$</span>etud) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, </a>
-<a class="sourceLine" id="cb14-3" title="3">  <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, </a>
-<a class="sourceLine" id="cb14-4" title="4">  <span class="st">&quot;Supérieur&quot;</span>)</a>
-<a class="sourceLine" id="cb14-5" title="5"><span class="kw">freq</span>(d<span class="op">$</span>etud)</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>d<span class="op">$</span>etud &lt;-<span class="st"> </span>d<span class="op">$</span>nivetud</span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="kw">levels</span>(d<span class="op">$</span>etud) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, </span>
+<span id="cb14-3"><a href="#cb14-3"></a>  <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, </span>
+<span id="cb14-4"><a href="#cb14-4"></a>  <span class="st">&quot;Supérieur&quot;</span>)</span>
+<span id="cb14-5"><a href="#cb14-5"></a><span class="kw">freq</span>(d<span class="op">$</span>etud)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"466","2":"23.3","3":"24.7","_rn_":"Primaire"},{"1":"387","2":"19.4","3":"20.5","_rn_":"Secondaire"},{"1":"594","2":"29.7","3":"31.5","_rn_":"Technique/Professionnel"},{"1":"441","2":"22.0","3":"23.4","_rn_":"Supérieur"},{"1":"112","2":"5.6","3":"NA","_rn_":"__NA__"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Notre variable comporte également 112 individus avec une valeur manquante. Si nous conservons cette valeur manquante, ces 112 individus seront, par défaut, exclus de l’analyse. Ces valeurs manquantes n’étant pas négligeable (5,6 %), nous pouvons également faire le choix de considérer ces valeurs manquantes comme une modalité supplémentaire. Auquel cas, nous utiliserons la fonction <code data-pkg="questionr">addNAstr</code> fournie par <code class="pkg">questionr</code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> :</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">levels</span>(d<span class="op">$</span>etud)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">levels</span>(d<span class="op">$</span>etud)</span></code></pre></div>
 <pre><code>[1] &quot;Primaire&quot;                &quot;Secondaire&quot;             
 [3] &quot;Technique/Professionnel&quot; &quot;Supérieur&quot;              </code></pre>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1">d<span class="op">$</span>etud &lt;-<span class="st"> </span><span class="kw">addNAstr</span>(d<span class="op">$</span>etud, <span class="st">&quot;manquant&quot;</span>)</a>
-<a class="sourceLine" id="cb17-2" title="2"><span class="kw">levels</span>(d<span class="op">$</span>etud)</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>d<span class="op">$</span>etud &lt;-<span class="st"> </span><span class="kw">addNAstr</span>(d<span class="op">$</span>etud, <span class="st">&quot;manquant&quot;</span>)</span>
+<span id="cb17-2"><a href="#cb17-2"></a><span class="kw">levels</span>(d<span class="op">$</span>etud)</span></code></pre></div>
 <pre><code>[1] &quot;Primaire&quot;                &quot;Secondaire&quot;             
 [3] &quot;Technique/Professionnel&quot; &quot;Supérieur&quot;              
 [5] &quot;manquant&quot;               </code></pre>
@@ -588,9 +590,9 @@ summary {
 <h2>Régression logistique binaire</h2>
 <p>La fonction <code data-pkg="stats">glm</code> (pour <dfn lang="en">generalized linear models</dfn> soit <dfn>modèle linéaire généralisé</dfn> en français) permet de calculer une grande variété de modèles statistiques. La régression logistique ordinaire correspond au modèle <em>logit</em> de la famille des modèles binomiaux, ce que l’on indique à <code data-pkg="stats">glm</code> avec l’argument <code>family=binomial(logit)</code>.</p>
 <p>Le modèle proprement dit sera renseigné sous la forme d’une <dfn>formule</dfn> (que nous avons déjà rencontrée dans le chapitre sur la <a href="statistique-bivariee.html">statistique bivariée</a> et présentée plus en détails dans un <a href="formules.html">chapitre dédié</a>). On indiquera d’abord la variable d’intérêt, suivie du signe <code>~</code> (que l’on obtient en appuyant sur les touches <kbd>Alt Gr</kbd> et <kbd>3</kbd> sur un clavier de type PC) puis de la liste des variables explicatives séparées par un signe <code>+</code>. Enfin, l’argument <code>data</code> permettra d’indiquer notre tableau de données.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">reg &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>relig <span class="op">+</span><span class="st"> </span>heures.tv, </a>
-<a class="sourceLine" id="cb19-2" title="2">  <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>(logit))</a>
-<a class="sourceLine" id="cb19-3" title="3">reg</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>reg &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>relig <span class="op">+</span><span class="st"> </span>heures.tv, </span>
+<span id="cb19-2"><a href="#cb19-2"></a>  <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>(logit))</span>
+<span id="cb19-3"><a href="#cb19-3"></a>reg</span></code></pre></div>
 <pre><code>
 Call:  glm(formula = sport ~ sexe + grpage + etud + relig + heures.tv, 
     family = binomial(logit), data = d)
@@ -635,7 +637,7 @@ Residual Deviance: 2210     AIC: 2240</code></pre>
 <p>Il est possible de spécifier des modèles plus complexes. Par exemple, <code>x:y</code> permet d’indiquer l’interaction entre les variables <em>x</em> et <em>y</em>. <code>x * y</code> sera équivalent à <code>x + y + x:y</code>. Pour aller plus loin, voir <a href="http://ww2.coastal.edu/kingw/statistics/R-tutorials/formulae.html" class="uri">http://ww2.coastal.edu/kingw/statistics/R-tutorials/formulae.html</a>.</p>
 </div>
 <p>Une présentation plus complète des résultats est obtenue avec la méthode <code data-pkg="stats" data-rdoc="summary.glm">summary</code> :</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">summary</span>(reg)</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="kw">summary</span>(reg)</span></code></pre></div>
 <pre><code>
 Call:
 glm(formula = sport ~ sexe + grpage + etud + relig + heures.tv, 
@@ -692,7 +694,7 @@ AIC: 2236
 Number of Fisher Scoring iterations: 4</code></pre>
 <p>Dans le cadre d’un modèle logistique, généralement on ne présente pas les <dfn data-index="coefficient, modèle">coefficients</dfn> du modèle mais leur valeur exponentielle, cette dernière correspondant en effet à des <dfn data-index="odds ratio" lang="en">odds ratio</dfn>, également appelés <dfn data-index="rapport des cotes">rapports des cotes</dfn>. L’odds ratio diffère du <dfn>risque relatif</dfn><dfn data-index="relatif, risque"></dfn>. Cependent son interprétation est similaire. Un <em>odds ratio</em> de 1 signifie l’absence d’effet. Un <em>odds ratio</em> largement supérieur à 1 correspond à une augmentation du phénomène étudié et un <em>odds ratio</em> largement inféieur à 1 correspond à une diminution du phénomène étudié<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>.</p>
 <p>La fonction <code data-pkg="stats">coef</code> permet d’obtenir les coefficients d’un modèle, <code data-pkg="stats">confint</code> leurs intervalles de confiance et <code data-pkg="base" data-rdoc="log">exp</code> de calculer l’exponentiel. Les <em>odds ratio</em> et leurs <dfn data-index="intervalle de confiance d'un odds ratio">intervalles de confiance</dfn><dfn data-index="odds ratio, intervalle de confiance"></dfn> s’obtiennent ainsi :</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1"><span class="kw">exp</span>(<span class="kw">coef</span>(reg))</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="kw">exp</span>(<span class="kw">coef</span>(reg))</span></code></pre></div>
 <pre><code>                     (Intercept) 
                           0.4501 
                        sexeHomme 
@@ -723,7 +725,7 @@ religNi croyance ni appartenance
                           0.9196 
                        heures.tv 
                           0.8861 </code></pre>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">exp</span>(<span class="kw">confint</span>(reg))</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">exp</span>(<span class="kw">confint</span>(reg))</span></code></pre></div>
 <pre><code>Waiting for profiling to be done...</code></pre>
 <pre><code>                                  2.5 %  97.5 %
 (Intercept)                      0.2377  0.8473
@@ -742,7 +744,7 @@ religRejet                       0.3869  1.1890
 religNSP ou NVPR                 0.3997  2.0216
 heures.tv                        0.8290  0.9458</code></pre>
 <p>On pourra faciliter la lecture en combinant les deux :</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="kw">exp</span>(<span class="kw">cbind</span>(<span class="kw">coef</span>(reg), <span class="kw">confint</span>(reg)))</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="kw">exp</span>(<span class="kw">cbind</span>(<span class="kw">coef</span>(reg), <span class="kw">confint</span>(reg)))</span></code></pre></div>
 <pre><code>Waiting for profiling to be done...</code></pre>
 <pre><code>                                         2.5 %  97.5 %
 (Intercept)                      0.4501 0.2377  0.8473
@@ -762,8 +764,8 @@ religNSP ou NVPR                 0.9196 0.3997  2.0216
 heures.tv                        0.8861 0.8290  0.9458</code></pre>
 <p>Pour savoir si un <em>odds ratio</em> diffère significativement de 1 (ce qui est identique au fait que le coefficient soit différent de 0), on pourra se référer à la colonne <em>Pr(&gt;|z|)</em> obtenue avec <code data-pkg="stats" data-rdoc="summary.glm">summary</code>.</p>
 <p>Si vous disposez de l’extension <code class="pkg">questionr</code>, la fonction <code data-pacakge="questionr">odds.ratio</code> permet de calculer directement les <em>odds ratio</em>, leur intervalles de confiance et les <em>p-value</em> :</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">library</span>(questionr)</a>
-<a class="sourceLine" id="cb31-2" title="2"><span class="kw">odds.ratio</span>(reg)</a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="kw">library</span>(questionr)</span>
+<span id="cb31-2"><a href="#cb31-2"></a><span class="kw">odds.ratio</span>(reg)</span></code></pre></div>
 <pre><code>Waiting for profiling to be done...</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
@@ -771,16 +773,16 @@ heures.tv                        0.8861 0.8290  0.9458</code></pre>
   </script>
 </div>
 <p>La fonction <code data-pkg="broom" data-rdoc="gm_tidiers">tidy</code> de l’extension <code class="pkg">broom</code> pour récupérer les coefficients du modèle sous la forme d’un tableau de données. On précisera <code>conf.int = TRUE</code> pour obtenir les intervalles de confiance et <code>exponentiate = TRUE</code> pour avoir les odds ratio plutôt que les coefficients bruts.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1"><span class="kw">library</span>(broom)</a>
-<a class="sourceLine" id="cb33-2" title="2">tmp &lt;-<span class="st"> </span><span class="kw">tidy</span>(reg, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb33-3" title="3">tmp</a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="kw">library</span>(broom)</span>
+<span id="cb33-2"><a href="#cb33-2"></a>tmp &lt;-<span class="st"> </span><span class="kw">tidy</span>(reg, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb33-3"><a href="#cb33-3"></a>tmp</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"(Intercept)","2":"0.4501","3":"0.32390","4":"-2.46484","5":"1.371e-02","6":"0.2377","7":"0.8473"},{"1":"sexeHomme","2":"1.5522","3":"0.10606","4":"4.14562","5":"3.389e-05","6":"1.2614","7":"1.9120"},{"1":"grpage[25,45)","2":"0.6568","3":"0.22805","4":"-1.84364","5":"6.524e-02","6":"0.4194","7":"1.0275"},{"1":"grpage[45,65)","2":"0.3378","3":"0.23772","4":"-4.56610","5":"4.969e-06","6":"0.2115","7":"0.5381"},{"1":"grpage[65,99]","2":"0.2512","3":"0.27380","4":"-5.04518","5":"4.531e-07","6":"0.1464","7":"0.4288"},{"1":"etudSecondaire","2":"2.5872","3":"0.19744","4":"4.81442","5":"1.476e-06","6":"1.7653","7":"3.8328"},{"1":"etudTechnique/Professionnel","2":"2.8555","3":"0.18980","4":"5.52810","5":"3.237e-08","6":"1.9805","7":"4.1729"},{"1":"etudSupérieur","2":"6.6304","3":"0.19522","4":"9.69005","5":"3.324e-22","6":"4.5518","7":"9.7951"},{"1":"etudmanquant","2":"8.5885","3":"0.33023","4":"6.51193","5":"7.419e-11","6":"4.5348","7":"16.5885"},{"1":"religPratiquant occasionnel","2":"0.9783","3":"0.18920","4":"-0.11577","5":"9.078e-01","6":"0.6759","7":"1.4199"},{"1":"religAppartenance sans pratique","2":"0.9933","3":"0.17474","4":"-0.03832","5":"9.694e-01","6":"0.7063","7":"1.4020"},{"1":"religNi croyance ni appartenance","2":"0.8062","3":"0.19308","4":"-1.11554","5":"2.646e-01","6":"0.5524","7":"1.1782"},{"1":"religRejet","2":"0.6814","3":"0.28590","4":"-1.34151","5":"1.798e-01","6":"0.3869","7":"1.1890"},{"1":"religNSP ou NVPR","2":"0.9196","3":"0.41103","4":"-0.20385","5":"8.385e-01","6":"0.3997","7":"2.0216"},{"1":"heures.tv","2":"0.8861","3":"0.03359","4":"-3.59949","5":"3.188e-04","6":"0.8290","7":"0.9458"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Si vous utilisez les rapports <strong>Rmarkdown</strong> (voir le <a href="rmarkdown-les-rapports-automatises.html">chapitre dédié</a>), ce tableau peut être affiché avec la fonction <code data-pkg="knitr">kable</code> de l’extension <code class="pkg">knitr</code>.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1">knitr<span class="op">::</span><span class="kw">kable</span>(tmp)</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>knitr<span class="op">::</span><span class="kw">kable</span>(tmp)</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -932,8 +934,8 @@ heures.tv                        0.8861 0.8290  0.9458</code></pre>
 </tbody>
 </table>
 <p>La fonction <code data-pkg="gtsummary">tbl_regression</code> de l’extension <code class="pkg">gtsummary</code>, qui a recours en interne à <code data-pkg="broom" data-rdoc="gm_tidiers">tidy</code>, permet d’obtenir un tableau plus propre. Comme nous souhaitons afficher les <em>odds ratios</em> plutôt que les coefficients du modèle, on indiquera <code>exponentiate = TRUE</code>.</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1"><span class="kw">library</span>(gtsummary)</a>
-<a class="sourceLine" id="cb35-2" title="2"><span class="kw">tbl_regression</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="kw">library</span>(gtsummary)</span>
+<span id="cb35-2"><a href="#cb35-2"></a><span class="kw">tbl_regression</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
@@ -1432,9 +1434,9 @@ heures.tv                        0.8861 0.8290  0.9458</code></pre>
 <h3>Représentation graphique du modèle</h3>
 <p>Il est possible de représenter graphiquement les différents odds ratios. Pour cela, on va utiliser la fonction <code data-pkg="broom" data-rdoc="gm_tidiers">tidy</code> de l’extension <code class="pkg">broom</code> pour récupérer les coefficients du modèle sous la forme d’un tableau de données exploitable avec <code class="pkg">ggplot2</code>. <code data-pkg="ggplot2" data-rdoc="geom_crossbar">geom_errorbarh</code> permets de représenter les intervalles de confiance sous forme de barres d’erreurs, <code data-pkg="ggplot2" data-rdoc="geom_abline">geom_vline</code> une ligne verticale au niveau <code>x = 1</code>, <code data-pkg="ggplot2" data-rdoc="scale_continuous">scale_x_log10</code> pour afficher l’axe des <code>x</code> de manière logarithmique, les odds ratios étant de nature multiplicative et non additive.</p>
 <figure>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" title="1"><span class="kw">library</span>(broom)</a>
-<a class="sourceLine" id="cb36-2" title="2">tmp &lt;-<span class="st"> </span><span class="kw">tidy</span>(reg, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb36-3" title="3"><span class="kw">str</span>(tmp)</a></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="kw">library</span>(broom)</span>
+<span id="cb36-2"><a href="#cb36-2"></a>tmp &lt;-<span class="st"> </span><span class="kw">tidy</span>(reg, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb36-3"><a href="#cb36-3"></a><span class="kw">str</span>(tmp)</span></code></pre></div>
 <pre><code>tibble [15 x 7] (S3: tbl_df/tbl/data.frame)
  $ term     : chr [1:15] &quot;(Intercept)&quot; &quot;sexeHomme&quot; &quot;grpage[25,45)&quot; &quot;grpage[45,65)&quot; ...
  $ estimate : num [1:15] 0.45 1.552 0.657 0.338 0.251 ...
@@ -1443,10 +1445,10 @@ heures.tv                        0.8861 0.8290  0.9458</code></pre>
  $ p.value  : num [1:15] 1.37e-02 3.39e-05 6.52e-02 4.97e-06 4.53e-07 ...
  $ conf.low : num [1:15] 0.238 1.261 0.419 0.212 0.146 ...
  $ conf.high: num [1:15] 0.847 1.912 1.027 0.538 0.429 ...</code></pre>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="kw">library</span>(ggplot2)</a>
-<a class="sourceLine" id="cb38-2" title="2"><span class="kw">ggplot</span>(tmp) <span class="op">+</span><span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> estimate, <span class="dt">y =</span> term, <span class="dt">xmin =</span> conf.low, <span class="dt">xmax =</span> conf.high) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb38-3" title="3"><span class="st">  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">geom_errorbarh</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb38-4" title="4"><span class="st">  </span><span class="kw">scale_x_log10</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb38-2"><a href="#cb38-2"></a><span class="kw">ggplot</span>(tmp) <span class="op">+</span><span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> estimate, <span class="dt">y =</span> term, <span class="dt">xmin =</span> conf.low, <span class="dt">xmax =</span> conf.high) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb38-3"><a href="#cb38-3"></a><span class="st">  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">geom_errorbarh</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span></span>
+<span id="cb38-4"><a href="#cb38-4"></a><span class="st">  </span><span class="kw">scale_x_log10</span>()</span></code></pre></div>
 <img src="graphs/regression-logistique/unnamed-chunk-19-1.png" width="1050" />
 <figcaption>
 Représentation graphique des odds ratios
@@ -1454,8 +1456,8 @@ Représentation graphique des odds ratios
 </figure>
 <p>La fonction <code data-pkg="GGally">ggcoef</code> de l’extension <code class="pkg">GGally</code> permet d’effectuer le graphique précédent directement à partir de notre modèle. Voir l’aide de cette fonction pour la liste complète des paramètres personnalisables.</p>
 <figure>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" title="1"><span class="kw">library</span>(GGally)</a>
-<a class="sourceLine" id="cb39-2" title="2"><span class="kw">ggcoef</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a><span class="kw">library</span>(GGally)</span>
+<span id="cb39-2"><a href="#cb39-2"></a><span class="kw">ggcoef</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <img src="graphs/regression-logistique/unnamed-chunk-20-1.png" width="1050" />
 <figcaption>
 La fonction ggcoef
@@ -1463,16 +1465,16 @@ La fonction ggcoef
 </figure>
 <div class="note">
 <p>L’extension <code class="pkg">JLutils</code>, disponible uniquement sur GitHub, propose une fonction intéressante dans ce contexte. Pour l’installer ou la mettre à jour, si ce n’est déjà fait, on aura recours à la commande ci-après.</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1">devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</span></code></pre></div>
 <p>La fonction <code data-pkg="JLutils">tidy_detailed</code> est une version <q>élargie</q> de <code data-pkg="broom">tidy</code> qui rajoute des colonnes supplémentaires avec le nom des variables et des modalités.</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">str</span>(<span class="kw">tidy</span>(reg))</a></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="kw">str</span>(<span class="kw">tidy</span>(reg))</span></code></pre></div>
 <pre><code>tibble [15 x 5] (S3: tbl_df/tbl/data.frame)
  $ term     : chr [1:15] &quot;(Intercept)&quot; &quot;sexeHomme&quot; &quot;grpage[25,45)&quot; &quot;grpage[45,65)&quot; ...
  $ estimate : num [1:15] -0.798 0.44 -0.42 -1.085 -1.381 ...
  $ std.error: num [1:15] 0.324 0.106 0.228 0.238 0.274 ...
  $ statistic: num [1:15] -2.46 4.15 -1.84 -4.57 -5.05 ...
  $ p.value  : num [1:15] 1.37e-02 3.39e-05 6.52e-02 4.97e-06 4.53e-07 ...</code></pre>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1"><span class="kw">library</span>(JLutils)</a></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a><span class="kw">library</span>(JLutils)</span></code></pre></div>
 <pre><code>Loading required package: plyr</code></pre>
 <pre><code>----------------------------------------------------------</code></pre>
 <pre><code>You have loaded plyr after dplyr - this is likely to cause problems.
@@ -1496,7 +1498,7 @@ Attaching package: &#39;JLutils&#39;</code></pre>
 <pre><code>The following object is masked from &#39;package:ggpubr&#39;:
 
     get_legend</code></pre>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" title="1"><span class="kw">str</span>(<span class="kw">tidy_detailed</span>(reg))</a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a><span class="kw">str</span>(<span class="kw">tidy_detailed</span>(reg))</span></code></pre></div>
 <pre><code>&#39;data.frame&#39;:   15 obs. of  10 variables:
  $ term          : chr  &quot;(Intercept)&quot; &quot;etudmanquant&quot; &quot;etudSecondaire&quot; &quot;etudSupérieur&quot; ...
  $ estimate      : num  -0.798 2.15 0.951 1.892 1.049 ...
@@ -1509,16 +1511,16 @@ Attaching package: &#39;JLutils&#39;</code></pre>
  $ level_detail  : chr  NA &quot;manquant vs. Primaire&quot; &quot;Secondaire vs. Primaire&quot; &quot;Supérieur vs. Primaire&quot; ...
  $ label         : chr  NA &quot;manquant vs. Primaire&quot; &quot;Secondaire vs. Primaire&quot; &quot;Supérieur vs. Primaire&quot; ...</code></pre>
 <p>Il est possible de combiner <code data-pkg="JLutils">tidy_detailed</code> avec <code data-pkg="GGally">ggcoef</code> pour personnaliser un peu plus le résultat.</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" title="1">td &lt;-<span class="st"> </span><span class="kw">tidy_detailed</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb56-2" title="2">td<span class="op">$</span>level_detail &lt;-<span class="st"> </span><span class="kw">factor</span>(td<span class="op">$</span>label, <span class="kw">rev</span>(td<span class="op">$</span>level_detail))  <span class="co"># Pour fixer l&#39;ordre pour ggplot2</span></a>
-<a class="sourceLine" id="cb56-3" title="3"><span class="kw">ggcoef</span>(td, <span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">y =</span> level_detail, <span class="dt">x =</span> estimate, <span class="dt">colour =</span> variable_label), </a>
-<a class="sourceLine" id="cb56-4" title="4">  <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a>td &lt;-<span class="st"> </span><span class="kw">tidy_detailed</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb56-2"><a href="#cb56-2"></a>td<span class="op">$</span>level_detail &lt;-<span class="st"> </span><span class="kw">factor</span>(td<span class="op">$</span>label, <span class="kw">rev</span>(td<span class="op">$</span>level_detail))  <span class="co"># Pour fixer l&#39;ordre pour ggplot2</span></span>
+<span id="cb56-3"><a href="#cb56-3"></a><span class="kw">ggcoef</span>(td, <span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">y =</span> level_detail, <span class="dt">x =</span> estimate, <span class="dt">colour =</span> variable_label), </span>
+<span id="cb56-4"><a href="#cb56-4"></a>  <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <p><img src="graphs/regression-logistique/unnamed-chunk-23-1.png" width="1050" /></p>
 </div>
 <p>L’extension <code class="pkg">forestmodel</code> propose de son côté une fonction <code data-pkg="forestmodel">forest_model</code> qui, à partir d’un modèle, propose une représentation visuelle et tabulaire des coefficients.</p>
 <figure>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" title="1"><span class="kw">library</span>(forestmodel)</a>
-<a class="sourceLine" id="cb57-2" title="2"><span class="kw">forest_model</span>(reg)</a></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a><span class="kw">library</span>(forestmodel)</span>
+<span id="cb57-2"><a href="#cb57-2"></a><span class="kw">forest_model</span>(reg)</span></code></pre></div>
 <pre><code>Warning: `data_frame()` is deprecated as of tibble 1.1.0.
 Please use `tibble()` instead.
 This warning is displayed once every 8 hours.
@@ -1534,12 +1536,12 @@ La fonction forest_model
 <h3>Représentation graphique des effets</h3>
 <p>L’extension <code class="pkg">effects</code> propose une représentation graphique résumant les effets de chaque variable du modèle. Pour cela, il suffit d’appliquer la méthode <code data-pkg="effects" data-rdoc="summary.effect">plot</code> au résultat de la fonction <code data-pkg="effects" data-rdoc="effect">allEffects</code>. Nous obtenons alors la <a href="#reglog_alleffects">figure ci-dessous</a>.</p>
 <figure id="reglog_alleffects">
-<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb60-1" title="1"><span class="kw">library</span>(effects)</a></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a><span class="kw">library</span>(effects)</span></code></pre></div>
 <pre><code>Use the command
     lattice::trellis.par.set(effectsTheme())
   to customize lattice options for effects plots.
 See ?effectsTheme for details.</code></pre>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb62-1" title="1"><span class="kw">plot</span>(<span class="kw">allEffects</span>(reg))</a></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a><span class="kw">plot</span>(<span class="kw">allEffects</span>(reg))</span></code></pre></div>
 <img src="graphs/regression-logistique/plot_allEffects-1.png" width="1050" />
 <figcaption>
 Représentation graphique de l’effet de chaque variable du modèle logistique
@@ -1547,8 +1549,8 @@ Représentation graphique de l’effet de chaque variable du modèle logistique
 </figure>
 <p>Nous pouvons alternativement avoir recours à l’extension <code class="pkg">ggeffects</code><a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> et sa fonction <code data-pkg="ggeffects">ggeffect</code> qui permettent de récupérer les résultats de <code class="pkg">effects</code> dans un format utilisable avec <code class="pkg">ggplot2</code>.</p>
 <p>Ainsi, la fonction <code data-pkg="ggeffects">ggeffect</code>, quand on lui précise un terme spécifique, produit un tableau de données avec les effets marginaux pour cette variable.</p>
-<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb63-1" title="1"><span class="kw">library</span>(ggeffects)</a>
-<a class="sourceLine" id="cb63-2" title="2"><span class="kw">ggeffect</span>(reg, <span class="st">&quot;sexe&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a><span class="kw">library</span>(ggeffects)</span>
+<span id="cb63-2"><a href="#cb63-2"></a><span class="kw">ggeffect</span>(reg, <span class="st">&quot;sexe&quot;</span>)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["x"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["predicted"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["group"],"name":[6],"type":["fctr"],"align":["left"]}],"data":[{"1":"Femme","2":"0.2846","3":"0.07560","4":"0.2554","5":"0.3157","6":"1"},{"1":"Homme","2":"0.3817","3":"0.07835","4":"0.3462","5":"0.4186","6":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1556,7 +1558,7 @@ Représentation graphique de l’effet de chaque variable du modèle logistique
 </div>
 <p>En combinant ce résultat avec <code data-pkg="effects">plot</code>, on obtient un graphique <code class="pkg">ggplot2</code> de l’effet en question.</p>
 <figure>
-<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb64-1" title="1"><span class="kw">plot</span>(<span class="kw">ggeffect</span>(reg, <span class="st">&quot;sexe&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1"></a><span class="kw">plot</span>(<span class="kw">ggeffect</span>(reg, <span class="st">&quot;sexe&quot;</span>))</span></code></pre></div>
 <img src="graphs/regression-logistique/unnamed-chunk-26-1.png" width="1050" />
 <figcaption>
 Effet du sexe représenté avec ggeffect
@@ -1564,8 +1566,8 @@ Effet du sexe représenté avec ggeffect
 </figure>
 <p>Si l’on ne précise pas de terme, <code>ggeffect(reg)</code> calcule les effets pour chaque variable du modèle et <code>plot(ggeffect(reg))</code> renvoie une liste de graphiques. Il faut donc utiliser la fonction <code data-pkg="cowplot">plot_grid</code> de <code class="pkg">cowplot</code> pour combiner ces graphiques en un seul (voir le <a href="combiner-plusieurs-graphiques.html">chapitre dédié</a>).</p>
 <figure>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" title="1"><span class="kw">library</span>(ggeffects)</a>
-<a class="sourceLine" id="cb65-2" title="2">cowplot<span class="op">::</span><span class="kw">plot_grid</span>(<span class="dt">plotlist =</span> <span class="kw">plot</span>(<span class="kw">ggeffect</span>(reg)))</a></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a><span class="kw">library</span>(ggeffects)</span>
+<span id="cb65-2"><a href="#cb65-2"></a>cowplot<span class="op">::</span><span class="kw">plot_grid</span>(<span class="dt">plotlist =</span> <span class="kw">plot</span>(<span class="kw">ggeffect</span>(reg)))</span></code></pre></div>
 <img src="graphs/regression-logistique/unnamed-chunk-27-1.png" width="1800" />
 <figcaption>
 Effet du modèles représentés avec ggeffect
@@ -1573,17 +1575,17 @@ Effet du modèles représentés avec ggeffect
 </figure>
 <p>Si l’on souhaite avoir des noms de variables plus explicites, il faut ajouter des étiquettes des variables avec <code data-pkg="labelled">var_label</code> de l’extension <code class="pkg">labelled</code> (voir le <a href="facteurs-et-vecteurs-labellises.html#les-etiquettes-de-variable">chapitre sur les vecteurs labellisés</a>).</p>
 <p>Par contre, cette étape doit avoir eu lieu avant le calcul de la régression linéaire.</p>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb66-1" title="1"><span class="kw">library</span>(labelled)</a>
-<a class="sourceLine" id="cb66-2" title="2"><span class="kw">var_label</span>(d<span class="op">$</span>sport) &lt;-<span class="st"> &quot;Pratique du sport ?&quot;</span></a>
-<a class="sourceLine" id="cb66-3" title="3"><span class="kw">var_label</span>(d<span class="op">$</span>sexe) &lt;-<span class="st"> &quot;Sexe&quot;</span></a>
-<a class="sourceLine" id="cb66-4" title="4"><span class="kw">var_label</span>(d<span class="op">$</span>grpage) &lt;-<span class="st"> &quot;Groupe d&#39;âges&quot;</span></a>
-<a class="sourceLine" id="cb66-5" title="5"><span class="kw">var_label</span>(d<span class="op">$</span>etud) &lt;-<span class="st"> &quot;Niveau d&#39;étude&quot;</span></a>
-<a class="sourceLine" id="cb66-6" title="6"><span class="kw">var_label</span>(d<span class="op">$</span>relig) &lt;-<span class="st"> &quot;Pratique religieuse&quot;</span></a>
-<a class="sourceLine" id="cb66-7" title="7"><span class="kw">var_label</span>(d<span class="op">$</span>heures.tv) &lt;-<span class="st"> &quot;Nombre d&#39;heures passées devant la télévision par jour&quot;</span></a>
-<a class="sourceLine" id="cb66-8" title="8">reg &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>relig <span class="op">+</span><span class="st"> </span>heures.tv, </a>
-<a class="sourceLine" id="cb66-9" title="9">  <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>(logit))</a></code></pre></div>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a><span class="kw">library</span>(labelled)</span>
+<span id="cb66-2"><a href="#cb66-2"></a><span class="kw">var_label</span>(d<span class="op">$</span>sport) &lt;-<span class="st"> &quot;Pratique du sport ?&quot;</span></span>
+<span id="cb66-3"><a href="#cb66-3"></a><span class="kw">var_label</span>(d<span class="op">$</span>sexe) &lt;-<span class="st"> &quot;Sexe&quot;</span></span>
+<span id="cb66-4"><a href="#cb66-4"></a><span class="kw">var_label</span>(d<span class="op">$</span>grpage) &lt;-<span class="st"> &quot;Groupe d&#39;âges&quot;</span></span>
+<span id="cb66-5"><a href="#cb66-5"></a><span class="kw">var_label</span>(d<span class="op">$</span>etud) &lt;-<span class="st"> &quot;Niveau d&#39;étude&quot;</span></span>
+<span id="cb66-6"><a href="#cb66-6"></a><span class="kw">var_label</span>(d<span class="op">$</span>relig) &lt;-<span class="st"> &quot;Pratique religieuse&quot;</span></span>
+<span id="cb66-7"><a href="#cb66-7"></a><span class="kw">var_label</span>(d<span class="op">$</span>heures.tv) &lt;-<span class="st"> &quot;Nombre d&#39;heures passées devant la télévision par jour&quot;</span></span>
+<span id="cb66-8"><a href="#cb66-8"></a>reg &lt;-<span class="st"> </span><span class="kw">glm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>relig <span class="op">+</span><span class="st"> </span>heures.tv, </span>
+<span id="cb66-9"><a href="#cb66-9"></a>  <span class="dt">data =</span> d, <span class="dt">family =</span> <span class="kw">binomial</span>(logit))</span></code></pre></div>
 <figure>
-<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" title="1">cowplot<span class="op">::</span><span class="kw">plot_grid</span>(<span class="dt">plotlist =</span> <span class="kw">plot</span>(<span class="kw">ggeffect</span>(reg)))</a></code></pre></div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>cowplot<span class="op">::</span><span class="kw">plot_grid</span>(<span class="dt">plotlist =</span> <span class="kw">plot</span>(<span class="kw">ggeffect</span>(reg)))</span></code></pre></div>
 <img src="graphs/regression-logistique/unnamed-chunk-29-1.png" width="1800" />
 <figcaption>
 Effet du modèles avec étiquettes de variable
@@ -1594,12 +1596,12 @@ Effet du modèles avec étiquettes de variable
 <h3>Matrice de confusion</h3>
 <p>Une manière de tester la qualité d’un modèle est le calcul d’une <dfn>matrice de confusion</dfn><dfn data-index="confusion, matrice"></dfn>, c’est-à-dire le tableau croisé des valeurs observées et celles des valeurs prédites en appliquant le modèle aux données d’origine.</p>
 <p>La méthode <code data-pkg="stats" data-rdoc="predict.glm">predict</code> avec l’argument <code>type="response"</code> permet d’appliquer notre modèle logistique à un tableau de données et renvoie pour chaque individu la probabilité qu’il ait vécu le phénomène étudié.</p>
-<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb68-1" title="1">sport.pred &lt;-<span class="st"> </span><span class="kw">predict</span>(reg, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>, <span class="dt">newdata =</span> d)</a>
-<a class="sourceLine" id="cb68-2" title="2"><span class="kw">head</span>(sport.pred)</a></code></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1"></a>sport.pred &lt;-<span class="st"> </span><span class="kw">predict</span>(reg, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>, <span class="dt">newdata =</span> d)</span>
+<span id="cb68-2"><a href="#cb68-2"></a><span class="kw">head</span>(sport.pred)</span></code></pre></div>
 <pre><code>      1       2       3       4       5       6 
 0.61241 0.73415 0.15983 0.70350 0.07294 0.34824 </code></pre>
 <p>Or notre variable étudiée est de type binaire. Nous devons donc transformer nos probabilités prédites en une variable du type « oui / non ». Usuellement, les probabilités prédites seront réunies en deux groupes selon qu’elles soient supérieures ou inférieures à la moitié. La matrice de confusion est alors égale à :</p>
-<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb70-1" title="1"><span class="kw">table</span>(sport.pred <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span>, d<span class="op">$</span>sport)</a></code></pre></div>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1"></a><span class="kw">table</span>(sport.pred <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span>, d<span class="op">$</span>sport)</span></code></pre></div>
 <pre><code>       
          Non  Oui
   FALSE 1076  384
@@ -1609,7 +1611,7 @@ Effet du modèles avec étiquettes de variable
 <div id="identifier-les-variables-ayant-un-effet-significatif" class="section level3">
 <h3>Identifier les variables ayant un effet significatif</h3>
 <p>Les p-values associées aux odds ratios nous indique si un odd ratio est significativement différent de 1, par rapport à la modalité de référebce. Mais cela n’indique pas si globalement une variable a un effet significatif sur le modèle. Pour tester l’effet global sur un modèle, on peut avoir recours à la fonction <code data-pkg="stats">drop1</code>. Cette dernière va tour à tour supprimer chaque variable du modèle et réaliser une analyse de variance (ANOVA, voir fonction <code data-pkg="stats">anova</code>) pour voir si la variance change significativement.</p>
-<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb72-1" title="1"><span class="kw">drop1</span>(reg, <span class="dt">test =</span> <span class="st">&quot;Chisq&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1"></a><span class="kw">drop1</span>(reg, <span class="dt">test =</span> <span class="st">&quot;Chisq&quot;</span>)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Df"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["Deviance"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["AIC"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["LRT"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["Pr(>Chi)"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"NA","2":"2206","3":"2236","4":"NA","5":"NA","_rn_":"<none>"},{"1":"1","2":"2223","3":"2251","4":"17.309","5":"3.176e-05","_rn_":"sexe"},{"1":"3","2":"2259","3":"2283","4":"52.803","5":"2.020e-11","_rn_":"grpage"},{"1":"4","2":"2330","3":"2352","4":"123.826","5":"8.132e-26","_rn_":"etud"},{"1":"5","2":"2210","3":"2230","4":"4.232","5":"5.165e-01","_rn_":"relig"},{"1":"1","2":"2220","3":"2248","4":"13.438","5":"2.465e-04","_rn_":"heures.tv"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1623,7 +1625,7 @@ Effet du modèles avec étiquettes de variable
 <p>La technique de <dfn>sélection descendante pas à pas</dfn><dfn data-index="pas à pas, sélection descendante"></dfn> est une approche visant à améliorer son modèle explicatif<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>. On réalise un premier modèle avec toutes les variables spécifiées, puis on regarde s’il est possible d’améliorer le modèle en supprimant une des variables du modèle. Si plusieurs variables permettent d’améliorer le modèle, on supprimera la variable dont la suppression améliorera le plus le modèle. Puis on recommence le même procédé pour voir si la suppression d’une seconde variable peut encore améliorer le modèle et ainsi de suite. Lorsque le modèle ne peut plus être améliorer par la suppresion d’une variable, on s’arrête.</p>
 <p>Il faut également définir un critère pour déterminer la qualité d’un modèle. L’un des plus utilisés est le <dfn lang="en">Akaike Information Criterion</dfn> ou <dfn>AIC</dfn>. Plus l’AIC sera faible, meilleure sera le modèle.</p>
 <p>La fonction <code data-pkg="stats">step</code> permet justement de sélectionner le meilleur modèle par une procédure pas à pas descendante basée sur la minimisation de l’AIC. La fonction affiche à l’écran les différentes étapes de la sélection et renvoie le modèle final.</p>
-<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb73-1" title="1">reg2 &lt;-<span class="st"> </span><span class="kw">step</span>(reg)</a></code></pre></div>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a>reg2 &lt;-<span class="st"> </span><span class="kw">step</span>(reg)</span></code></pre></div>
 <pre><code>Start:  AIC=2236
 sport ~ sexe + grpage + etud + relig + heures.tv
 
@@ -1646,12 +1648,12 @@ sport ~ sexe + grpage + etud + heures.tv
 - etud       4     2334 2346</code></pre>
 <p>Le modèle initial a un AIC de 2235,9. À la première étape, il apparait que la suppression de la variable religion permet diminuer l’AIC à 2230,2. Lors de la seconde étape, toute suppression d’une autre variable ferait augmenter l’AIC. La procédure s’arrête donc.</p>
 <p>Pour obtenir directement l’AIC d’un modèle donné, on peut utiliser la fonction <code data-pkg="stats">AIC</code>.</p>
-<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb75-1" title="1"><span class="kw">AIC</span>(reg)</a></code></pre></div>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a><span class="kw">AIC</span>(reg)</span></code></pre></div>
 <pre><code>[1] 2236</code></pre>
-<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb77-1" title="1"><span class="kw">AIC</span>(reg2)</a></code></pre></div>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a><span class="kw">AIC</span>(reg2)</span></code></pre></div>
 <pre><code>[1] 2230</code></pre>
 <p>On peut effectuer une <dfn>analyse de variance</dfn><dfn data-index="variance, analyse de"></dfn> ou <dfn lang="en">ANOVA</dfn> pour comparer les deux modèles avec la fonction <code data-pkg="stats">anova</code>.</p>
-<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb79-1" title="1"><span class="kw">anova</span>(reg, reg2, <span class="dt">test =</span> <span class="st">&quot;Chisq&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1"></a><span class="kw">anova</span>(reg, reg2, <span class="dt">test =</span> <span class="st">&quot;Chisq&quot;</span>)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Resid. Df"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["Resid. Dev"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Df"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Deviance"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["Pr(>Chi)"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"1980","2":"2206","3":"NA","4":"NA","5":"NA","_rn_":"1"},{"1":"1985","2":"2210","3":"-5","4":"-4.232","5":"0.5165","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1660,13 +1662,13 @@ sport ~ sexe + grpage + etud + heures.tv
 <p>Il n’y a pas de différences significatives entre nos deux modèles. Autrement dit, notre second modèle explique tout autant de variance que notre premier modèle, tout en étant plus parcimonieux.</p>
 <div class="note">
 <p>Une alternative à la fonction <code data-pkg="stats">step</code> est la fonction <code data-pkg="MASS">stepAIC</code> de l’extension <code class="pkg">MASS</code> qui fonctionne de la même manière. Si cela ne change rien aux régressions logistiques classiques, il arrive que pour certains types de modèle la méthode <code data-pkg="stats">step</code> ne soit pas disponible, mais que <code data-pkg="MASS">stepAIC</code> puisse être utilisée à la place.</p>
-<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb80-1" title="1"><span class="kw">library</span>(MASS)</a></code></pre></div>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1"></a><span class="kw">library</span>(MASS)</span></code></pre></div>
 <pre><code>
 Attaching package: &#39;MASS&#39;</code></pre>
 <pre><code>The following object is masked from &#39;package:dplyr&#39;:
 
     select</code></pre>
-<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb83-1" title="1">reg2bis &lt;-<span class="st"> </span><span class="kw">stepAIC</span>(reg)</a></code></pre></div>
+<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1"></a>reg2bis &lt;-<span class="st"> </span><span class="kw">stepAIC</span>(reg)</span></code></pre></div>
 <pre><code>Start:  AIC=2236
 sport ~ sexe + grpage + etud + relig + heures.tv
 
@@ -1695,17 +1697,17 @@ sport ~ sexe + grpage + etud + heures.tv
 <h4>finalfit</h4>
 <p>L’extension <code class="pkg">finalfit</code> fournit une fonction <code data-pkg="finalfit">finalfit</code> du type <q lang="en">all-in-one</q> qui calcule un tableau avec les tris croisés, les odds ratios univariés et un modèle multivarié.</p>
 <p>Il faut d’abord définir la variable dépendante et les variables explicatives.</p>
-<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb85-1" title="1">dep &lt;-<span class="st"> &quot;sport&quot;</span></a>
-<a class="sourceLine" id="cb85-2" title="2">vars &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;relig&quot;</span>, <span class="st">&quot;heures.tv&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1"></a>dep &lt;-<span class="st"> &quot;sport&quot;</span></span>
+<span id="cb85-2"><a href="#cb85-2"></a>vars &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;relig&quot;</span>, <span class="st">&quot;heures.tv&quot;</span>)</span></code></pre></div>
 <p>Une première fonction <code data-pkg="finalfit">summary_factorlist</code> fournit un tableau descriptif avec, si l’option <code>p  = TRUE</code> est indiquée, des tests de comparaisons (ici des tests du Chi²).</p>
-<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb86-1" title="1"><span class="kw">library</span>(finalfit)</a></code></pre></div>
+<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1"></a><span class="kw">library</span>(finalfit)</span></code></pre></div>
 <pre><code>
 Attaching package: &#39;finalfit&#39;</code></pre>
 <pre><code>The following object is masked from &#39;package:labelled&#39;:
 
     remove_labels</code></pre>
-<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb89-1" title="1">tab &lt;-<span class="st"> </span><span class="kw">summary_factorlist</span>(d, dep, vars, <span class="dt">p =</span> <span class="ot">TRUE</span>, <span class="dt">add_dependent_label =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb89-2" title="2">tab</a></code></pre></div>
+<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1"></a>tab &lt;-<span class="st"> </span><span class="kw">summary_factorlist</span>(d, dep, vars, <span class="dt">p =</span> <span class="ot">TRUE</span>, <span class="dt">add_dependent_label =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb89-2"><a href="#cb89-2"></a>tab</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["Dependent: Pratique du sport ?"],"name":[1],"type":["chr"],"align":["left"]},{"label":[" "],"name":[2],"type":["chr"],"align":["left"]},{"label":["Non"],"name":[3],"type":["chr"],"align":["left"]},{"label":["Oui"],"name":[4],"type":["chr"],"align":["left"]},{"label":["p"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"Sexe","2":"Femme","3":"747 (58.5)","4":"354 (49.0)","5":"<0.001"},{"1":"","2":"Homme","3":"530 (41.5)","4":"369 (51.0)","5":""},{"1":"Groupe d'âges","2":"[16,25)","3":"58 (4.5)","4":"111 (15.4)","5":"<0.001"},{"1":"","2":"[25,45)","3":"359 (28.1)","4":"347 (48.0)","5":""},{"1":"","2":"[45,65)","3":"541 (42.4)","4":"204 (28.2)","5":""},{"1":"","2":"[65,99]","3":"319 (25.0)","4":"61 (8.4)","5":""},{"1":"Niveau d'étude","2":"Primaire","3":"416 (32.6)","4":"50 (6.9)","5":"<0.001"},{"1":"","2":"Secondaire","3":"270 (21.1)","4":"117 (16.2)","5":""},{"1":"","2":"Technique/Professionnel","3":"378 (29.6)","4":"216 (29.9)","5":""},{"1":"","2":"Supérieur","3":"186 (14.6)","4":"255 (35.3)","5":""},{"1":"","2":"manquant","3":"27 (2.1)","4":"85 (11.8)","5":""},{"1":"Pratique religieuse","2":"Pratiquant regulier","3":"182 (14.3)","4":"84 (11.6)","5":"0.144"},{"1":"","2":"Pratiquant occasionnel","3":"295 (23.1)","4":"147 (20.3)","5":""},{"1":"","2":"Appartenance sans pratique","3":"473 (37.0)","4":"287 (39.7)","5":""},{"1":"","2":"Ni croyance ni appartenance","3":"239 (18.7)","4":"160 (22.1)","5":""},{"1":"","2":"Rejet","3":"60 (4.7)","4":"33 (4.6)","5":""},{"1":"","2":"NSP ou NVPR","3":"28 (2.2)","4":"12 (1.7)","5":""},{"1":"Nombre d'heures passées devant la télévision par jour","2":"Mean (SD)","3":"2.5 (1.9)","4":"1.8 (1.4)","5":"<0.001"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1713,7 +1715,7 @@ Attaching package: &#39;finalfit&#39;</code></pre>
 </div>
 <p>On peut remarquer que <code class="pkg">finalfit</code> a tenu compte des étiquettes de variables définies plus haut avec <code data-pkg="labelled">var_label</code> de l’extension <code class="pkg">labelled</code> (voir le <a href="facteurs-et-vecteurs-labellises.html#les-etiquettes-de-variable">chapitre sur les vecteurs labellisés</a>).</p>
 <p>On peut associer le résultat avec la fonction <code data-pkg="knitr">kable</code> de <code class="pkg">knitr</code> pour un rendu plus esthétique lorsque l’on produit un rapport <strong>Rmarkdown</strong> (voir le <a href="rmarkdown-les-rapports-automatises.html">chapitre dédié aux rapports automatisés</a>).</p>
-<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb90-1" title="1">knitr<span class="op">::</span><span class="kw">kable</span>(tab, <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1"></a>knitr<span class="op">::</span><span class="kw">kable</span>(tab, <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -1854,8 +1856,8 @@ Attaching package: &#39;finalfit&#39;</code></pre>
 </tbody>
 </table>
 <p>La fonction <code data-pkg="finalfit">finalfit</code>, quant à elle, calcule à la fois les <em>odds ratios</em> univariés (modèles logistiques avec une seule variable inclue à la fois) et un modèle complet, présentant le tout dans un tableau synthétique.</p>
-<div class="sourceCode" id="cb91"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb91-1" title="1">tab &lt;-<span class="st"> </span><span class="kw">finalfit</span>(d, dep, vars)</a>
-<a class="sourceLine" id="cb91-2" title="2">knitr<span class="op">::</span><span class="kw">kable</span>(tab, <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb91"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1"></a>tab &lt;-<span class="st"> </span><span class="kw">finalfit</span>(d, dep, vars)</span>
+<span id="cb91-2"><a href="#cb91-2"></a>knitr<span class="op">::</span><span class="kw">kable</span>(tab, <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -2023,9 +2025,9 @@ Attaching package: &#39;finalfit&#39;</code></pre>
 </tbody>
 </table>
 <p>Par défaut, toutes les variables explicatives fournies sont retenues dans le modèle affiché. Si on ne souhaite inclure que certaines variables dans le modèle mutivarié (parce que l’on aura précédemment réalisé une procédure <code data-pkg="stats">step</code>), il faudra préciser séparément les variables du modèle multivarié.</p>
-<div class="sourceCode" id="cb92"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb92-1" title="1">vars_multi &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;heures.tv&quot;</span>)</a>
-<a class="sourceLine" id="cb92-2" title="2">tab &lt;-<span class="st"> </span><span class="kw">finalfit</span>(d, dep, vars, <span class="dt">explanatory_multi =</span> vars_multi)</a>
-<a class="sourceLine" id="cb92-3" title="3">knitr<span class="op">::</span><span class="kw">kable</span>(tab, <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb92"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1"></a>vars_multi &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;heures.tv&quot;</span>)</span>
+<span id="cb92-2"><a href="#cb92-2"></a>tab &lt;-<span class="st"> </span><span class="kw">finalfit</span>(d, dep, vars, <span class="dt">explanatory_multi =</span> vars_multi)</span>
+<span id="cb92-3"><a href="#cb92-3"></a>knitr<span class="op">::</span><span class="kw">kable</span>(tab, <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -2195,8 +2197,8 @@ Attaching package: &#39;finalfit&#39;</code></pre>
 <p>On pourra se référer à l’aide de la fonction <code data-pkg="finalfit">finalfit</code> pour d’autres exemples.</p>
 <p>L’extension <code class="pkg">finalfit</code> propose aussi une fonction <code data-pkg="finalfilt">or_plot</code> pour présenter les odd ratios obtenus sous forme de graphique.</p>
 <figure>
-<div class="sourceCode" id="cb93"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb93-1" title="1"><span class="kw">var_label</span>(d<span class="op">$</span>heures.tv) &lt;-<span class="st"> &quot;Nombre d&#39;heures</span><span class="ch">\n</span><span class="st">de TV par jour&quot;</span></a>
-<a class="sourceLine" id="cb93-2" title="2"><span class="kw">or_plot</span>(d, dep, vars_multi)</a></code></pre></div>
+<div class="sourceCode" id="cb93"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1"></a><span class="kw">var_label</span>(d<span class="op">$</span>heures.tv) &lt;-<span class="st"> &quot;Nombre d&#39;heures</span><span class="ch">\n</span><span class="st">de TV par jour&quot;</span></span>
+<span id="cb93-2"><a href="#cb93-2"></a><span class="kw">or_plot</span>(d, dep, vars_multi)</span></code></pre></div>
 <pre><code>Waiting for profiling to be done...
 Waiting for profiling to be done...
 Waiting for profiling to be done...</code></pre>
@@ -2212,7 +2214,7 @@ Graphique des odds ratios obtenu avec or_plot
 <div id="gtsummary" class="section level4">
 <h4>gtsummary</h4>
 <p>Nous avons déjà vu précédemment la fonction <code data-pkg="gtsummary">tbl_regression</code> de l’extension <code class="pkg">gtsummary</code>. Une <a href="http://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html">vignette dédiée</a> de l’extension explicite les possibilités de personnalisation des résultats. Par exemple <code data-pkg="gtsummary">add_global_p</code> permet d’ajouter des p-valeurs globales pour chaque variable.</p>
-<div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb96-1" title="1"><span class="kw">tbl_regression</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_global_p</span>(<span class="dt">keep =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1"></a><span class="kw">tbl_regression</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_global_p</span>(<span class="dt">keep =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
@@ -2710,8 +2712,8 @@ Graphique des odds ratios obtenu avec or_plot
 <p>On peut remarquer que <code class="pkg">gtsummary</code> (comme d’autres extensions présentées précédemment) a tenu compte des étiquettes de variables définies plus haut avec <code data-pkg="labelled">var_label</code> de l’extension <code class="pkg">labelled</code> (voir le <a href="facteurs-et-vecteurs-labellises.html#les-etiquettes-de-variable">chapitre sur les vecteurs labellisés</a>).</p>
 <p>Comme <code data-pkg="gtsummary">tbl_regression</code> respose sur l’extension <code class="pkg">broom</code>, <code class="pkg">gtsummary</code> peut en principe couvrir un plus grand nombre de modèles que <code class="pkg">finalfit</code>.</p>
 <p><code data-pkg="gtsummary">tbl_merge</code> permet de fusionner ensemble les résultats de plusieurs modèles.</p>
-<div class="sourceCode" id="cb97"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb97-1" title="1"><span class="kw">tbl_merge</span>(<span class="dt">tbls =</span> <span class="kw">list</span>(<span class="kw">tbl_regression</span>(reg), <span class="kw">tbl_regression</span>(reg2)), </a>
-<a class="sourceLine" id="cb97-2" title="2">  <span class="dt">tab_spanner =</span> <span class="kw">c</span>(<span class="st">&quot;Modèle complet&quot;</span>, <span class="st">&quot;Modèle réduit&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb97"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1"></a><span class="kw">tbl_merge</span>(<span class="dt">tbls =</span> <span class="kw">list</span>(<span class="kw">tbl_regression</span>(reg), <span class="kw">tbl_regression</span>(reg2)), </span>
+<span id="cb97-2"><a href="#cb97-2"></a>  <span class="dt">tab_spanner =</span> <span class="kw">c</span>(<span class="st">&quot;Modèle complet&quot;</span>, <span class="st">&quot;Modèle réduit&quot;</span>))</span></code></pre></div>
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
@@ -3284,8 +3286,8 @@ Graphique des odds ratios obtenu avec or_plot
   </tfoot>
 </table></div>
 <p>L’extension <code class="pkg">gtsummary</code> fournit également la fonction <code data-pkg="gtsummary">tbl_summary</code> pour effectuer des tris à plats et/ou un tri croisé.</p>
-<div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb98-1" title="1"><span class="kw">tbl_summary</span>(d[, <span class="kw">c</span>(<span class="st">&quot;sport&quot;</span>, <span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;relig&quot;</span>, </a>
-<a class="sourceLine" id="cb98-2" title="2">  <span class="st">&quot;heures.tv&quot;</span>)])</a></code></pre></div>
+<div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1"></a><span class="kw">tbl_summary</span>(d[, <span class="kw">c</span>(<span class="st">&quot;sport&quot;</span>, <span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;relig&quot;</span>, </span>
+<span id="cb98-2"><a href="#cb98-2"></a>  <span class="st">&quot;heures.tv&quot;</span>)])</span></code></pre></div>
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
@@ -3751,8 +3753,8 @@ de TV par jour</td>
     </tr>
   </tfoot>
 </table></div>
-<div class="sourceCode" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb99-1" title="1"><span class="kw">tbl_summary</span>(d[, <span class="kw">c</span>(<span class="st">&quot;sport&quot;</span>, <span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;relig&quot;</span>, </a>
-<a class="sourceLine" id="cb99-2" title="2">  <span class="st">&quot;heures.tv&quot;</span>)], <span class="dt">by =</span> <span class="st">&quot;sport&quot;</span>, <span class="dt">percent =</span> <span class="st">&quot;row&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_p</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1"></a><span class="kw">tbl_summary</span>(d[, <span class="kw">c</span>(<span class="st">&quot;sport&quot;</span>, <span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;relig&quot;</span>, </span>
+<span id="cb99-2"><a href="#cb99-2"></a>  <span class="st">&quot;heures.tv&quot;</span>)], <span class="dt">by =</span> <span class="st">&quot;sport&quot;</span>, <span class="dt">percent =</span> <span class="st">&quot;row&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_p</span>()</span></code></pre></div>
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
@@ -4278,20 +4280,20 @@ de TV par jour</td>
 <h2>Régression logistique multinomiale</h2>
 <p>La <dfn>régression logistique multinomiale</dfn><dfn data-index="multinomiale, régression logistique"></dfn> est une extension de la régression logistique aux variables qualitatives à trois modalités ou plus. Dans ce cas de figure, chaque modalité de la variable d’intérêt sera comparée à la modalité de réference. Les <em>odds ratio</em> seront donc exprimés par rapport à cette dernière.</p>
 <p>Nous allons prendre pour exemple la variable <em>trav.satisf</em>, à savoir la satisfaction ou l’insatisfaction au travail.</p>
-<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb100-1" title="1"><span class="kw">freq</span>(d<span class="op">$</span>trav.satisf)</a></code></pre></div>
+<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1"></a><span class="kw">freq</span>(d<span class="op">$</span>trav.satisf)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"480","2":"24.0","3":"45.8","_rn_":"Satisfaction"},{"1":"117","2":"5.9","3":"11.2","_rn_":"Insatisfaction"},{"1":"451","2":"22.6","3":"43.0","_rn_":"Equilibre"},{"1":"952","2":"47.6","3":"NA","_rn_":"__NA__"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Nous allons choisir comme modalité de référence la position intermédiaire, à savoir l’« équilibre ».</p>
-<div class="sourceCode" id="cb101"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb101-1" title="1">d<span class="op">$</span>trav.satisf &lt;-<span class="st"> </span><span class="kw">relevel</span>(d<span class="op">$</span>trav.satisf, <span class="st">&quot;Equilibre&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb101"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1"></a>d<span class="op">$</span>trav.satisf &lt;-<span class="st"> </span><span class="kw">relevel</span>(d<span class="op">$</span>trav.satisf, <span class="st">&quot;Equilibre&quot;</span>)</span></code></pre></div>
 <p>Enfin, nous allons aussi en profiter pour raccourcir les étiquettes de la variable <em>trav.imp</em> :</p>
-<div class="sourceCode" id="cb102"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb102-1" title="1"><span class="kw">levels</span>(d<span class="op">$</span>trav.imp) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Le plus&quot;</span>, <span class="st">&quot;Aussi&quot;</span>, <span class="st">&quot;Moins&quot;</span>, <span class="st">&quot;Peu&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb102"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1"></a><span class="kw">levels</span>(d<span class="op">$</span>trav.imp) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Le plus&quot;</span>, <span class="st">&quot;Aussi&quot;</span>, <span class="st">&quot;Moins&quot;</span>, <span class="st">&quot;Peu&quot;</span>)</span></code></pre></div>
 <p>Pour calculer un modèle logistique multinomial, nous allons utiliser la fonction <code data-pkg="nnet">multinom</code> de l’extension <code class="pkg">nnet</code><a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>. La syntaxe de <code data-pkg="nnet">multinom</code> est similaire à celle de <code data-pkg="stats">glm</code>, le paramètre <code>family</code> en moins.</p>
-<div class="sourceCode" id="cb103"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb103-1" title="1"><span class="kw">library</span>(nnet)</a>
-<a class="sourceLine" id="cb103-2" title="2">regm &lt;-<span class="st"> </span><span class="kw">multinom</span>(trav.satisf <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>trav.imp, </a>
-<a class="sourceLine" id="cb103-3" title="3">  <span class="dt">data =</span> d)</a></code></pre></div>
+<div class="sourceCode" id="cb103"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1"></a><span class="kw">library</span>(nnet)</span>
+<span id="cb103-2"><a href="#cb103-2"></a>regm &lt;-<span class="st"> </span><span class="kw">multinom</span>(trav.satisf <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>trav.imp, </span>
+<span id="cb103-3"><a href="#cb103-3"></a>  <span class="dt">data =</span> d)</span></code></pre></div>
 <pre><code># weights:  39 (24 variable)
 initial  value 1151.345679 
 iter  10 value 977.348901
@@ -4300,7 +4302,7 @@ iter  30 value 969.522965
 final  value 969.521855 
 converged</code></pre>
 <p>Comme pour la régression logistique, il est possible de réaliser une sélection pas à pas descendante :</p>
-<div class="sourceCode" id="cb105"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb105-1" title="1">regm2 &lt;-<span class="st"> </span><span class="kw">step</span>(regm)</a></code></pre></div>
+<div class="sourceCode" id="cb105"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1"></a>regm2 &lt;-<span class="st"> </span><span class="kw">step</span>(regm)</span></code></pre></div>
 <pre><code>Start:  AIC=1987
 trav.satisf ~ sexe + etud + grpage + trav.imp
 
@@ -4406,7 +4408,7 @@ converged
 - etud      8 1988
 - trav.imp 10 2017</code></pre>
 <p>La plupart des fonctions vues précédemment fonctionnent :</p>
-<div class="sourceCode" id="cb107"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb107-1" title="1"><span class="kw">summary</span>(regm2)</a></code></pre></div>
+<div class="sourceCode" id="cb107"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1"></a><span class="kw">summary</span>(regm2)</span></code></pre></div>
 <pre><code>Call:
 multinom(formula = trav.satisf ~ etud + trav.imp, data = d)
 
@@ -4440,22 +4442,22 @@ Insatisfaction      0.6587
 
 Residual Deviance: 1948 
 AIC: 1980 </code></pre>
-<div class="sourceCode" id="cb109"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb109-1" title="1"><span class="kw">odds.ratio</span>(regm2)</a></code></pre></div>
+<div class="sourceCode" id="cb109"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1"></a><span class="kw">odds.ratio</span>(regm2)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["OR"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["2.5 %"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["97.5 %"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["p"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.8948","2":"0.36892","3":"2.171","4":"0.805878","_rn_":"Satisfaction/(Intercept)"},{"1":"1.0504","2":"0.62663","3":"1.761","4":"0.852027","_rn_":"Satisfaction/etudSecondaire"},{"1":"1.0810","2":"0.67427","3":"1.733","4":"0.746260","_rn_":"Satisfaction/etudTechnique/Professionnel"},{"1":"2.0127","2":"1.23972","3":"3.268","4":"0.004669","_rn_":"Satisfaction/etudSupérieur"},{"1":"0.5837","2":"0.18324","3":"1.859","4":"0.362363","_rn_":"Satisfaction/etudmanquant"},{"1":"1.2942","2":"0.56149","3":"2.983","4":"0.544977","_rn_":"Satisfaction/trav.impAussi"},{"1":"0.8389","2":"0.37445","3":"1.880","4":"0.669600","_rn_":"Satisfaction/trav.impMoins"},{"1":"0.5491","2":"0.18393","3":"1.639","4":"0.282661","_rn_":"Satisfaction/trav.impPeu"},{"1":"0.3258","2":"0.09084","3":"1.169","4":"0.085306","_rn_":"Insatisfaction/(Intercept)"},{"1":"0.9072","2":"0.41423","3":"1.987","4":"0.807660","_rn_":"Insatisfaction/etudSecondaire"},{"1":"1.0875","2":"0.53919","3":"2.194","4":"0.814635","_rn_":"Insatisfaction/etudTechnique/Professionnel"},{"1":"1.0806","2":"0.51001","3":"2.290","4":"0.839581","_rn_":"Insatisfaction/etudSupérieur"},{"1":"0.9573","2":"0.18424","3":"4.974","4":"0.958603","_rn_":"Insatisfaction/etudmanquant"},{"1":"0.7961","2":"0.23554","3":"2.691","4":"0.713701","_rn_":"Insatisfaction/trav.impAussi"},{"1":"0.5868","2":"0.18312","3":"1.880","4":"0.369663","_rn_":"Insatisfaction/trav.impMoins"},{"1":"3.8196","2":"1.05027","3":"13.891","4":"0.041909","_rn_":"Insatisfaction/trav.impPeu"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>De même, il est possible de calculer la matrice de confusion :</p>
-<div class="sourceCode" id="cb110"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb110-1" title="1"><span class="kw">table</span>(<span class="kw">predict</span>(regm2, <span class="dt">newdata =</span> d), d<span class="op">$</span>trav.satisf)</a></code></pre></div>
+<div class="sourceCode" id="cb110"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1"></a><span class="kw">table</span>(<span class="kw">predict</span>(regm2, <span class="dt">newdata =</span> d), d<span class="op">$</span>trav.satisf)</span></code></pre></div>
 <pre><code>                
                  Equilibre Satisfaction Insatisfaction
   Equilibre            262          211             49
   Satisfaction         171          258             45
   Insatisfaction        18           11             23</code></pre>
 <p>La fonction <code data-pkg="broom">tidy</code> peut s’appliquer au résultat de <code data-pkg="nnet">multinom</code> :</p>
-<div class="sourceCode" id="cb112"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb112-1" title="1"><span class="kw">library</span>(broom)</a>
-<a class="sourceLine" id="cb112-2" title="2"><span class="kw">tidy</span>(regm2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb112"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1"></a><span class="kw">library</span>(broom)</span>
+<span id="cb112-2"><a href="#cb112-2"></a><span class="kw">tidy</span>(regm2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["y.level"],"name":[1],"type":["chr"],"align":["left"]},{"label":["term"],"name":[2],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"Satisfaction","2":"(Intercept)","3":"0.8948","4":"0.4521","5":"-0.24575","6":"0.805878","7":"0.36892","8":"2.171"},{"1":"Satisfaction","2":"etudSecondaire","3":"1.0504","4":"0.2636","5":"0.18653","6":"0.852027","7":"0.62663","8":"1.761"},{"1":"Satisfaction","2":"etudTechnique/Professionnel","3":"1.0810","4":"0.2408","5":"0.32357","6":"0.746260","7":"0.67427","8":"1.733"},{"1":"Satisfaction","2":"etudSupérieur","3":"2.0127","4":"0.2473","5":"2.82904","6":"0.004669","7":"1.23972","8":"3.268"},{"1":"Satisfaction","2":"etudmanquant","3":"0.5837","4":"0.5911","5":"-0.91087","6":"0.362363","7":"0.18324","8":"1.859"},{"1":"Satisfaction","2":"trav.impAussi","3":"1.2942","4":"0.4261","5":"0.60530","6":"0.544977","7":"0.56149","8":"2.983"},{"1":"Satisfaction","2":"trav.impMoins","3":"0.8389","4":"0.4116","5":"-0.42670","6":"0.669600","7":"0.37445","8":"1.880"},{"1":"Satisfaction","2":"trav.impPeu","3":"0.5491","4":"0.5580","5":"-1.07436","6":"0.282661","7":"0.18393","8":"1.639"},{"1":"Insatisfaction","2":"(Intercept)","3":"0.3258","4":"0.6517","5":"-1.72070","6":"0.085306","7":"0.09084","8":"1.169"},{"1":"Insatisfaction","2":"etudSecondaire","3":"0.9072","4":"0.4000","5":"-0.24345","6":"0.807660","7":"0.41423","8":"1.987"},{"1":"Insatisfaction","2":"etudTechnique/Professionnel","3":"1.0875","4":"0.3580","5":"0.23445","6":"0.814635","7":"0.53919","8":"2.194"},{"1":"Insatisfaction","2":"etudSupérieur","3":"1.0806","4":"0.3831","5":"0.20243","6":"0.839581","7":"0.51001","8":"2.290"},{"1":"Insatisfaction","2":"etudmanquant","3":"0.9573","4":"0.8408","5":"-0.05191","6":"0.958603","7":"0.18424","8":"4.974"},{"1":"Insatisfaction","2":"trav.impAussi","3":"0.7961","4":"0.6214","5":"-0.36689","6":"0.713701","7":"0.23554","8":"2.691"},{"1":"Insatisfaction","2":"trav.impMoins","3":"0.5868","4":"0.5942","5":"-0.89711","6":"0.369663","7":"0.18312","8":"1.880"},{"1":"Insatisfaction","2":"trav.impPeu","3":"3.8196","4":"0.6587","5":"2.03442","6":"0.041909","7":"1.05027","8":"13.891"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -4463,7 +4465,7 @@ AIC: 1980 </code></pre>
 </div>
 <p>On notera la présence d’une colonne supplémentaire, <var>y.level</var>. De fait, la fonction <code data-pkg="GGally">ggcoef</code> ne peut s’appliquer directement, car les coefficients vont se supperposer.</p>
 <figure>
-<div class="sourceCode" id="cb113"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb113-1" title="1"><span class="kw">ggcoef</span>(regm2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb113"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1"></a><span class="kw">ggcoef</span>(regm2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <img src="graphs/regression-logistique/unnamed-chunk-55-1.png" width="1050" />
 <figcaption>
 À ne pas faire : appliquer directment ggcoef
@@ -4471,7 +4473,7 @@ AIC: 1980 </code></pre>
 </figure>
 <p>On a deux solutions possibles. Pour la première, la plus simple, il suffit d’ajouter des facettes avec <code data-pkg="ggplot2">facet_grid</code>.</p>
 <figure>
-<div class="sourceCode" id="cb114"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb114-1" title="1"><span class="kw">ggcoef</span>(regm2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>) <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(<span class="op">~</span>y.level)</a></code></pre></div>
+<div class="sourceCode" id="cb114"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1"></a><span class="kw">ggcoef</span>(regm2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>) <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(<span class="op">~</span>y.level)</span></code></pre></div>
 <img src="graphs/regression-logistique/unnamed-chunk-56-1.png" width="1050" />
 <figcaption>
 ggcoef avec facet_grid
@@ -4479,12 +4481,12 @@ ggcoef avec facet_grid
 </figure>
 <p>Pour la seconde, on va réaliser un graphique personnalisé, sur la même logique que <code data-pkg="GGally">ggcoef</code>, décalant les points grâce à <code data-pkg="ggplot2">position_dodge</code>.</p>
 <figure>
-<div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb115-1" title="1"><span class="kw">ggplot</span>(<span class="kw">tidy</span>(regm2, <span class="dt">exponentiate =</span> T, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> term, </a>
-<a class="sourceLine" id="cb115-2" title="2">  <span class="dt">y =</span> estimate, <span class="dt">ymin =</span> conf.low, <span class="dt">ymax =</span> conf.high, <span class="dt">color =</span> y.level) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb115-3" title="3"><span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> <span class="dv">1</span>, <span class="dt">color =</span> <span class="st">&quot;gray25&quot;</span>, <span class="dt">linetype =</span> <span class="st">&quot;dotted&quot;</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb115-4" title="4"><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="dt">position =</span> <span class="kw">position_dodge</span>(<span class="fl">0.5</span>), <span class="dt">width =</span> <span class="dv">0</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb115-5" title="5"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">position =</span> <span class="kw">position_dodge</span>(<span class="dt">width =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_log10</span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb115-6" title="6"><span class="st">  </span><span class="kw">coord_flip</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1"></a><span class="kw">ggplot</span>(<span class="kw">tidy</span>(regm2, <span class="dt">exponentiate =</span> T, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> term, </span>
+<span id="cb115-2"><a href="#cb115-2"></a>  <span class="dt">y =</span> estimate, <span class="dt">ymin =</span> conf.low, <span class="dt">ymax =</span> conf.high, <span class="dt">color =</span> y.level) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb115-3"><a href="#cb115-3"></a><span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> <span class="dv">1</span>, <span class="dt">color =</span> <span class="st">&quot;gray25&quot;</span>, <span class="dt">linetype =</span> <span class="st">&quot;dotted&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb115-4"><a href="#cb115-4"></a><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="dt">position =</span> <span class="kw">position_dodge</span>(<span class="fl">0.5</span>), <span class="dt">width =</span> <span class="dv">0</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb115-5"><a href="#cb115-5"></a><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">position =</span> <span class="kw">position_dodge</span>(<span class="dt">width =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_log10</span>() <span class="op">+</span><span class="st"> </span></span>
+<span id="cb115-6"><a href="#cb115-6"></a><span class="st">  </span><span class="kw">coord_flip</span>()</span></code></pre></div>
 <img src="graphs/regression-logistique/unnamed-chunk-57-1.png" width="1050" />
 <figcaption>
 Odds ratio d’un modèle multinomial
@@ -4492,8 +4494,8 @@ Odds ratio d’un modèle multinomial
 </figure>
 <p>Il est possible de représenter les effets marginaux du modèle avec la fonction <code data-pkg="effects">allEffects</code> de l’extension <code class="pkg">effects</code>.</p>
 <figure>
-<div class="sourceCode" id="cb116"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb116-1" title="1"><span class="kw">library</span>(effects)</a>
-<a class="sourceLine" id="cb116-2" title="2"><span class="kw">plot</span>(<span class="kw">allEffects</span>(regm2))</a></code></pre></div>
+<div class="sourceCode" id="cb116"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1"></a><span class="kw">library</span>(effects)</span>
+<span id="cb116-2"><a href="#cb116-2"></a><span class="kw">plot</span>(<span class="kw">allEffects</span>(regm2))</span></code></pre></div>
 <img src="graphs/regression-logistique/unnamed-chunk-58-1.png" width="1050" />
 <figcaption>
 Effets marginaux du modèle multinomial
@@ -4501,10 +4503,10 @@ Effets marginaux du modèle multinomial
 </figure>
 <p>Une alternative est d’avoir recours à la fonction <code data-pkg="ggeffect">ggeffect</code> de l’extension <code class="pkg">ggeffects</code>.</p>
 <figure>
-<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb117-1" title="1"><span class="kw">library</span>(ggeffects)</a>
-<a class="sourceLine" id="cb117-2" title="2"><span class="kw">plot</span>(<span class="kw">ggeffect</span>(regm2, <span class="st">&quot;trav.imp&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb117-1"><a href="#cb117-1"></a><span class="kw">library</span>(ggeffects)</span>
+<span id="cb117-2"><a href="#cb117-2"></a><span class="kw">plot</span>(<span class="kw">ggeffect</span>(regm2, <span class="st">&quot;trav.imp&quot;</span>))</span></code></pre></div>
 <p><img src="graphs/regression-logistique/unnamed-chunk-59-1.png" width="1050" /></p>
-<div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb118-1" title="1"><span class="kw">plot</span>(<span class="kw">ggeffect</span>(regm2, <span class="st">&quot;etud&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1"></a><span class="kw">plot</span>(<span class="kw">ggeffect</span>(regm2, <span class="st">&quot;etud&quot;</span>))</span></code></pre></div>
 <img src="graphs/regression-logistique/unnamed-chunk-59-2.png" width="1050" />
 <figcaption>
 Représentation alternative des effets marginaux du modèle multinomial
@@ -4518,22 +4520,22 @@ Représentation alternative des effets marginaux du modèle multinomial
 <p>Pour une bonne introduction à l’extension <code class="pkg">ordinal</code>, on pourra se référer au tutoriel officiel (en anglais) : <a href="https://cran.r-project.org/web/packages/ordinal/vignettes/clm_tutorial.pdf" class="uri">https://cran.r-project.org/web/packages/ordinal/vignettes/clm_tutorial.pdf</a>.</p>
 <p>Une autre introduction pertinente (en français) et utilisant cette fois-ci l’extention <code class="pkg">VGAM</code> et sa fonction <code data-pkg="VGAM">vglm</code> est disponible sur le site de l’université de Lyon : <a href="https://eric.univ-lyon2.fr/~ricco/cours/didacticiels/data-mining/didacticiel_Reg_Logistique_Polytomique_Ordinale.pdf" class="uri">https://eric.univ-lyon2.fr/~ricco/cours/didacticiels/data-mining/didacticiel_Reg_Logistique_Polytomique_Ordinale.pdf</a>.</p>
 <p>On va reprendre l’exemple précédent puisque la variable <var>trav.satisf</var> est une variable ordonnée.</p>
-<div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb119-1" title="1"><span class="kw">freq</span>(d<span class="op">$</span>trav.satisf)</a></code></pre></div>
+<div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1"></a><span class="kw">freq</span>(d<span class="op">$</span>trav.satisf)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"451","2":"22.6","3":"43.0","_rn_":"Equilibre"},{"1":"480","2":"24.0","3":"45.8","_rn_":"Satisfaction"},{"1":"117","2":"5.9","3":"11.2","_rn_":"Insatisfaction"},{"1":"952","2":"47.6","3":"NA","_rn_":"__NA__"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p><strong>ATTENTION :</strong> Dans le cas d’une régression logistique ordinale, il importante que les niveaux du facteur soient classés selon leur ordre hiéarchique (du plus faible au plus fort). On va dès lors recoder notre variable à expliquer.</p>
-<div class="sourceCode" id="cb120"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb120-1" title="1">d<span class="op">$</span>trav.satisf &lt;-<span class="st"> </span><span class="kw">factor</span>(d<span class="op">$</span>trav.satisf, <span class="kw">c</span>(<span class="st">&quot;Insatisfaction&quot;</span>, <span class="st">&quot;Equilibre&quot;</span>, </a>
-<a class="sourceLine" id="cb120-2" title="2">  <span class="st">&quot;Satisfaction&quot;</span>), <span class="dt">ordered =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb120-3" title="3"><span class="kw">freq</span>(d<span class="op">$</span>trav.satisf)</a></code></pre></div>
+<div class="sourceCode" id="cb120"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1"></a>d<span class="op">$</span>trav.satisf &lt;-<span class="st"> </span><span class="kw">factor</span>(d<span class="op">$</span>trav.satisf, <span class="kw">c</span>(<span class="st">&quot;Insatisfaction&quot;</span>, <span class="st">&quot;Equilibre&quot;</span>, </span>
+<span id="cb120-2"><a href="#cb120-2"></a>  <span class="st">&quot;Satisfaction&quot;</span>), <span class="dt">ordered =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb120-3"><a href="#cb120-3"></a><span class="kw">freq</span>(d<span class="op">$</span>trav.satisf)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"117","2":"5.9","3":"11.2","_rn_":"Insatisfaction"},{"1":"451","2":"22.6","3":"43.0","_rn_":"Equilibre"},{"1":"480","2":"24.0","3":"45.8","_rn_":"Satisfaction"},{"1":"952","2":"47.6","3":"NA","_rn_":"__NA__"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb121-1" title="1"><span class="kw">library</span>(ordinal)</a></code></pre></div>
+<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1"></a><span class="kw">library</span>(ordinal)</span></code></pre></div>
 <pre><code>
 Attaching package: &#39;ordinal&#39;</code></pre>
 <pre><code>The following objects are masked from &#39;package:nlme&#39;:
@@ -4545,8 +4547,8 @@ Attaching package: &#39;ordinal&#39;</code></pre>
 <pre><code>The following object is masked from &#39;package:dplyr&#39;:
 
     slice</code></pre>
-<div class="sourceCode" id="cb126"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb126-1" title="1">rego &lt;-<span class="st"> </span><span class="kw">clm</span>(trav.satisf <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>trav.imp, <span class="dt">data =</span> d)</a>
-<a class="sourceLine" id="cb126-2" title="2"><span class="kw">summary</span>(rego)</a></code></pre></div>
+<div class="sourceCode" id="cb126"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1"></a>rego &lt;-<span class="st"> </span><span class="kw">clm</span>(trav.satisf <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>trav.imp, <span class="dt">data =</span> d)</span>
+<span id="cb126-2"><a href="#cb126-2"></a><span class="kw">summary</span>(rego)</span></code></pre></div>
 <pre><code>formula: trav.satisf ~ sexe + etud + trav.imp
 data:    d
 
@@ -4584,7 +4586,7 @@ Insatisfaction|Equilibre   -2.023      0.419   -4.83
 Equilibre|Satisfaction      0.339      0.411    0.82
 (952 observations deleted due to missingness)</code></pre>
 <p>Une fois encore, il est possible de faire une sélection descendante pas à pas.</p>
-<div class="sourceCode" id="cb128"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb128-1" title="1">rego2 &lt;-<span class="st"> </span><span class="kw">step</span>(rego)</a></code></pre></div>
+<div class="sourceCode" id="cb128"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1"></a>rego2 &lt;-<span class="st"> </span><span class="kw">step</span>(rego)</span></code></pre></div>
 <pre><code>Start:  AIC=1977
 trav.satisf ~ sexe + etud + trav.imp
 
@@ -4602,7 +4604,7 @@ trav.satisf ~ etud + trav.imp
 - etud      4 1991
 - trav.imp  3 2012</code></pre>
 <p>L’extension <code class="pkg">broom</code> propose une méthode <code data-pkg="broom">tidy</code> pour les objets <code data-pks="ordinal">clm</code>.</p>
-<div class="sourceCode" id="cb130"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb130-1" title="1"><span class="kw">tidy</span>(rego2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb130"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1"></a><span class="kw">tidy</span>(rego2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["coefficient_type"],"name":[8],"type":["chr"],"align":["left"]}],"data":[{"1":"Equilibre|Satisfaction","2":"1.5112","3":"0.4071","4":"1.01443","5":"3.104e-01","6":"NA","7":"NA","8":"alpha"},{"1":"etudmanquant","2":"0.6596","3":"0.4870","4":"-0.85450","5":"3.928e-01","6":"0.25297","7":"1.7206","8":"beta"},{"1":"etudSecondaire","2":"1.0625","3":"0.2321","4":"0.26144","5":"7.938e-01","6":"0.67375","7":"1.6747","8":"beta"},{"1":"etudSupérieur","2":"1.8404","3":"0.2196","4":"2.77756","5":"5.477e-03","6":"1.19619","7":"2.8320","8":"beta"},{"1":"etudTechnique/Professionnel","2":"1.0140","3":"0.2115","4":"0.06574","5":"9.476e-01","6":"0.66917","7":"1.5347","8":"beta"},{"1":"Insatisfaction|Equilibre","2":"0.1428","3":"0.4143","4":"-4.69798","5":"2.627e-06","6":"NA","7":"NA","8":"alpha"},{"1":"trav.impAussi","2":"1.3939","3":"0.3850","4":"0.86269","5":"3.883e-01","6":"0.65081","7":"2.9657","8":"beta"},{"1":"trav.impMoins","2":"1.0338","3":"0.3712","4":"0.08945","5":"9.287e-01","6":"0.49540","7":"2.1402","8":"beta"},{"1":"trav.impPeu","2":"0.1949","3":"0.4610","4":"-3.54756","5":"3.888e-04","6":"0.07837","7":"0.4799","8":"beta"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -4610,9 +4612,9 @@ trav.satisf ~ etud + trav.imp
 </div>
 <p>La méthode <code data-pkg="broom">tidy</code> étant disponible, on peut utiliser <code data-pkg="GGally">ggcoef</code> et <code data-pkg="gtsummary">tbl_regression</code>.</p>
 <figure>
-<div class="sourceCode" id="cb131"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb131-1" title="1"><span class="kw">library</span>(JLutils)</a>
-<a class="sourceLine" id="cb131-2" title="2"><span class="kw">library</span>(GGally)</a>
-<a class="sourceLine" id="cb131-3" title="3"><span class="kw">ggcoef</span>(rego2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb131"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb131-1"><a href="#cb131-1"></a><span class="kw">library</span>(JLutils)</span>
+<span id="cb131-2"><a href="#cb131-2"></a><span class="kw">library</span>(GGally)</span>
+<span id="cb131-3"><a href="#cb131-3"></a><span class="kw">ggcoef</span>(rego2, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <pre><code>Warning: Removed 2 rows containing missing values
 (geom_errorbarh).</code></pre>
 <img src="graphs/regression-logistique/unnamed-chunk-65-1.png" width="1050" />
@@ -4620,7 +4622,7 @@ trav.satisf ~ etud + trav.imp
 Coefficients du modèle ordinal
 </figcaption>
 </figure>
-<div class="sourceCode" id="cb133"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb133-1" title="1"><span class="kw">tbl_regression</span>(rego, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb133"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb133-1"><a href="#cb133-1"></a><span class="kw">tbl_regression</span>(rego, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
@@ -5084,16 +5086,16 @@ Coefficients du modèle ordinal
 <h2>Données pondérées et l’extension survey</h2>
 <p>Lorsque l’on utilise des données pondérées, on aura recours à l’extension <code class="pkg">survey</code><a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>.</p>
 <p>Préparons des données d’exemple :</p>
-<div class="sourceCode" id="cb134"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb134-1" title="1"><span class="kw">library</span>(survey)</a>
-<a class="sourceLine" id="cb134-2" title="2">dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> <span class="op">~</span>poids)</a></code></pre></div>
+<div class="sourceCode" id="cb134"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1"></a><span class="kw">library</span>(survey)</span>
+<span id="cb134-2"><a href="#cb134-2"></a>dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> <span class="op">~</span>poids)</span></code></pre></div>
 <div id="régression-logistique-binaire-1" class="section level3">
 <h3>Régression logistique binaire</h3>
 <p>L’extension <code class="pkg">survey</code> fournit une fonction <code data-pkg="survey">svyglm</code> permettant de calculer un modèle statistique tout en prenant en compte le plan d’échantillonnage spécifié. La syntaxe de <code data-pkg="survey">svyglm</code> est proche de celle de <code data-pkg="stats">glm</code>. Cependant, le cadre d’une régression logistique, il est nécessaire d’utiliser <code>family = quasibinomial()</code> afin d’éviter un message d’erreur indiquant un nombre non entier de succès :</p>
-<div class="sourceCode" id="cb135"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb135-1" title="1">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>age <span class="op">+</span><span class="st"> </span>relig <span class="op">+</span><span class="st"> </span>heures.tv, dw, <span class="dt">family =</span> <span class="kw">binomial</span>())</a></code></pre></div>
+<div class="sourceCode" id="cb135"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb135-1"><a href="#cb135-1"></a>reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>age <span class="op">+</span><span class="st"> </span>relig <span class="op">+</span><span class="st"> </span>heures.tv, dw, <span class="dt">family =</span> <span class="kw">binomial</span>())</span></code></pre></div>
 <pre><code>Warning in eval(family$initialize): non-integer #successes
 in a binomial glm!</code></pre>
-<div class="sourceCode" id="cb137"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb137-1" title="1">reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>age <span class="op">+</span><span class="st"> </span>relig <span class="op">+</span><span class="st"> </span>heures.tv, dw, <span class="dt">family =</span> <span class="kw">quasibinomial</span>())</a>
-<a class="sourceLine" id="cb137-2" title="2">reg</a></code></pre></div>
+<div class="sourceCode" id="cb137"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb137-1"><a href="#cb137-1"></a>reg &lt;-<span class="st"> </span><span class="kw">svyglm</span>(sport <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>age <span class="op">+</span><span class="st"> </span>relig <span class="op">+</span><span class="st"> </span>heures.tv, dw, <span class="dt">family =</span> <span class="kw">quasibinomial</span>())</span>
+<span id="cb137-2"><a href="#cb137-2"></a>reg</span></code></pre></div>
 <pre><code>Independent Sampling design (with replacement)
 svydesign(ids = ~1, data = d, weights = ~poids)
 
@@ -5125,20 +5127,20 @@ Degrees of Freedom: 1994 Total (i.e. Null);  1986 Residual
 Null Deviance:      2670 
 Residual Deviance: 2380     AIC: NA</code></pre>
 <p>Le résultat obtenu est similaire à celui de <code data-pkg="stats">glm</code> et l’on peut utiliser sans problème les fonctions <code data-pkg="survey" data-rdoc="svyglm">coef</code>, <code data-pkg="survey" data-rdoc="confint.glm">confint</code>, <code data-pkg="questionr">odds.ratio</code>, <code data-pkg="survey" data-rdoc="svyglm">predict</code> ou encore <code data-pkg="broom" data-rdoc="glm_tidiers">tidy</code>.</p>
-<div class="sourceCode" id="cb139"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb139-1" title="1"><span class="kw">odds.ratio</span>(reg)</a></code></pre></div>
+<div class="sourceCode" id="cb139"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb139-1"><a href="#cb139-1"></a><span class="kw">odds.ratio</span>(reg)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["OR"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["2.5 %"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["97.5 %"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["p"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"4.6455","2":"2.5776","3":"8.3726","4":"3.522e-07","_rn_":"(Intercept)"},{"1":"1.4409","2":"1.1215","3":"1.8513","4":"4.325e-03","_rn_":"sexeHomme"},{"1":"0.9596","2":"0.9518","3":"0.9674","4":"8.649e-23","_rn_":"age"},{"1":"1.0574","2":"0.6590","3":"1.6965","4":"8.172e-01","_rn_":"religPratiquant occasionnel"},{"1":"1.1778","2":"0.7591","3":"1.8275","4":"4.653e-01","_rn_":"religAppartenance sans pratique"},{"1":"1.0407","2":"0.6464","3":"1.6755","4":"8.697e-01","_rn_":"religNi croyance ni appartenance"},{"1":"0.8619","2":"0.4275","3":"1.7376","4":"6.779e-01","_rn_":"religRejet"},{"1":"0.7971","2":"0.3248","3":"1.9560","4":"6.205e-01","_rn_":"religNSP ou NVPR"},{"1":"0.8336","2":"0.7702","3":"0.9022","4":"6.786e-06","_rn_":"heures.tv"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<div class="sourceCode" id="cb140"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb140-1" title="1"><span class="kw">library</span>(broom)</a>
-<a class="sourceLine" id="cb140-2" title="2"><span class="kw">tidy</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb140"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb140-1"><a href="#cb140-1"></a><span class="kw">library</span>(broom)</span>
+<span id="cb140-2"><a href="#cb140-2"></a><span class="kw">tidy</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"(Intercept)","2":"4.6455","3":"0.300543","4":"5.1104","5":"3.522e-07","6":"2.5776","7":"8.3726"},{"1":"sexeHomme","2":"1.4409","3":"0.127860","4":"2.8568","5":"4.325e-03","6":"1.1215","7":"1.8513"},{"1":"age","2":"0.9596","3":"0.004148","4":"-9.9485","5":"8.649e-23","6":"0.9518","7":"0.9674"},{"1":"religPratiquant occasionnel","2":"1.0574","3":"0.241217","4":"0.2312","5":"8.172e-01","6":"0.6590","7":"1.6965"},{"1":"religAppartenance sans pratique","2":"1.1778","3":"0.224122","4":"0.7303","5":"4.653e-01","6":"0.7591","7":"1.8275"},{"1":"religNi croyance ni appartenance","2":"1.0407","3":"0.242986","4":"0.1641","5":"8.697e-01","6":"0.6464","7":"1.6755"},{"1":"religRejet","2":"0.8619","3":"0.357732","4":"-0.4154","5":"6.779e-01","6":"0.4275","7":"1.7376"},{"1":"religNSP ou NVPR","2":"0.7971","3":"0.458021","4":"-0.4952","5":"6.205e-01","6":"0.3248","7":"1.9560"},{"1":"heures.tv","2":"0.8336","3":"0.040343","4":"-4.5124","5":"6.786e-06","6":"0.7702","7":"0.9022"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<div class="sourceCode" id="cb141"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb141-1" title="1"><span class="kw">tbl_regression</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb141"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb141-1"><a href="#cb141-1"></a><span class="kw">tbl_regression</span>(reg, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
@@ -5581,18 +5583,18 @@ de TV par jour</td>
 <h3>Régression multinomiale</h3>
 <p>L’extension <code class="pkg">survey</code> ne fournit pas de fonction adaptée aux régressions multinomiales. Cependant, il est possible d’en réaliser une en ayant recours à des <dfn>poids de réplication</dfn><dfn data-index="réplication, poids"></dfn>, comme suggéré par Thomas Lumley dans son ouvrage <em>Complex Surveys: A Guide to Analysis Using R</em>. Thomas Lumley est par ailleurs l’auteur de l’extension <code class="pkg">survey</code>.</p>
 <p>L’extension <code class="pkg">svrepmisc</code> disponible sur <a href="https://github.com/carlganz/svrepmisc">GitHub</a> fournit quelques fonctions facilitant l’utilisation des poids de réplication avec <code class="pkg">survey</code>. Pour l’installer, on utilisera le code ci-dessous :</p>
-<div class="sourceCode" id="cb142"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb142-1" title="1">devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;carlganz/svrepmisc&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb142"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb142-1"><a href="#cb142-1"></a>devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;carlganz/svrepmisc&quot;</span>)</span></code></pre></div>
 <p>En premier lieu, il faut définir le design de notre tableau de données puis calculer des poids de réplication.</p>
-<div class="sourceCode" id="cb143"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb143-1" title="1"><span class="kw">library</span>(survey)</a>
-<a class="sourceLine" id="cb143-2" title="2">dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> <span class="op">~</span>poids)</a>
-<a class="sourceLine" id="cb143-3" title="3">dwr &lt;-<span class="st"> </span><span class="kw">as.svrepdesign</span>(dw, <span class="dt">type =</span> <span class="st">&quot;bootstrap&quot;</span>, <span class="dt">replicates =</span> <span class="dv">100</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb143"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb143-1"><a href="#cb143-1"></a><span class="kw">library</span>(survey)</span>
+<span id="cb143-2"><a href="#cb143-2"></a>dw &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> <span class="op">~</span><span class="dv">1</span>, <span class="dt">data =</span> d, <span class="dt">weights =</span> <span class="op">~</span>poids)</span>
+<span id="cb143-3"><a href="#cb143-3"></a>dwr &lt;-<span class="st"> </span><span class="kw">as.svrepdesign</span>(dw, <span class="dt">type =</span> <span class="st">&quot;bootstrap&quot;</span>, <span class="dt">replicates =</span> <span class="dv">100</span>)</span></code></pre></div>
 <p>Il faut prévoir un nombre de <code>replicates</code> suffisant pour calculer ultérieurement les intervalles de confiance des coefficients. Plus ce nombre est élevé, plus précise sera l’estimation de la variance et donc des valeurs p et des intervalles de confiance. Cependant, plus ce nombre est élevé, plus le temps de calcul sera important.</p>
 <p><code class="pkg">svrepmisc</code> fournit une fonction <code data-pkg="svrepmisc">svymultinom</code> pour le calcul d’une régression multinomiale avec des poids de réplication.</p>
-<div class="sourceCode" id="cb144"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb144-1" title="1"><span class="kw">library</span>(svrepmisc)</a>
-<a class="sourceLine" id="cb144-2" title="2">regm &lt;-<span class="st"> </span><span class="kw">svymultinom</span>(trav.satisf <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>trav.imp, </a>
-<a class="sourceLine" id="cb144-3" title="3">  <span class="dt">design =</span> dwr)</a></code></pre></div>
+<div class="sourceCode" id="cb144"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb144-1"><a href="#cb144-1"></a><span class="kw">library</span>(svrepmisc)</span>
+<span id="cb144-2"><a href="#cb144-2"></a>regm &lt;-<span class="st"> </span><span class="kw">svymultinom</span>(trav.satisf <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>grpage <span class="op">+</span><span class="st"> </span>trav.imp, </span>
+<span id="cb144-3"><a href="#cb144-3"></a>  <span class="dt">design =</span> dwr)</span></code></pre></div>
 <p><code class="pkg">svrepmisc</code> fournit également des méthodes <code data-pkg="svrepmisc" data-rdoc="svymultinom">confint</code> et <code data-pkg="svrepmisc" data-rdoc="tidy.svrepstatmisc">tidy</code>. Il est également possible d’utiliser <code data-pkg="GGally">ggcoef</code>.</p>
-<div class="sourceCode" id="cb145"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb145-1" title="1">regm</a></code></pre></div>
+<div class="sourceCode" id="cb145"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb145-1"><a href="#cb145-1"></a>regm</span></code></pre></div>
 <pre><code>                                         Coefficient     SE
 Equilibre.(Intercept)                          0.939  6.281
 Satisfaction.(Intercept)                       0.741  6.137
@@ -5643,7 +5645,7 @@ Equilibre.trav.impMoins                     0.12     0.91
 Satisfaction.trav.impMoins                  0.11     0.91
 Equilibre.trav.impPeu                      -0.25     0.81
 Satisfaction.trav.impPeu                   -0.24     0.81</code></pre>
-<div class="sourceCode" id="cb147"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb147-1" title="1"><span class="kw">confint</span>(regm)</a></code></pre></div>
+<div class="sourceCode" id="cb147"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb147-1"><a href="#cb147-1"></a><span class="kw">confint</span>(regm)</span></code></pre></div>
 <pre><code>                                            2.5 %  97.5 %
 Equilibre.(Intercept)                    -11.5704 13.4494
 Satisfaction.(Intercept)                 -11.4826 12.9651
@@ -5669,8 +5671,8 @@ Equilibre.trav.impMoins                  -11.8456 13.3201
 Satisfaction.trav.impMoins               -11.6521 12.9845
 Equilibre.trav.impPeu                    -13.9953 10.9008
 Satisfaction.trav.impPeu                 -13.7771 10.8333</code></pre>
-<div class="sourceCode" id="cb149"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb149-1" title="1"><span class="kw">library</span>(broom)</a>
-<a class="sourceLine" id="cb149-2" title="2"><span class="kw">tidy</span>(regm, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb149"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb149-1"><a href="#cb149-1"></a><span class="kw">library</span>(broom)</span>
+<span id="cb149-2"><a href="#cb149-2"></a><span class="kw">tidy</span>(regm, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"Equilibre.(Intercept)","2":"2.559e+00","3":"6.2811","4":"0.14957","5":"0.8815","6":"9.441e-06","7":"6.934e+05"},{"1":"Equilibre.etudmanquant","2":"7.236e-01","3":"5.8353","4":"-0.05543","5":"0.9559","6":"6.489e-06","7":"8.070e+04"},{"1":"Equilibre.etudSecondaire","2":"6.583e-01","3":"0.6353","4":"-0.65799","5":"0.5125","6":"1.858e-01","7":"2.333e+00"},{"1":"Equilibre.etudSupérieur","2":"5.623e-01","3":"0.5807","4":"-0.99155","5":"0.3246","6":"1.769e-01","7":"1.787e+00"},{"1":"Equilibre.etudTechnique/Professionnel","2":"6.206e-01","3":"0.5970","4":"-0.79914","5":"0.4267","6":"1.890e-01","7":"2.038e+00"},{"1":"Equilibre.grpage[25,45)","2":"1.835e+00","3":"0.5929","4":"1.02391","5":"0.3091","6":"5.634e-01","7":"5.978e+00"},{"1":"Equilibre.grpage[45,65)","2":"1.786e+00","3":"0.6008","4":"0.96522","5":"0.3375","6":"5.397e-01","7":"5.909e+00"},{"1":"Equilibre.grpage[65,99]","2":"4.049e-02","3":"19.6273","4":"-0.16338","5":"0.8707","6":"4.269e-19","7":"3.840e+15"},{"1":"Equilibre.sexeHomme","2":"7.842e-01","3":"0.2900","4":"-0.83801","5":"0.4047","6":"4.401e-01","7":"1.397e+00"},{"1":"Equilibre.trav.impAussi","2":"1.530e+00","3":"6.3638","4":"0.06686","5":"0.9469","6":"4.789e-06","7":"4.890e+05"},{"1":"Equilibre.trav.impMoins","2":"2.090e+00","3":"6.3177","4":"0.11670","5":"0.9074","6":"7.170e-06","7":"6.093e+05"},{"1":"Equilibre.trav.impPeu","2":"2.128e-01","3":"6.2500","4":"-0.24755","5":"0.8051","6":"8.355e-07","7":"5.422e+04"},{"1":"Satisfaction.(Intercept)","2":"2.099e+00","3":"6.1375","4":"0.12078","5":"0.9042","6":"1.031e-05","7":"4.273e+05"},{"1":"Satisfaction.etudmanquant","2":"5.203e-01","3":"5.7926","4":"-0.11280","5":"0.9105","6":"5.079e-06","7":"5.329e+04"},{"1":"Satisfaction.etudSecondaire","2":"7.666e-01","3":"0.6853","4":"-0.38785","5":"0.6992","6":"1.958e-01","7":"3.001e+00"},{"1":"Satisfaction.etudSupérieur","2":"1.445e+00","3":"0.6145","4":"0.59886","5":"0.5510","6":"4.249e-01","7":"4.913e+00"},{"1":"Satisfaction.etudTechnique/Professionnel","2":"7.899e-01","3":"0.6216","4":"-0.37945","5":"0.7054","6":"2.291e-01","7":"2.724e+00"},{"1":"Satisfaction.grpage[25,45)","2":"1.599e+00","3":"0.6355","4":"0.73859","5":"0.4624","6":"4.510e-01","7":"5.670e+00"},{"1":"Satisfaction.grpage[45,65)","2":"1.697e+00","3":"0.6161","4":"0.85813","5":"0.3935","6":"4.974e-01","7":"5.789e+00"},{"1":"Satisfaction.grpage[65,99]","2":"1.092e+05","3":"17.5392","4":"0.66143","5":"0.5103","6":"7.366e-11","7":"1.619e+20"},{"1":"Satisfaction.sexeHomme","2":"7.605e-01","3":"0.3031","4":"-0.90339","5":"0.3692","6":"4.158e-01","7":"1.391e+00"},{"1":"Satisfaction.trav.impAussi","2":"1.719e+00","3":"6.2306","4":"0.08692","5":"0.9310","6":"7.013e-06","7":"4.212e+05"},{"1":"Satisfaction.trav.impMoins","2":"1.947e+00","3":"6.1849","4":"0.10771","5":"0.9145","6":"8.701e-06","7":"4.356e+05"},{"1":"Satisfaction.trav.impPeu","2":"2.295e-01","3":"6.1783","4":"-0.23824","5":"0.8123","6":"1.039e-06","7":"5.068e+04"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -5680,8 +5682,8 @@ Satisfaction.trav.impPeu                 -13.7771 10.8333</code></pre>
 <div id="régression-ordinale" class="section level3">
 <h3>Régression ordinale</h3>
 <p>Pour un modèle ordinal, il existe une version simplifiée des modèles ordinaux directement disponible dans <code class="pkg">survey</code> via la fonction <code data-pkg="survey">svyolr</code>.</p>
-<div class="sourceCode" id="cb150"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb150-1" title="1">rego &lt;-<span class="st"> </span><span class="kw">svyolr</span>(trav.satisf <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>trav.imp, <span class="dt">design =</span> dw)</a>
-<a class="sourceLine" id="cb150-2" title="2"><span class="kw">summary</span>(rego)</a></code></pre></div>
+<div class="sourceCode" id="cb150"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb150-1"><a href="#cb150-1"></a>rego &lt;-<span class="st"> </span><span class="kw">svyolr</span>(trav.satisf <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>trav.imp, <span class="dt">design =</span> dw)</span>
+<span id="cb150-2"><a href="#cb150-2"></a><span class="kw">summary</span>(rego)</span></code></pre></div>
 <pre><code>Call:
 svyolr(trav.satisf ~ sexe + etud + trav.imp, design = dw)
 
@@ -5701,7 +5703,7 @@ Intercepts:
 Insatisfaction|Equilibre -2.039  0.543     -3.758 
 Equilibre|Satisfaction    0.273  0.531      0.514 
 (952 observations deleted due to missingness)</code></pre>
-<div class="sourceCode" id="cb152"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb152-1" title="1"><span class="kw">confint</span>(rego)</a></code></pre></div>
+<div class="sourceCode" id="cb152"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb152-1"><a href="#cb152-1"></a><span class="kw">confint</span>(rego)</span></code></pre></div>
 <pre><code>                              2.5 %  97.5 %
 sexeHomme                   -0.4357  0.1701
 etudSecondaire              -0.5819  0.4965
@@ -5714,21 +5716,21 @@ trav.impPeu                 -2.9446 -0.1161
 Insatisfaction|Equilibre    -3.1028 -0.9756
 Equilibre|Satisfaction       0.1608  0.3846</code></pre>
 <p>L’extension <code class="pkg">JLutils</code><a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a> propose une méthode <code data-pkg="JLutils" data-rdoc="tidy_model">tidy</code> pour les objets <code>svyolr.</code></p>
-<div class="sourceCode" id="cb154"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb154-1" title="1"><span class="kw">library</span>(JLutils)</a>
-<a class="sourceLine" id="cb154-2" title="2"><span class="kw">library</span>(broom)</a>
-<a class="sourceLine" id="cb154-3" title="3"><span class="kw">tidy</span>(rego, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb154"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb154-1"><a href="#cb154-1"></a><span class="kw">library</span>(JLutils)</span>
+<span id="cb154-2"><a href="#cb154-2"></a><span class="kw">library</span>(broom)</span>
+<span id="cb154-3"><a href="#cb154-3"></a><span class="kw">tidy</span>(rego, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["coefficient_type"],"name":[7],"type":["chr"],"align":["left"]}],"data":[{"1":"Equilibre|Satisfaction","2":"1.3135","3":"0.5306","4":"0.51399","5":"1.17445","6":"1.4691","7":"zeta"},{"1":"etudmanquant","2":"0.6253","3":"0.5033","4":"-0.93267","5":"0.23317","6":"1.6771","7":"coefficient"},{"1":"etudSecondaire","2":"0.9582","3":"0.2751","4":"-0.15527","5":"0.55883","6":"1.6429","7":"coefficient"},{"1":"etudSupérieur","2":"1.9012","3":"0.2593","4":"2.47728","5":"1.14358","6":"3.1606","7":"coefficient"},{"1":"etudTechnique/Professionnel","2":"1.0004","3":"0.2493","4":"0.00171","5":"0.61379","6":"1.6306","7":"coefficient"},{"1":"Insatisfaction|Equilibre","2":"0.1301","3":"0.5427","4":"-3.75775","5":"0.04493","6":"0.3770","7":"zeta"},{"1":"sexeHomme","2":"0.8756","3":"0.1546","4":"-0.85921","5":"0.64678","6":"1.1855","7":"coefficient"},{"1":"trav.impAussi","2":"1.1283","3":"0.5044","4":"0.23931","5":"0.41981","6":"3.0324","7":"coefficient"},{"1":"trav.impMoins","2":"1.0541","3":"0.4896","4":"0.10759","5":"0.40378","6":"2.7517","7":"coefficient"},{"1":"trav.impPeu","2":"0.2165","3":"0.7216","4":"-2.12092","5":"0.05262","6":"0.8904","7":"coefficient"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Une alternative est d’avoir recours, comme pour la régression multinomiale, aux poids de réplication et à la fonction <code data-pkg="svrepmisc">svyclm</code> implémentée dans l’extension <code class="pkg">svrepmisc</code>.</p>
-<div class="sourceCode" id="cb155"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb155-1" title="1">dwr &lt;-<span class="st"> </span><span class="kw">as.svrepdesign</span>(dw, <span class="dt">type =</span> <span class="st">&quot;bootstrap&quot;</span>, <span class="dt">replicates =</span> <span class="dv">100</span>)</a>
-<a class="sourceLine" id="cb155-2" title="2"><span class="kw">library</span>(svrepmisc)</a>
-<a class="sourceLine" id="cb155-3" title="3">rego_alt &lt;-<span class="st"> </span><span class="kw">svyclm</span>(trav.satisf <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>trav.imp, <span class="dt">design =</span> dwr)</a></code></pre></div>
+<div class="sourceCode" id="cb155"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb155-1"><a href="#cb155-1"></a>dwr &lt;-<span class="st"> </span><span class="kw">as.svrepdesign</span>(dw, <span class="dt">type =</span> <span class="st">&quot;bootstrap&quot;</span>, <span class="dt">replicates =</span> <span class="dv">100</span>)</span>
+<span id="cb155-2"><a href="#cb155-2"></a><span class="kw">library</span>(svrepmisc)</span>
+<span id="cb155-3"><a href="#cb155-3"></a>rego_alt &lt;-<span class="st"> </span><span class="kw">svyclm</span>(trav.satisf <span class="op">~</span><span class="st"> </span>sexe <span class="op">+</span><span class="st"> </span>etud <span class="op">+</span><span class="st"> </span>trav.imp, <span class="dt">design =</span> dwr)</span></code></pre></div>
 <pre><code>Warning: (-1) Model failed to converge with max|grad| = 2.0592e-05 (tol = 1e-06) 
 In addition: step factor reduced below minimum</code></pre>
-<div class="sourceCode" id="cb157"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb157-1" title="1">rego_alt</a></code></pre></div>
+<div class="sourceCode" id="cb157"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb157-1"><a href="#cb157-1"></a>rego_alt</span></code></pre></div>
 <pre><code>                            Coefficient        SE t value
 Insatisfaction|Equilibre      -2.039175  0.580317   -3.51
 Equilibre|Satisfaction         0.272718  0.559753    0.49
@@ -5754,7 +5756,7 @@ trav.impPeu                  0.04617 *
 ---
 Signif. codes:  
 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<div class="sourceCode" id="cb159"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb159-1" title="1"><span class="kw">confint</span>(rego_alt)</a></code></pre></div>
+<div class="sourceCode" id="cb159"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb159-1"><a href="#cb159-1"></a><span class="kw">confint</span>(rego_alt)</span></code></pre></div>
 <pre><code>                              2.5 %   97.5 %
 Insatisfaction|Equilibre    -3.1921 -0.88627
 Equilibre|Satisfaction      -0.8393  1.38477
@@ -5766,7 +5768,7 @@ etudmanquant                -1.4732  0.53428
 trav.impAussi               -0.9258  1.16725
 trav.impMoins               -0.9691  1.07445
 trav.impPeu                 -3.0342 -0.02659</code></pre>
-<div class="sourceCode" id="cb161"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb161-1" title="1"><span class="kw">tidy</span>(rego_alt, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb161"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb161-1"><a href="#cb161-1"></a><span class="kw">tidy</span>(rego_alt, <span class="dt">exponentiate =</span> <span class="ot">TRUE</span>, <span class="dt">conf.int =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["term"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["std.error"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"Equilibre|Satisfaction","2":"1.3135","3":"0.5598","4":"0.48721","5":"0.6272932","6":"0.43200","7":"3.9939"},{"1":"etudmanquant","2":"0.6253","3":"0.5052","4":"-0.92919","5":"0.3552767","6":"0.22919","7":"1.7062"},{"1":"etudSecondaire","2":"0.9582","3":"0.2488","4":"-0.17168","5":"0.8640719","6":"0.58451","7":"1.5708"},{"1":"etudSupérieur","2":"1.9012","3":"0.2455","4":"2.61703","5":"0.0104038","6":"1.16737","7":"3.0963"},{"1":"etudTechnique/Professionnel","2":"1.0004","3":"0.2326","4":"0.00184","5":"0.9985358","6":"0.63019","7":"1.5882"},{"1":"Insatisfaction|Equilibre","2":"0.1301","3":"0.5803","4":"-3.51390","5":"0.0006932","6":"0.04109","7":"0.4122"},{"1":"sexeHomme","2":"0.8756","3":"0.1564","4":"-0.84914","5":"0.3980587","6":"0.64177","7":"1.1947"},{"1":"trav.impAussi","2":"1.1283","3":"0.5268","4":"0.22915","5":"0.8192730","6":"0.39620","7":"3.2131"},{"1":"trav.impMoins","2":"1.0541","3":"0.5143","4":"0.10241","5":"0.9186583","6":"0.37942","7":"2.9284"},{"1":"trav.impPeu","2":"0.2165","3":"0.7569","4":"-2.02181","5":"0.0461660","6":"0.04811","7":"0.9738"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -5777,14 +5779,14 @@ trav.impPeu                 -3.0342 -0.02659</code></pre>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>Il existe également une fonction <code data-pkg="base">add.NA</code> fournie avec <strong>R</strong>. Mais elle ne permet pas de choisir l’étiquette du nouveau niveau créé. Plus spécfiquement, cette étiquette est <code>NA</code> et non une valeur textuelle, ce qui peut créer des problèmes avec certaines fonctions.<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>Pour plus de détails, voir <a href="http://www.spc.univ-lyon1.fr/polycop/odds%20ratio.htm" class="uri">http://www.spc.univ-lyon1.fr/polycop/odds%20ratio.htm</a>.<a href="#fnref2" class="footnote-back">↩</a></p></li>
-<li id="fn3"><p>Cette extension est livrée avec de nombreuses vignettes dont une <a href="https://cran.r-project.org/web/packages/ggeffects/vignettes/marginaleffects.html">vignette d’introduction</a> présentant le fonctionnement des différentes fonctions.<a href="#fnref3" class="footnote-back">↩</a></p></li>
-<li id="fn4"><p>Il existe également des méthodes de <em>sélection ascendante pas à pas</em>, mais nous les aborderons pas ici.<a href="#fnref4" class="footnote-back">↩</a></p></li>
-<li id="fn5"><p>Une alternative est d’avoir recours à l’extension <code class="pkg">mlogit</code> que nous n’aborderons pas ici. Voir <a href="http://www.ats.ucla.edu/stat/r/dae/mlogit.htm" class="uri">http://www.ats.ucla.edu/stat/r/dae/mlogit.htm</a> (en anglais) pour plus de détails.<a href="#fnref5" class="footnote-back">↩</a></p></li>
-<li id="fn6"><p>Voir le chapitre dédié aux <a href="donnees-ponderees.html#survey">données pondérées</a>.<a href="#fnref6" class="footnote-back">↩</a></p></li>
-<li id="fn7"><p>Compatibilité qui pourra éventuellement être introduite dans une future version de l’extension.<a href="#fnref7" class="footnote-back">↩</a></p></li>
-<li id="fn8"><p><code>devtools::install_github("larmarange/JLutils")</code> pour l’installer<a href="#fnref8" class="footnote-back">↩</a></p></li>
+<li id="fn1"><p>Il existe également une fonction <code data-pkg="base">add.NA</code> fournie avec <strong>R</strong>. Mais elle ne permet pas de choisir l’étiquette du nouveau niveau créé. Plus spécfiquement, cette étiquette est <code>NA</code> et non une valeur textuelle, ce qui peut créer des problèmes avec certaines fonctions.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Pour plus de détails, voir <a href="http://www.spc.univ-lyon1.fr/polycop/odds%20ratio.htm" class="uri">http://www.spc.univ-lyon1.fr/polycop/odds%20ratio.htm</a>.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>Cette extension est livrée avec de nombreuses vignettes dont une <a href="https://cran.r-project.org/web/packages/ggeffects/vignettes/marginaleffects.html">vignette d’introduction</a> présentant le fonctionnement des différentes fonctions.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>Il existe également des méthodes de <em>sélection ascendante pas à pas</em>, mais nous les aborderons pas ici.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p>Une alternative est d’avoir recours à l’extension <code class="pkg">mlogit</code> que nous n’aborderons pas ici. Voir <a href="http://www.ats.ucla.edu/stat/r/dae/mlogit.htm" class="uri">http://www.ats.ucla.edu/stat/r/dae/mlogit.htm</a> (en anglais) pour plus de détails.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
+<li id="fn6"><p>Voir le chapitre dédié aux <a href="donnees-ponderees.html#survey">données pondérées</a>.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
+<li id="fn7"><p>Compatibilité qui pourra éventuellement être introduite dans une future version de l’extension.<a href="#fnref7" class="footnote-back">↩︎</a></p></li>
+<li id="fn8"><p><code>devtools::install_github("larmarange/JLutils")</code> pour l’installer<a href="#fnref8" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 

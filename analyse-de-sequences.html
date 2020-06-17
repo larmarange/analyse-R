@@ -61,9 +61,9 @@
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -73,14 +73,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -89,9 +91,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -495,23 +497,23 @@ summary {
 <h2>Charger TraMineR et récupérer les données</h2>
 <p>Tout d’abord, à quoi ressemblent nos données ? On a reconstruit à partir de l’enquête les carrières de 1000 hommes. Pour chacune, on connaît la position professionnelle chaque année, de l’âge de 14 ans jusqu’à 50 ans. Cette position est codée de la manière suivante : les codes 1 à 6 correspondent aux groupes socioprofessionnels de la nomenclature des PCS de l’INSEE 13 (agriculteurs exploitants ; artisans, commerçants et chefs d’entreprise ; cadres et professions intellectuelles supérieures ; professions intermédiaires ; employés ; ouvriers) ; on y a ajouté « études » (code 7), « inactivité » (code 8) et « service militaire » (code 9). Le fichier de données comporte une ligne par individu et une colonne par année : la variable <em>csp1</em> correspond à la position à 14 ans, la variable <em>csp2</em> à la position à 15 ans, etc. Par ailleurs, les enquêtés étant tous nés entre 1930 et 1950, on ajoute à notre base une variable « génération » à trois modalités, prenant les valeurs suivantes : 1=“1930-1938” ; 2=“1939-1945” ; 3=“1946-1950”. Au final, la base est constituée de 500 lignes et de 37 + 1 = 38 colonnes et se présente sous la forme d’un fichier texte au format <strong>csv</strong> (téléchargeable à <a href="http://larmarange.github.io/analyse-R/data/trajpro.csv" class="uri">http://larmarange.github.io/analyse-R/data/trajpro.csv</a>).</p>
 <p>Une fois <strong>R</strong> ouvert, on commence par installer les extensions nécessaires à ce programme (opération à ne réaliser que lors de leur première utilisation) et par les charger en mémoire. L’extension <code class="pkg">TraMineR</code> propose de nombreuses fonctions pour l’analyse de séquences. L’extension <code class="pkg">cluster</code> comprend un certain nombre de méthodes de classification automatique<a href="#fn13" class="footnote-ref" id="fnref13"><sup>13</sup></a>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(TraMineR)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(TraMineR)</span></code></pre></div>
 <pre><code>
 TraMineR stable version 2.2-0 (Built: 2020-04-27)</code></pre>
 <pre><code>Website: http://traminer.unige.ch</code></pre>
 <pre><code>Please type &#39;citation(&quot;TraMineR&quot;)&#39; for citation information.</code></pre>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">library</span>(cluster)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">library</span>(cluster)</span></code></pre></div>
 <p>On importe ensuite les données, on recode la variable « génération » pour lui donner des étiquettes plus explicites. On jette également un coup d’oeil à la structure du tableau de données :</p>
 <pre><code>Parsed with column specification:
 cols(
   .default = col_double()
 )</code></pre>
 <pre><code>See spec(...) for full column specifications.</code></pre>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">donnees &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;http://larmarange.github.io/analyse-R/data/trajpro.csv&quot;</span>, </a>
-<a class="sourceLine" id="cb8-2" title="2">  <span class="dt">header =</span> T)</a></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">donnees<span class="op">$</span>generation &lt;-<span class="st"> </span><span class="kw">factor</span>(donnees<span class="op">$</span>generation, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;1930-38&quot;</span>, </a>
-<a class="sourceLine" id="cb9-2" title="2">  <span class="st">&quot;1939-45&quot;</span>, <span class="st">&quot;1946-50&quot;</span>))</a>
-<a class="sourceLine" id="cb9-3" title="3"><span class="kw">str</span>(donnees)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>donnees &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;http://larmarange.github.io/analyse-R/data/trajpro.csv&quot;</span>, </span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="dt">header =</span> T)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>donnees<span class="op">$</span>generation &lt;-<span class="st"> </span><span class="kw">factor</span>(donnees<span class="op">$</span>generation, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;1930-38&quot;</span>, </span>
+<span id="cb9-2"><a href="#cb9-2"></a>  <span class="st">&quot;1939-45&quot;</span>, <span class="st">&quot;1946-50&quot;</span>))</span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="kw">str</span>(donnees)</span></code></pre></div>
 <pre><code>tibble [1,000 x 38] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
  $ csp1      : num [1:1000] 1 7 6 7 7 6 7 7 7 6 ...
  $ csp2      : num [1:1000] 1 7 6 7 7 6 7 7 6 6 ...
@@ -593,9 +595,9 @@ cols(
   ..   generation = col_double()
   .. )</code></pre>
 <p>On a bien 1000 observations et 38 variables. On définit maintenant des <em>labels</em> pour les différents états qui composent les séquences et on crée un objet « séquence » avec <code data-pkg="TraMineR">seqdef</code> :</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">labels &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;agric&quot;</span>, <span class="st">&quot;acce&quot;</span>, <span class="st">&quot;cadr&quot;</span>, <span class="st">&quot;pint&quot;</span>, <span class="st">&quot;empl&quot;</span>, <span class="st">&quot;ouvr&quot;</span>, </a>
-<a class="sourceLine" id="cb11-2" title="2">  <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;inact&quot;</span>, <span class="st">&quot;smil&quot;</span>)</a>
-<a class="sourceLine" id="cb11-3" title="3">seq &lt;-<span class="st"> </span><span class="kw">seqdef</span>(donnees[, <span class="dv">1</span><span class="op">:</span><span class="dv">37</span>], <span class="dt">states =</span> labels)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>labels &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;agric&quot;</span>, <span class="st">&quot;acce&quot;</span>, <span class="st">&quot;cadr&quot;</span>, <span class="st">&quot;pint&quot;</span>, <span class="st">&quot;empl&quot;</span>, <span class="st">&quot;ouvr&quot;</span>, </span>
+<span id="cb11-2"><a href="#cb11-2"></a>  <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;inact&quot;</span>, <span class="st">&quot;smil&quot;</span>)</span>
+<span id="cb11-3"><a href="#cb11-3"></a>seq &lt;-<span class="st"> </span><span class="kw">seqdef</span>(donnees[, <span class="dv">1</span><span class="op">:</span><span class="dv">37</span>], <span class="dt">states =</span> labels)</span></code></pre></div>
 <pre><code> [&gt;] state coding:</code></pre>
 <pre><code>       [alphabet]  [label]  [long label] </code></pre>
 <pre><code>     1  1           agric    agric</code></pre>
@@ -613,10 +615,10 @@ cols(
 <div id="appariement-optimal-et-classification" class="section level2">
 <h2>Appariement optimal et classification</h2>
 <p>Ces étapes préalables achevées, on peut comparer les séquences en calculant les dissimilarités entre paires de séquences. On va ici utiliser la méthode la plus répandue, l’appariement optimal (<em>optimal matching</em>). Cette méthode consiste, pour chaque paire de séquences, à compter le nombre minimal de modifications (substitutions, suppressions, insertions) qu’il faut faire subir à l’une des séquences pour obtenir l’autre. On peut considérer que chaque modification est équivalente, mais il est aussi possible de prendre en compte le fait que les « distances » entre les différents états n’ont pas toutes la même « valeur » (par exemple, la distance sociale entre emploi à temps plein et chômage est plus grande qu’entre emploi à temps plein et emploi à temps partiel), en assignant aux différentes modifications des « coûts » distincts. Dans notre exemple, on va créer avec <code data-pkg="TraMineR">seqsubm</code> une « matrice des coûts de substitution » dans laquelle tous les coûts sont constants et égaux à 2<a href="#fn14" class="footnote-ref" id="fnref14"><sup>14</sup></a> :</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1">couts &lt;-<span class="st"> </span><span class="kw">seqsubm</span>(seq, <span class="dt">method =</span> <span class="st">&quot;CONSTANT&quot;</span>, <span class="dt">cval =</span> <span class="dv">2</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>couts &lt;-<span class="st"> </span><span class="kw">seqsubm</span>(seq, <span class="dt">method =</span> <span class="st">&quot;CONSTANT&quot;</span>, <span class="dt">cval =</span> <span class="dv">2</span>)</span></code></pre></div>
 <pre><code> [&gt;] creating 9x9 substitution-cost matrix using 2 as constant value</code></pre>
 <p>Ensuite, on calcule la <dfn>matrice de distances</dfn><dfn data-index="distance, matrice"></dfn> entre les séquences (i.e contenant les « dissimilarités » entre les séquences) avec <code data-pkg="TraMineR">seqdist</code>, avec un coût d’insertion/suppression (<em>indel</em>) que l’on fixe ici à 1 :</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1">seq.om &lt;-<span class="st"> </span><span class="kw">seqdist</span>(seq, <span class="dt">method =</span> <span class="st">&quot;OM&quot;</span>, <span class="dt">indel =</span> <span class="dv">1</span>, <span class="dt">sm =</span> couts)</a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>seq.om &lt;-<span class="st"> </span><span class="kw">seqdist</span>(seq, <span class="dt">method =</span> <span class="st">&quot;OM&quot;</span>, <span class="dt">indel =</span> <span class="dv">1</span>, <span class="dt">sm =</span> couts)</span></code></pre></div>
 <pre><code> [&gt;] 1000 sequences with 9 distinct states</code></pre>
 <pre><code> [&gt;] checking &#39;sm&#39; (size and triangle inequality)</code></pre>
 <pre><code> [&gt;] 818 distinct  sequences </code></pre>
@@ -625,7 +627,7 @@ cols(
 <pre><code> [&gt;] elapsed time: 1.6 secs</code></pre>
 <div class="important">
 <p>Ce cas de figure où tous les coûts de substitution sont égaux à 2 et le coût <em>indel</em> égal à 1 correspond à un cas particulier d’<em>optimal matching</em> que l’on appelle la <dfn lang="en">Longuest Common Subsequence</dfn> ou <dfn>LCS</dfn>. Elle peut se calculer directement avec <code>seqdist</code> de la manière suivante :</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1">seq.om &lt;-<span class="st"> </span><span class="kw">seqdist</span>(seq, <span class="dt">method =</span> <span class="st">&quot;LCS&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>seq.om &lt;-<span class="st"> </span><span class="kw">seqdist</span>(seq, <span class="dt">method =</span> <span class="st">&quot;LCS&quot;</span>)</span></code></pre></div>
 <pre><code> [&gt;] 1000 sequences with 9 distinct states</code></pre>
 <pre><code> [&gt;] creating a &#39;sm&#39; with a substitution cost of 2</code></pre>
 <pre><code> [&gt;] creating 9x9 substitution-cost matrix using 2 as constant value</code></pre>
@@ -637,10 +639,10 @@ cols(
 <p>On pourra trouver un exemple de matrice de coûts hiérarchisée dans le chapitre sur les <a href="trajectoires-de-soins.html">trajectoires de soins</a>.</p>
 </div>
 <p>Cette matrice des distances ou des dissimilarités entre séquences peut ensuite être utilisée pour une <dfn>classification ascendante hiérarchique</dfn> (<dfn>CAH</dfn>), qui permet de regrouper les séquences en un certain nombre de « classes » en fonction de leur proximité :</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" title="1">seq.dist &lt;-<span class="st"> </span><span class="kw">hclust</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">method =</span> <span class="st">&quot;ward.D2&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>seq.dist &lt;-<span class="st"> </span><span class="kw">hclust</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">method =</span> <span class="st">&quot;ward.D2&quot;</span>)</span></code></pre></div>
 <p>Avec la fonction <code data-pkg="stats" data-rdoc="dendrogram">plot</code>, il est possible de tracer l’arbre de la classification (<dfn>dendrogramme</dfn>).</p>
 <figure>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1"><span class="kw">plot</span>(<span class="kw">as.dendrogram</span>(seq.dist), <span class="dt">leaflab =</span> <span class="st">&quot;none&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a><span class="kw">plot</span>(<span class="kw">as.dendrogram</span>(seq.dist), <span class="dt">leaflab =</span> <span class="st">&quot;none&quot;</span>)</span></code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-10-1.png" width="1050" />
 <figcaption>
 Dendrogramme de la classification des séquences
@@ -648,8 +650,8 @@ Dendrogramme de la classification des séquences
 </figure>
 <p>De même, on peut représenter les <dfn data-index="saut d'inertie">sauts d’inertie</dfn><dfn data-index="inertie, saut"></dfn>.</p>
 <figure>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" title="1"><span class="kw">plot</span>(<span class="kw">sort</span>(seq.dist<span class="op">$</span>height, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)[<span class="dv">1</span><span class="op">:</span><span class="dv">20</span>], <span class="dt">type =</span> <span class="st">&quot;s&quot;</span>, </a>
-<a class="sourceLine" id="cb44-2" title="2">  <span class="dt">xlab =</span> <span class="st">&quot;nb de classes&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;inertie&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="kw">plot</span>(<span class="kw">sort</span>(seq.dist<span class="op">$</span>height, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)[<span class="dv">1</span><span class="op">:</span><span class="dv">20</span>], <span class="dt">type =</span> <span class="st">&quot;s&quot;</span>, </span>
+<span id="cb44-2"><a href="#cb44-2"></a>  <span class="dt">xlab =</span> <span class="st">&quot;nb de classes&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;inertie&quot;</span>)</span></code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-11-1.png" width="1050" />
 <figcaption>
 Sauts d’inertie de la classification des séquences
@@ -657,16 +659,16 @@ Sauts d’inertie de la classification des séquences
 </figure>
 <p>L’observation, sur ce dendogramme ou sur la courbe des sauts d’inertie, des sauts d’inertie des dernières étapes de la classification peut servir de guide pour déterminer le nombre de classes que l’on va retenir pour la suite des analyses. Une première inflexion dans la courbe des sauts d’inertie apparaît au niveau d’une partition en 5 classes. On voit aussi une seconde inflexion assez nette à 7 classes. Mais il faut garder en tête le fait que ces outils ne sont que des guides, le choix devant avant tout se faire après différents essais, en fonction de l’intérêt des résultats par rapport à la question de recherche et en arbitrant entre exhaustivité et parcimonie.</p>
 <p>On fait ici le choix d’une <dfn>partition</dfn> en 5 classes :</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1">nbcl &lt;-<span class="st"> </span><span class="dv">5</span></a>
-<a class="sourceLine" id="cb45-2" title="2">seq.part &lt;-<span class="st"> </span><span class="kw">cutree</span>(seq.dist, nbcl)</a>
-<a class="sourceLine" id="cb45-3" title="3">seq.part &lt;-<span class="st"> </span><span class="kw">factor</span>(seq.part, <span class="dt">labels =</span> <span class="kw">paste</span>(<span class="st">&quot;classe&quot;</span>, <span class="dv">1</span><span class="op">:</span>nbcl, </a>
-<a class="sourceLine" id="cb45-4" title="4">  <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a>nbcl &lt;-<span class="st"> </span><span class="dv">5</span></span>
+<span id="cb45-2"><a href="#cb45-2"></a>seq.part &lt;-<span class="st"> </span><span class="kw">cutree</span>(seq.dist, nbcl)</span>
+<span id="cb45-3"><a href="#cb45-3"></a>seq.part &lt;-<span class="st"> </span><span class="kw">factor</span>(seq.part, <span class="dt">labels =</span> <span class="kw">paste</span>(<span class="st">&quot;classe&quot;</span>, <span class="dv">1</span><span class="op">:</span>nbcl, </span>
+<span id="cb45-4"><a href="#cb45-4"></a>  <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>))</span></code></pre></div>
 </div>
 <div id="représentations-graphiques" class="section level2">
 <h2>Représentations graphiques</h2>
 <p>Pour se faire une première idée de la nature des classes de la typologie, il existe un certain nombre de représentations graphiques. Les chronogrammes (<em>state distribution plots</em>) présentent une série de coupes transversales : pour chaque âge, on a les proportions d’individus de la classe dans les différentes situations (agriculteur, étudiant, etc.). Ce graphique s’obtient avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqdplot</code> :</p>
 <figure>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" title="1"><span class="kw">seqdplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">border =</span> <span class="ot">NA</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a><span class="kw">seqdplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">border =</span> <span class="ot">NA</span>)</span></code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-13-1.png" width="1050" />
 <figcaption>
 Chronogrammes
@@ -675,8 +677,8 @@ Chronogrammes
 <p>Chacune des classes semble caractérisée par un groupe professionnel principal : profession intermédiaire pour la classe 1, ouvrier pour la 2, employé pour la 3, cadre pour la 4 et indépendant pour la 5. Cependant, on aperçoit aussi des « couches » d’autres couleurs, indiquant que l’ensemble des carrières ne sont probablement pas stables.</p>
 <p>Les « <dfn dataindex="tapis des séquences">tapis</dfn><dfn data-index="séquence, tapis"></dfn> » (<dfn lang="en">index plots</dfn>), obtenus avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqIplot</code>, permettent de mieux visualiser la dimension individuelle des séquences. Chaque segment horizontal représente une séquence, découpée en sous-segments correspondant aux aux différents états successifs qui composent la séquence.</p>
 <figure>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1"><span class="kw">seqIplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">space =</span> <span class="dv">0</span>, <span class="dt">border =</span> <span class="ot">NA</span>, </a>
-<a class="sourceLine" id="cb47-2" title="2">  <span class="dt">yaxis =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a><span class="kw">seqIplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">space =</span> <span class="dv">0</span>, <span class="dt">border =</span> <span class="ot">NA</span>, </span>
+<span id="cb47-2"><a href="#cb47-2"></a>  <span class="dt">yaxis =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-14-1.png" width="1050" />
 <figcaption>
 Tapis des séquences triés
@@ -684,9 +686,9 @@ Tapis des séquences triés
 </figure>
 <p>Il est possible de trier les séquences pour rendre les tapis plus lisibles (on trie ici par <dfn lang="en">multidimensional scaling</dfn> à l’aide de la fonction <code data-pkg="stats">cmdscale</code>).</p>
 <figure>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" title="1">ordre &lt;-<span class="st"> </span><span class="kw">cmdscale</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">k =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb48-2" title="2"><span class="kw">seqIplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">sortv =</span> ordre, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, </a>
-<a class="sourceLine" id="cb48-3" title="3">  <span class="dt">space =</span> <span class="dv">0</span>, <span class="dt">border =</span> <span class="ot">NA</span>, <span class="dt">yaxis =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a>ordre &lt;-<span class="st"> </span><span class="kw">cmdscale</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">k =</span> <span class="dv">1</span>)</span>
+<span id="cb48-2"><a href="#cb48-2"></a><span class="kw">seqIplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">sortv =</span> ordre, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, </span>
+<span id="cb48-3"><a href="#cb48-3"></a>  <span class="dt">space =</span> <span class="dv">0</span>, <span class="dt">border =</span> <span class="ot">NA</span>, <span class="dt">yaxis =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-15-1.png" width="1050" />
 <figcaption>
 Tapis des séquences triés par multidimensional scaling
@@ -695,15 +697,15 @@ Tapis des séquences triés par multidimensional scaling
 <p>On voit mieux apparaître ainsi l’hétérogénéité de certaines classes. Les classes 1, 3 et 4, par exemple, semblent regrouper des carrières relativement stables (respectivement de professions intermédiaires, d’employés et de cadres) et des carrières plus « mobiles » commencées comme ouvrier (classes 1 et 3, en orange) ou comme profession intermédiaire (classe 4, en rouge). De même, la majorité des membres de la dernière classe commencent leur carrière dans un groupe professionnel distinct de celui qu’ils occuperont par la suite (indépendants). Ces distinctions apparaissent d’ailleurs si on relance le programme avec un nombre plus élevé de classes (en remplaçant le 5 de la ligne <code>nbcl &lt;- 5</code> par 7, seconde inflexion de la courbe des sauts d’inertie, et en exécutant de nouveau le programme à partir de cette ligne) : les stables et les mobiles se trouvent alors dans des classes distinctes.</p>
 <p>Le package <code class="pkg">JLutils</code>, disponible sur <a href="https://github.com/larmarange/JLutils"><strong>GitHub</strong></a>, propose une fonction <code data-pkg="JLutils">seq_heatmap</code> permettant de représenter le tapis de l’ensemble des séquences selon l’ordre du dendrogramme.</p>
 <p>Pour installer <code class="pkg">JLutils</code>, on aura recours au package <code class="pkg">devtools</code> et à sa fonction <code data-pkg="devtools">install_github</code> :</p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" title="1"><span class="kw">library</span>(devtools)</a>
-<a class="sourceLine" id="cb49-2" title="2"><span class="kw">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a><span class="kw">library</span>(devtools)</span>
+<span id="cb49-2"><a href="#cb49-2"></a><span class="kw">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</span></code></pre></div>
 <p>On peut ensuite générer le graphique ainsi :</p>
 <figure>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" title="1"><span class="kw">library</span>(JLutils)</a></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a><span class="kw">library</span>(JLutils)</span></code></pre></div>
 <pre><code>Loading required package: ggplot2</code></pre>
 <pre><code>Loading required package: plyr</code></pre>
 <pre><code>Loading required package: magrittr</code></pre>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" title="1"><span class="kw">seq_heatmap</span>(seq, seq.dist, <span class="dt">labCol =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a><span class="kw">seq_heatmap</span>(seq, seq.dist, <span class="dt">labCol =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>)</span></code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-17-1.png" width="1050" />
 <figcaption>
 Tapis des séquences trié selon le dendrogramme
@@ -712,39 +714,39 @@ Tapis des séquences trié selon le dendrogramme
 <div class="note">
 <p>Il est possible de reproduire un tapis de séquence avec <code class="pkg">ggplot2</code>. Outre le fait que cela fournit plus d’options de personnalisation du graphique, cela permets également à ce que la hauteur de chaque classe sur le graphique soit proportionnelle aux nombre d’invidus.</p>
 <p>En premier lieu, on a va ajouter à notre fichier de données des identifiants individuels, la typologie crée et l’ordre obtenu par <em>multidimensional scaling</em>.</p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" title="1">donnees<span class="op">$</span>id &lt;-<span class="st"> </span><span class="kw">row.names</span>(donnees)</a>
-<a class="sourceLine" id="cb55-2" title="2">donnees<span class="op">$</span>classe &lt;-<span class="st"> </span>seq.part</a>
-<a class="sourceLine" id="cb55-3" title="3">donnees<span class="op">$</span>ordre &lt;-<span class="st"> </span><span class="kw">rank</span>(ordre, <span class="dt">ties.method =</span> <span class="st">&quot;random&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a>donnees<span class="op">$</span>id &lt;-<span class="st"> </span><span class="kw">row.names</span>(donnees)</span>
+<span id="cb55-2"><a href="#cb55-2"></a>donnees<span class="op">$</span>classe &lt;-<span class="st"> </span>seq.part</span>
+<span id="cb55-3"><a href="#cb55-3"></a>donnees<span class="op">$</span>ordre &lt;-<span class="st"> </span><span class="kw">rank</span>(ordre, <span class="dt">ties.method =</span> <span class="st">&quot;random&quot;</span>)</span></code></pre></div>
 <p>Ensuite, il est impératif que nos données soient dans un format long et <em>tidy</em>, c’est-à-dire avec une ligne par individu et par pas de temps. Pour cela on aura recours à la fonction <code data-pkg="tidyr">gather</code> (voir le <a href="reorganiser-ses-donnees-avec-tidyr.html">chapitre dédié</a>).</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" title="1"><span class="kw">library</span>(tidyr)</a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a><span class="kw">library</span>(tidyr)</span></code></pre></div>
 <pre><code>
 Attaching package: &#39;tidyr&#39;</code></pre>
 <pre><code>The following object is masked from &#39;package:magrittr&#39;:
 
     extract</code></pre>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" title="1">long &lt;-<span class="st"> </span>donnees <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">gather</span>(csp1<span class="op">:</span>csp37, <span class="dt">key =</span> annee, <span class="dt">value =</span> csp)</a></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a>long &lt;-<span class="st"> </span>donnees <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">gather</span>(csp1<span class="op">:</span>csp37, <span class="dt">key =</span> annee, <span class="dt">value =</span> csp)</span></code></pre></div>
 <p>On va mettre en forme la variable <code>csp</code> sous forme de facteur, récupérer l’année grace à la fonction <code data-pkg="stringr">str_sub</code> de l’extension <code class="pkg">stringr</code> (voir le chapitre sur la <a href="manipuler-du-texte.html#extraire-des-sous-chaines-par-position">manipulation de texte</a>) et recalculer l’âge.</p>
-<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb60-1" title="1">long<span class="op">$</span>csp &lt;-<span class="st"> </span><span class="kw">factor</span>(long<span class="op">$</span>csp, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;agriculteur&quot;</span>, <span class="st">&quot;art./com./chefs&quot;</span>, </a>
-<a class="sourceLine" id="cb60-2" title="2">  <span class="st">&quot;cadres&quot;</span>, <span class="st">&quot;prof. int.&quot;</span>, <span class="st">&quot;employés&quot;</span>, <span class="st">&quot;ouvriers&quot;</span>, <span class="st">&quot;étudiants&quot;</span>, </a>
-<a class="sourceLine" id="cb60-3" title="3">  <span class="st">&quot;inactifs&quot;</span>, <span class="st">&quot;serv. militaire&quot;</span>))</a>
-<a class="sourceLine" id="cb60-4" title="4"><span class="kw">library</span>(stringr)</a>
-<a class="sourceLine" id="cb60-5" title="5">long<span class="op">$</span>annee &lt;-<span class="st"> </span><span class="kw">as.integer</span>(<span class="kw">str_sub</span>(long<span class="op">$</span>annee, <span class="dv">4</span>))</a>
-<a class="sourceLine" id="cb60-6" title="6">long<span class="op">$</span>age &lt;-<span class="st"> </span>long<span class="op">$</span>annee <span class="op">+</span><span class="st"> </span><span class="dv">13</span></a></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a>long<span class="op">$</span>csp &lt;-<span class="st"> </span><span class="kw">factor</span>(long<span class="op">$</span>csp, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;agriculteur&quot;</span>, <span class="st">&quot;art./com./chefs&quot;</span>, </span>
+<span id="cb60-2"><a href="#cb60-2"></a>  <span class="st">&quot;cadres&quot;</span>, <span class="st">&quot;prof. int.&quot;</span>, <span class="st">&quot;employés&quot;</span>, <span class="st">&quot;ouvriers&quot;</span>, <span class="st">&quot;étudiants&quot;</span>, </span>
+<span id="cb60-3"><a href="#cb60-3"></a>  <span class="st">&quot;inactifs&quot;</span>, <span class="st">&quot;serv. militaire&quot;</span>))</span>
+<span id="cb60-4"><a href="#cb60-4"></a><span class="kw">library</span>(stringr)</span>
+<span id="cb60-5"><a href="#cb60-5"></a>long<span class="op">$</span>annee &lt;-<span class="st"> </span><span class="kw">as.integer</span>(<span class="kw">str_sub</span>(long<span class="op">$</span>annee, <span class="dv">4</span>))</span>
+<span id="cb60-6"><a href="#cb60-6"></a>long<span class="op">$</span>age &lt;-<span class="st"> </span>long<span class="op">$</span>annee <span class="op">+</span><span class="st"> </span><span class="dv">13</span></span></code></pre></div>
 <p>Il n’y a plus qu’à faire notre graphique grace à <code data-pkg="ggplot2">geom_raster</code> qui permet de colorier chaque pixel. Techniquement, pour un tapis de séquence, il s’agit de représenter le temps sur l’axe horizontal et les individus sur l’axe vertical. Petite astuce : plutôt que d’utiliser <code>id</code> pour l’axe vertical, nous utilisons <code>ordre</code> afin de trier les observations. Par ailleurs, il est impératif de transformer au passage <code>ordre</code> en facteur afin que <code class="pkg">ggplot2</code> puisse recalculer proprement et séparément les axes pour chaque facette<a href="#fn15" class="footnote-ref" id="fnref15"><sup>15</sup></a>, à condition de ne pas oublier l’option <code>scales = "free_y"</code> dans l’appel à <code data-pkg="ggplot2">facet_grid</code>. Les autres commandes ont surtout pour vocation d’améliorer le rendu du graphique (voir le <a href="ggplot2.html">chapitre dédié à ggplot2</a>).</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" title="1"><span class="kw">library</span>(ggplot2)</a>
-<a class="sourceLine" id="cb61-2" title="2"><span class="kw">ggplot</span>(long) <span class="op">+</span><span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> age, <span class="dt">y =</span> <span class="kw">factor</span>(ordre), <span class="dt">fill =</span> csp) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb61-3" title="3"><span class="st">  </span><span class="kw">geom_raster</span>() <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_discrete</span>(<span class="dt">label =</span> <span class="ot">NULL</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb61-4" title="4"><span class="st">  </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;bottom&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_fill_brewer</span>(<span class="dt">palette =</span> <span class="st">&quot;Set3&quot;</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb61-5" title="5"><span class="st">  </span><span class="kw">facet_grid</span>(classe <span class="op">~</span><span class="st"> </span>., <span class="dt">scales =</span> <span class="st">&quot;free_y&quot;</span>, <span class="dt">space =</span> <span class="st">&quot;free_y&quot;</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb61-6" title="6"><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">14</span>, <span class="dv">50</span>), <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">14</span>, <span class="dv">20</span>, </a>
-<a class="sourceLine" id="cb61-7" title="7">    <span class="dv">25</span>, <span class="dv">30</span>, <span class="dv">35</span>, <span class="dv">40</span>, <span class="dv">45</span>, <span class="dv">50</span>), <span class="dt">expand =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb61-2"><a href="#cb61-2"></a><span class="kw">ggplot</span>(long) <span class="op">+</span><span class="st"> </span><span class="kw">aes</span>(<span class="dt">x =</span> age, <span class="dt">y =</span> <span class="kw">factor</span>(ordre), <span class="dt">fill =</span> csp) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb61-3"><a href="#cb61-3"></a><span class="st">  </span><span class="kw">geom_raster</span>() <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_discrete</span>(<span class="dt">label =</span> <span class="ot">NULL</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb61-4"><a href="#cb61-4"></a><span class="st">  </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;bottom&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_fill_brewer</span>(<span class="dt">palette =</span> <span class="st">&quot;Set3&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb61-5"><a href="#cb61-5"></a><span class="st">  </span><span class="kw">facet_grid</span>(classe <span class="op">~</span><span class="st"> </span>., <span class="dt">scales =</span> <span class="st">&quot;free_y&quot;</span>, <span class="dt">space =</span> <span class="st">&quot;free_y&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb61-6"><a href="#cb61-6"></a><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">14</span>, <span class="dv">50</span>), <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">14</span>, <span class="dv">20</span>, </span>
+<span id="cb61-7"><a href="#cb61-7"></a>    <span class="dv">25</span>, <span class="dv">30</span>, <span class="dv">35</span>, <span class="dv">40</span>, <span class="dv">45</span>, <span class="dv">50</span>), <span class="dt">expand =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>))</span></code></pre></div>
 <pre><code>Warning: Removed 2000 rows containing missing values
 (geom_raster).</code></pre>
 <p><img src="graphs/analyse-de-sequences/unnamed-chunk-21-1.png" width="1050" /></p>
 </div>
 <p>La distance des séquences d’une classe au centre de cette classe, obtenue avec <code data-pkg="TraMineR">disscenter</code>, permet de mesurer plus précisément l’<dfn>homogénéité des classes</dfn><dfn data-index="classe, homogénéité"></dfn>. Nous utilisons ici <code data-pkg="stats">aggregate</code> pour calculer la moyenne par classe :</p>
-<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb63-1" title="1"><span class="kw">aggregate</span>(<span class="kw">disscenter</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">group =</span> seq.part), <span class="kw">list</span>(seq.part), </a>
-<a class="sourceLine" id="cb63-2" title="2">  mean)</a></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a><span class="kw">aggregate</span>(<span class="kw">disscenter</span>(<span class="kw">as.dist</span>(seq.om), <span class="dt">group =</span> seq.part), <span class="kw">list</span>(seq.part), </span>
+<span id="cb63-2"><a href="#cb63-2"></a>  mean)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["Group.1"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["x"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"classe.1","2":"15.797993"},{"1":"classe.2","2":"6.791962"},{"1":"classe.3","2":"15.032359"},{"1":"classe.4","2":"7.352675"},{"1":"classe.5","2":"14.219915"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -753,7 +755,7 @@ Attaching package: &#39;tidyr&#39;</code></pre>
 <p>Cela nous confirme que les classes 1, 3 et 5 sont nettement plus hétérogènes que les autres, alors que la classe 2 est la plus homogène.</p>
 <p>D’autres représentations graphiques existent pour poursuivre l’examen de la typologie. On peut visualiser les 10 séquences les plus fréquentes de chaque classe avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqfplot</code>.</p>
 <figure>
-<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb64-1" title="1"><span class="kw">seqfplot</span>(seq, <span class="dt">group =</span> seq.part)</a></code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1"></a><span class="kw">seqfplot</span>(seq, <span class="dt">group =</span> seq.part)</span></code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-23-1.png" width="1050" />
 <figcaption>
 Séquences les plus fréquentes de chaque classe
@@ -761,7 +763,7 @@ Séquences les plus fréquentes de chaque classe
 </figure>
 <p>On peut aussi visualiser avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqmsplot</code> l’état modal (celui qui correspond au plus grand nombre de séquences de la classe) à chaque âge.</p>
 <figure>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" title="1"><span class="kw">seqmsplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">main =</span> <span class="st">&quot;classe&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a><span class="kw">seqmsplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>, <span class="dt">main =</span> <span class="st">&quot;classe&quot;</span>)</span></code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-24-1.png" width="1050" />
 <figcaption>
 Statut modal à chaque âge
@@ -769,7 +771,7 @@ Statut modal à chaque âge
 </figure>
 <p>On peut également représenter avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqmtplot</code> les durées moyennes passées dans les différents états.</p>
 <figure>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb66-1" title="1"><span class="kw">seqmtplot</span>(seq, <span class="dt">group =</span> seq.part)</a></code></pre></div>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a><span class="kw">seqmtplot</span>(seq, <span class="dt">group =</span> seq.part)</span></code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-25-1.png" width="1050" />
 <figcaption>
 Durée moyenne dans chaque statut
@@ -777,7 +779,7 @@ Durée moyenne dans chaque statut
 </figure>
 <p>La fonction <code data-pkg="TraMineR" data-rdoc="seqplot">seqrplot</code> cherche à identifier des séquences <q>représentatives</q> de chaque classe. Plusieurs méthodes sont proposées (voir <code data-pkg="TraMineR">seqrep</code>). La méthode <code>dist</code> cherche à identifier des séquences centrales à chaque classe, c’est-à-dire situées à proximité du centre de la classe. Selon l’hétérogénéité de la classe, plusieurs séquences <q>représentatives</q> peuvent être renvoyées. ATTENTION : il faut être prudent dans l’interprétation de ces séquences centrales de la classe dans la mesure où elles ne rendent pas toujours compte de ce qui se passe dans la classe et où elles peuvent induire en erreur quand la classe est assez hétérogène. Il faut donc les considérer tout en ayant en tête l’ensemble du tapis de séquence pour voir si elles sont effectivement de bonnes candidates.</p>
 <figure>
-<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" title="1"><span class="kw">seqrplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">dist.matrix =</span> seq.om, <span class="dt">criterion =</span> <span class="st">&quot;dist&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a><span class="kw">seqrplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">dist.matrix =</span> seq.om, <span class="dt">criterion =</span> <span class="st">&quot;dist&quot;</span>)</span></code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-26-1.png" width="1050" />
 <figcaption>
 Séquences <q>représentatives</q> de chaque classe
@@ -785,7 +787,7 @@ Séquences <q>représentatives</q> de chaque classe
 </figure>
 <p>Enfin, l’<dfn>entropie transversale</dfn><dfn data-index="transversale, entropie"></dfn> décrit l’évolution de l’homogénéité de la classe. Pour un âge donné, une entropie proche de 0 signifie que tous les individus de la classe (ou presque) sont dans la même situation. À l’inverse, l’entropie est de 1 si les individus sont dispersés dans toutes les situations. Ce type de graphique produit par <code data-pkg="TraMineR" data-rdoc="seqplot">seqHtplot</code> peut être pratique pour localiser les moments de transition, l’insertion professionnelle ou une mobilité sociale ascendante.</p>
 <figure>
-<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb68-1" title="1"><span class="kw">seqHtplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1"></a><span class="kw">seqHtplot</span>(seq, <span class="dt">group =</span> seq.part, <span class="dt">xtlab =</span> <span class="dv">14</span><span class="op">:</span><span class="dv">50</span>)</span></code></pre></div>
 <img src="graphs/analyse-de-sequences/unnamed-chunk-27-1.png" width="1050" />
 <figcaption>
 Entropie transversale
@@ -795,15 +797,15 @@ Entropie transversale
 <div id="distribution-de-la-typologie" class="section level2">
 <h2>Distribution de la typologie</h2>
 <p>On souhaite maintenant connaître la distribution de la typologie (en effectifs et en pourcentages) :</p>
-<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb69-1" title="1"><span class="kw">library</span>(questionr)</a>
-<a class="sourceLine" id="cb69-2" title="2"><span class="kw">freq</span>(seq.part)</a></code></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a><span class="kw">library</span>(questionr)</span>
+<span id="cb69-2"><a href="#cb69-2"></a><span class="kw">freq</span>(seq.part)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"366","2":"36.6","3":"36.6","_rn_":"classe.1"},{"1":"183","2":"18.3","3":"18.3","_rn_":"classe.2"},{"1":"104","2":"10.4","3":"10.4","_rn_":"classe.3"},{"1":"296","2":"29.6","3":"29.6","_rn_":"classe.4"},{"1":"51","2":"5.1","3":"5.1","_rn_":"classe.5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>On poursuit ensuite la description des classes en croisant la typologie avec la variable <em>generation</em> :</p>
-<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb70-1" title="1"><span class="kw">cprop</span>(<span class="kw">table</span>(seq.part, donnees<span class="op">$</span>generation))</a></code></pre></div>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1"></a><span class="kw">cprop</span>(<span class="kw">table</span>(seq.part, donnees<span class="op">$</span>generation))</span></code></pre></div>
 <pre><code>          
 seq.part   1930-38 1939-45 1946-50 Ensemble
   classe.1  35.6    32.5    40.8    36.6   
@@ -812,7 +814,7 @@ seq.part   1930-38 1939-45 1946-50 Ensemble
   classe.4  31.8    29.2    27.9    29.6   
   classe.5   6.5     6.1     3.0     5.1   
   Total    100.0   100.0   100.0   100.0   </code></pre>
-<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb72-1" title="1"><span class="kw">chisq.test</span>(<span class="kw">table</span>(seq.part, donnees<span class="op">$</span>generation))</a></code></pre></div>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1"></a><span class="kw">chisq.test</span>(<span class="kw">table</span>(seq.part, donnees<span class="op">$</span>generation))</span></code></pre></div>
 <pre><code>
     Pearson&#39;s Chi-squared test
 
@@ -851,22 +853,22 @@ X-squared = 18.518, df = 8, p-value = 0.01766</code></pre>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>Pour une analyse des conditions sociales de la diffusion de l’analyse de séquences dans le champ des sciences sociales, voir Robette, 2012.<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p><a href="http://home.uchicago.edu/~aabbott/" class="uri">http://home.uchicago.edu/~aabbott/</a><a href="#fnref2" class="footnote-back">↩</a></p></li>
-<li id="fn3"><p><a href="http://lemercier.ouvaton.org/document.php?id=62" class="uri">http://lemercier.ouvaton.org/document.php?id=62</a><a href="#fnref3" class="footnote-back">↩</a></p></li>
-<li id="fn4"><p><a href="http://laurent.lesnard.free.fr/article.php3?id_article=22" class="uri">http://laurent.lesnard.free.fr/article.php3?id_article=22</a><a href="#fnref4" class="footnote-back">↩</a></p></li>
-<li id="fn5"><p>Voir par exemple l’article d’Yvette Grelet (2002).<a href="#fnref5" class="footnote-back">↩</a></p></li>
-<li id="fn6"><p><a href="http://www.ceped.org/?rubrique57" class="uri">http://www.ceped.org/?rubrique57</a><a href="#fnref6" class="footnote-back">↩</a></p></li>
-<li id="fn7"><p><a href="http://nicolas.robette.free.fr/Docs/Robette2011_Manuel_TypoTraj.pdf" class="uri">http://nicolas.robette.free.fr/Docs/Robette2011_Manuel_TypoTraj.pdf</a><a href="#fnref7" class="footnote-back">↩</a></p></li>
-<li id="fn8"><p>Pour une analyse plus poussée de ces données, avec deux méthodes différentes, voir Robette &amp; Thibault, 2008. Pour une présentation de l’enquête, voir Lelièvre &amp; Vivier, 2001.<a href="#fnref8" class="footnote-back">↩</a></p></li>
-<li id="fn9"><p><a href="http://home.fsw.vu.nl/ch.elzinga/" class="uri">http://home.fsw.vu.nl/ch.elzinga/</a><a href="#fnref9" class="footnote-back">↩</a></p></li>
-<li id="fn10"><p><a href="http://steinhaus.stat.ruhr-uni-bochum.de/tda.html" class="uri">http://steinhaus.stat.ruhr-uni-bochum.de/tda.html</a><a href="#fnref10" class="footnote-back">↩</a></p></li>
-<li id="fn11"><p><a href="http://www.stata-journal.com/article.html?article=st0111" class="uri">http://www.stata-journal.com/article.html?article=st0111</a><a href="#fnref11" class="footnote-back">↩</a></p></li>
-<li id="fn12"><p><a href="http://mephisto.unige.ch/traminer/" class="uri">http://mephisto.unige.ch/traminer/</a><a href="#fnref12" class="footnote-back">↩</a></p></li>
-<li id="fn13"><p>Pour une présentation plus détaillée, voir le chapitre sur la <a href="classification-ascendante-hierarchique.html">classification ascendante hiérarchique (CAH)</a>.<a href="#fnref13" class="footnote-back">↩</a></p></li>
-<li id="fn14"><p>Le fonctionnement de l’algorithme d’appariement optimal — et notamment le choix des coûts — est décrit dans le chapitre 9 du manuel de <code class="pkg">TraMineR</code> (<a href="http://mephisto.unige.ch/pub/TraMineR/doc/TraMineR-Users-Guide.pdf" class="uri">http://mephisto.unige.ch/pub/TraMineR/doc/TraMineR-Users-Guide.pdf</a>).<a href="#fnref14" class="footnote-back">↩</a></p></li>
-<li id="fn15"><p>Essayez le même code mais avec <code>y = ordre</code> au lieu de <code>y = factor(ordre)</code> et vous comprendrez tout l’intérêt de cette astuce.<a href="#fnref15" class="footnote-back">↩</a></p></li>
-<li id="fn16"><p>L’articulation entre méthodes « descriptives » et méthodes « explicatives » est un prolongement possible de l’analyse de séquences. Cependant, l’analyse de séquences était envisagée par Abbott comme une alternative à la sociologie quantitative <em>mainstream</em>, i.e le « paradigme des variables » et ses hypothèses implicites souvent difficilement tenables (Abbott, 2001). Une bonne description solidement fondée théoriquement vaut bien des « modèles explicatifs » (Savage, 2009).<a href="#fnref16" class="footnote-back">↩</a></p></li>
+<li id="fn1"><p>Pour une analyse des conditions sociales de la diffusion de l’analyse de séquences dans le champ des sciences sociales, voir Robette, 2012.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p><a href="http://home.uchicago.edu/~aabbott/" class="uri">http://home.uchicago.edu/~aabbott/</a><a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p><a href="http://lemercier.ouvaton.org/document.php?id=62" class="uri">http://lemercier.ouvaton.org/document.php?id=62</a><a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p><a href="http://laurent.lesnard.free.fr/article.php3?id_article=22" class="uri">http://laurent.lesnard.free.fr/article.php3?id_article=22</a><a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p>Voir par exemple l’article d’Yvette Grelet (2002).<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
+<li id="fn6"><p><a href="http://www.ceped.org/?rubrique57" class="uri">http://www.ceped.org/?rubrique57</a><a href="#fnref6" class="footnote-back">↩︎</a></p></li>
+<li id="fn7"><p><a href="http://nicolas.robette.free.fr/Docs/Robette2011_Manuel_TypoTraj.pdf" class="uri">http://nicolas.robette.free.fr/Docs/Robette2011_Manuel_TypoTraj.pdf</a><a href="#fnref7" class="footnote-back">↩︎</a></p></li>
+<li id="fn8"><p>Pour une analyse plus poussée de ces données, avec deux méthodes différentes, voir Robette &amp; Thibault, 2008. Pour une présentation de l’enquête, voir Lelièvre &amp; Vivier, 2001.<a href="#fnref8" class="footnote-back">↩︎</a></p></li>
+<li id="fn9"><p><a href="http://home.fsw.vu.nl/ch.elzinga/" class="uri">http://home.fsw.vu.nl/ch.elzinga/</a><a href="#fnref9" class="footnote-back">↩︎</a></p></li>
+<li id="fn10"><p><a href="http://steinhaus.stat.ruhr-uni-bochum.de/tda.html" class="uri">http://steinhaus.stat.ruhr-uni-bochum.de/tda.html</a><a href="#fnref10" class="footnote-back">↩︎</a></p></li>
+<li id="fn11"><p><a href="http://www.stata-journal.com/article.html?article=st0111" class="uri">http://www.stata-journal.com/article.html?article=st0111</a><a href="#fnref11" class="footnote-back">↩︎</a></p></li>
+<li id="fn12"><p><a href="http://mephisto.unige.ch/traminer/" class="uri">http://mephisto.unige.ch/traminer/</a><a href="#fnref12" class="footnote-back">↩︎</a></p></li>
+<li id="fn13"><p>Pour une présentation plus détaillée, voir le chapitre sur la <a href="classification-ascendante-hierarchique.html">classification ascendante hiérarchique (CAH)</a>.<a href="#fnref13" class="footnote-back">↩︎</a></p></li>
+<li id="fn14"><p>Le fonctionnement de l’algorithme d’appariement optimal — et notamment le choix des coûts — est décrit dans le chapitre 9 du manuel de <code class="pkg">TraMineR</code> (<a href="http://mephisto.unige.ch/pub/TraMineR/doc/TraMineR-Users-Guide.pdf" class="uri">http://mephisto.unige.ch/pub/TraMineR/doc/TraMineR-Users-Guide.pdf</a>).<a href="#fnref14" class="footnote-back">↩︎</a></p></li>
+<li id="fn15"><p>Essayez le même code mais avec <code>y = ordre</code> au lieu de <code>y = factor(ordre)</code> et vous comprendrez tout l’intérêt de cette astuce.<a href="#fnref15" class="footnote-back">↩︎</a></p></li>
+<li id="fn16"><p>L’articulation entre méthodes « descriptives » et méthodes « explicatives » est un prolongement possible de l’analyse de séquences. Cependant, l’analyse de séquences était envisagée par Abbott comme une alternative à la sociologie quantitative <em>mainstream</em>, i.e le « paradigme des variables » et ses hypothèses implicites souvent difficilement tenables (Abbott, 2001). Une bonne description solidement fondée théoriquement vaut bien des « modèles explicatifs » (Savage, 2009).<a href="#fnref16" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 
