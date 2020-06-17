@@ -410,7 +410,7 @@ Par défaut, le résultat est représenté sous forme de contours. Pour obtenir 
 <figure>
 ```{r, warning=FALSE}
 ggplot(d) +
-  aes(x = age, y = heures.tv, fill = ..level..) +
+  aes(x = age, y = heures.tv, fill = after_stat(level)) +
   stat_density_2d(geom = "polygon") +
   xlab("Âge") +
   ylab("Heures quotidiennes de télévision") +
@@ -568,7 +568,7 @@ Il est facile d'ajouter des étiquettes en ayant recours à `geom_text`{data-pkg
 
 Tout d'abord, il faudra préciser `stat = "count"` pour indiquer que l'on souhaite utiliser la statistique `stat_count`{data-pkg="ggplot2" data-rdoc="geom_bar"} qui est celle utilisé par défaut par `geom_bar`{data-pkg="ggplot2"}. C'est elle qui permets de compter le nombre d'observation.
 
-Il faut ensuite utiliser l'esthétique `label` pour indiquer ce que l'on souhaite afficher comme étiquettes. `..count..` permets d'accéder à la variable calculée par `stat_count`{data-pkg="ggplot2" data-rdoc="geom_bar"}.
+Il faut ensuite utiliser l'esthétique `label` pour indiquer ce que l'on souhaite afficher comme étiquettes. `after_stat(count)` permets d'accéder à la variable calculée par `stat_count`{data-pkg="ggplot2" data-rdoc="geom_bar"}.
 
 Enfin, il faut indiquer la position verticale avec `position_stack`{data-pkg="ggplot2"}. En précisant un ajustement de vertical de `0.5`, on indique que l'on souhaite positionner l'étiquette au milieu.
 
@@ -576,7 +576,7 @@ Enfin, il faut indiquer la position verticale avec `position_stack`{data-pkg="gg
 ggplot(d) +
   aes(x = qualreg, fill = sport) +
   geom_bar() +
-  geom_text(aes(label = ..count..), stat = "count", position = position_stack(.5)) +
+  geom_text(aes(label = after_stat(count)), stat = "count", position = position_stack(.5)) +
   xlab("CSP") +
   ylab("Effectifs") +
   labs(fill = "Pratique du sport")
@@ -588,18 +588,18 @@ Pour un graphique en barre cumulées, on peut utiliser de manière similaire `po
 ggplot(d) +
   aes(x = qualreg, fill = sport) +
   geom_bar(position = "fill") +
-  geom_text(aes(label = ..count..), stat = "count", position = position_fill(.5)) +
+  geom_text(aes(label = after_stat(count)), stat = "count", position = position_fill(.5)) +
   xlab("CSP") +
   ylab("Proportion") +
   labs(fill = "Pratique du sport") +
   scale_y_continuous(labels = percent)
 ```
 
-On ne peut afficher directement les proportions avec `stat_count`{data-pkg="ggplot2"}. Cependant, l'extension `JLutils`{.pkg}^[Cette extension n'est disponible que sur [GitHub](https://github.com/larmarange/JLutils). On peut l'installer avec la commande suivante : `source("https://install-github.me/larmarange/JLutils")`] fournit une stat `stat_prop`{data-pkg="JLutils"} dont le dénominateur peut être personnalisé via l'esthétique `by` (attention : l'esthétique attendue doit impérativement être un facteur).
+On ne peut afficher directement les proportions avec `stat_count`{data-pkg="ggplot2"}. Cependant, l'extension `GGally`{.pkg} fournit une statistique `stat_prop`{data-pkg="GGally"} dont le dénominateur peut être personnalisé via l'esthétique `by` (attention : l'esthétique attendue doit impérativement être un facteur).
 
 ```{r, message=FALSE}
-library(JLutils)
-d$qualreg <- addNAstr(factor(d$qualreg))
+library(GGally)
+d$qualreg <- forcats::fct_explicit_na(factor(d$qualreg))
 ggplot(d) +
   aes(x = qualreg, fill = sport) +
   geom_bar(position = "fill") +
@@ -615,12 +615,12 @@ On peut aussi comparer facilement deux distributions, ici la proportion de chaqu
 ```{r}
 p <- ggplot(d) +
   aes(
-    x = qualreg, fill = sexe, by = sexe, y = ..prop..,
-    label = scales::percent(..prop.., accuracy = 1), 
+    x = qualreg, fill = sexe, by = sexe, y = after_stat(prop),
+    label = scales::percent(after_stat(prop), accuracy = 1), 
   ) +
   geom_bar(stat = "prop", position = position_dodge(.9)) +
   geom_text(
-    aes(y = ..prop.. - .005), stat = "prop", 
+    aes(y = after_stat(prop) - .005), stat = "prop", 
     position = position_dodge(.9), vjust = "top"
   ) +
   scale_y_continuous(labels = percent)
@@ -648,6 +648,39 @@ p +
 
 
 </div>
+
+## Comparer plusieurs variables discrètes et/ou continues
+
+L'extension `GGally`, déjà évoquée, fournit également deux fonctions utiles pour comparer plusieurs variables discrètes (et/ou continues) : `ggbivariate`{data-pkg="GGally"} et `ggtable`{data-pkg="GGally"}.
+
+`ggbivariate`{data-pkg="GGally"} produit des graphiques en barre pour deux variables discrètes et des boites à moustache lorsque l'on compare une variable discrète avec une variable continue.
+
+```{r}
+library(GGally)
+ggbivariate(data = d, outcome = "sport", explanatory = c("sexe", "cuisine", "nivetud", "age"))
+```
+
+`ggbivariate`{data-pkg="GGally"} quant à elle affiche un tableau croisé avec le nombre d'observations pour deux variables discrètes et les médianes avec l'intervalle interquartile pour une variable discrète croisée avec une variable continue.
+
+```{r}
+ggtable(data = d, columnsX = "sport", columnsY = c("sexe", "cuisine", "nivetud", "age"))
+```
+
+Il est possible de remplacer les effectifs par les pourcentages en ligne et de colorier les cellules en fonction des <dfn data-index="résidus, test du Chi²">résidus du Chi²</dfn><dfn data-index="test du Chi², résidus"></dfn><dfn data-index="Chi², résidus"> qui permettent de visualiser les cellules du tableau sur- ou sous-représentées.
+
+```{r}
+ggtable(
+  data = d, 
+  columnsX = "sport", 
+  columnsY = c("sexe", "cuisine", "nivetud"),
+  cells = "row.prop",
+  fill = "stdres",
+  legend = 1
+) + labs(fill = "Résidus\ndu Chi²")
+```
+
+Pour plus de possibilités de personnalisation, voir la fonction `ggduo`{data-pkg="GGally"} de `GGally`{.pkg}.
+
 
 ## Graphe en mosaïque
 
