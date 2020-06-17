@@ -324,13 +324,14 @@ Pour aller plus loin avec les outils de l'analyse de survie classique, il serait
 
 L'<dfn>analyse de séquences</dfn><dfn data-index="séquence, analyse"></dfn> permet d'appréhender l'ensemble de la trajectoire de soins à travers la succession des états dans lesquels se trouvent les patients observés.
 
-Nous allons donc réaliser une analyse de séquences (voir le [chapitre dédié](analyse-de-sequences.html)) sur l'ensemble de notre fichier. Pour cela, il va falloir préalable que nous transformions nos donnée actuellement dans un format <q>long</q> en un tableau <q>large</q>, c'est-à-dire avec une ligne par individu et une variable différentes par pas de temps. On peut réaliser cela facilement avec `spread`{data-pkg="tidyr"} de `tidyr`{.pkg} (voir le [chapitre dédié à **tidyr**](reorganiser-ses-donnees-avec-tidyr.html#spread-disperser-des-lignes)).
+Nous allons donc réaliser une analyse de séquences (voir le [chapitre dédié](analyse-de-sequences.html)) sur l'ensemble de notre fichier. Pour cela, il va falloir préalable que nous transformions nos donnée actuellement dans un format <q>long</q> en un tableau <q>large</q>, c'est-à-dire avec une ligne par individu et une variable différentes par pas de temps. On peut réaliser cela facilement avec `pivot_wider`{data-pkg="tidyr"} de `tidyr`{.pkg} (voir le [chapitre dédié à **tidyr**](reorganiser-ses-donnees-avec-tidyr.html#spread-disperser-des-lignes)). Il faut noter que le résultat ne sera pas un tableau **data.table**, d'où le recours à `setDT`{data-pkg="data.table"} pour convertir le résultat.
 
 ```{r}
 library(tidyr)
 large <- care_trajectories %>%
   dplyr::select(id, m = month, care_status) %>%
-  spread(key = m, value = care_status, sep = "") 
+  pivot_wider(names_from = m, values_from = care_status, names_prefix = "m") 
+setDT(large)
 head(large)
 ```
 
@@ -370,7 +371,7 @@ couts
 dist_all <- seqdist(seq_all, method = "OM", sm = couts$sm, indel = couts$indel)
 ```
 
-Calculons le dendrogramme et représentons le avec le tapis de séquence grace à `seq_heatmap`{data-pkg="JLutils"} de l'extension `JLutils`{.pkg}. Pour rappel, cette extension est seulement disponible sur [GitHUb](https://github.com/larmarange/JLutils). On l'installera donc (ou on la mettra à jour) avec la commande `devtools::install_github("larmarange/JLutils")`.
+Calculons le dendrogramme et représentons le avec le tapis de séquence grace à `seq_heatmap`{data-pkg="JLutils"} de l'extension `JLutils`{.pkg}. Pour rappel, cette extension est seulement disponible sur [GitHub](https://github.com/larmarange/JLutils). On l'installera donc (ou on la mettra à jour) avec la commande `devtools::install_github("larmarange/JLutils")`.
 
 ```{r, fig.height=7}
 arbre_all <- hclust(as.dist(dist_all), method = "ward.D2")
@@ -488,7 +489,7 @@ tab <- tibble(
   cah = wcClusterQuality(dist_m18, large_m18$typo_cah)$stats,
   pam = wcClusterQuality(dist_m18, large_m18$typo_pam)$stats
 )
-knitr::kable(tab, digits = 3)
+gt::gt(tab) %>% gt::fmt_number(2:3, decimals = 2, sep_mark = " ")
 ```
 
 Selon ces indicateurs calculés, l'approche PAM obtiendrait une partition légèrement de meilleure qualité que celle obtenuepar CAH.
@@ -579,22 +580,20 @@ large_m18 <- merge(
 )
 ```
 
-L'extension `finalfit`{.pkg}, présentée dans le chapite sur la [régression logistique](regression-logistique.html#tableaux-all-in-one), permets via sa fonction `summary_factorlist`{data-pkg="finalfit"} de produire rapidement le tableau de l'analyse bivariée. En l'occurence, le code ci-dessous permets de sortir les effectifs, les pourcentages en colonnes et les p-values correspondant au <dfn>test du Chi²</dfn><dfn data-index="Chi², test"></dfn>.^[Pour plus de détails sur les tableaux croisés et le test du Chi², voir le chapitre sur la [statisque bivariée](statistique-bivariee.html#deux-variables-qualitatives) et le chapitre sur les [tests de comparaison ](comparaisons-moyennes-et-proportions.html#chi2).]
+La fonction `tbl_summary`{data-pkg="gtsummary"} de l'extension `gtsummary`{.pkg} permets de produire aisément une série de tableaux croisés. À noter le recours à `add_p()`{data-pkg="summary"} pour ajouter les p-valeurs au <dfn>test du Chi²</dfn><dfn data-index="Chi², test"></dfn>.^[Pour plus de détails sur les tableaux croisés et le test du Chi², voir le chapitre sur la [statisque bivariée](statistique-bivariee.html#deux-variables-qualitatives) et le chapitre sur les [tests de comparaison ](comparaisons-moyennes-et-proportions.html#chi2).] La fonction `add_overall`{data-pkg="gtsummary"} permets d'ajouter une colonne avec l'ensemble de l'échantillon. Notez que nous avons utiliser `unlabelled`{data-pkg="labelled"} de l'extension `labelled`{.pkg} pour convertir en amont les vecteurs labellisés en facteurs.
+
 
 ```{r}
-library(finalfit, quietly = TRUE)
-explanatory <- c("sex", "age", "education")
-dependent <- "groupe"
-tab <- summary_factorlist(
-  to_factor(large_m18), dependent, explanatory,
-  p=TRUE, column = TRUE, total_col = TRUE
-)
-knitr::kable(tab, row.names = FALSE)
+library(gtsummary)
+unlabelled(large_m18) %>% 
+  tbl_summary(by = "groupe", include = c("groupe", "sex", "age", "education")) %>%
+  add_p() %>%
+  add_overall(last = TRUE)
 ```
 
 Une manière de présenter ces mêmes données de manière plus visuelle consiste à réaliser un <dfn data-index="diagramme en barres cumulées">diagramme en barres cumulées</dfn><dfn data-index="barres cumulées, diagramme en"></dfn> (voir le chapitre sur les [graphiques bivariés](graphiques-bivaries-ggplot2.html#diagrammes-en-barres)). Ici, nous utilisons une boucle `for`{data-pkg="base" data-rdoc="Control"} (voir le chapitre sur les [structures conditionnelles](structures-conditionnelles.html)) pour calculer les différents tableaux croisés et les fusionner avec `bind_rows`{data-pkg="dplyr" data-rdoc="bind"} (voir la section [concaténation de tables](manipuler-les-donnees-avec-dplyr.html#concatenation) du chapitre dédié à `dplyr`{.pkg}). Nous en profitions également pour calculer le test du Chi² et l'afficher avec le nom de la variable sur le graphique.
 
-Note : pour afficher les proportions sur le graphique, aurons recours recours à la statistique `stat_prop`{data-pkg="JLutils"} de l'extension `JLutils`{.pkg}^[Cette extension n'est disponible que sur [GitHub](https://github.com/larmarange/JLutils). On peut l'installer avec la commande suivante : `source("https://install-github.me/larmarange/JLutils")`].
+Note : pour afficher les proportions sur le graphique, aurons recours recours à la statistique `stat_prop`{data-pkg="GGally"} de l'extension `GGally`{.pkg}.
 
 ```{r, fig.height=6, fig.width=6, message=FALSE}
 res <- tibble()
@@ -619,7 +618,7 @@ for (v in names(explanatory)) {
 # stat_prop() a besoin d'un facteur
 res$level <- factor(res$level)
 
-library(JLutils)
+library(GGally)
 ggplot(res) +
   aes(x = level, fill = groupe, weight = n) +
   geom_bar(position = "fill") +
@@ -633,25 +632,39 @@ ggplot(res) +
   theme(legend.position = "bottom") +
   xlab("") + ylab("") + labs(fill = "")
 ```
+Un graphique similaire peut s'obtenir très facilement en ayant recours à la fonction `ggbivariate`{data-pkg="GGally"} de l'extension `GGally`{.pkg}^[À noter, `ggbivariate`{data-pkg="GGally"} accepte également des variables continues.].
 
 
-Pour mieux visualiser les relations entre les variables, on peut avoir recours à la fonction `ggcross`{data-pkg="JLutils"} de l'extension `JLutils`{.pkg} qui permets de représenter les <dfn data-index="résidus, test du Chi²">résidus du Chi²</dfn><dfn data-index="test du Chi², résidus"></dfn><dfn data-index="Chi², résidus">.
-
-
-
-```{r, fig.width=6, fig.height=8}
-library(JLutils)
-ggcross(
-  sex + age + education ~ groupe,
-  data = to_factor(large_m18),
-  labels = "percent0(col.prop)",
-  fill_breaks = c(-Inf, -4, -2, 0, 2, 4, Inf),
-  fill_title = "Résidus de Pearson",
-  size = NULL
-) +
-  theme_minimal()
+```{r, fig.height=6, fig.width=6}
+library(GGally)
+ggbivariate(
+  unlabelled(large_m18), 
+  outcome = "groupe", 
+  explanatory = c("sex", "age", "education"),
+  columnLabelsY = c("Sex", "Âge", "Éducation")
+) + labs(fill = "")
 ```
 
+Pour mieux visualiser les relations entre les variables, on peut avoir recours à la fonction `ggtable`{data-pkg="GGally"} de l'extension `GGally`{.pkg} qui permets de représenter les <dfn data-index="résidus, test du Chi²">résidus du Chi²</dfn><dfn data-index="test du Chi², résidus"></dfn><dfn data-index="Chi², résidus">.
+
+
+```{r, fig.height=6, fig.width=6}
+library(GGally)
+ggtable(
+  unlabelled(large_m18), 
+  columnsX = "groupe", 
+  columnsY = c("sex", "age", "education"),
+  cells = "col.prop",
+  fill = "stdres",
+  columnLabelsX = "Type de trajectoire", 
+  columnLabelsY = c("Sex", "Âge", "Éducation"),
+  legend = 1
+) + 
+  labs(fill = "Résidus standardizés du Chi²") +
+  theme(legend.position = "bottom")
+```
+
+On considère qu'une cellule est surreprésentée si son résidu standardisé du Chi² est supérieur à 2 ou 3, et qu'elle est sous-représentée si le résidu est inférieur à -2 ou -3.
 
 On peut ainsi noter que les hommes, les jeunes et ceux vivant à plus de 10 kilomètres d'une clinique sont plus souvent dans le groupe <q>Hors soins</q>. Inversement, les femmes et les plus éduqués sont plus souvent dans le groupe des <q>Rapides</q>. Résultat inattendu, les ménages les plus riches sont moins souvent dans les groupes ayant initiés un traitement (<q>Rapides</q> et <q>Lents</q>), ce résultat pouvant s'expliquer en partie par le fait que les plus aisés peuvent plus facilement accéder à des soins dans le secteur privé, et donc <q>faussement</q> apparaître <q>Hors soins<q>, car seuls les soins reçus dans le secteur public ont été mesurés dans cette étude.
 
