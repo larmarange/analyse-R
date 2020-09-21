@@ -238,3 +238,42 @@ L'extension `survey`{.pkg} ne propose pas de version adaptée du test exact de F
 rprop(svytable(~lecture.bd + sport, dw))
 svychisq(~lecture.bd + sport, dw)
 ```
+
+## Tests dans les tableaux de `gtsummary`
+
+Lorsque l'on réalise un tableau croisé avec `tbl_summary`{data-pkg="gtsummary"} ou `tbl_svysummary`{data-pkg="gtsummary"} de l'extension `gtsummary`{.pkg}, il est possible d'ajouter des tests de comparaison avec `add_p`{data-pkg="gtsummary"}.
+
+```{r}
+library(gtsummary)
+theme_gtsummary_language("fr", decimal.mark = ",", big.mark = " ")
+
+d %>% 
+  tbl_summary(
+    include = c("hard.rock", "age", "sport"), 
+    by = "hard.rock"
+  ) %>%
+  add_p()
+```
+
+Il est possible de préciser le type de test à utiliser.
+
+```{r}
+d %>% 
+  tbl_summary(
+    include = c("hard.rock", "age"), 
+    by = "hard.rock"
+  ) %>%
+  add_p(test = list(all_continuous() ~ "wilcox.test"))
+```
+
+Cela fonctionne également avec les données pondérées et les plans d'échantillonnage complexe.
+
+```{r}
+dw %>% 
+  tbl_svysummary(
+    include = c("hard.rock", "age", "sport"), 
+    by = "hard.rock"
+  ) %>%
+  add_p()
+```
+
