@@ -114,7 +114,7 @@ filter(flights, distance == max(distance))
 ```
 
 
-### select et rename
+### select, rename et relocate
 
 `select`{data-pkg="dplyr"} permet de sélectionner des colonnes d'un tableau de données. Ainsi, si on veut extraire les colonnes `lat` et `lon` du tableau airports :
 
@@ -139,11 +139,44 @@ La syntaxe `colonne1:colonne2` permet de sélectionner toutes les colonnes situ�
 select(flights, year:day)
 ```
 
+`all_of`{data_pkg="tidyselect"} et `any_of`{data_pkg="tidyselect"} permettent de fournir une liste de variables à extraire sous forme de vecteur textuel. Alors que `all_of`{data_pkg="tidyselect"} renverra une erreur si une variable n'est pas trouvée dans le tableau de départ, `any_of`{data_pkg="tidyselect"} sera moins stricte.
+
+```{r}
+select(flights, all_of(c("year", "month", "day")))
+```
+
+```{r, eval=FALSE}
+select(flights, all_of(c("century", "year", "month", "day")))
+```
+
+```
+Erreur : Can't subset columns that don't exist. 
+x Column `century` doesn't exist.
+```
+
+```{r}
+select(flights, any_of(c("century", "year", "month", "day")))
+```
+
+
+`where`{data_pkg="tidyselect"} permets de sélectionner des variables à partir d'une fonction qui renvoie une valeur logique. Par exemple, pour sélectionner seulement les variables textuelles.
+
+```{r}
+select(flights, where(is.character))
+```
+
+
 
 `select`{data-pkg="dplyr"} peut être utilisée pour réordonner les colonnes d'une table en utilisant la fonction `everything()`{data-pkg="dplyr" data-rdoc="select_helpers"}, qui sélectionne l'ensemble des colonnes non encore sélectionnées. Ainsi, si on souhaite faire passer la colonne <var>name</var> en première position de la table `airports`, on peut faire :
 
 ```{r}
 select(airports, name, everything())
+```
+
+Pour réordonner des colonnes, on pourra aussi avoir recours à `relocate`{data-pkg="dplyr"} en indiquant les premières variables. IL n'est pas nécessaire d'ajouter `everything()`{data-pkg="dplyr"} car avec `relocate`{data-pkg="dplyr"} toutes les variables sont conservées.
+
+```{r}
+relocate(airports, lon, lat, name)
 ```
 
 
