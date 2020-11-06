@@ -7,7 +7,8 @@ for (f in  list.files(pattern = "html$"))
 source("verification_installation_dependances.R")
 
 # Recréer tous les chapitres
-for (f in  list.files(pattern = "Rmd$")) {
+chapitres <- list.files(pattern = "Rmd$")
+for (f in chapitres) {
   set.seed(100);
   rmarkdown::render(f, encoding = "UTF-8")
 }
