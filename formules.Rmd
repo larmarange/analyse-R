@@ -69,10 +69,27 @@ xtabs(~ occup + sexe, hdv2003)
 Cette écriture est plus courte que le code équivalent dans `dplyr`{.pkg} :
 
 ```{r, tidy = FALSE}
-group_by(hdv2003, occup) %>%
+hdv2003 %>%
+  group_by(occup) %>%
   summarise(Homme = sum(sexe == "Homme"),
             Femme = sum(sexe == "Femme"))
 ```
+
+Par contre, on pourra éventuellement utiliser `count`{data-pkg="dplyr"} de `dplyr`{.pkg}. ATTENTION : le format du résultat ne sera pas le même.
+
+```{r, tidy = FALSE}
+hdv2003 %>%
+  group_by(occup) %>%
+  count(sexe)
+```
+
+Pour un tableau croisé joliment mis en forme, on pourra avoir recours à `tbl_cross`{data-pkg="gtsummary} de `gtsummary`{.pkg}.
+
+```{r, tidy=FALSE}
+library(gtsummary)
+hdv2003 %>% tbl_cross(row = "occup", col = "sexe", percent = "row")
+```
+
 
 De plus, `xtabs`{data-pkg="stats"} permet de créer plusieurs tableaux croisés en une seule formule :
 
@@ -97,7 +114,8 @@ aggregate(heures.tv ~ sexe, hdv2003, mean)
 Cette écriture est, à nouveau, plus compacte que le code équivalent dans `dplyr`{.pkg}, qui demande de spécifier le retrait des valeurs manquantes :
 
 ```{r, eval = FALSE, tidy = FALSE}
-group_by(hdv2003, sexe) %>%
+hdv2003 %>
+  group_by(sexe) %>%
   summarise(heures.tv = mean(heures.tv, na.rm = TRUE))
 ```
 
@@ -107,10 +125,10 @@ group_by(hdv2003, sexe) %>%
 aggregate(heures.tv ~ sexe + occup, hdv2003, mean)
 ```
 
-La même opération demanderait toujours un peu plus de code avec `dplyr`{.pkg} :
+La même opération `dplyr`{.pkg} :
 
 ```{r, eval = FALSE, tidy = FALSE}
-group_by(hdv2003, occup, sexe) %>%
+hdv2003 %>% group_by(occup, sexe) %>%
   summarise(heures.tv = mean(heures.tv, na.rm = TRUE))
 ```
 
@@ -122,7 +140,8 @@ aggregate(age ~ sexe + occup, hdv2003, median)
 ```
 ```{r, eval = FALSE, tidy = FALSE}
 # code équivalent avec l'extension 'dplyr'
-group_by(hdv2003, occup, sexe) %>%
+hdv2003 %>% 
+  group_by(occup, sexe) %>%
   summarise(age = median(age, na.rm = TRUE))
 ```
 
@@ -137,10 +156,20 @@ aggregate(age ~ sexe + occup, hdv2003, range)
 Cette fonction ne peut pas être facilement écrite dans `dplyr`{.pkg} sans réécrire chacune des colonnes, ce que le bloc de code suivant illustre. On y gagne en lisibilité dans les intitulés de colonnes :
 
 ```{r, eval = FALSE, tidy = FALSE}
-group_by(hdv2003, occup, sexe) %>%
+hdv2003 %>%
+  group_by(occup, sexe) %>%
   summarise(min = min(age, na.rm = TRUE),
             max = max(age, na.rm = TRUE))
 ```
+
+Depuis la version 1.0.0 de `dplyr`{.pkg}, `summarise`{data-pkg="dplyr"} accepte maintenant des fonctions pouvant renvoyer plusieurs valeurs, créant ainsi autant de lignes (voir <https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/>).
+
+```{r}
+hdv2003 %>%
+  group_by(occup, sexe) %>%
+  summarise(age = range(age, na.rm = TRUE), type = c("min", "max"))
+```
+
 
 On pourrait de même définir sa propre fonction et la passer à `aggregate`{data-pkg="stats"} :
 
@@ -168,6 +197,21 @@ Notons que `Hmisc`{.pkg} offre déjà une telle fonction (`smean.sd`{data-pkg="H
 ```{r}
 with(hdv2003, summarize(age, llist(sexe, occup), smean.cl.boot))
 ```
+
+Et un exemple avec `dplyr`{.pkg}.
+
+```{r, tidy=FALSE}
+hdv2003 %>%
+  group_by(sexe, occup) %>%
+  summarise(
+    tibble(
+      age_mean = mean(age, na.rm = TRUE),
+      age_sd = sd(age, na.rm = TRUE)
+    )
+  )
+
+```
+
 
 Enfin, il est également possible d'utiliser plusieurs variables numériques à gauche de l'opérateur `~`. En voici une illustration :
 
