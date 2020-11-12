@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
   dev = "png",
   dev.args = list(bg = 'white'),
   dpi = 150,
-  tidy = TRUE,
+  tidy = "styler",
   fig.path = paste0("graphs/", filename, "/"),
   cache = TRUE,
   cache.path = paste0("cache/", filename, "/")
