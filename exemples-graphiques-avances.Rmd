@@ -1,0 +1,591 @@
+---
+title: "Exemples de graphiques avancés"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+Dans ce chapitre, nous présentons plusieurs graphiques avec une mise en forme avancée et détaillons pas à pas leur création.
+
+Chargeons quelques extensions de base.
+
+```{r}
+library(tidyverse)
+```
+
+
+## Questions de connaissance
+
+Pour ce premier exemple, supposons que nous avons réalisé une petite enquête auprès de 500 étudiants pour mesurer leur connaissance du logiciel **R**. Commençons par charger les données ici purement fictionnelles).
+
+```{r, eval=FALSE}
+load(url("https://larmarange.github.io/analyse-R/data/connaissances.RData"))
+```
+
+```{r, echo=FALSE}
+load("data/connaissances.RData")
+```
+
+Nous avons maintenant un objet `quest` en mémoire. Regardons rapidement la forme des données.
+
+```{r, results='markup'}
+glimpse(quest)
+summary(quest$conn_a)
+```
+
+Sept affirmations ont été soumises aux étudiants (variables *conn_a* à *conn_g*) et il leur a été demandé, pour chacune, s'il pensait qu'elle était juste. Les réponses possibles étaient "oui", "non" et "NSP" (ne sait pas).
+
+```{r}
+library(questionr)
+freq.na(quest)
+```
+
+On peut également noter que pour certaines questions il y a plusieurs valeurs manquantes (jusqu'à 104).
+
+Nous souhaiterions représenter les réponses sous la forme d'un graphique en barres cumulées. Cependant, un tel graphique ne peut pour le moment être réalisé car les réponses sont stockées dans 7 variables différentes. Pour réaliser le graphique, il nous faut un tableau de données avec une colonne qui contiendrait le nom de la question et une colonne avec les réponses. Cela peut se faire facilement avec la fonction `pivot_longer`{data-pkg="tidyr"} de l'extension `tidyr`{.pkg} (voir le [chapitre dédié](reorganiser-ses-donnees-avec-tidyr.html)).
+
+```{r}
+conn <- quest %>%
+  select(starts_with("conn_")) %>%
+  pivot_longer(
+    cols = starts_with("conn_"),
+    names_to = "question",
+    values_to = "reponse"
+  )
+glimpse(conn)
+```
+
+Nous pouvons maintenant réaliser une première ébauche avec `geom_bar`{data-pkg="ggplot2"} et `position = "fill"`.
+
+```{r}
+ggplot(conn) +
+  aes(x = question, fill = reponse) +
+  geom_bar(position = "fill")
+```
+Pour simplifier le graphique, nous allons regrouper les manquants avec les NSP avec `fct_explicit_na`{data-pkg="forcats"}, changer l'ordre des modalités en mettant les NSP entre les oui et les non avec `fct_relevel`{data-pkg="forcats"} et remplacer "NSP" par sa version longue avec `fct_recode`{data-pkg="forcats"}. En effet, il est toujours préférable, pour la lisibilité du graphique, d'éviter un acronyme lorsque ce n'est pas nécessaire.
+
+Nous allons également en profiter pour déplacer la légende sous le graphique avec l'option `legend.position = "bottom"` passée à `theme`{data-pkg="ggplot2"}.
+
+```{r}
+conn$reponse <- conn$reponse %>%
+  fct_explicit_na("NSP") %>%
+  fct_relevel("non", "NSP", "oui") %>%
+  fct_recode("ne sait pas / manquant" = "NSP")
+
+ggplot(conn) +
+  aes(x = question, fill = reponse) +
+  geom_bar(position = "fill") +
+  theme(legend.position = "bottom")
+```
+
+Votre lectorat ne sait probablement pas à quoi correspond les variables *conn_a* à *conn_g*. Il est donc préférable de les remplacer par des étiquettes plus explicites. Souvent, on a tendance à vouloir mettre des étiquettes courtes, quitte à reformuler le questionnaire d'origine. Ceci dit, il est pourtant préférable d'utiliser, quand cela est possible et pertinent, la formulation exacte du questionnaire. Ici nous allons créer une nouvelle variable *etiquette* et nous allons mettre à jour la définition de l'axe des x dans `aes`{data-pkg="ggplot2"}.
+
+```{r}
+conn$etiquette <- conn$question %>%
+  fct_recode(
+    "R est disponible seulement pour Windows" = "conn_a",
+    "R possède un puissant moteur graphique" = "conn_b",
+    "Il est possible de réaliser des modèles mixtes avec R" = "conn_c",
+    "Le package 'foreign' est le seul permettant d'importer des fichiers de données SPSS" = "conn_d",
+    "Il n'est pas possible de produire un rapport PDF avec R" = "conn_e",
+    "R peut gérer des données d'enquêtes avec un plan d'échantillonnage complexe" = "conn_f",
+    "R est utilisée par des scientifiques de toutes disciplines, y compris des sciences sociales" = "conn_g"
+  )
+
+
+ggplot(conn) +
+  aes(x = etiquette, fill = reponse) +
+  geom_bar(position = "fill") +
+  theme(legend.position = "bottom")
+```
+
+Malheureusement, avec un graphique en barres verticales, les étiquettes de l'axe des X sont tout bonnement illisibles. Mais nous pouvons facilement transformer notre graphique en barres horizontales avec `coord_flip`{data-pkg="ggplot2"}. Une autre solution consiste à appliquer une rotation de 90 degrés aux étiquettes de l'axe des x, mais cette approche est moins lisible que le passage à des barres horizontales.
+
+```{r}
+ggplot(conn) +
+  aes(x = etiquette, fill = reponse) +
+  geom_bar(position = "fill") +
+  coord_flip() +
+  theme(legend.position = "bottom")
+```
+
+C'est déjà mieux. Cependant, comme certaines étiquettes sont très longues, l'espace restant pour le graphique est réduit. Nous allons donc afficher ces étiquettes trop longues sur plusieurs lignes, grace à la fonction `label_wrap`{data-pkg="scales"} de l'extension `scales`{.pkg} que nous allons appeler à l'intérieur de `scale_x_discrete`{data-pkh="ggplot2"}. Le nombre passé à `label_wrap`{data-pkg="scales"} indique le nombre de caractères à afficher avant retour à la ligne.
+
+Nous allons également faire deux petites améliorations à notre graphique : (i) nous allons réduire l'épaisseur des barres en ajoutant `width = .66` à `geom_bar`{data-pkg="ggplot2"} ; (ii) nous allons éviter que l'axe des y (devenu l'axe horizontal) se soit étendu grâce à la commande `scale_y_continuous(expand = c(0, 0))`.
+
+```{r}
+ggplot(conn) +
+  aes(x = etiquette, fill = reponse) +
+  geom_bar(position = "fill", width = .66) +
+  scale_x_discrete(labels = scales::label_wrap(50)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  coord_flip() +
+  theme(legend.position = "bottom")
+```
+Pour améliorer la lisibilité du graphique, nous allons ajouter des étiquettes avec les pourcentages calculés (voir le [chapitre sur les graphiques bivariés](graphiques-bivaries-ggplot2.html#diagrammes-en-barres)). Pour cela, nous aurons besoin de l'extension `GGally`{.pkg} qui fournie la statistique `stat_prop`{data-pkg="GGally"}.
+
+Nous allons donc appeler `geom_text`{data-pkg="ggplot2"} avec cette statistique. Dans l'appel à `aes`{data-pkg="ggplot2"}, nous devons ajouter `by = etiquette` pour indiquer que nous voulons que nos pourcentages soit calculés pour chaque valeur de la variable *etiquette*. Dans l'appel à `geom_text`{data-pkg="ggplot2"}, nous allons préciser `position = position_fill(.5)` pour que nos étiquettes soit positionnées au milieu des rectangles. `colour = "white"` permet de préciser la couleur des étiquettes, `fontface = "bold"` pour les afficher en gras et `size = 3.5` pour contrôler leur taille.
+
+```{r, message=FALSE}
+library(GGally)
+ggplot(conn) +
+  aes(x = etiquette, fill = reponse, by = etiquette) +
+  geom_bar(position = "fill", width = .66) +
+  geom_text(
+    stat = "prop", position = position_fill(.5), 
+    colour = "white", fontface = "bold", size = 3.5
+  ) +
+  scale_x_discrete(labels = scales::label_wrap(50)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  coord_flip() +
+  theme(legend.position = "bottom")
+```
+
+Les résultat est encourageant mais certaines étiquettes sont pas ou peu lisibles. Tout d'abord, nous n'allons pas afficher de décimale car c'est une précision inutile. Pour cela, nous allons utiliser la fonction `percent`{data-pkg="scales"} de `scales`{.pkg} qui permet de mettre en forme des pourcentages. Nous allons préciser `accuracy = 1` pour indiquer que nous souhaitons arrondir à l'unité (pour une précision de deux décimales, nous aurions donc indiqué `accuracy = .01`).
+
+De plus, pour les valeurs inférieures à 5% nous allons masquer le symbole % et pour les valeurs inférieures à 1% nous n'allons rien afficher. L'astuce consiste à créer une petite fonction personnalisée, que nous allons appeler `f` et qui va s'occuper de la mise en forme. Puis, dans `aes`{data-pkg="ggplot2"}, l'esthétique `label` sera définie comme égale à `f(after_stat(prop))` (note : `after_stat`{data-pkg="ggplot2"} permet d'appeler la variable *prop* calculée par `stat_prop`{data-pkg="GGally"}).
+
+```{r}
+f <- function(x) {
+  res <- scales::percent(x, accuracy = 1)
+  res[x < .05] <- scales::percent(x[x < .05], accuracy = 1, suffix = "")
+  res[x < .01] <- ""
+  res
+}
+
+ggplot(conn) +
+  aes(
+    x = etiquette, fill = reponse, 
+    by = etiquette, label = f(after_stat(prop))
+  ) +
+  geom_bar(position = "fill", width = .66) +
+  geom_text(
+    stat = "prop", position = position_fill(.5), 
+    colour = "white", fontface = "bold", size = 3.5
+  ) +
+  scale_x_discrete(labels = scales::label_wrap(50)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  coord_flip() +
+  theme(legend.position = "bottom")
+```
+
+Nous commencons à avoir tous les éléments de notre graphique. Il est temps de faire un peu de nettoyage. Appliquons déjà `theme_minimal`{data-pkg="ggplot2"} pour alléger le graphique et supprimer les titres des axes et de la légende avec `labs`{data-pkg="ggplot2"}.
+
+```{r}
+ggplot(conn) +
+  aes(
+    x = etiquette, fill = reponse, 
+    by = etiquette, label = f(after_stat(prop))
+  ) +
+  geom_bar(position = "fill", width = .66) +
+  geom_text(
+    stat = "prop", position = position_fill(.5), 
+    colour = "white", fontface = "bold", size = 3.5
+  ) +
+  scale_x_discrete(labels = scales::label_wrap(50)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  coord_flip() +
+  labs(x = "", y = "", fill = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+Comme les valeurs sont directement affichées sur le graphique, il est encore possible de l'alléger en supprimant la grille (avec `panel.grid = element_blank()`) et les étiquettes de l'axe horizontal (avec `axis.text.x = element_blank()`) via la fonction `theme`{data-pkg="ggplot2"}.
+
+```{r}
+ggplot(conn) +
+  aes(
+    x = etiquette, fill = reponse, 
+    by = etiquette, label = f(after_stat(prop))
+  ) +
+  geom_bar(position = "fill", width = .66) +
+  geom_text(
+    stat = "prop", position = position_fill(.5), 
+    colour = "white", fontface = "bold", size = 3.5
+  ) +
+  scale_x_discrete(labels = scales::label_wrap(50)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  coord_flip() +
+  labs(x = "", y = "", fill = "") +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    panel.grid = element_blank(),
+    axis.text.x = element_blank()
+  )
+```
+
+Nous allons également personnaliser la palette de couleur pour adopter une palette adaptée aux personnes daltoniennes. Il en existe plusieurs, dont [celles développées par Paul Tol](https://personal.sron.nl/~pault/) et disponibles dans l'extension `khroma`{.pkg} (voir aussi le [chapitre sur les palettes de couleurs](couleurs.html)). On peut appliquer cette palette avec `scale_fill_bright`{data-pkg="khroma"}.
+
+```{r}
+library(khroma)
+ggplot(conn) +
+  aes(
+    x = etiquette, fill = reponse, 
+    by = etiquette, label = f(after_stat(prop))
+  ) +
+  geom_bar(position = "fill", width = .66) +
+  geom_text(
+    stat = "prop", position = position_fill(.5), 
+    colour = "white", fontface = "bold", size = 3.5
+  ) +
+  scale_x_discrete(labels = scales::label_wrap(50)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_bright() +
+  coord_flip() +
+  labs(x = "", y = "", fill = "") +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    panel.grid = element_blank(),
+    axis.text.x = element_blank()
+  )
+```
+
+Cependant, ce choix de couleur n'est peut-être pas optimal. Une couleur neutre (proche du gris) serait peut être plus appropriée pour les "ne sait pas / manquant". Regardons les codes couleurs de la palette *bright*.
+
+```{r}
+plot_scheme(colour("bright")(7), colours = TRUE)
+```
+
+Nous allons donc choisir des couleurs plus pertinentes et les définir manuellement avec `scale_fill_manual`{data-pkg="ggplot2"}.
+
+```{r}
+ggplot(conn) +
+  aes(
+    x = etiquette, fill = reponse, 
+    by = etiquette, label = f(after_stat(prop))
+  ) +
+  geom_bar(position = "fill", width = .66) +
+  geom_text(
+    stat = "prop", position = position_fill(.5), 
+    colour = "white", fontface = "bold", size = 3.5
+  ) +
+  scale_x_discrete(labels = scales::label_wrap(50)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_manual(values = c("#AA3377", "#BBBBBB", "#4477AA")) +
+  coord_flip() +
+  labs(x = "", y = "", fill = "") +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    panel.grid = element_blank(),
+    axis.text.x = element_blank()
+  )
+```
+
+Pour faciliter la lecture, il serait pertinent que la légende soit dans le même ordre que le graphique (i.e. "oui" à gauche et "non" à droite). Nous allons donc inverser l'ordre de la légence en passant `fill = guide_legend(reverse = TRUE)` à `guides`{data-pkg="ggplot2"}.
+
+```{r}
+ggplot(conn) +
+  aes(
+    x = etiquette, fill = reponse, 
+    by = etiquette, label = f(after_stat(prop))
+  ) +
+  geom_bar(position = "fill", width = .66) +
+  geom_text(
+    stat = "prop", position = position_fill(.5), 
+    colour = "white", fontface = "bold", size = 3.5
+  ) +
+  scale_x_discrete(labels = scales::label_wrap(50)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_manual(values = c("#AA3377", "#BBBBBB", "#4477AA")) +
+  coord_flip() +
+  labs(x = "", y = "", fill = "") +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    panel.grid = element_blank(),
+    axis.text.x = element_blank()
+  )
+```
+
+Il n'est pas évident de repérer ici au premier coup d'oeil quelle est la question qui a eu le plus de "oui". Nous allons donc ordonner les questions en fonction du pourcentage de "oui" grâce à la fonction `fct_reorder`{data-pkg="forcats"}.
+
+```{r}
+conn$etiquette <- conn$etiquette %>%
+  fct_reorder(conn$reponse == "oui", .fun = "sum")
+
+ggplot(conn) +
+  aes(
+    x = etiquette, fill = reponse, 
+    by = etiquette, label = f(after_stat(prop))
+  ) +
+  geom_bar(position = "fill", width = .66) +
+  geom_text(
+    stat = "prop", position = position_fill(.5), 
+    colour = "white", fontface = "bold", size = 3.5
+  ) +
+  scale_x_discrete(labels = scales::label_wrap(50)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_manual(values = c("#AA3377", "#BBBBBB", "#4477AA")) +
+  coord_flip() +
+  labs(x = "", y = "", fill = "") +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    panel.grid = element_blank(),
+    axis.text.x = element_blank()
+  )
+```
+
+Toutes ces affirmations ne sont pas justes. Il serait donc pertinent de distinguer les affirmations justes (pour lesquelles la bonne réponse est "oui" des autres). Nous allons donc créer une nouvelle variable pour séparer ensuite les réponses avec `facet_grid`{data-pkg="ggplot2"} (attention : il est important de préciser `scales = "free", space = "free"`).
+
+```{r}
+conn$correcte <- conn$question %>%
+  fct_recode(
+    "bonne réponse : non" = "conn_a",
+    "bonne réponse : oui" = "conn_b",
+    "bonne réponse : oui" = "conn_c",
+    "bonne réponse : non" = "conn_d",
+    "bonne réponse : non" = "conn_e",
+    "bonne réponse : oui" = "conn_f",
+    "bonne réponse : oui" = "conn_g"
+  ) %>%
+  fct_relevel("bonne réponse : oui")
+
+ggplot(conn) +
+  aes(
+    x = etiquette, fill = reponse, 
+    by = etiquette, label = f(after_stat(prop))
+  ) +
+  geom_bar(position = "fill", width = .66) +
+  geom_text(
+    stat = "prop", position = position_fill(.5), 
+    colour = "white", fontface = "bold", size = 3.5
+  ) +
+  scale_x_discrete(labels = scales::label_wrap(50)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_manual(values = c("#AA3377", "#BBBBBB", "#4477AA")) +
+  coord_flip() +
+  labs(x = "", y = "", fill = "") +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  facet_grid(rows = vars(correcte), scales = "free", space = "free") +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    panel.grid = element_blank(),
+    axis.text.x = element_blank()
+  )
+```
+
+Il est maintenant bien visible que les étudiants ont en général bien répondu aux affirmations, mais qu'ils ont une connaissance erronnée concernant la possibilité de réaliser des rapports automatisés en PDF avec R.
+
+Ajoutons maintenant un titre et un sous-titre avec `ggtitle`{data-pkg="ggplot2"} et une note avec l'option `caption` de `labs`{data-pkg="ggplot2"}.
+
+```{r}
+ggplot(conn) +
+  aes(
+    x = etiquette, fill = reponse, 
+    by = etiquette, label = f(after_stat(prop))
+  ) +
+  geom_bar(position = "fill", width = .66) +
+  geom_text(
+    stat = "prop", position = position_fill(.5), 
+    colour = "white", fontface = "bold", size = 3.5
+  ) +
+  scale_x_discrete(labels = scales::label_wrap(50)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_manual(values = c("#AA3377", "#BBBBBB", "#4477AA")) +
+  coord_flip() +
+  labs(
+    x = "", y = "", fill = "", 
+    caption = "Enquête réalisée auprès de 500 étudiants"
+  ) +
+  ggtitle(
+    "CONNAISSANCES SUR R", 
+    subtitle = "Pour chacune de ces affirmations, diriez-vous qu'elle est correcte ?"
+  ) +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  facet_grid(rows = vars(correcte), scales = "free", space = "free") +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    panel.grid = element_blank(),
+    axis.text.x = element_blank()
+  )
+```
+
+Nous pouvons procéder à quelques derniers ajustements (position du titre et de la note, note en italique, marges du graphique) an ajoutant quelques arguments additionnels à `theme`{data-pkg="ggplot2"}.
+
+```{r}
+ggplot(conn) +
+  aes(
+    x = etiquette, fill = reponse, 
+    by = etiquette, label = f(after_stat(prop))
+  ) +
+  geom_bar(position = "fill", width = .66) +
+  geom_text(
+    stat = "prop", position = position_fill(.5), 
+    colour = "white", fontface = "bold", size = 3.5
+  ) +
+  scale_x_discrete(labels = scales::label_wrap(50)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_manual(values = c("#AA3377", "#BBBBBB", "#4477AA")) +
+  coord_flip() +
+  labs(
+    x = "", y = "", fill = "", 
+    caption = "Enquête réalisée auprès de 500 étudiants"
+  ) +
+  ggtitle(
+    "CONNAISSANCES SUR R", 
+    subtitle = "Pour chacune de ces affirmations, diriez-vous qu'elle est correcte ?"
+  ) +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  facet_grid(rows = vars(correcte), scales = "free", space = "free") +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    panel.grid = element_blank(),
+    axis.text.x = element_blank(),
+    plot.title.position = "plot",
+    plot.caption.position = "plot",
+    plot.caption = element_text(face = "italic", hjust = 0),
+    plot.margin = margin(10, 10, 10, 10)
+  )
+```
+
+Enfin, pour un rendu un peu plus moderne, nous allons opter pour une autre police de caractères, ici "Arial Narrow". Afin de pouvoir utiliser des polices systèmes, nous aurons besoin de l'extension `extrafont`{.pkg}. La police doit être précisée à la fois dans `theme_minimal`{data-pkg="ggplot2"} et dans `geom_text`{data-pkg="ggplot2"}.
+
+```{r}
+library(extrafont)
+ggplot(conn) +
+  aes(
+    x = etiquette, fill = reponse, 
+    by = etiquette, label = f(after_stat(prop))
+  ) +
+  geom_bar(position = "fill", width = .66) +
+  geom_text(
+    stat = "prop", position = position_fill(.5), 
+    colour = "white", fontface = "bold", size = 3.5,
+    family = "Arial Narrow"
+  ) +
+  scale_x_discrete(labels = scales::label_wrap(50)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_manual(values = c("#AA3377", "#BBBBBB", "#4477AA")) +
+  coord_flip() +
+  labs(
+    x = "", y = "", fill = "", 
+    caption = "Enquête réalisée auprès de 500 étudiants"
+  ) +
+  ggtitle(
+    "CONNAISSANCES SUR R", 
+    subtitle = "Pour chacune de ces affirmations, diriez-vous qu'elle est correcte ?"
+  ) +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  facet_grid(rows = vars(correcte), scales = "free", space = "free") +
+  theme_minimal(base_family = "Arial Narrow") +
+  theme(
+    legend.position = "bottom",
+    panel.grid = element_blank(),
+    axis.text.x = element_blank(),
+    plot.title.position = "plot",
+    plot.caption.position = "plot",
+    plot.caption = element_text(face = "italic", hjust = 0),
+    plot.margin = margin(10, 10, 10, 10)
+  )
+```
+
+### Code final du graphique
+
+Nous y voilà !
+
+
+```{r, echo=FALSE}
+load("data/connaissances.RData")
+```
+
+
+```{r, eval=FALSE}
+load(url("https://larmarange.github.io/analyse-R/data/connaissances.RData"))
+```
+
+```{r}
+library(tidyverse)
+library(GGally)
+library(extrafont)
+
+conn <- quest %>%
+  select(starts_with("conn_")) %>%
+  pivot_longer(
+    cols = starts_with("conn_"),
+    names_to = "question",
+    values_to = "reponse"
+  )
+
+conn$reponse <- conn$reponse %>%
+  fct_explicit_na("NSP") %>%
+  fct_relevel("non", "NSP", "oui") %>%
+  fct_recode("ne sait pas / manquant" = "NSP")
+
+conn$etiquette <- conn$question %>%
+  fct_recode(
+    "R est disponible seulement pour Windows" = "conn_a",
+    "R possède un puissant moteur graphique" = "conn_b",
+    "Il est possible de réaliser des modèles mixtes avec R" = "conn_c",
+    "Le package 'foreign' est le seul permettant d'importer des fichiers de données SPSS" = "conn_d",
+    "Il n'est pas possible de produire un rapport PDF avec R" = "conn_e",
+    "R peut gérer des données d'enquêtes avec un plan d'échantillonnage complexe" = "conn_f",
+    "R est utilisée par des scientifiques de toutes disciplines, y compris des sciences sociales" = "conn_g"
+  ) %>%
+  fct_reorder(conn$reponse == "oui", .fun = "sum")
+
+conn$correcte <- conn$question %>%
+  fct_recode(
+    "bonne réponse : non" = "conn_a",
+    "bonne réponse : oui" = "conn_b",
+    "bonne réponse : oui" = "conn_c",
+    "bonne réponse : non" = "conn_d",
+    "bonne réponse : non" = "conn_e",
+    "bonne réponse : oui" = "conn_f",
+    "bonne réponse : oui" = "conn_g"
+  ) %>%
+  fct_relevel("bonne réponse : oui")
+
+f <- function(x) {
+  res <- scales::percent(x, accuracy = 1)
+  res[x < .05] <- scales::percent(x[x < .05], accuracy = 1, suffix = "")
+  res[x < .01] <- ""
+  res
+}
+
+ggplot(conn) +
+  aes(
+    x = etiquette, fill = reponse, 
+    by = etiquette, label = f(after_stat(prop))
+  ) +
+  geom_bar(position = "fill", width = .66) +
+  geom_text(
+    stat = "prop", position = position_fill(.5), 
+    colour = "white", fontface = "bold", size = 3.5,
+    family = "Arial Narrow"
+  ) +
+  scale_x_discrete(labels = scales::label_wrap(50)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_manual(values = c("#AA3377", "#BBBBBB", "#4477AA")) +
+  coord_flip() +
+  labs(
+    x = "", y = "", fill = "", 
+    caption = "Enquête réalisée auprès de 500 étudiants"
+  ) +
+  ggtitle(
+    "CONNAISSANCES SUR R", 
+    subtitle = "Pour chacune de ces affirmations, diriez-vous qu'elle est correcte ?"
+  ) +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  facet_grid(rows = vars(correcte), scales = "free", space = "free") +
+  theme_minimal(base_family = "Arial Narrow") +
+  theme(
+    legend.position = "bottom",
+    panel.grid = element_blank(),
+    axis.text.x = element_blank(),
+    plot.title.position = "plot",
+    plot.caption.position = "plot",
+    plot.caption = element_text(face = "italic", hjust = 0),
+    plot.margin = margin(10, 10, 10, 10)
+  )
+```
+
