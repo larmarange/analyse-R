@@ -21,7 +21,6 @@
 <script src="libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="libs/navigation-1.1/tabsets.js"></script>
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
 <link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
@@ -70,7 +69,8 @@
   div.column{display: inline-block; vertical-align: top; width: 50%;}
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   ul.task-list{list-style: none;}
-    </style>
+      .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
 
 
 <style type="text/css">code{white-space: pre;}</style>
@@ -410,6 +410,7 @@ summary {
                   <li><a href="ggplot2.html"><strong>ggplot2</strong> et la grammaire des graphiques</a></li>
                   <li><a href="etendre-ggplot2.html">Étendre <strong>ggplot2</strong></a></li>
                   <li><a href="combiner-plusieurs-graphiques.html">Combiner plusieurs graphiques</a></li>
+                  <li><a href="exemples-graphiques-avances.html">Exemples de graphiques avancés</a></li>
                   <li><a href="graphiques-interactifs.html">Graphiques interactifs</a></li>
                   <li><a href="lattice-graphiques-et-formules.html"><strong>lattice</strong> : graphiques et formules</a></li>
                   <li><a href="cartes.html">Cartes</a></li>
@@ -615,14 +616,14 @@ summary {
 </tbody>
 </table>
 <p>C’est seulement avec les données dans ce format qu’on peut réaliser le graphique :</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">ggplot</span>(d) <span class="op">+</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> annee, <span class="dt">y =</span> population, <span class="dt">color =</span> country)) <span class="op">+</span></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">unique</span>(d<span class="op">$</span>annee))</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> annee, <span class="at">y =</span> population, <span class="at">color =</span> country)) <span class="sc">+</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">unique</span>(d<span class="sc">$</span>annee))</span></code></pre></div>
 <p><img src="graphs/reorganiser-ses-donnees-avec-tidyr/unnamed-chunk-4-1.png" width="1050" /></p>
 <p>C’est la même chose pour <code class="pkg">dplyr</code>, par exemple si on voulait calculer la population minimale pour chaque pays avec <code data-pkg="dplyr">summarise</code> :</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>d <span class="op">%&gt;%</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="st">  </span><span class="kw">group_by</span>(country) <span class="op">%&gt;%</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">pop_min =</span> <span class="kw">min</span>(population))</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country) <span class="sc">%&gt;%</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">pop_min =</span> <span class="fu">min</span>(population))</span></code></pre></div>
 <pre><code>`summarise()` ungrouping output (override with `.groups` argument)</code></pre>
 <pre><code># A tibble: 3 x 2
   country  pop_min
@@ -980,7 +981,7 @@ summary {
 </table>
 <p>Dans ce tableau, une même variable (la population) est répartie sur plusieurs colonnes, chacune représentant une observation à un moment différent. On souhaite que la variable ne représente plus qu’une seule colonne, et que les observations soient réparties sur plusieurs lignes.</p>
 <p>Pour cela on va utiliser la fonction <code data-pkg="tidyr">pivot_longer</code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> :</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">c</span>(<span class="st">`</span><span class="dt">2002</span><span class="st">`</span>, <span class="st">`</span><span class="dt">2007</span><span class="st">`</span>), <span class="dt">names_to =</span> <span class="st">&quot;annee&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;population&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">2002</span><span class="st">`</span>, <span class="st">`</span><span class="at">2007</span><span class="st">`</span>), <span class="at">names_to =</span> <span class="st">&quot;annee&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;population&quot;</span>)</span></code></pre></div>
 <pre><code># A tibble: 12 x 3
    country     annee population
    &lt;fct&gt;       &lt;chr&gt;      &lt;int&gt;
@@ -1002,7 +1003,7 @@ summary {
 <li><code>values_to</code> est le nom de la colonne qui va contenir la valeur des observations</li>
 </ul>
 <p>Parfois il est plus rapide d’indiquer à <code data-pkg="tidyr">pivot_longer</code> les colonnes qu’on ne souhaite pas rassembler. On peut le faire avec la syntaxe suivante :</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pivot_longer</span>(<span class="op">-</span>country, <span class="dt">names_to =</span> <span class="st">&quot;annee&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;population&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">pivot_longer</span>(<span class="sc">-</span>country, <span class="at">names_to =</span> <span class="st">&quot;annee&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;population&quot;</span>)</span></code></pre></div>
 <pre><code># A tibble: 12 x 3
    country     annee population
    &lt;fct&gt;       &lt;chr&gt;      &lt;int&gt;
@@ -1122,7 +1123,7 @@ summary {
 </table>
 <p>Ce tableau a le problème inverse du précédent : on a deux variables, <code>lifeExp</code> et <code>pop</code> qui, plutôt que d’être réparties en deux colonnes, sont réparties entre plusieurs lignes.</p>
 <p>On va donc utiliser <code data-pkg="tidyr">pivot_wider</code> pour <q>disperser</q> ces lignes dans deux colonnes différentes :</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pivot_wider</span>(<span class="dt">names_from =</span> variable, <span class="dt">values_from =</span> value)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> variable, <span class="at">values_from =</span> value)</span></code></pre></div>
 <pre><code># A tibble: 6 x 5
   country continent  year lifeExp      pop
   &lt;fct&gt;   &lt;fct&gt;     &lt;int&gt;   &lt;dbl&gt;    &lt;dbl&gt;
@@ -1243,8 +1244,8 @@ summary {
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>d <span class="op">%&gt;%</span></span>
-<span id="cb11-2"><a href="#cb11-2"></a><span class="st">  </span><span class="kw">pivot_wider</span>(<span class="dt">names_from =</span> variable, <span class="dt">values_from =</span> value)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> variable, <span class="at">values_from =</span> value)</span></code></pre></div>
 <pre><code># A tibble: 6 x 6
   country continent  year lifeExp      pop density
   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
@@ -1254,8 +1255,8 @@ summary {
 4 France  Europe     2007    80.7 61083916      NA
 5 Germany Europe     2002    78.7 82350671      NA
 6 Germany Europe     2007    79.4 82400996      NA</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>d <span class="op">%&gt;%</span></span>
-<span id="cb13-2"><a href="#cb13-2"></a><span class="st">  </span><span class="kw">pivot_wider</span>(<span class="dt">names_from =</span> variable, <span class="dt">values_from =</span> value, <span class="dt">values_fill =</span> <span class="kw">list</span>(<span class="dt">value =</span> <span class="dv">0</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> variable, <span class="at">values_from =</span> value, <span class="at">values_fill =</span> <span class="fu">list</span>(<span class="at">value =</span> <span class="dv">0</span>))</span></code></pre></div>
 <pre><code># A tibble: 6 x 6
   country continent  year lifeExp      pop density
   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
@@ -1292,7 +1293,7 @@ summary {
 </tbody>
 </table>
 <p><code data-pkg="tidyr">separate</code> permet de séparer la colonne <code>note</code> en deux nouvelles colonnes <code>note</code> et <code>note_sur</code> :</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(note, <span class="kw">c</span>(<span class="st">&quot;note&quot;</span>, <span class="st">&quot;note_sur&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">%&gt;%</span> <span class="fu">separate</span>(note, <span class="fu">c</span>(<span class="st">&quot;note&quot;</span>, <span class="st">&quot;note_sur&quot;</span>))</span></code></pre></div>
 <pre><code># A tibble: 3 x 3
   eleve           note  note_sur
   &lt;chr&gt;           &lt;chr&gt; &lt;chr&gt;   
@@ -1300,7 +1301,7 @@ summary {
 2 Raymonde Bidule 6     10      
 3 Martial Truc    87    100     </code></pre>
 <p><code data-pkg="tidyr">separate</code> prend deux arguments principaux, le nom de la colonne à séparer et un vecteur indiquant les noms des nouvelles variables à créer. Par défaut <code data-pkg="tidyr">separate</code> <q>sépare</q> au niveau des caractères non-alphanumérique (espace, symbole, etc.). On peut lui indiquer explicitement le caractère sur lequel séparer avec l’argument <code>sep</code> :</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(eleve, <span class="kw">c</span>(<span class="st">&quot;prenom&quot;</span>, <span class="st">&quot;nom&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">%&gt;%</span> <span class="fu">separate</span>(eleve, <span class="fu">c</span>(<span class="st">&quot;prenom&quot;</span>, <span class="st">&quot;nom&quot;</span>), <span class="at">sep =</span> <span class="st">&quot; &quot;</span>)</span></code></pre></div>
 <pre><code># A tibble: 3 x 3
   prenom   nom    note  
   &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt; 
@@ -1360,7 +1361,7 @@ summary {
 </tbody>
 </table>
 <p>On souhaite reconstruire une colonne <code>code_insee</code> qui indique le code INSEE de la commune, et qui s’obtient en concaténant le code du département et celui de la commune. On peut utiliser <code data-pkg="tidyr">unite</code> pour cela :</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unite</span>(code_insee, code_departement, code_commune)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">unite</span>(code_insee, code_departement, code_commune)</span></code></pre></div>
 <pre><code># A tibble: 6 x 3
   code_insee commune           pop_tot
   &lt;chr&gt;      &lt;chr&gt;               &lt;int&gt;
@@ -1371,10 +1372,10 @@ summary {
 5 01_025     Bâgé-la-Ville        3130
 6 01_027     Balan                2785</code></pre>
 <p>Le résultat n’est pas idéal : par défaut <code data-pkg="tidyr">unite</code> ajoute un caractère <code>_</code> entre les deux valeurs concaténées, alors qu’on ne veut aucun séparateur. De plus, on souhaite conserver nos deux colonnes d’origine, qui peuvent nous être utiles. On peut résoudre ces deux problèmes à l’aide des arguments <code>sep</code> et <code>remove</code> :</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>d <span class="op">%&gt;%</span></span>
-<span id="cb21-2"><a href="#cb21-2"></a><span class="st">  </span><span class="kw">unite</span>(code_insee, code_departement, code_commune,</span>
-<span id="cb21-3"><a href="#cb21-3"></a>    <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>, <span class="dt">remove =</span> <span class="ot">FALSE</span></span>
-<span id="cb21-4"><a href="#cb21-4"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unite</span>(code_insee, code_departement, code_commune,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">sep =</span> <span class="st">&quot;&quot;</span>, <span class="at">remove =</span> <span class="cn">FALSE</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 <pre><code># A tibble: 6 x 5
   code_insee code_departement code_commune commune   pop_tot
   &lt;chr&gt;      &lt;chr&gt;            &lt;chr&gt;        &lt;chr&gt;       &lt;int&gt;
@@ -1412,11 +1413,11 @@ summary {
 </tbody>
 </table>
 <p>On peut extraire les noms et prénoms dans deux nouvelles colonnes avec :</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">extract</span>(</span>
-<span id="cb23-2"><a href="#cb23-2"></a>  eleve,</span>
-<span id="cb23-3"><a href="#cb23-3"></a>  <span class="kw">c</span>(<span class="st">&quot;prenom&quot;</span>, <span class="st">&quot;nom&quot;</span>),</span>
-<span id="cb23-4"><a href="#cb23-4"></a>  <span class="st">&quot;^(.*) (.*)$&quot;</span></span>
-<span id="cb23-5"><a href="#cb23-5"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">%&gt;%</span> <span class="fu">extract</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  eleve,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;prenom&quot;</span>, <span class="st">&quot;nom&quot;</span>),</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;^(.*) (.*)$&quot;</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["prenom"],"name":[1],"type":["chr"],"align":["left"]},{"label":["nom"],"name":[2],"type":["chr"],"align":["left"]},{"label":["note"],"name":[3],"type":["chr"],"align":["left"]}],"data":[{"1":"Félicien","2":"Machin","3":"5/20"},{"1":"Raymonde","2":"Bidule","3":"6/10"},{"1":"Martial","2":"Truc","3":"87/100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1424,11 +1425,11 @@ summary {
 </div>
 <p>On passe donc à <code data-pkg="tidyr">extract</code> trois arguments : la colonne d’où on doit extraire les valeurs, un vecteur avec les noms des nouvelles colonnes à créer, et une expression régulière comportant autant de groupes (identifiés par des parenthèses) que de nouvelles colonnes.</p>
 <p>Par défaut la colonne d’origine n’est pas conservée dans la table résultat. On peut modifier ce comportement avec l’argument <code>remove = FALSE</code>. Ainsi, le code suivant extrait les initiales du prénom et du nom mais conserve la colonne d’origine :</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">extract</span>(eleve,</span>
-<span id="cb24-2"><a href="#cb24-2"></a>  <span class="kw">c</span>(<span class="st">&quot;initiale_prenom&quot;</span>, <span class="st">&quot;initiale_nom&quot;</span>),</span>
-<span id="cb24-3"><a href="#cb24-3"></a>  <span class="st">&quot;^(.).* (.).*$&quot;</span>,</span>
-<span id="cb24-4"><a href="#cb24-4"></a>  <span class="dt">remove =</span> <span class="ot">FALSE</span></span>
-<span id="cb24-5"><a href="#cb24-5"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">%&gt;%</span> <span class="fu">extract</span>(eleve,</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;initiale_prenom&quot;</span>, <span class="st">&quot;initiale_nom&quot;</span>),</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;^(.).* (.).*$&quot;</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">remove =</span> <span class="cn">FALSE</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["eleve"],"name":[1],"type":["chr"],"align":["left"]},{"label":["initiale_prenom"],"name":[2],"type":["chr"],"align":["left"]},{"label":["initiale_nom"],"name":[3],"type":["chr"],"align":["left"]},{"label":["note"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"Félicien Machin","2":"F","3":"M","4":"5/20"},{"1":"Raymonde Bidule","2":"R","3":"B","4":"6/10"},{"1":"Martial Truc","2":"M","3":"T","4":"87/100"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1472,7 +1473,7 @@ summary {
 <p>Les élèves Barnabé et Chantal n’ont pas de notes dans toutes les matières. Supposons que c’est parce qu’ils étaient absents et que leur note est en fait un 0. Si on veut calculer les moyennes des élèves, on doit compléter ces notes manquantes.</p>
 <p>La fonction <code data-pkg="tidyr">complete</code> est prévue pour ce cas de figure : elle permet de compléter des combinaisons manquantes de valeurs de plusieurs colonnes.</p>
 <p>On peut l’utiliser de cette manière :</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">complete</span>(eleve, matiere)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">%&gt;%</span> <span class="fu">complete</span>(eleve, matiere)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["eleve"],"name":[1],"type":["chr"],"align":["left"]},{"label":["matiere"],"name":[2],"type":["chr"],"align":["left"]},{"label":["note"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"Alain","2":"Français","3":"9"},{"1":"Alain","2":"Maths","3":"16"},{"1":"Barnabé","2":"Français","3":"NA"},{"1":"Barnabé","2":"Maths","3":"17"},{"1":"Chantal","2":"Français","3":"11"},{"1":"Chantal","2":"Maths","3":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1480,7 +1481,7 @@ summary {
 </div>
 <p>On voit que les combinaisons manquante “Barnabé - Français” et “Chantal - Maths” ont bien été ajoutées par <code data-pkg="tidyr">complete</code>.</p>
 <p>Par défaut les lignes insérées récupèrent des valeurs manquantes <code>NA</code> pour les colonnes restantes. On peut néanmoins choisir une autre valeur avec l’argument <code>fill</code>, qui prend la forme d’une liste nommée :</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">complete</span>(eleve, matiere, <span class="dt">fill =</span> <span class="kw">list</span>(<span class="dt">note =</span> <span class="dv">0</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">%&gt;%</span> <span class="fu">complete</span>(eleve, matiere, <span class="at">fill =</span> <span class="fu">list</span>(<span class="at">note =</span> <span class="dv">0</span>))</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["eleve"],"name":[1],"type":["chr"],"align":["left"]},{"label":["matiere"],"name":[2],"type":["chr"],"align":["left"]},{"label":["note"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"Alain","2":"Français","3":"9"},{"1":"Alain","2":"Maths","3":"16"},{"1":"Barnabé","2":"Français","3":"0"},{"1":"Barnabé","2":"Maths","3":"17"},{"1":"Chantal","2":"Français","3":"11"},{"1":"Chantal","2":"Maths","3":"0"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -1524,14 +1525,14 @@ summary {
 </tbody>
 </table>
 <p>Si on applique <code data-pkg="tidyr">complete</code> comme précédemment, le résultat n’est pas bon car il contient toutes les combinaisons de <code>id</code>, <code>eleve</code> et <code>matiere</code>.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">complete</span>(id, eleve, matiere)</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">%&gt;%</span> <span class="fu">complete</span>(id, eleve, matiere)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["id"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["eleve"],"name":[2],"type":["chr"],"align":["left"]},{"label":["matiere"],"name":[3],"type":["chr"],"align":["left"]},{"label":["note"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"1001001","2":"Alain","3":"Français","4":"9"},{"1":"1001001","2":"Alain","3":"Maths","4":"16"},{"1":"1001001","2":"Barnabé","3":"Français","4":"NA"},{"1":"1001001","2":"Barnabé","3":"Maths","4":"NA"},{"1":"1001001","2":"Chantal","3":"Français","4":"NA"},{"1":"1001001","2":"Chantal","3":"Maths","4":"NA"},{"1":"1001002","2":"Alain","3":"Français","4":"NA"},{"1":"1001002","2":"Alain","3":"Maths","4":"NA"},{"1":"1001002","2":"Barnabé","3":"Français","4":"NA"},{"1":"1001002","2":"Barnabé","3":"Maths","4":"17"},{"1":"1001002","2":"Chantal","3":"Français","4":"NA"},{"1":"1001002","2":"Chantal","3":"Maths","4":"NA"},{"1":"1001003","2":"Alain","3":"Français","4":"NA"},{"1":"1001003","2":"Alain","3":"Maths","4":"NA"},{"1":"1001003","2":"Barnabé","3":"Français","4":"NA"},{"1":"1001003","2":"Barnabé","3":"Maths","4":"NA"},{"1":"1001003","2":"Chantal","3":"Français","4":"11"},{"1":"1001003","2":"Chantal","3":"Maths","4":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Dans ce cas, pour signifier à <code data-pkg="tidyr">complete</code> que <code>id</code> et <code>eleve</code> sont deux attributs d’un même individu et ne doivent pas être combinés entre eux, on doit les placer dans une fonction <code data-pkg="tidyr" data-rdoc="expand">nesting</code> :</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">complete</span>(<span class="kw">nesting</span>(id, eleve), matiere)</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">%&gt;%</span> <span class="fu">complete</span>(<span class="fu">nesting</span>(id, eleve), matiere)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["id"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["eleve"],"name":[2],"type":["chr"],"align":["left"]},{"label":["matiere"],"name":[3],"type":["chr"],"align":["left"]},{"label":["note"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"1001001","2":"Alain","3":"Français","4":"9"},{"1":"1001001","2":"Alain","3":"Maths","4":"16"},{"1":"1001002","2":"Barnabé","3":"Français","4":"NA"},{"1":"1001002","2":"Barnabé","3":"Maths","4":"17"},{"1":"1001003","2":"Chantal","3":"Français","4":"11"},{"1":"1001003","2":"Chantal","3":"Maths","4":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}

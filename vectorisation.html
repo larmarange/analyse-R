@@ -21,7 +21,6 @@
 <script src="libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="libs/navigation-1.1/tabsets.js"></script>
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
 <link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
@@ -72,7 +71,8 @@
   div.column{display: inline-block; vertical-align: top; width: 50%;}
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   ul.task-list{list-style: none;}
-    </style>
+      .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
 
 
 <style type="text/css">code{white-space: pre;}</style>
@@ -412,6 +412,7 @@ summary {
                   <li><a href="ggplot2.html"><strong>ggplot2</strong> et la grammaire des graphiques</a></li>
                   <li><a href="etendre-ggplot2.html">Étendre <strong>ggplot2</strong></a></li>
                   <li><a href="combiner-plusieurs-graphiques.html">Combiner plusieurs graphiques</a></li>
+                  <li><a href="exemples-graphiques-avances.html">Exemples de graphiques avancés</a></li>
                   <li><a href="graphiques-interactifs.html">Graphiques interactifs</a></li>
                   <li><a href="lattice-graphiques-et-formules.html"><strong>lattice</strong> : graphiques et formules</a></li>
                   <li><a href="cartes.html">Cartes</a></li>
@@ -512,15 +513,15 @@ summary {
 </div>
 <p>Les <a href="structures-conditionnelles.html">boucles</a> sont des opérations lentes en <strong>R</strong>. Il est cependant possible, dans de nombreux cas, d’éviter de les employer, en ayant recours à la vectorisation : au lieu d’appliquer une fonction à un scalaire, on l’applique à un vecteur. En fait, nous avons déjà eu recours à maintes reprises aux calculs vectoriels. En effet, lorsque nous avons procédé à des additions, des multiplications, etc. sur des vecteurs, nous avons effectué des calculs vectoriels.</p>
 <p>Empruntons un exemple à Burns (2011) : dans des langages comme le <strong>C</strong>, pour effectuer la somme des logarithmes naturels des n premiers entiers, voici une manière de faire :</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># Somme des logarithmes des 10 premiers entiers</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a>somme_log &lt;-<span class="st"> </span><span class="dv">0</span></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">seq_len</span>(<span class="dv">10</span>)) {</span>
-<span id="cb1-4"><a href="#cb1-4"></a>  somme_log &lt;-<span class="st"> </span>somme_log <span class="op">+</span><span class="st"> </span><span class="kw">log</span>(i)</span>
-<span id="cb1-5"><a href="#cb1-5"></a>}</span>
-<span id="cb1-6"><a href="#cb1-6"></a>somme_log</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Somme des logarithmes des 10 premiers entiers</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>somme_log <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="dv">10</span>)) {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  somme_log <span class="ot">&lt;-</span> somme_log <span class="sc">+</span> <span class="fu">log</span>(i)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>somme_log</span></code></pre></div>
 <pre><code>[1] 15.10441</code></pre>
 <p>Il est possible d’obtenir le même résultat, à la fois d’une manière plus élégante, mais surtout plus efficace en vectorisant le calcul :</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">sum</span>(<span class="kw">log</span>(<span class="kw">seq_len</span>(<span class="dv">10</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">log</span>(<span class="fu">seq_len</span>(<span class="dv">10</span>)))</span></code></pre></div>
 <pre><code>[1] 15.10441</code></pre>
 <p>Derrière ce code, la fonction <code data-pkg="base">log</code> applique la fonction logarithme sur toutes les valeurs du vecteur donné en paramètre. La fonction <code data-pkg="base">sum</code>, quant à elle, se charge d’additionner tous les éléments du vecteur qui lui est donné en paramètre. Ces deux fonctions utilisent la vectorisation, mais d’une manière différente : la fonction <code data-pkg="base">log</code> applique une opération à chaque élément d’un vecteur, tandis que la fonction <code data-pkg="base">sum</code> produit un résultat basé sur l’ensemble du vecteur. L’avantage d’utiliser des fonctions vectorielles plutôt que d’écrire une boucle pour effectuer le calcul, est que ces premières font appel à des fonctions rédigées en <strong>C</strong> ou <strong>FORTRAN</strong>, qui utilisent aussi des boucles, mais comme ce sont des langages compilés et non pas interprétés, les itérations sont réalisées dans un temps réduit.</p>
 <p>Il existe des fonctions, rédigées en <strong>C</strong> qui effectuent des boucles <code>for</code>. On leur donne souvent le nom de “fonctions de la famille apply”. Il ne s’agit pas de la vectorisation, mais ces fonctions sont souvent mentionnées dès que l’on parle de ce sujet. Ce sont des fonctionnelles qui prennent une fonction en input et retournent un vecteur en output (Wickham, 2014). Ces fonctions sont très utilisées, mais elles souffrent d’un manque d’uniformité. En effet, elles ont été rédigées par des personnes différentes, ayant chacune leur convention. L’extension <code class="pkg">plyr</code> remédie à ce problème, et ajoute par la même occasion des fonctions supplémentaires, pour couvrir plus de cas que les “fonctions de la famille apply”.</p>
@@ -529,7 +530,7 @@ summary {
 <h2>Les fonctions de l’extension plyr</h2>
 <p>Les fonctions que nous allons aborder dans cette section possèdent des noms faciles à se remémorer : la première lettre correspond au format d’entrée des données, la seconde au format de sortie souhaité, et la fin du nom se termine par le suffixe <code>ply</code>. Ainsi, la fonction <code data-pkg="plyr">llpply</code> prend en entrée une liste, effectue une opération sur les éléments, et retourne une liste (Anderson, 2012).</p>
 <p>Les différentes fonctions que nous allons passer en revue sont consignées dans le tableau ci-après, où les lignes correspondent aux formats d’entrée, et les lignes aux formats de sortie. Pour y avoir accès, il faut charger le package :</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">library</span>(plyr)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyr)</span></code></pre></div>
 <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -621,16 +622,16 @@ list
 <li><code>.margins = c()</code> : ne pas faire de découpement.</li>
 </ol>
 <p>Pour un tableau en trois dimensions, il y a trois découpages possibles en deux dimensions, trois en une dimension et une en zéro dimension (voir (Wickham, 2011)) au besoin.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>tableau &lt;-<span class="st"> </span><span class="kw">array</span>(</span>
-<span id="cb6-2"><a href="#cb6-2"></a>  <span class="dv">1</span><span class="op">:</span><span class="dv">24</span>,</span>
-<span id="cb6-3"><a href="#cb6-3"></a>  <span class="dt">dim =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">2</span>),</span>
-<span id="cb6-4"><a href="#cb6-4"></a>  <span class="dt">dimnames =</span> <span class="kw">list</span>(</span>
-<span id="cb6-5"><a href="#cb6-5"></a>    <span class="dt">ligne =</span> letters[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>],</span>
-<span id="cb6-6"><a href="#cb6-6"></a>    <span class="dt">colonne =</span> LETTERS[<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>],</span>
-<span id="cb6-7"><a href="#cb6-7"></a>    <span class="dt">annee =</span> <span class="dv">2001</span><span class="op">:</span><span class="dv">2002</span></span>
-<span id="cb6-8"><a href="#cb6-8"></a>  )</span>
-<span id="cb6-9"><a href="#cb6-9"></a>)</span>
-<span id="cb6-10"><a href="#cb6-10"></a>tableau</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>tableau <span class="ot">&lt;-</span> <span class="fu">array</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">:</span><span class="dv">24</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">2</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">dimnames =</span> <span class="fu">list</span>(</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">ligne =</span> letters[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>],</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">colonne =</span> LETTERS[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>],</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">annee =</span> <span class="dv">2001</span><span class="sc">:</span><span class="dv">2002</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>tableau</span></code></pre></div>
 <pre><code>, , annee = 2001
 
      colonne
@@ -646,11 +647,11 @@ ligne  A  B  C  D
     a 13 16 19 22
     b 14 17 20 23
     c 15 18 21 24</code></pre>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># La moyenne des valeurs pour chaque ligne</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="kw">aaply</span>(tableau, <span class="dv">1</span>, mean) <span class="co"># résultat sous forme de tableau</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># La moyenne des valeurs pour chaque ligne</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">aaply</span>(tableau, <span class="dv">1</span>, mean) <span class="co"># résultat sous forme de tableau</span></span></code></pre></div>
 <pre><code>   a    b    c 
 11.5 12.5 13.5 </code></pre>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">adply</span>(tableau, <span class="dv">1</span>, mean) <span class="co"># résultat sous forme de data.frame</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">adply</span>(tableau, <span class="dv">1</span>, mean) <span class="co"># résultat sous forme de data.frame</span></span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -689,7 +690,7 @@ c
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">alply</span>(tableau, <span class="dv">1</span>, mean) <span class="co"># résultat sous forme de liste</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">alply</span>(tableau, <span class="dv">1</span>, mean) <span class="co"># résultat sous forme de liste</span></span></code></pre></div>
 <pre><code>$`1`
 [1] 11.5
 
@@ -706,9 +707,9 @@ attr(,&quot;split_labels&quot;)
 1     a
 2     b
 3     c</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># La moyenne des valeurs pour chaque colonne</span></span>
-<span id="cb13-2"><a href="#cb13-2"></a><span class="co"># en ne simplifiant pas le résultat</span></span>
-<span id="cb13-3"><a href="#cb13-3"></a><span class="kw">aaply</span>(tableau, <span class="dv">2</span>, mean, <span class="dt">.drop =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># La moyenne des valeurs pour chaque colonne</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># en ne simplifiant pas le résultat</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">aaply</span>(tableau, <span class="dv">2</span>, mean, <span class="at">.drop =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -754,8 +755,8 @@ D
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># Par lignes et colonnes</span></span>
-<span id="cb14-2"><a href="#cb14-2"></a><span class="kw">aaply</span>(tableau, <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), mean)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Par lignes et colonnes</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">aaply</span>(tableau, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), mean)</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -829,7 +830,7 @@ c
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">adply</span>(tableau, <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), mean)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">adply</span>(tableau, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), mean)</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -979,10 +980,10 @@ D
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="co"># Avec une fonction définie par l&#39;utilisateur</span></span>
-<span id="cb16-2"><a href="#cb16-2"></a>standardise &lt;-<span class="st"> </span><span class="cf">function</span>(x) (x <span class="op">-</span><span class="st"> </span><span class="kw">min</span>(x)) <span class="op">/</span><span class="st"> </span>(<span class="kw">max</span>(x) <span class="op">-</span><span class="st"> </span><span class="kw">min</span>(x))</span>
-<span id="cb16-3"><a href="#cb16-3"></a><span class="co"># Standardiser les valeurs par colonne</span></span>
-<span id="cb16-4"><a href="#cb16-4"></a><span class="kw">aaply</span>(tableau, <span class="dv">2</span>, standardise)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Avec une fonction définie par l&#39;utilisateur</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>standardise <span class="ot">&lt;-</span> <span class="cf">function</span>(x) (x <span class="sc">-</span> <span class="fu">min</span>(x)) <span class="sc">/</span> (<span class="fu">max</span>(x) <span class="sc">-</span> <span class="fu">min</span>(x))</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Standardiser les valeurs par colonne</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">aaply</span>(tableau, <span class="dv">2</span>, standardise)</span></code></pre></div>
 <pre><code>, , annee = 2001
 
        ligne
@@ -1006,24 +1007,24 @@ colonne         a         b c
 <p>Dans le cas de l’analyse d’enquêtes, on utilise principalement des tableaux de données ou <em>data.frame</em>. Aussi, la connaissance des fonction <code data-pkg="plyr">daply</code>, <code data-pkg="plyr">ddply</code> et <code data-pkg="plyr">dlply</code> peut être utile. En effet, elles sont très utiles pour appliquer des fonctions à des groupes basés sur des combinaisons de variables, même si dans la majorité des cas il est maintenant plus facile de passer par les extensions <code class="pkg">dplyr</code> ou <code class="pkg">data.table</code> avec les opérations groupées (voir la section sur <a href="manipuler-les-donnees-avec-dplyr.html#operations-groupees">groub_by de dplyr</a> ou encore celle sur le <a href="manipulations-avancees-avec-data-table.html#grouper-les-resultats">paramètre by de data.table</a>.</p>
 <p>Avec les fonctions <code>d*ply</code>, il est nécessaire d’indiquer quelles variables, ou fonctions de variables on souhaite utiliser, en l’indiquant au paramètre <code>.variables</code>. Elles peuvent être contenue dans le data frame fourni au paramètre <code>.data</code>, ou bien provenir de l’environnement global. <strong>R</strong> cherchera dans un premier temps si la variable est contenue dans le <em>data.frame</em> et, s’il ne trouve pas, ira chercher dans l’environnement global.</p>
 <p>Pour indiquer que l’on désire faire le regroupement selon une variable – mettons <code>variable_1</code> – il faudra fournir l’expression <code>.(variable_1)</code> au paramètre <code>.variables</code>. Si on souhaite effectuer les regroupement selon les interactions de plusieurs variables – <code>variable_1</code>, <code>variable_2</code> et <code>variable_3</code>, il faut alors utiliser l’expression suivante : <code>.(variable_1, variable_2, variable_3)</code>.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>chomage &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
-<span id="cb18-2"><a href="#cb18-2"></a>  <span class="dt">region =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;Bretagne&quot;</span>, <span class="dv">4</span>), <span class="kw">rep</span>(<span class="st">&quot;Corse&quot;</span>, <span class="dv">2</span>)), <span class="dv">2</span>),</span>
-<span id="cb18-3"><a href="#cb18-3"></a>  <span class="dt">departement =</span> <span class="kw">rep</span>(<span class="kw">c</span>(</span>
-<span id="cb18-4"><a href="#cb18-4"></a>    <span class="st">&quot;Cotes-d&#39;Armor&quot;</span>, <span class="st">&quot;Finistere&quot;</span>,</span>
-<span id="cb18-5"><a href="#cb18-5"></a>    <span class="st">&quot;Ille-et-Vilaine&quot;</span>, <span class="st">&quot;Morbihan&quot;</span>,</span>
-<span id="cb18-6"><a href="#cb18-6"></a>    <span class="st">&quot;Corse-du-Sud&quot;</span>, <span class="st">&quot;Haute-Corse&quot;</span></span>
-<span id="cb18-7"><a href="#cb18-7"></a>  ), <span class="dv">2</span>),</span>
-<span id="cb18-8"><a href="#cb18-8"></a>  <span class="dt">annee =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="dv">2011</span>, <span class="dv">2010</span>), <span class="dt">each =</span> <span class="dv">6</span>),</span>
-<span id="cb18-9"><a href="#cb18-9"></a>  <span class="dt">ouvriers =</span> <span class="kw">c</span>(</span>
-<span id="cb18-10"><a href="#cb18-10"></a>    <span class="dv">8738</span>, <span class="dv">12701</span>, <span class="dv">11390</span>, <span class="dv">10228</span>, <span class="dv">975</span>, <span class="dv">1297</span>,</span>
-<span id="cb18-11"><a href="#cb18-11"></a>    <span class="dv">8113</span>, <span class="dv">12258</span>, <span class="dv">10897</span>, <span class="dv">9617</span>, <span class="dv">936</span>, <span class="dv">1220</span></span>
-<span id="cb18-12"><a href="#cb18-12"></a>  ),</span>
-<span id="cb18-13"><a href="#cb18-13"></a>  <span class="dt">ingenieurs =</span> <span class="kw">c</span>(</span>
-<span id="cb18-14"><a href="#cb18-14"></a>    <span class="dv">1420</span>, <span class="dv">2530</span>, <span class="dv">3986</span>, <span class="dv">2025</span>, <span class="dv">259</span>, <span class="dv">254</span>,</span>
-<span id="cb18-15"><a href="#cb18-15"></a>    <span class="dv">1334</span>, <span class="dv">2401</span>, <span class="dv">3776</span>, <span class="dv">1979</span>, <span class="dv">253</span>, <span class="dv">241</span></span>
-<span id="cb18-16"><a href="#cb18-16"></a>  )</span>
-<span id="cb18-17"><a href="#cb18-17"></a>)</span>
-<span id="cb18-18"><a href="#cb18-18"></a>chomage</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>chomage <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">region =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">&quot;Bretagne&quot;</span>, <span class="dv">4</span>), <span class="fu">rep</span>(<span class="st">&quot;Corse&quot;</span>, <span class="dv">2</span>)), <span class="dv">2</span>),</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">departement =</span> <span class="fu">rep</span>(<span class="fu">c</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Cotes-d&#39;Armor&quot;</span>, <span class="st">&quot;Finistere&quot;</span>,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Ille-et-Vilaine&quot;</span>, <span class="st">&quot;Morbihan&quot;</span>,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Corse-du-Sud&quot;</span>, <span class="st">&quot;Haute-Corse&quot;</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  ), <span class="dv">2</span>),</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">annee =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">2011</span>, <span class="dv">2010</span>), <span class="at">each =</span> <span class="dv">6</span>),</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ouvriers =</span> <span class="fu">c</span>(</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="dv">8738</span>, <span class="dv">12701</span>, <span class="dv">11390</span>, <span class="dv">10228</span>, <span class="dv">975</span>, <span class="dv">1297</span>,</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    <span class="dv">8113</span>, <span class="dv">12258</span>, <span class="dv">10897</span>, <span class="dv">9617</span>, <span class="dv">936</span>, <span class="dv">1220</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">ingenieurs =</span> <span class="fu">c</span>(</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1420</span>, <span class="dv">2530</span>, <span class="dv">3986</span>, <span class="dv">2025</span>, <span class="dv">259</span>, <span class="dv">254</span>,</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1334</span>, <span class="dv">2401</span>, <span class="dv">3776</span>, <span class="dv">1979</span>, <span class="dv">253</span>, <span class="dv">241</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>chomage</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -1251,9 +1252,9 @@ Haute-Corse
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="co"># Total chomeurs en Bretagne et en Corse pour les années 2010 et 2011</span></span>
-<span id="cb19-2"><a href="#cb19-2"></a><span class="co"># sous forme de data.frame</span></span>
-<span id="cb19-3"><a href="#cb19-3"></a><span class="kw">ddply</span>(chomage, .(annee), summarise, <span class="dt">total_chomeurs =</span> <span class="kw">sum</span>(ouvriers <span class="op">+</span><span class="st"> </span>ingenieurs))</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Total chomeurs en Bretagne et en Corse pour les années 2010 et 2011</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># sous forme de data.frame</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ddply</span>(chomage, .(annee), summarise, <span class="at">total_chomeurs =</span> <span class="fu">sum</span>(ouvriers <span class="sc">+</span> ingenieurs))</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -1284,15 +1285,15 @@ total_chomeurs
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="co"># sous forme de array</span></span>
-<span id="cb20-2"><a href="#cb20-2"></a><span class="kw">daply</span>(chomage, .(annee), summarise, <span class="dt">total_chomeurs =</span> <span class="kw">sum</span>(ouvriers <span class="op">+</span><span class="st"> </span>ingenieurs))</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sous forme de array</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">daply</span>(chomage, .(annee), summarise, <span class="at">total_chomeurs =</span> <span class="fu">sum</span>(ouvriers <span class="sc">+</span> ingenieurs))</span></code></pre></div>
 <pre><code>$`2010`
 [1] 53025
 
 $`2011`
 [1] 55803</code></pre>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="co"># sous forme de list</span></span>
-<span id="cb22-2"><a href="#cb22-2"></a><span class="kw">dlply</span>(chomage, .(annee), summarise, <span class="dt">total_chomeurs =</span> <span class="kw">sum</span>(ouvriers <span class="op">+</span><span class="st"> </span>ingenieurs))</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sous forme de list</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dlply</span>(chomage, .(annee), summarise, <span class="at">total_chomeurs =</span> <span class="fu">sum</span>(ouvriers <span class="sc">+</span> ingenieurs))</span></code></pre></div>
 <pre><code>$`2010`
   total_chomeurs
 1          53025
@@ -1307,10 +1308,10 @@ attr(,&quot;split_labels&quot;)
   annee
 1  2010
 2  2011</code></pre>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="co"># Total chomeurs pour les années 2010 et 2011, par région du data frame</span></span>
-<span id="cb24-2"><a href="#cb24-2"></a><span class="kw">ddply</span>(chomage, .(annee, region), summarise,</span>
-<span id="cb24-3"><a href="#cb24-3"></a>  <span class="dt">total_chomeurs =</span> <span class="kw">sum</span>(ouvriers <span class="op">+</span><span class="st"> </span>ingenieurs)</span>
-<span id="cb24-4"><a href="#cb24-4"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Total chomeurs pour les années 2010 et 2011, par région du data frame</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ddply</span>(chomage, .(annee, region), summarise,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">total_chomeurs =</span> <span class="fu">sum</span>(ouvriers <span class="sc">+</span> ingenieurs)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -1372,8 +1373,8 @@ Corse
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="co"># Nombre d&#39;observations pour chaque groupe</span></span>
-<span id="cb25-2"><a href="#cb25-2"></a><span class="kw">ddply</span>(chomage, .(annee, region), nrow)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Nombre d&#39;observations pour chaque groupe</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ddply</span>(chomage, .(annee, region), nrow)</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -1435,12 +1436,12 @@ Corse
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="co"># En utilisant une fonction définie par l&#39;utilisateur</span></span>
-<span id="cb26-2"><a href="#cb26-2"></a><span class="kw">ddply</span>(chomage, .(annee, region), <span class="cf">function</span>(x) {</span>
-<span id="cb26-3"><a href="#cb26-3"></a>  moy_ouvriers &lt;-<span class="st"> </span><span class="kw">mean</span>(x<span class="op">$</span>ouvriers)</span>
-<span id="cb26-4"><a href="#cb26-4"></a>  moy_ingenieurs &lt;-<span class="st"> </span><span class="kw">mean</span>(x<span class="op">$</span>ingenieurs)</span>
-<span id="cb26-5"><a href="#cb26-5"></a>  <span class="kw">data.frame</span>(<span class="dt">moy_ouvriers =</span> moy_ouvriers, <span class="dt">moy_ingenieurs =</span> moy_ingenieurs)</span>
-<span id="cb26-6"><a href="#cb26-6"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># En utilisant une fonction définie par l&#39;utilisateur</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ddply</span>(chomage, .(annee, region), <span class="cf">function</span>(x) {</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  moy_ouvriers <span class="ot">&lt;-</span> <span class="fu">mean</span>(x<span class="sc">$</span>ouvriers)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  moy_ingenieurs <span class="ot">&lt;-</span> <span class="fu">mean</span>(x<span class="sc">$</span>ingenieurs)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">moy_ouvriers =</span> moy_ouvriers, <span class="at">moy_ingenieurs =</span> moy_ingenieurs)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -1521,12 +1522,12 @@ Corse
 <div id="list-en-input-lply" class="section level3">
 <h3>List en input : <code>l*ply</code></h3>
 <p>Les fonctions du type <code>l*ply</code> prennent une liste en entrée. Il n’y a donc pas de paramétrage à effectuer pour choisir un découpage, il est déjà fait.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="kw">set.seed</span>(<span class="dv">1</span>)</span>
-<span id="cb27-2"><a href="#cb27-2"></a>liste &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">normale =</span> <span class="kw">rnorm</span>(<span class="dv">10</span>), <span class="dt">logiques =</span> <span class="kw">c</span>(<span class="ot">TRUE</span>, <span class="ot">TRUE</span>, <span class="ot">FALSE</span>), <span class="dt">x =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="ot">NA</span>, <span class="dv">3</span>))</span>
-<span id="cb27-3"><a href="#cb27-3"></a><span class="co"># Obtenir la longueur de chaque élément de la liste</span></span>
-<span id="cb27-4"><a href="#cb27-4"></a><span class="kw">laply</span>(liste, length)</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>liste <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">normale =</span> <span class="fu">rnorm</span>(<span class="dv">10</span>), <span class="at">logiques =</span> <span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span>), <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="cn">NA</span>, <span class="dv">3</span>))</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtenir la longueur de chaque élément de la liste</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="fu">laply</span>(liste, length)</span></code></pre></div>
 <pre><code>[1] 10  3  3</code></pre>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="kw">ldply</span>(liste, length)</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ldply</span>(liste, length)</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -1565,7 +1566,7 @@ x
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="kw">llply</span>(liste, length)</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">llply</span>(liste, length)</span></code></pre></div>
 <pre><code>$normale
 [1] 10
 
@@ -1574,12 +1575,12 @@ $logiques
 
 $x
 [1] 3</code></pre>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="co"># Calculer la moyenne pour chaque élément</span></span>
-<span id="cb32-2"><a href="#cb32-2"></a><span class="kw">unlist</span>(<span class="kw">llply</span>(liste, mean, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculer la moyenne pour chaque élément</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(<span class="fu">llply</span>(liste, mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code></pre></div>
 <pre><code>  normale  logiques         x 
 0.1322028 0.6666667 1.5000000 </code></pre>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="co"># Appliquer une fonction définie par l&#39;utilisateur</span></span>
-<span id="cb34-2"><a href="#cb34-2"></a><span class="kw">llply</span>(liste, <span class="cf">function</span>(x, y) x <span class="op">/</span><span class="st"> </span><span class="kw">mean</span>(x, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">+</span><span class="st"> </span>y, <span class="dt">y =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Appliquer une fonction définie par l&#39;utilisateur</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">llply</span>(liste, <span class="cf">function</span>(x, y) x <span class="sc">/</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> y, <span class="at">y =</span> <span class="dv">2</span>)</span></code></pre></div>
 <pre><code>$normale
  [1] -2.7385827  3.3891033 -4.3208096 14.0669232  4.4924421
  [6] -4.2061356  5.6869803  7.5847895  6.3552892 -0.3099997
@@ -1642,12 +1643,12 @@ $x
 <div id="la-fonction-lapply" class="section level3">
 <h3>La fonction lapply</h3>
 <p>La fonction <code data-pkg="base">lapply</code> applique à chaque élément du premier paramètre qui lui est donné une fonction indiquée en second paramètre et retourne le résultat sous forme de liste. La syntaxe est la suivante :</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="kw">lapply</span>(X, FUN, ...)</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lapply</span>(X, FUN, ...)</span></code></pre></div>
 <p>avec <code>X</code> la liste ou le vecteur donné en paramètre sur lequel on désire appliquer la fonction <code>FUN</code>. La paramètre <code>...</code> permet de fournir des paramètres à une fonction imbriquée, en l’occurance à celle que l’on souhaite appliquer à tous les éléments de <code>X</code>.</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>liste &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">normale =</span> <span class="kw">rnorm</span>(<span class="dv">10</span>), <span class="dt">logiques =</span> <span class="kw">c</span>(<span class="ot">TRUE</span>, <span class="ot">TRUE</span>, <span class="ot">FALSE</span>), <span class="dt">x =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="ot">NA</span>, <span class="dv">3</span>))</span>
-<span id="cb37-2"><a href="#cb37-2"></a></span>
-<span id="cb37-3"><a href="#cb37-3"></a><span class="co"># Obtenir la liste des longueurs de chaque élément</span></span>
-<span id="cb37-4"><a href="#cb37-4"></a><span class="kw">lapply</span>(liste, length)</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>liste <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">normale =</span> <span class="fu">rnorm</span>(<span class="dv">10</span>), <span class="at">logiques =</span> <span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span>), <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="cn">NA</span>, <span class="dv">3</span>))</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtenir la liste des longueurs de chaque élément</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="fu">lapply</span>(liste, length)</span></code></pre></div>
 <pre><code>$normale
 [1] 10
 
@@ -1656,8 +1657,8 @@ $logiques
 
 $x
 [1] 3</code></pre>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a><span class="co"># Calculer la moyenne pour chaque élément</span></span>
-<span id="cb39-2"><a href="#cb39-2"></a><span class="kw">lapply</span>(liste, mean, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculer la moyenne pour chaque élément</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">lapply</span>(liste, mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <pre><code>$normale
 [1] 0.248845
 
@@ -1667,7 +1668,7 @@ $logiques
 $x
 [1] 1.5</code></pre>
 <p>On peut créer une fonction à l’intérieur de l’appel à <code data-pkg="&quot;base">lapply</code>. Le premier paramètre est nécessairement un élément du vecteur auquel on souhaite appliquer la fonction.</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="kw">lapply</span>(liste, <span class="cf">function</span>(x) x <span class="op">/</span><span class="st"> </span><span class="kw">mean</span>(x, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lapply</span>(liste, <span class="cf">function</span>(x) x <span class="sc">/</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code></pre></div>
 <pre><code>$normale
  [1]  6.07519277  1.56661087 -2.49649643 -8.89991820
  [5]  4.52060941 -0.18056868 -0.06506164  3.79286833
@@ -1678,8 +1679,8 @@ $logiques
 
 $x
 [1]  0 NA  2</code></pre>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a><span class="co"># Si la fonction doit posséder plusieurs paramètres</span></span>
-<span id="cb43-2"><a href="#cb43-2"></a><span class="kw">lapply</span>(liste, <span class="cf">function</span>(x, y) x <span class="op">/</span><span class="st"> </span><span class="kw">mean</span>(x, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">+</span><span class="st"> </span>y, <span class="dt">y =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Si la fonction doit posséder plusieurs paramètres</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">lapply</span>(liste, <span class="cf">function</span>(x, y) x <span class="sc">/</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> y, <span class="at">y =</span> <span class="dv">2</span>)</span></code></pre></div>
 <pre><code>$normale
  [1]  8.0751928  3.5666109 -0.4964964 -6.8999182  6.5206094
  [6]  1.8194313  1.9349384  5.7928683  5.3001318  4.3866318
@@ -1690,21 +1691,21 @@ $logiques
 $x
 [1]  2 NA  4</code></pre>
 <p>On peut appliquer la <code data-pkg="base">lapply</code> sur des tableaux de données, dans la mesure où ces derniers sont des listes. Cela s’avère pratique pour réaliser des opérations pour chaque colonne d’un tableau de données. Afin de prendre moins de place dans l’affichage, l’exemple suivant utilise la fonction <code data-pkg="base">unlist</code> pour <q>aplatir</q> la liste obtenue.</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="kw">data</span>(cars)</span>
-<span id="cb45-2"><a href="#cb45-2"></a></span>
-<span id="cb45-3"><a href="#cb45-3"></a><span class="co"># Afficher le type de chaque colonne de la data frame &quot;cars&quot;</span></span>
-<span id="cb45-4"><a href="#cb45-4"></a><span class="kw">unlist</span>(<span class="kw">lapply</span>(cars, class))</span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(cars)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Afficher le type de chaque colonne de la data frame &quot;cars&quot;</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(<span class="fu">lapply</span>(cars, class))</span></code></pre></div>
 <pre><code>    speed      dist 
 &quot;numeric&quot; &quot;numeric&quot; </code></pre>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a><span class="co"># Calculer la moyenne pour chaque colonne</span></span>
-<span id="cb47-2"><a href="#cb47-2"></a><span class="kw">unlist</span>(<span class="kw">lapply</span>(cars, mean))</span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculer la moyenne pour chaque colonne</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(<span class="fu">lapply</span>(cars, mean))</span></code></pre></div>
 <pre><code>speed  dist 
 15.40 42.98 </code></pre>
 <div class="note">
 <p>Attention, ce qui suit relève plus d’un tour de passe-passe que de la programmation élégante.</p>
 <p>Si la fonction que l’on souhaite appliquer aux éléments de notre vecteur retourne un vecteur ligne de même longueur pour chaque élément, la fonction <code data-pkg="base">do.call</code> peut devenir un outil très pratique pour créer une data frame. Voyons-le à travers un exemple.</p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a>l &lt;-<span class="st"> </span><span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>, <span class="cf">function</span>(x) <span class="kw">cbind</span>(<span class="dt">valeur =</span> x, <span class="dt">lettre =</span> LETTERS[x]))</span>
-<span id="cb49-2"><a href="#cb49-2"></a>l</span></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>l <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="cf">function</span>(x) <span class="fu">cbind</span>(<span class="at">valeur =</span> x, <span class="at">lettre =</span> LETTERS[x]))</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>l</span></code></pre></div>
 <pre><code>[[1]]
      valeur lettre
 [1,] &quot;1&quot;    &quot;A&quot;   
@@ -1716,7 +1717,7 @@ $x
 [[3]]
      valeur lettre
 [1,] &quot;3&quot;    &quot;C&quot;   </code></pre>
-<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a><span class="kw">data.frame</span>(<span class="kw">do.call</span>(<span class="st">&quot;rbind&quot;</span>, l))</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="fu">do.call</span>(<span class="st">&quot;rbind&quot;</span>, l))</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -1760,9 +1761,9 @@ C
 <div id="la-fonction-sapply" class="section level3">
 <h3>La fonction sapply</h3>
 <p>La fonction <code data-pkg="base" data-rdoc="lapply">sapply</code> applique une fonction aux éléments d’un vecteur ou d’une liste et peut retourner un vecteur, une liste ou une matrice. Elle possède la syntaxe suivante :</p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a><span class="kw">sapply</span>(X, FUN, simplify, USE.NAMES)</span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(X, FUN, simplify, USE.NAMES)</span></code></pre></div>
 <p>où <code>X</code> est le vecteur ou la liste auquel on souhaite appliquer la fonction <code>FUN</code>. Lorsque <code>simplify</code> vaut <code>FALSE</code>, le résultat est retourné sous forme de liste, exactement comme <code data-pkg="base">lapply</code> (la fonction <code data-pkg="base" data-rdoc="lapply">sapply</code> s’appuie sur la fonction <code data-pkg="base">lapply</code>). Lorsque <code>simplify</code> vaut <code>TRUE</code> (par défaut), le résultat est retourné dans une forme simplifiée, si cela est possible. Si tous les éléments retournés par la fonction <code>FUN</code> sont des scalaires, alors <code data-pkg="base" data-rdoc="lapply">sapply</code> retourne un vecteur ; sinon, si les éléments retournés ont la même taille, <code data-pkg="base" data-rdoc="lapply">sapply</code> retourne une matrice avec une colonne pour chaque élément de <code>X</code> auquel la fonction <code>FUN</code> est appliquée. Le paramètre <code>USE.NAMES</code>, quand il vaut <code>TRUE</code> (par défaut), et si <code>X</code> est de type character, utilise <code>X</code> comme nom pour le résultat, à moins que le résultat possède déjà des noms.</p>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a>(x &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">a =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dt">beta =</span> <span class="kw">exp</span>(<span class="op">-</span><span class="dv">3</span><span class="op">:</span><span class="dv">3</span>), <span class="dt">logic =</span> <span class="kw">c</span>(<span class="ot">TRUE</span>, <span class="ot">FALSE</span>, <span class="ot">FALSE</span>, <span class="ot">TRUE</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>(x <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">a =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="at">beta =</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">3</span><span class="sc">:</span><span class="dv">3</span>), <span class="at">logic =</span> <span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="cn">TRUE</span>)))</span></code></pre></div>
 <pre><code>$a
  [1]  1  2  3  4  5  6  7  8  9 10
 
@@ -1772,10 +1773,10 @@ $beta
 
 $logic
 [1]  TRUE FALSE FALSE  TRUE</code></pre>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a><span class="co"># Application de la fonction quantile() à chaque élément</span></span>
-<span id="cb55-2"><a href="#cb55-2"></a><span class="co"># pour obtenir la médiane et les quartiles</span></span>
-<span id="cb55-3"><a href="#cb55-3"></a><span class="co"># Avec lapply()</span></span>
-<span id="cb55-4"><a href="#cb55-4"></a><span class="kw">lapply</span>(x, quantile)</span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Application de la fonction quantile() à chaque élément</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="co"># pour obtenir la médiane et les quartiles</span></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Avec lapply()</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a><span class="fu">lapply</span>(x, quantile)</span></code></pre></div>
 <pre><code>$a
    0%   25%   50%   75%  100% 
  1.00  3.25  5.50  7.75 10.00 
@@ -1787,8 +1788,8 @@ $beta
 $logic
   0%  25%  50%  75% 100% 
  0.0  0.0  0.5  1.0  1.0 </code></pre>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a><span class="co"># Avec sapply</span></span>
-<span id="cb57-2"><a href="#cb57-2"></a><span class="kw">sapply</span>(x, quantile)</span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Avec sapply</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(x, quantile)</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -1878,37 +1879,37 @@ logic
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a><span class="co"># Exemple avec USE.NAMES</span></span>
-<span id="cb58-2"><a href="#cb58-2"></a><span class="kw">sapply</span>(LETTERS[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>], nchar)</span></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exemple avec USE.NAMES</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(LETTERS[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>], nchar)</span></code></pre></div>
 <pre><code>A B C 
 1 1 1 </code></pre>
-<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a><span class="kw">sapply</span>(LETTERS[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>], nchar, <span class="dt">USE.NAMES =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(LETTERS[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>], nchar, <span class="at">USE.NAMES =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <pre><code>[1] 1 1 1</code></pre>
 </div>
 <div id="la-fonction-vapply" class="section level3">
 <h3>La fonction vapply</h3>
 <p>La fonction <code data-pkg="base" data-rdoc="lapply">vapply</code> est similaire à <code data-pkg="base" data-rdoc="lapply">sapply</code>, mais elle possède un type de valeurs spécifié, ce qui peut rendre l’utilisation plus sûre (et parfois plus rapide). Lorsqu’on lui fournit un <em>data.frame</em>, <code data-pkg="base" data-rdoc="lapply">vapply</code> retourne le même résultat que <code data-pkg="base" data-rdoc="lapply">sapply</code>. Cependant, quand on lui fournit une liste vide, <code data-pkg="base" data-rdoc="lapply">vapply</code> retourne un vecteur logique de longueur nulle (ce qui est plus sensé que la liste vide que returne <code data-pkg="base" data-rdoc="lapply">sapply</code>).</p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a><span class="kw">vapply</span>(X, FUN, FUN.VALUE, ..., USE.NAMES)</span></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vapply</span>(X, FUN, FUN.VALUE, ..., USE.NAMES)</span></code></pre></div>
 <p>avec <code>X</code>, <code>FUN</code>, <code>...</code> et <code>USE.NAMES</code> les mêmes paramètres que pour <code data-pkg="base" data-rdoc="lapply">sapply</code>. Le paramètre <code>FUN.VALUE</code> doit être un vecteur, un masque pour la valeur retournée par la fonction de <code>FUN</code>.</p>
-<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a><span class="co"># Retourner le vecteur</span></span>
-<span id="cb63-2"><a href="#cb63-2"></a><span class="kw">sapply</span>(cars, is.numeric)</span></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retourner le vecteur</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(cars, is.numeric)</span></code></pre></div>
 <pre><code>speed  dist 
  TRUE  TRUE </code></pre>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a><span class="kw">vapply</span>(cars, is.numeric, <span class="dt">FUN.VALUE =</span> <span class="kw">logical</span>(<span class="dv">1</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vapply</span>(cars, is.numeric, <span class="at">FUN.VALUE =</span> <span class="fu">logical</span>(<span class="dv">1</span>))</span></code></pre></div>
 <pre><code>speed  dist 
  TRUE  TRUE </code></pre>
-<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a><span class="co"># Avec la liste vide</span></span>
-<span id="cb67-2"><a href="#cb67-2"></a><span class="kw">sapply</span>(<span class="kw">list</span>(), is.numeric)</span></code></pre></div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Avec la liste vide</span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(<span class="fu">list</span>(), is.numeric)</span></code></pre></div>
 <pre><code>list()</code></pre>
-<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a><span class="kw">vapply</span>(<span class="kw">list</span>(), is.numeric, <span class="dt">FUN.VALUE =</span> <span class="kw">logical</span>(<span class="dv">1</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vapply</span>(<span class="fu">list</span>(), is.numeric, <span class="at">FUN.VALUE =</span> <span class="fu">logical</span>(<span class="dv">1</span>))</span></code></pre></div>
 <pre><code>logical(0)</code></pre>
 </div>
 <div id="la-fonction-apply" class="section level3">
 <h3>La fonction apply</h3>
 <p>La fonction <code data-pkg="base">apply</code> possède la syntaxe suivante :</p>
-<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1"></a><span class="kw">apply</span>(X, MARGIN, FUN, ...)</span></code></pre></div>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">apply</span>(X, MARGIN, FUN, ...)</span></code></pre></div>
 <p>avec <code>X</code> une matrice ou un tableau, <code>MARGIN</code> indiquant si on souhaite appliquer la fonction <code>FUN</code> aux lignes <code>(MARGIN = 1)</code> ou aux colonnes <code>(MARGIN = 2)</code>, et <code>...</code> des paramètres supplémentaires éventuels à passer à la fonction <code>FUN</code>.</p>
-<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1"></a>(X &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">9</span>, <span class="dt">ncol =</span> <span class="dv">3</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>(X <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>, <span class="at">ncol =</span> <span class="dv">3</span>))</span></code></pre></div>
 <table>
 <tbody>
 <tr>
@@ -1946,23 +1947,23 @@ logic
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a><span class="co"># Somme par ligne</span></span>
-<span id="cb73-2"><a href="#cb73-2"></a><span class="kw">apply</span>(X, <span class="dt">MARGIN =</span> <span class="dv">1</span>, sum)</span></code></pre></div>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Somme par ligne</span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="fu">apply</span>(X, <span class="at">MARGIN =</span> <span class="dv">1</span>, sum)</span></code></pre></div>
 <pre><code>[1] 12 15 18</code></pre>
-<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a><span class="co"># Somme par colonne</span></span>
-<span id="cb75-2"><a href="#cb75-2"></a><span class="kw">apply</span>(X, <span class="dt">MARGIN =</span> <span class="dv">2</span>, sum)</span></code></pre></div>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Somme par colonne</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a><span class="fu">apply</span>(X, <span class="at">MARGIN =</span> <span class="dv">2</span>, sum)</span></code></pre></div>
 <pre><code>[1]  6 15 24</code></pre>
-<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a><span class="co"># Fonction définie par l&#39;utilisateur</span></span>
-<span id="cb77-2"><a href="#cb77-2"></a><span class="kw">apply</span>(X, <span class="dt">MARGIN =</span> <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="kw">sum</span>(x) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(X))</span></code></pre></div>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fonction définie par l&#39;utilisateur</span></span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a><span class="fu">apply</span>(X, <span class="at">MARGIN =</span> <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">sum</span>(x) <span class="sc">/</span> <span class="fu">sum</span>(X))</span></code></pre></div>
 <pre><code>[1] 0.2666667 0.3333333 0.4000000</code></pre>
 </div>
 <div id="la-fonction-tapply" class="section level3">
 <h3>La fonction tapply</h3>
 <p>La fonction <code data-pkg="base">tapply</code> s’applique à chaque cellule d’un tableau, sur des regroupements définis par les variables catégorielles fournies. La syntaxe est la suivante :</p>
-<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1"></a><span class="kw">tapply</span>(X, INDEX, FUN, ..., simplify)</span></code></pre></div>
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(X, INDEX, FUN, ..., simplify)</span></code></pre></div>
 <p>avec <code>X</code> le tableau de données, <code>INDEX</code> une liste d’un ou plusieurs facteurs, chacun de même taille que <code>X</code>. Le paramètre <code>FUN</code> renseigne la fonction que l’on souhaite appliquer. Si <code>simplify</code> vaut <code>FALSE</code>, le résultat est un tableau de mode <em>list</em>. Sinon (par défaut), le résultat est un tableau de scalaires.</p>
-<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1"></a><span class="kw">data</span>(iris)</span>
-<span id="cb80-2"><a href="#cb80-2"></a><span class="kw">head</span>(iris)</span></code></pre></div>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(iris)</span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(iris)</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -2088,12 +2089,12 @@ setosa
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1"></a><span class="co"># Moyenne de la longueur des sépales par espèce</span></span>
-<span id="cb81-2"><a href="#cb81-2"></a><span class="kw">tapply</span>(iris<span class="op">$</span>Sepal.Length, iris<span class="op">$</span>Species, mean)</span></code></pre></div>
+<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Moyenne de la longueur des sépales par espèce</span></span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(iris<span class="sc">$</span>Sepal.Length, iris<span class="sc">$</span>Species, mean)</span></code></pre></div>
 <pre><code>    setosa versicolor  virginica 
      5.006      5.936      6.588 </code></pre>
-<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1"></a><span class="co"># Pour retourner le résultat sous forme de liste</span></span>
-<span id="cb83-2"><a href="#cb83-2"></a><span class="kw">tapply</span>(iris<span class="op">$</span>Sepal.Length, iris<span class="op">$</span>Species, mean, <span class="dt">simplify =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pour retourner le résultat sous forme de liste</span></span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(iris<span class="sc">$</span>Sepal.Length, iris<span class="sc">$</span>Species, mean, <span class="at">simplify =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <pre><code>$setosa
 [1] 5.006
 
@@ -2106,45 +2107,45 @@ $virginica
 <div id="la-fonction-mapply" class="section level3">
 <h3>La fonction mapply</h3>
 <p>La fonction <code data-pkg="base">mapply</code> applique une fonction à plusieurs listes ou vecteurs. La syntaxe est la suivante :</p>
-<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1"></a><span class="kw">mapply</span>(FUN, ..., MoreArgs, SIMPLIFY, USE.NAMES)</span></code></pre></div>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mapply</span>(FUN, ..., MoreArgs, SIMPLIFY, USE.NAMES)</span></code></pre></div>
 <p>avec <code>FUN</code> la fonction à appliquer aux vecteurs ou listes fournies (grâce à <code>...</code>), <code>MoreArgs</code> une liste de paramètres supplémentaires à fournir à la fonction à appliquer. Les paramètres <code>SIMPLIFY</code> et <code>USE.NAMES</code> ont le même usage que pour la fonction <code data-pkg="base" data-rdoc="lapply">sapply</code>.</p>
-<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1"></a>(l1 &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">a =</span> <span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>), <span class="dt">b =</span> <span class="kw">c</span>(<span class="dv">6</span><span class="op">:</span><span class="dv">10</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>(l1 <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">a =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>), <span class="at">b =</span> <span class="fu">c</span>(<span class="dv">6</span><span class="sc">:</span><span class="dv">10</span>)))</span></code></pre></div>
 <pre><code>$a
 [1] 1 2 3 4 5
 
 $b
 [1]  6  7  8  9 10</code></pre>
-<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1"></a>(l2 &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">c =</span> <span class="kw">c</span>(<span class="dv">11</span><span class="op">:</span><span class="dv">15</span>), <span class="dt">d =</span> <span class="kw">c</span>(<span class="dv">16</span><span class="op">:</span><span class="dv">20</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>(l2 <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">c =</span> <span class="fu">c</span>(<span class="dv">11</span><span class="sc">:</span><span class="dv">15</span>), <span class="at">d =</span> <span class="fu">c</span>(<span class="dv">16</span><span class="sc">:</span><span class="dv">20</span>)))</span></code></pre></div>
 <pre><code>$c
 [1] 11 12 13 14 15
 
 $d
 [1] 16 17 18 19 20</code></pre>
-<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1"></a><span class="co"># La somme des éléments correspondants de l1 et l2</span></span>
-<span id="cb90-2"><a href="#cb90-2"></a><span class="kw">mapply</span>(sum, l1<span class="op">$</span>a, l1<span class="op">$</span>b, l2<span class="op">$</span>c, l2<span class="op">$</span>d)</span></code></pre></div>
+<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="co"># La somme des éléments correspondants de l1 et l2</span></span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mapply</span>(sum, l1<span class="sc">$</span>a, l1<span class="sc">$</span>b, l2<span class="sc">$</span>c, l2<span class="sc">$</span>d)</span></code></pre></div>
 <pre><code>[1] 34 38 42 46 50</code></pre>
-<div class="sourceCode" id="cb92"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1"></a><span class="co"># Attention au recyclage silencieux !</span></span>
-<span id="cb92-2"><a href="#cb92-2"></a>(l1 &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">a =</span> <span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>), <span class="dt">b =</span> <span class="kw">c</span>(<span class="dv">6</span><span class="op">:</span><span class="dv">20</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb92"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Attention au recyclage silencieux !</span></span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>(l1 <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">a =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>), <span class="at">b =</span> <span class="fu">c</span>(<span class="dv">6</span><span class="sc">:</span><span class="dv">20</span>)))</span></code></pre></div>
 <pre><code>$a
 [1] 1 2 3 4 5
 
 $b
  [1]  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20</code></pre>
-<div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1"></a><span class="kw">mapply</span>(sum, l1<span class="op">$</span>a, l1<span class="op">$</span>b, l2<span class="op">$</span>c, l2<span class="op">$</span>d)</span></code></pre></div>
+<div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mapply</span>(sum, l1<span class="sc">$</span>a, l1<span class="sc">$</span>b, l2<span class="sc">$</span>c, l2<span class="sc">$</span>d)</span></code></pre></div>
 <pre><code> [1] 34 38 42 46 50 39 43 47 51 55 44 48 52 56 60</code></pre>
 </div>
 </div>
 <div id="la-fonction-vectorize" class="section level2">
 <h2>La fonction Vectorize</h2>
 <p>La fonction <code data-pkg="base">Vectorize</code> permet de convertir une fonction scalaire en une fonction vectorielle. Attention, cela ne permet pas d’améliorer la rapidité d’exécution du code. Par contre, son utilisation assez intuitive permet de gagner du temps. Il s’agit donc de faire l’arbitrage entre le temps passé à trouver un moyen élégant et efficace pour effectuer une opération en passant par de réels calculs vectoriels et le gain d’exécution que ce calcul vectoriel apporte vis-à-vis d’une boucle. La syntaxe de la <code data-pkg="base">Vectorize</code> est la suivante :</p>
-<div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1"></a><span class="kw">Vectorize</span>(FUN, vectorize.args, SIMPLIFY, USE.NAMES)</span></code></pre></div>
+<div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Vectorize</span>(FUN, vectorize.args, SIMPLIFY, USE.NAMES)</span></code></pre></div>
 <p>avec <code>FUN</code> une fonction à appliquer, <code>vectorize.args</code> un vecteur de paramètres (de type caractère) qui devraient être vectorisés (par défaut, tous les paramètre de <code>FUN</code>). Les paramètres <code>SIMPLIFY</code> et <code>USE.NAMES</code> on le même emploi que dans la fonction <code data-pkg="base" data-rdoc="lapply">sapply</code>.</p>
-<div class="sourceCode" id="cb97"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1"></a>f &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>, y) <span class="kw">c</span>(x, y)</span>
-<span id="cb97-2"><a href="#cb97-2"></a><span class="co"># On &quot;vectorise&quot; la fonction f</span></span>
-<span id="cb97-3"><a href="#cb97-3"></a>vf &lt;-<span class="st"> </span><span class="kw">Vectorize</span>(f, <span class="dt">SIMPLIFY =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb97-4"><a href="#cb97-4"></a><span class="kw">f</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb97"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, y) <span class="fu">c</span>(x, y)</span>
+<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a><span class="co"># On &quot;vectorise&quot; la fonction f</span></span>
+<span id="cb97-3"><a href="#cb97-3" aria-hidden="true" tabindex="-1"></a>vf <span class="ot">&lt;-</span> <span class="fu">Vectorize</span>(f, <span class="at">SIMPLIFY =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb97-4"><a href="#cb97-4" aria-hidden="true" tabindex="-1"></a><span class="fu">f</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span></code></pre></div>
 <pre><code>[1] 1 2 3 1 2 3</code></pre>
-<div class="sourceCode" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1"></a><span class="kw">vf</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vf</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span></code></pre></div>
 <pre><code>[[1]]
 [1] 1 1
 
@@ -2153,8 +2154,8 @@ $b
 
 [[3]]
 [1] 3 3</code></pre>
-<div class="sourceCode" id="cb101"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1"></a><span class="co"># Vectorise seulement y, pas x</span></span>
-<span id="cb101-2"><a href="#cb101-2"></a><span class="kw">vf</span>(<span class="dt">y =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb101"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Vectorise seulement y, pas x</span></span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vf</span>(<span class="at">y =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span></code></pre></div>
 <pre><code>[[1]]
 [1] 1 2 3 1
 
