@@ -103,8 +103,8 @@ data(airlines)
 airlines <- airlines %>%
   left_join(
     flights %>% 
-      group_by(carrier) %>% 
-      summarise(flights_per_year = n())
+      dplyr::group_by(carrier) %>% 
+      dplyr::summarise(flights_per_year = n())
   )
 
 
@@ -230,21 +230,21 @@ Parfois on a plusieurs informations réunies en une seule colonne et on souhaite
 
 
 ```{r echo=FALSE, warning=FALSE, paged.print=FALSE}
-df <- tibble(eleve = c("Félicien Machin", "Raymonde Bidule", "Martial Truc"),
+d <- tibble(eleve = c("Félicien Machin", "Raymonde Bidule", "Martial Truc"),
              note = c("5/20", "6/10", "87/100"))
-kable(df)
+knitr::kable(d)
 ```
 
 `separate`{data-pkg="tidyr"} permet de séparer la colonne `note` en deux nouvelles colonnes `note` et `note_sur` :
 
 ```{r warning=FALSE, paged.print=FALSE}
-df %>% separate(note, c("note", "note_sur"))
+d %>% separate(note, c("note", "note_sur"))
 ```
 
 `separate`{data-pkg="tidyr"} prend deux arguments principaux, le nom de la colonne à séparer et un vecteur indiquant les noms des nouvelles variables à créer. Par défaut `separate`{data-pkg="tidyr"} <q>sépare</q> au niveau des caractères non-alphanumérique (espace, symbole, etc.). On peut lui indiquer explicitement le caractère sur lequel séparer avec l'argument `sep` :
 
 ```{r warning=FALSE, paged.print=FALSE}
-df %>% separate(eleve, c("prenom", "nom"), sep = " ")
+d %>% tidyr::separate(eleve, c("prenom", "nom"), sep = " ")
 ```
 
 
@@ -258,8 +258,8 @@ data(rp2012)
 d <- rp2012 %>% 
   dplyr::slice(1:6) %>% 
   dplyr::select(code_insee, commune, pop_tot) %>% 
-  extract(code_insee, c("code_departement", "code_commune"), regex = "(..)(...)")
-kable(d)
+  tidyr::extract(code_insee, c("code_departement", "code_commune"), regex = "(..)(...)")
+knitr::kable(d)
 ```
 
 On souhaite reconstruire une colonne `code_insee` qui indique le code INSEE de la commune, et qui s'obtient en concaténant le code du département et celui de la commune. On peut utiliser `unite`{data-pkg="tidyr"} pour cela :

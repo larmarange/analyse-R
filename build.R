@@ -13,5 +13,5 @@ for (f in chapitres) {
   rmarkdown::render(f, encoding = "UTF-8")
 }
 
-# Généner le PDF
+# Générer le PDF
 source("make_pdf.R")

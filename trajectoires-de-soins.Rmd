@@ -679,25 +679,14 @@ regm <- multinom(
 )
 ```
 
-```{r, fig.height=3, fig.width=6}
-tmp <- JLutils::tidy_detailed(regm, exponentiate = T, conf.int = TRUE)
-tmp <- tmp[tmp$term != "(Intercept)", ]
-ggplot(tmp) + 
-  aes(x = label, y = estimate, ymin = conf.low, ymax = conf.high, color = y.level) +
-  geom_hline(yintercept = 1, color = "gray25", linetype = "dotted") + 
-  geom_errorbar(position = position_dodge(0.5), width = 0) + 
-  geom_point(position = position_dodge(width = 0.5)) + 
-  scale_y_log10() + 
-  coord_flip() +
-  xlab("Facteurs") + ylab("Odds Ratios") +
-  labs(color = "vs. Hors Soins") +
-  theme_light() + 
-  theme(panel.grid.major.y = element_blank())
+```{r, fig.height=4.5, fig.width=6}
+library(GGally)
+ggcoef_multinom(regm, exponentiate = TRUE)
 ```
 
 Nous pouvons représenter les effets des variables du modèle avec la fonction `ggeffect`{data-pkg="ggeffects} de `ggeffects`{.pkg}.
 
-```{r, fig.width=12, fig.height=5}
+```{r, fig.width=12, fig.height=7}
 library(ggeffects)
 cowplot::plot_grid(plotlist = plot(ggeffect(regm)), ncol = 3)
 ```
