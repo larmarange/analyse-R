@@ -272,6 +272,7 @@ var_label(d$grpage) <- "Groupe d'âges"
 var_label(d$etud) <- "Niveau d'étude"
 var_label(d$relig) <- "Pratique religieuse"
 var_label(d$heures.tv) <- "Nombre d'heures passées devant la télévision par jour"
+var_label(d$trav.imp) <- "Importance du travail"
 reg <- glm(sport ~ sexe + grpage + etud + relig + heures.tv, data = d, family = binomial(logit))
 ```
 
@@ -317,28 +318,17 @@ ggcoef(reg, exponentiate = TRUE)
 <figcaption>La fonction ggcoef</figcaption>
 </figure>
 
+Une version améliorée `ggcoef_model`{data-pkg="GGally"} est disponible dans la version de développement^[Cette version de développement peut être installée avec la commande `devtools::install_github("ggobi/ggally")`.] de `GGally`{.pkg} en ayant recours à `broom.helpers`.
+
+<figure>
+```{r}
+library(GGally)
+ggcoef_model(reg, exponentiate = TRUE)
+```
+<figcaption>La fonction ggcoef_model</figcaption>
+</figure>
 
 <div class="note">
-Il est possible de combiner `tidy_plus_plus`{data-pkg="broom.helpers"} avec `ggcoef`{data-pkg="GGally"} pour personnaliser un peu plus le résultat.
-
-```{r}
-td <- tidy_plus_plus(reg, exponentiate = TRUE)
-td$label <- forcats::fct_inorder(td$label) # Pour fixer l'ordre pour ggplot2
-ggcoef(
-  td, 
-  mapping = aes(y = label, x = estimate, colour = var_label), 
-  exponentiate = TRUE
-) + 
-  labs(colour = "Variable") +
-  # Pour afficher les étiquettes trop longues sur plusieurs lignes
-  scale_colour_discrete(labels = scales::label_wrap(20)) +
-  guides(colour = guide_legend(nrow = 3)) +
-  theme(legend.position = "bottom")
-```
-
-Une version améliorée de `ggcoef`{data-pkg="GGally"} est en cours de développement et sera prochainement disponible dans `GGally`{.pkg}
-</div>
-
 L'extension `forestmodel`{.pkg} propose de son côté une fonction `forest_model`{data-pkg="forestmodel"} qui, à partir d'un modèle, propose une représentation visuelle et tabulaire des coefficients.
 
 <figure>
@@ -350,7 +340,8 @@ forest_model(reg)
 </figcaption>
 </figure>
 
-A la différence de `ggcoef`{data-pkg="GGally"} qui fonctionne avec la plupart des types de modèles (dont les modèles à effets mixtes ou ceux réalisés avec un plan d'échantillonnage complexe), `forest_model`{data-pkg="forestmodel"} ne fonctionne qu'avec les modèles les plus courants.
+A la différence de `ggcoef_model`{data-pkg="GGally"} qui fonctionne avec la plupart des types de modèles (dont les modèles à effets mixtes ou ceux réalisés avec un plan d'échantillonnage complexe), `forest_model`{data-pkg="forestmodel"} ne fonctionne qu'avec les modèles les plus courants.
+</div>
 
 ### Représentation graphique des effets
 
@@ -524,6 +515,26 @@ reg2bis <- stepAIC(reg)
 ```
 </div>
 
+On peut facilement comparer visuellement deux modèles avec `ggcoef_compare`{data-pkg="GGally"} de `GGally`{.pkg}.
+
+<figure>
+```{r fig.height=6, fig.width=8}
+library(GGally)
+ggcoef_compare(
+  list("modèle complet" = reg, "modèle réduit" = reg2), 
+  exponentiate = TRUE,
+  variable_labels = c(heures.tv = "Heures TV / jour")
+)
+ggcoef_compare(
+  list("modèle complet" = reg, "modèle réduit" = reg2), 
+  type = "faceted",
+  exponentiate = TRUE,
+  variable_labels = c(heures.tv = "Heures TV / jour")
+)
+```
+<figcaption>La fonction ggcoef_compare</figcaption>
+</figure>
+
 ### Tableaux <q>all-in-one</q>
 
 
@@ -540,7 +551,7 @@ tbl_regression(reg, exponentiate = TRUE) %>%
 
 On peut remarquer que `gtsummary`{.pkg} (comme d'autres extensions présentées précédemment) a tenu compte des étiquettes de variables définies plus haut avec `var_label`{data-pkg="labelled"} de l'extension `labelled`{.pkg} (voir le [chapitre sur les vecteurs labellisés](facteurs-et-vecteurs-labellises.html#les-etiquettes-de-variable)).
 
-Comme `tbl_regression`{data-pkg="gtsummary"} respose sur les extensions `broom`{.pkg} et `broom.helpers`{.pkg}, `gtsummary`{.pkg} peut en principe couvrir un plus grand nombre de modèles que `finalfit`{.pkg} ainsi qu'un plus grand nombre de cas particuliers (effets d'interactions, contrastes autres que traitement, paramètre polynomiaux définis avec `poly`{data-pkg="stats"}.
+Comme `tbl_regression`{data-pkg="gtsummary"} repose sur les extensions `broom`{.pkg} et `broom.helpers`{.pkg}, `gtsummary`{.pkg} peut en principe couvrir un plus grand nombre de modèles que `finalfit`{.pkg} (voir ci-dessous) ainsi qu'un plus grand nombre de cas particuliers (effets d'interactions, contrastes autres que traitement, paramètre polynomiaux définis avec `poly`{data-pkg="stats"}.
 
 `tbl_merge`{data-pkg="gtsummary"} permet de fusionner ensemble les résultats de plusieurs modèles.
 
@@ -693,45 +704,32 @@ De même, il est possible de calculer la matrice de confusion :
 table(predict(regm2, newdata = d), d$trav.satisf)
 ```
 
-La fonction `tidy`{data-pkg="broom"} peut s'appliquer au résultat de `multinom`{data-pkg="nnet"} :
+La fonction `tidy_plus_plus`{data-pkg="broom.helpers"} peut s'appliquer au résultat de `multinom`{data-pkg="nnet"} :
 
 ```{r}
-library(broom)
-tidy(regm2, exponentiate = TRUE, conf.int = TRUE)
+library(broom.helpers)
+tidy_plus_plus(regm2, exponentiate = TRUE)
 ```
 
-On notera la présence d'une colonne supplémentaire, <var>y.level</var>. De fait, la fonction `ggcoef`{data-pkg="GGally"} ne peut s'appliquer directement, car les coefficients vont se supperposer.
+On notera la présence d'une colonne supplémentaire, <var>y.level</var>. De fait, la fonction `ggcoef_model`{data-pkg="GGally"} de `GGally`{.pkg} ne peut s'appliquer directement, car les coefficients vont se supperposer. On aura dès lors recours à sa variante `ggcoef_multinom`{data-pkg="GGally"} dédiée aux modèles multinomiax.
+
 
 <figure>
-```{r}
-ggcoef(regm2, exponentiate = TRUE)
+```{r fig.height=6, fig.width=8}
+library(GGally)
+ggcoef_multinom(
+  regm2,
+  exponentiate = TRUE
+)
+ggcoef_multinom(
+  regm2,
+  type = "faceted",
+  exponentiate = TRUE
+)
 ```
-<figcaption>À ne pas faire : appliquer directment ggcoef</figcaption>
+<figcaption>La fonction ggcoef_multinom</figcaption>
 </figure>
 
-On a deux solutions possibles. Pour la première, la plus simple, il suffit d'ajouter des facettes avec `facet_grid`{data-pkg="ggplot2"}.
-
-<figure>
-```{r}
-ggcoef(regm2, exponentiate = TRUE) + facet_grid(~y.level)
-```
-<figcaption>ggcoef avec facet_grid</figcaption>
-</figure>
-
-Pour la seconde, on va réaliser un graphique personnalisé, sur la même logique que `ggcoef`{data-pkg="GGally"}, décalant les points grâce à `position_dodge`{data-pkg="ggplot2"}.
-
-<figure>
-```{r}
-ggplot(tidy(regm2, exponentiate = T, conf.int = TRUE)) +
-  aes(x = term, y = estimate, ymin = conf.low, ymax = conf.high, color = y.level) +
-  geom_hline(yintercept = 1, color = "gray25", linetype = "dotted") +
-  geom_errorbar(position = position_dodge(0.5), width = 0) +
-  geom_point(position = position_dodge(width = 0.5)) +
-  scale_y_log10() +
-  coord_flip()
-```
-<figcaption>Odds ratio d'un modèle multinomial</figcaption>
-</figure>
 
 Il est possible de représenter les effets marginaux du modèle avec la fonction `allEffects`{data-pkg="effects"} de l'extension `effects`{.pkg}.
 
@@ -753,8 +751,6 @@ plot(ggeffect(regm2, "etud"))
 ```
 <figcaption>Représentation alternative des effets marginaux du modèle multinomial</figcaption>
 </figure>
-
-
 
 
 
@@ -801,13 +797,13 @@ L'extension `broom`{.pkg} propose une méthode `tidy`{data-pkg="broom"} pour les
 tidy(rego2, exponentiate = TRUE, conf.int = TRUE)
 ```
 
-La méthode `tidy`{data-pkg="broom"} étant disponible, on peut utiliser `ggcoef`{data-pkg="GGally"} et `tbl_regression`{data-pkg="gtsummary"}.
+La méthode `tidy`{data-pkg="broom"} étant disponible, on peut utiliser `ggcoef_model`{data-pkg="GGally"} et `tbl_regression`{data-pkg="gtsummary"}.
 
 <figure>
 ```{r}
 library(JLutils)
 library(GGally)
-ggcoef(rego2, exponentiate = TRUE)
+ggcoef_model(rego2, exponentiate = TRUE)
 ```
 <figcaption>Coefficients du modèle ordinal</figcaption>
 </figure>
@@ -847,7 +843,7 @@ reg
 Le résultat obtenu est similaire à celui de `glm`{data-pkg="stats"} et l'on peut utiliser 
 sans problème les fonctions `coef`{data-pkg="survey" data-rdoc="svyglm"},
 `confint`{data-pkg="survey" data-rdoc="confint.glm"}, 
-`odds.ratio`{data-pkg="questionr"}, `predict`{data-pkg="survey" data-rdoc="svyglm"} ou encore `tidy`{data-pkg="broom" data-rdoc="glm_tidiers"}.
+`odds.ratio`{data-pkg="questionr"}, `predict`{data-pkg="survey" data-rdoc="svyglm"} ou encore `tidy`{data-pkg="broom" data-rdoc="glm_tidiers"}, `tidy_plus_plus`{data-pkg="broom.helpers"} et `ggcoef_model`{data-pkg="GGally"}.
 
 ```{r}
 odds.ratio(reg)
@@ -855,10 +851,19 @@ odds.ratio(reg)
 
 
 ```{r}
-library(broom)
-tidy(reg, exponentiate = TRUE, conf.int = TRUE)
+tidy_plus_plus(reg, exponentiate = TRUE)
 tbl_regression(reg, exponentiate = TRUE)
 ```
+
+
+
+<figure>
+```{r}
+library(GGally)
+ggcoef_model(reg, exponentiate = TRUE)
+```
+<figcaption>Représentation graphique d'un modèle svyglm</figcaption>
+</figure>
 
 
 Dans ses dernières versions, `survey`{.pkg} fournit une méthode 
@@ -918,12 +923,9 @@ summary(rego)
 confint(rego)
 ```
 
-L'extension `JLutils`{.pkg}^[`devtools::install_github("larmarange/JLutils")` pour l'installer] propose une méthode `tidy`{data-pkg="JLutils" data-rdoc="tidy_model"} pour les objets `svyolr.`
-
 ```{r}
-library(JLutils)
-library(broom)
-tidy(rego, exponentiate = TRUE, conf.int = TRUE)
+library(broom.helpers)
+tidy_plus_plus(rego, exponentiate = TRUE, conf.int = TRUE)
 ```
 
 
