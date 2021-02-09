@@ -1,0 +1,226 @@
+---
+title: "Les contrastes (variables catégorielles et modèles)"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+Dans les modèles de régression ([modèles linéaires](regression-lineaire.html) ou modèles linéaires généralisés comme la [régression logistique](regression-logistique.html)), une transformation des variables catégorielles est nécessaire pour qu'elles puissent être prises en compte dans le modèle. On va dès lors définir des <dfn>contrastes</dfn>.
+
+De manière générale, une variable catégorielle à *n* modalités va être transformée en *n-1* variables quantitatives. Il existe cependant plusieurs manières de faire (i.e. plusieurs types de contrastes). Et, selon les contrastes choisis, les coefficients du modèles ne s'interpréteront pas de la même manière.
+
+## Contrastes de type traitement
+
+Par défaut, **R** applique des contrastes de type <q>traitement</q> pour un facteur non ordonné. Il s'agit notamment des contrastes utilisés dans le chapitre sur la [régression logistique](regression-logistique.html).
+
+### Exemple 1 : un modèle linéaire avec une variable catégorielle
+
+Commençons avec un premier exemple que nous allons calculer avec le jeu de données *trial* chargé en mémoire lorsque l'on appelle l'extension `gtsummary`{.pkg}. Ce jeu de données contient les observations de 200 patients. Nous nous intéressons à deux variables en particulier : **marker** une variable numérique correspondant à un marqueur biologique et **grade** un facteur à trois modalités correspondant à différent groupes de patients.
+
+Regardons la moyenne de **marker** pour chaque valeur de **grade**.
+
+```{r}
+library(gtsummary)
+trial %>%
+  select(marker, grade) %>%
+  tbl_summary(
+    by = grade,
+    statistic = marker ~ "{mean}",
+    digits = marker ~ 4
+  ) %>%
+  add_overall(last = TRUE)
+```
+
+Utilisons maintenant une régression linaire pour modéliser la valeur de **marker** en fonction de **grade**.
+
+```{r}
+mod <- lm(marker ~ grade, data = trial)
+mod
+```
+
+Le modèle obtenu contient trois <dfn data-index="coefficient">coefficients</dfn> ou <dfn data-index="terme (modèle)">termes</dfn> : un <dfn>intercept</dfn> et deux termes associés à la variable **grade**.
+
+Pour bien interpréter ces coefficients, il faut comprendre comment la variable **grade** a été transformée avant d'être inclue dans le modèle. Nous pouvons voir cela avec la fonction `contrasts`{data-pkg="stat"}.
+
+```{r}
+contrasts(trial$grade)
+```
+
+Ce que nous montre cette matrice, c'est que la variable catégorielle **grade** à 3 modalités a été transformée en 2 variables binaires que l'on retrouve sous les noms de **gradeII** et **gradeIII** dans le modèle : **gradeII** vaut 1 si **grade** est égal à **II** et 0 sinon; **gradeIII** vaut 1 si **grade** est égal à **III** et 0 sinon. Si **grade** est égal à **I**, alors **gradeII** et **gradeIII** valent 0.
+
+Il s'agit ici d'un contraste dit de <q>traitement</q> ou la première modalité joue ici le rôle de <dfn>modalité de référence</dfn><dfn data-index="référence, modalité"></dfn>.
+
+Dans ce modèle linéaire, la valeur de l'intercept correspond à la moyenne de **marker** lorsque nous nous trouvons à la référence, donc quand **grade** est égal à **I** dans cet exemple. Et nous pouvons le constater dans notre tableau précédent des moyennes, `1.0669` correspond bien à la moyenne de **marker** pour la modalité **I**.
+
+La valeur du coefficient associé à **markerII** correspond à l'écart par rapport à la référence lorsque **marker** est égal à **II**. Autrement dit, la moyenne de **marker** pour la modalité **II** correspond à la somme de l'intercept et du coefficient **markerII**. Et nous retrouvons bien la relation suivante : `0.6805 = 1.0669 + -0.3864`. De même, la moyenne de **marker** lorsque **grade** vaut **III** est égale à la somme de l'intercept et du terme **markerIII**.
+
+Lorsqu'on utilise des contrastes de type traitement, chaque terme du modèle peut être associé à une et une seule modalité d'origine de la variable catégorielle. Dès lors, il est possible de rajouter la modalité de référence lorsque l'on présente les résultats et on peut même lui associer la valeurs 0, ce qui peut être fait avec `tbl_regression`{data-pkg="gtsummary"} de l'extension `gtsummary` avec l'option `add_estimate_to_reference_rows = TRUE`.
+
+
+
+```{r}
+mod %>%
+  tbl_regression(
+    intercept = TRUE, 
+    add_estimate_to_reference_rows = TRUE
+  )
+```
+
+### Exemple 2 : une régression logistique avec deux variables catégorielles
+
+Pour ce deuxème exemple, nous allons utiliser le jeu de données **hdv2003** fourni par l'extension `questionr`{.pkg} et recoder la variable age en groupes d'âges à 4 modalités.
+
+```{r}
+library(questionr)
+data("hdv2003")
+
+library(tidyverse, quietly = TRUE)
+hdv2003 <- hdv2003 %>%
+  mutate(
+    groupe_age = cut(
+      age, 
+      c(16, 25, 45, 65, 99), 
+      right = FALSE, 
+      include.lowest = TRUE
+    ) %>%
+      fct_recode(
+        "16-24" = "[16,25)",
+        "25-44" = "[25,45)",
+        "45-64" = "[45,65)",
+        "65+" = "[65,99]"
+      ) 
+  ) %>%
+  labelled::set_variable_labels(
+    groupe_age = "Groupe d'âges",
+    sexe = "Sexe"
+  )
+```
+
+Nous allons faire une régression logistique binaire pour investiguer l'effet du sexe (variable à 2 modalités) et du groupe d'âges (variable à 4 modalités) sur la pratique du sport.
+
+```{r}
+mod <- glm(sport ~ sexe + groupe_age, family = binomial, data = hdv2003)
+mod
+```
+
+Le modèle contient 5 termes : 1 intercept, 1 coefficient pour la variable **sexe** et 3 coefficients pour la variable **groupe_age**. Comme précédent, nous pouvons constater que les variables à *n* modalités sont remplacées par défaut (contrastes de type traitement) par *n-1* variables binaires, la première modalité jouant à chaque fois le rôle de modalité de référence.
+
+```{r}
+contrasts(hdv2003$sexe)
+contrasts(hdv2003$groupe_age)
+```
+
+L'intercept correspond donc à la situation à la référence, c'est-à-dire à la prédiction du modèle pour les hommes (référence de **sexe**) âgés de 16 à 24 ans (référence de **groupe_age**).
+
+Il est possible d'exprimer cela en termes de probabilité en utilisant l'inverse de la fonction **logit** (puisque nous avons utilisé un modèle **logit**).
+
+```{r}
+inv_logit <- binomial("logit")$linkinv
+inv_logit(0.9021)
+```
+
+Selon le modèle, les hommes âgés de 16 à 24 ans ont donc 71% de chance de pratiquer du sport. 
+
+Regardons maintenant le coefficient associé à **sexeFemme** (-0.4455) : il représente (pour la modalité de référence des autres variables, soit pour les 16-24 ans ici) la correction à appliquer à l'intercept pour obtenir la probabilité de faire du sport. Il s'agit donc de la différence entre les femmes et les hommes pour le groupe des 16-24 ans.
+
+```{r}
+inv_logit(0.9021 - 0.4455)
+```
+
+Autrement dit, selon le modèle, la probabilité de faire du sport pour une femme âgée de 16 à 24 ans est de 61%. On peut représenter cela avec la fonction `ggpredict`{data-pkg="ggeffects"} de `ggeffects`{.pkg}, qui représente les prédictions d'une variable, ***toutes les autres variables étant à la référence***.
+
+```{r}
+library(ggeffects, quietly = TRUE)
+ggpredict(mod, "sexe") %>% plot()
+```
+
+Bien souvent, pour une régression logistique, on préfère représenter les exponentielles des coefficients qui correspondent à des <dfn data-index="odds ratio">odds ratios</dfn>.
+
+```{r}
+mod %>%
+  tbl_regression(
+    exponentiate = TRUE,
+    intercept = TRUE, 
+    add_estimate_to_reference_rows = TRUE
+  )
+```
+
+Or, 0,64 correspond bien à l'odds ratio entre 61% et 71% (que l'on peut calculer avec `odds.ratio`{data-pkg="questionr"} de `questionr`{.pkg}).
+
+```{r}
+odds.ratio(0.6122, 0.7114)
+```
+
+De la même manière, les différents coefficients associés à **groupe_age** correspondent à la différence entre chaque groupe d'âges et sa modalité de référence (ici 16-24 ans), quand les autres variables (ici le sexe) sont à leur référence (ici les hommes).
+
+Pour prédire la probabilité de faire du sport pour un profil particulier, il faut prendre en compte toutes les termes qui s'appliquent et qui s'ajoutent à l'intercept. Par exemple, pour une femme de 50 ans il faut considérer l'intercept (0.9021), le coefficient **sexeFemme** (-0.4455) et le coefficient **groupe_ageè45-64** (-1.6535). Sa probabilité de faire du sport est donc de 23%.
+
+```{r}
+inv_logit(0.9021 - 0.4455 - 1.6535)
+```
+
+### Changer la modalité de référence
+
+Il est possible de personnaliser les contrastes à utiliser et avoir un recours à un contraste de type <q>traitement</q> mais en utilisant une autre modalité que la première comme référence, avec la fonction `contr.treatment`{data-pkg="stats"}. Le premier argument de la fonction corresponds au nombre de modalités de la variable et le paramètre `base` permets de spécifier la modalité de référence (1 par défaut).
+
+```{r}
+contr.treatment(4, base = 2)
+```
+
+`contr.SAS`{data-pkg="stats"} permets de spécifier un contraste de type <q>traitement</q> dont la modalité de référence est la dernière.
+
+```{r}
+contr.SAS(4)
+```
+
+Les contrastes peuvent être modifiés de deux manières : au moment de la construction du modèle (via l'option `contrasts`) ou comme attribut des variables (via la fonction `contrasts`{data-pkg="stats"}).
+
+```{r}
+contrasts(hdv2003$sexe) <- contr.SAS(2)
+mod2 <- glm(
+  sport ~ sexe + groupe_age, 
+  family = binomial, 
+  data = hdv2003,
+  contrasts = list(groupe_age = contr.treatment(4, 3))
+)
+mod2 %>% tbl_regression(exponentiate = TRUE, intercept = TRUE)
+```
+
+Comme les modalités de référence ont changé, l'intercept et les différents terms ont également changé (puisque l'on ne compare plus à la même référence).
+
+```{r}
+library(GGally)
+ggcoef_compare(list(mod, mod2), exponentiate = TRUE, type = "f")
+```
+
+Cependant, du point de vue explicatif et prédictif, les deux modèles sont rigoureusement identiques.
+
+```{r}
+anova(mod, mod2)
+```
+
+## Contrastes de type somme
+
+
+```{r}
+mod <- lm(marker ~ grade, data = trial, contrasts = list(grade = contr.sum))
+mod
+```
+
+```{r}
+mod %>% 
+  tbl_regression(
+    add_estimate_to_reference_rows = TRUE, 
+    intercept = TRUE
+  )
+```
+
+
+## Lectures additionnelles
+
+- [A (sort of) Complete Guide to Contrasts in R](https://rstudio-pubs-static.s3.amazonaws.com/65059_586f394d8eb84f84b1baaf56ffb6b47f.html) par Rose Maier
+- [An introductory explanation of contrast coding in R linear models](https://rstudio-pubs-static.s3.amazonaws.com/84177_4604ecc1bae246c9926865db53b6cc29.html) par Athanassios Protopapas
+
+
+
