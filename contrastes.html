@@ -11,7 +11,7 @@
 
 
 
-<title>Les contrastes (variables catégorielles et modèles)</title>
+<title>Les contrastes (codage des variables catégorielles dans un modèle)</title>
 
 <script src="libs/header-attrs-2.6/header-attrs.js"></script>
 <script src="libs/jquery-1.11.3/jquery.min.js"></script>
@@ -482,7 +482,7 @@ summary {
 
 
 
-<h1 class="title toc-ignore">Les contrastes (variables catégorielles et modèles)</h1>
+<h1 class="title toc-ignore">Les contrastes (codage des variables catégorielles dans un modèle)</h1>
 
 </div>
 
@@ -1324,56 +1324,29 @@ III  0   1</code></pre>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(questionr)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;hdv2003&quot;</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<pre><code>-- Attaching packages ------------------- tidyverse 1.3.0 --</code></pre>
-<pre><code>v tibble  3.0.4     v purrr   0.3.4
-v tidyr   1.1.2     v forcats 0.5.1
-v readr   1.4.0     </code></pre>
-<pre><code>-- Conflicts ---------------------- tidyverse_conflicts() --
-x lubridate::as.difftime() masks base::as.difftime()
-x dplyr::between()         masks data.table::between()
-x lubridate::date()        masks base::date()
-x dplyr::filter()          masks stats::filter()
-x dplyr::first()           masks data.table::first()
-x lubridate::hour()        masks data.table::hour()
-x lubridate::intersect()   masks base::intersect()
-x lubridate::isoweek()     masks data.table::isoweek()
-x dplyr::lag()             masks stats::lag()
-x dplyr::last()            masks data.table::last()
-x lubridate::mday()        masks data.table::mday()
-x lubridate::minute()      masks data.table::minute()
-x lubridate::month()       masks data.table::month()
-x lubridate::quarter()     masks data.table::quarter()
-x lubridate::second()      masks data.table::second()
-x lubridate::setdiff()     masks base::setdiff()
-x purrr::transpose()       masks data.table::transpose()
-x lubridate::union()       masks base::union()
-x lubridate::wday()        masks data.table::wday()
-x lubridate::week()        masks data.table::week()
-x lubridate::yday()        masks data.table::yday()
-x lubridate::year()        masks data.table::year()</code></pre>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>hdv2003 <span class="ot">&lt;-</span> hdv2003 <span class="sc">%&gt;%</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">groupe_age =</span> <span class="fu">cut</span>(</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>      age,</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">99</span>),</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">right =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">include.lowest =</span> <span class="cn">TRUE</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">fct_recode</span>(</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;16-24&quot;</span> <span class="ot">=</span> <span class="st">&quot;[16,25)&quot;</span>,</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;25-44&quot;</span> <span class="ot">=</span> <span class="st">&quot;[25,45)&quot;</span>,</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;45-64&quot;</span> <span class="ot">=</span> <span class="st">&quot;[45,65)&quot;</span>,</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;65+&quot;</span> <span class="ot">=</span> <span class="st">&quot;[65,99]&quot;</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  labelled<span class="sc">::</span><span class="fu">set_variable_labels</span>(</span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">groupe_age =</span> <span class="st">&quot;Groupe d&#39;âges&quot;</span>,</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">sexe =</span> <span class="st">&quot;Sexe&quot;</span></span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>hdv2003 <span class="ot">&lt;-</span> hdv2003 <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">groupe_age =</span> <span class="fu">cut</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>      age,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">99</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">right =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">include.lowest =</span> <span class="cn">TRUE</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">fct_recode</span>(</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;16-24&quot;</span> <span class="ot">=</span> <span class="st">&quot;[16,25)&quot;</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;25-44&quot;</span> <span class="ot">=</span> <span class="st">&quot;[25,45)&quot;</span>,</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;45-64&quot;</span> <span class="ot">=</span> <span class="st">&quot;[45,65)&quot;</span>,</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;65+&quot;</span> <span class="ot">=</span> <span class="st">&quot;[65,99]&quot;</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  labelled<span class="sc">::</span><span class="fu">set_variable_labels</span>(</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">groupe_age =</span> <span class="st">&quot;Groupe d&#39;âges&quot;</span>,</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">sexe =</span> <span class="st">&quot;Sexe&quot;</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 <p>Nous allons faire une régression logistique binaire pour investiguer l’effet du sexe (variable à 2 modalités) et du groupe d’âges (variable à 4 modalités) sur la pratique du sport.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">glm</span>(sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_age, <span class="at">family =</span> binomial, <span class="at">data =</span> hdv2003)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>mod</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">glm</span>(sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_age, <span class="at">family =</span> binomial, <span class="at">data =</span> hdv2003)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>mod</span></code></pre></div>
 <pre><code>
 Call:  glm(formula = sport ~ sexe + groupe_age, family = binomial, data = hdv2003)
 
@@ -1387,11 +1360,11 @@ Degrees of Freedom: 1999 Total (i.e. Null);  1995 Residual
 Null Deviance:      2617 
 Residual Deviance: 2385     AIC: 2395</code></pre>
 <p>Le modèle contient 5 termes : 1 intercept, 1 coefficient pour la variable <strong>sexe</strong> et 3 coefficients pour la variable <strong>groupe_age</strong>. Comme précédent, nous pouvons constater que les variables à <em>n</em> modalités sont remplacées par défaut (contrastes de type traitement) par <em>n-1</em> variables binaires, la première modalité jouant à chaque fois le rôle de modalité de référence.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(hdv2003<span class="sc">$</span>sexe)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(hdv2003<span class="sc">$</span>sexe)</span></code></pre></div>
 <pre><code>      Femme
 Homme     0
 Femme     1</code></pre>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(hdv2003<span class="sc">$</span>groupe_age)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(hdv2003<span class="sc">$</span>groupe_age)</span></code></pre></div>
 <pre><code>      25-44 45-64 65+
 16-24     0     0   0
 25-44     1     0   0
@@ -1399,24 +1372,26 @@ Femme     1</code></pre>
 65+       0     0   1</code></pre>
 <p>L’intercept correspond donc à la situation à la référence, c’est-à-dire à la prédiction du modèle pour les hommes (référence de <strong>sexe</strong>) âgés de 16 à 24 ans (référence de <strong>groupe_age</strong>).</p>
 <p>Il est possible d’exprimer cela en termes de probabilité en utilisant l’inverse de la fonction <strong>logit</strong> (puisque nous avons utilisé un modèle <strong>logit</strong>).</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>inv_logit <span class="ot">&lt;-</span> <span class="fu">binomial</span>(<span class="st">&quot;logit&quot;</span>)<span class="sc">$</span>linkinv</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">inv_logit</span>(<span class="fl">0.9021</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>inv_logit <span class="ot">&lt;-</span> <span class="fu">binomial</span>(<span class="st">&quot;logit&quot;</span>)<span class="sc">$</span>linkinv</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">inv_logit</span>(<span class="fl">0.9021</span>)</span></code></pre></div>
 <pre><code>[1] 0.7113809</code></pre>
 <p>Selon le modèle, les hommes âgés de 16 à 24 ans ont donc 71% de chance de pratiquer du sport.</p>
 <p>Regardons maintenant le coefficient associé à <strong>sexeFemme</strong> (-0.4455) : il représente (pour la modalité de référence des autres variables, soit pour les 16-24 ans ici) la correction à appliquer à l’intercept pour obtenir la probabilité de faire du sport. Il s’agit donc de la différence entre les femmes et les hommes pour le groupe des 16-24 ans.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">inv_logit</span>(<span class="fl">0.9021</span> <span class="sc">-</span> <span class="fl">0.4455</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">inv_logit</span>(<span class="fl">0.9021</span> <span class="sc">-</span> <span class="fl">0.4455</span>)</span></code></pre></div>
 <pre><code>[1] 0.6122073</code></pre>
 <p>Autrement dit, selon le modèle, la probabilité de faire du sport pour une femme âgée de 16 à 24 ans est de 61%. On peut représenter cela avec la fonction <code data-pkg="ggeffects">ggpredict</code> de <code class="pkg">ggeffects</code>, qui représente les prédictions d’une variable, <strong><em>toutes les autres variables étant à la référence</em></strong>.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggeffects, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpredict</span>(mod, <span class="st">&quot;sexe&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">plot</span>()</span></code></pre></div>
-<p><img src="graphs/contrastes/unnamed-chunk-10-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggeffects, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpredict</span>(mod, <span class="st">&quot;sexe&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">plot</span>()</span></code></pre></div>
+<p><img src="graphs/contrastes/unnamed-chunk-11-1.png" width="1050" /></p>
 <p>Bien souvent, pour une régression logistique, on préfère représenter les exponentielles des coefficients qui correspondent à des <dfn data-index="odds ratio">odds ratios</dfn>.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>mod <span class="sc">%&gt;%</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_regression</span>(</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">add_estimate_to_reference_rows =</span> <span class="cn">TRUE</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>mod <span class="sc">%&gt;%</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_regression</span>(</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">add_estimate_to_reference_rows =</span> <span class="cn">TRUE</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<pre><code>Warning: The `.dots` argument of `group_by()` is deprecated
+as of dplyr 1.0.0.</code></pre>
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
@@ -1779,7 +1754,7 @@ Femme     1</code></pre>
     <tr>
       <td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Homme</td>
       <td class="gt_row gt_center">1.00</td>
-      <td class="gt_row gt_center">&mdash;</td>
+      <td class="gt_row gt_center">—</td>
       <td class="gt_row gt_center"></td>
     </tr>
     <tr>
@@ -1797,7 +1772,7 @@ Femme     1</code></pre>
     <tr>
       <td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">16-24</td>
       <td class="gt_row gt_center">1.00</td>
-      <td class="gt_row gt_center">&mdash;</td>
+      <td class="gt_row gt_center">—</td>
       <td class="gt_row gt_center"></td>
     </tr>
     <tr>
@@ -1836,38 +1811,38 @@ Femme     1</code></pre>
   </tfoot>
 </table></div>
 <p>Or, 0,64 correspond bien à l’odds ratio entre 61% et 71% (que l’on peut calculer avec <code data-pkg="questionr">odds.ratio</code> de <code class="pkg">questionr</code>).</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">odds.ratio</span>(<span class="fl">0.6122</span>, <span class="fl">0.7114</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">odds.ratio</span>(<span class="fl">0.6122</span>, <span class="fl">0.7114</span>)</span></code></pre></div>
 <pre><code>[1] 0.6404246</code></pre>
 <p>De la même manière, les différents coefficients associés à <strong>groupe_age</strong> correspondent à la différence entre chaque groupe d’âges et sa modalité de référence (ici 16-24 ans), quand les autres variables (ici le sexe) sont à leur référence (ici les hommes).</p>
 <p>Pour prédire la probabilité de faire du sport pour un profil particulier, il faut prendre en compte toutes les termes qui s’appliquent et qui s’ajoutent à l’intercept. Par exemple, pour une femme de 50 ans il faut considérer l’intercept (0.9021), le coefficient <strong>sexeFemme</strong> (-0.4455) et le coefficient <strong>groupe_ageè45-64</strong> (-1.6535). Sa probabilité de faire du sport est donc de 23%.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">inv_logit</span>(<span class="fl">0.9021</span> <span class="sc">-</span> <span class="fl">0.4455</span> <span class="sc">-</span> <span class="fl">1.6535</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">inv_logit</span>(<span class="fl">0.9021</span> <span class="sc">-</span> <span class="fl">0.4455</span> <span class="sc">-</span> <span class="fl">1.6535</span>)</span></code></pre></div>
 <pre><code>[1] 0.2320271</code></pre>
 </div>
 <div id="changer-la-modalité-de-référence" class="section level3">
 <h3>Changer la modalité de référence</h3>
 <p>Il est possible de personnaliser les contrastes à utiliser et avoir un recours à un contraste de type <q>traitement</q> mais en utilisant une autre modalité que la première comme référence, avec la fonction <code data-pkg="stats">contr.treatment</code>. Le premier argument de la fonction corresponds au nombre de modalités de la variable et le paramètre <code>base</code> permets de spécifier la modalité de référence (1 par défaut).</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contr.treatment</span>(<span class="dv">4</span>, <span class="at">base =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contr.treatment</span>(<span class="dv">4</span>, <span class="at">base =</span> <span class="dv">2</span>)</span></code></pre></div>
 <pre><code>  1 3 4
 1 1 0 0
 2 0 0 0
 3 0 1 0
 4 0 0 1</code></pre>
 <p><code data-pkg="stats">contr.SAS</code> permets de spécifier un contraste de type <q>traitement</q> dont la modalité de référence est la dernière.</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contr.SAS</span>(<span class="dv">4</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contr.SAS</span>(<span class="dv">4</span>)</span></code></pre></div>
 <pre><code>  1 2 3
 1 1 0 0
 2 0 1 0
 3 0 0 1
 4 0 0 0</code></pre>
 <p>Les contrastes peuvent être modifiés de deux manières : au moment de la construction du modèle (via l’option <code>contrasts</code>) ou comme attribut des variables (via la fonction <code data-pkg="stats">contrasts</code>).</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(hdv2003<span class="sc">$</span>sexe) <span class="ot">&lt;-</span> <span class="fu">contr.SAS</span>(<span class="dv">2</span>)</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>mod2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_age,</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> hdv2003,</span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">groupe_age =</span> <span class="fu">contr.treatment</span>(<span class="dv">4</span>, <span class="dv">3</span>))</span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>mod2 <span class="sc">%&gt;%</span> <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(hdv2003<span class="sc">$</span>sexe) <span class="ot">&lt;-</span> <span class="fu">contr.SAS</span>(<span class="dv">2</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>mod2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_age,</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> hdv2003,</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">groupe_age =</span> <span class="fu">contr.treatment</span>(<span class="dv">4</span>, <span class="dv">3</span>))</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>mod2 <span class="sc">%&gt;%</span> <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
@@ -2235,8 +2210,8 @@ Femme     1</code></pre>
     </tr>
     <tr>
       <td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Femme</td>
-      <td class="gt_row gt_center">&mdash;</td>
-      <td class="gt_row gt_center">&mdash;</td>
+      <td class="gt_row gt_center">—</td>
+      <td class="gt_row gt_center">—</td>
       <td class="gt_row gt_center"></td>
     </tr>
     <tr>
@@ -2259,8 +2234,8 @@ Femme     1</code></pre>
     </tr>
     <tr>
       <td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">45-64</td>
-      <td class="gt_row gt_center">&mdash;</td>
-      <td class="gt_row gt_center">&mdash;</td>
+      <td class="gt_row gt_center">—</td>
+      <td class="gt_row gt_center">—</td>
       <td class="gt_row gt_center"></td>
     </tr>
     <tr>
@@ -2287,11 +2262,11 @@ Femme     1</code></pre>
   </tfoot>
 </table></div>
 <p>Comme les modalités de référence ont changé, l’intercept et les différents terms ont également changé (puisque l’on ne compare plus à la même référence).</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcoef_compare</span>(<span class="fu">list</span>(mod, mod2), <span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">type =</span> <span class="st">&quot;f&quot;</span>)</span></code></pre></div>
-<p><img src="graphs/contrastes/unnamed-chunk-17-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcoef_compare</span>(<span class="fu">list</span>(mod, mod2), <span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">type =</span> <span class="st">&quot;f&quot;</span>)</span></code></pre></div>
+<p><img src="graphs/contrastes/unnamed-chunk-18-1.png" width="1050" /></p>
 <p>Cependant, du point de vue explicatif et prédictif, les deux modèles sont rigoureusement identiques.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(mod, mod2)</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(mod, mod2)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Resid. Df"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["Resid. Dev"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Df"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Deviance"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"1995","2":"2385.152","3":"NA","4":"NA","_rn_":"1"},{"1":"1995","2":"2385.152","3":"0","4":"0","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -2301,8 +2276,8 @@ Femme     1</code></pre>
 </div>
 <div id="contrastes-de-type-somme" class="section level2">
 <h2>Contrastes de type somme</h2>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(marker <span class="sc">~</span> grade, <span class="at">data =</span> trial, <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">grade =</span> contr.sum))</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>mod</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(marker <span class="sc">~</span> grade, <span class="at">data =</span> trial, <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">grade =</span> contr.sum))</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>mod</span></code></pre></div>
 <pre><code>
 Call:
 lm(formula = marker ~ grade, data = trial, contrasts = list(grade = contr.sum))
@@ -2310,11 +2285,12 @@ lm(formula = marker ~ grade, data = trial, contrasts = list(grade = contr.sum))
 Coefficients:
 (Intercept)       grade1       grade2  
      0.9144       0.1525      -0.2339  </code></pre>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>mod <span class="sc">%&gt;%</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_regression</span>(</span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">add_estimate_to_reference_rows =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span></span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>mod <span class="sc">%&gt;%</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_regression</span>(</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">add_estimate_to_reference_rows =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<pre><code>Loading required namespace: emmeans</code></pre>
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
@@ -2689,7 +2665,7 @@ Coefficients:
     <tr>
       <td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">III</td>
       <td class="gt_row gt_center">0.08</td>
-      <td class="gt_row gt_center">&mdash;</td>
+      <td class="gt_row gt_center">—</td>
       <td class="gt_row gt_center"></td>
     </tr>
   </tbody>
