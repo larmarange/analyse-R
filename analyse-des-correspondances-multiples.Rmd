@@ -120,6 +120,15 @@ directement à `dudi.acm`{data-pkg="ade4"} de vous renvoyer les cinq premiers ax
 acm <- dudi.acm(d2, scannf = FALSE, nf = 5)
 ```
 
+
+<div class="note">
+Si vous souhaitez explorer visuellement et interacticement les résultats, vous pouvez utiliser l'extension `explor`{.pkg} et sa fonction homonyme `explor`{data-pkg="explor"}.
+
+```{r, eval = FALSE}
+explor::explor(acm)
+```
+</div>
+
 Le graphique des valeurs propres peut être reproduit avec 
 `screeplot`{data-pkg="ade4" data-rdoc="scatter"} :
 
@@ -127,16 +136,36 @@ Le graphique des valeurs propres peut être reproduit avec
 ```{r}
 screeplot(acm)
 ```
-<figcaption>Valeurs propres ou inerties de chaque axe</figcaption>
+<figcaption>Valeurs propres ou inertie de chaque axe avec screeplot()</figcaption>
+</figure>
+
+Pour des grahiques reposant sur `ggplot2`{.pkg}, on pourra avoir recours à l'extension `factoextra`{.pkg} qui fournit plusieurs fonctions graphiques dont `fviz_screeplot`{data-pkg="factorextra"}
+
+<figure>
+```{r}
+library(factoextra)
+fviz_screeplot(acm, choice = "eigenvalue")
+```
+<figcaption>Valeurs propres des axe avec fviz_screeplot()</figcaption>
+</figure>
+
+<figure>
+```{r}
+library(factoextra)
+fviz_screeplot(acm)
+```
+<figcaption>Pourcentage de variance expliquée avec fviz_screeplot()</figcaption>
 </figure>
 
 Les mêmes valeurs pour les premiers axes s'obtiennent également avec 
-`summary`{data-pkg="ade4" data-rdoc="dudi"}^[On pourra également avoir recours à la 
-fonction `inertia.dudi`{data-pkg="ade4"} pour l'ensemble des axes.] :
+`summary`{data-pkg="ade4" data-rdoc="dudi"}. On pourra également avoir recours à la 
+fonction `inertia.dudi`{data-pkg="ade4"} pour l'ensemble des axes.
 
 ```{r}
 summary(acm)
+inertia.dudi(acm)
 ```
+
 
 L'<dfn>inertie</dfn> totale est de 1,451 et l'axe 1 en explique 0,1474 soit 17 %. L'inertie projetée cumulée nous
 indique que les deux premiers axes expliquent à eux seuls 29 % des variations observées dans notre
@@ -157,6 +186,15 @@ s.corcircle(acm$co, 1, 2, clabel = 0.7)
 <figcaption>Cercle de corrélations des modalités sur les deux premiers axes</figcaption>
 </figure>
 
+Il est aussi possible d'utiliser `fviz_mca_var`{data-pkg="factoextra"} de `factoextra`{.pkg}. L'option `repel = TRUE` permets d'éviter que les étiquettes ne se superposent.
+
+<figure>
+```{r}
+fviz_mca_var(acm, repel = TRUE)
+```
+<figcaption>Représentation des modalités sur les deux premiers axes</figcaption>
+</figure>
+
 On pourra avoir également recours à `boxplot`{data-pkg="ade4" data-rdoc="dudi.acm"}
 pour visualiser comment se répartissent les modalités
 de chaque variable sur un axe donné^[La fonction `score`{data-pkg="ade4" data-rdoc="score.acm"}
@@ -175,6 +213,18 @@ boxplot(acm, 2)
 ```
 <figcaption>Répartition des modalités selon le second axe</figcaption>
 </figure>
+
+La fonction `fviz_contrib`{data-pkg="factoextra"} de `factoextra`{.pkg} peut être utilisée pour représenter la contribution des différentes variables sur un axe.
+
+<figure>
+```{r}
+fviz_contrib(acm, choice = "var", axes = 1)
+fviz_contrib(acm, choice = "var", axes = 2)
+```
+<figcaption>Représentation de la contribution des différentes variables</figcaption>
+</figure>
+
+
 
 Le tableau `acm$cr` contient les rapports de corrélation (variant de 0 à 1) entre les variables
 et les axes choisis au départ de l'ACM. Pour représenter graphiquement ces rapports, utiliser la
@@ -246,6 +296,17 @@ pchShow(
 ```
 </div>
 
+Il est également possible d'avoir recours à `fviz_mca_ind`{data-pkg="factoextra"} de `factoextra`{.pkg}. `geom = "point"` permets de de ne réprésenter que les points sans leur étiquette. `alpha.ind = .25` permets d'appliquer une transparance.
+
+<figure>
+```{r}
+fviz_mca_ind(acm, geom = "point", alpha.ind = .25)
+```
+<figcaption>Répartition des individus selon les deux premiers axes  avec fviz_mca_ind()</figcaption>
+</figure>
+
+
+
 <div class="note">
 Lorsque l'on réalise une ACM, il n'est pas rare que plusieurs observations soient identiques, c'est-à-dire
 correspondent à la même combinaison de modalités. Dès lors, ces observations seront projetées sur le
@@ -277,7 +338,7 @@ L'interprétation est tout autre, non ?
 </div>
 
 <div class="note">
-Gaston Sanchez propose un graphique amélioré des modalités dans le plan factoriel à cette adresse :
+Gaston Sanchez propose un graphique amélioré des modalités dans le plan factoriel, avec notamment de coubes de densité, à cette adresse :
 <http://rpubs.com/gaston/MCA>.
 </div>
 
@@ -356,8 +417,17 @@ Pour obtenir une <dfn>palette de couleurs</dfn><dfn data-index="couleur, palette
 `brewer.pal`{data-pkg="RColorBrewer" data-rdoc="RColorsBrewer"} avec les arguments
 `n` (nombre de couleurs demandées) et `pal`(nom de la palette de couleurs désirée).
 
-Pour plus d'informations sur les palettes *Color Brewer*, voir <http://colorbrewer2.org/>.
+Pour plus d'informations sur les palettes de couleurs de **R**, voir le [chapitre dédié](couleurs.html).
 </div>
+
+Il est aussi possible de passer à `fviz_mca_ind`{data-pkg="factoextra"} une variable de regroupement via le paramètre `habillage`.
+
+<figure>
+```{r}
+fviz_mca_ind(acm, geom = "point", alpha.ind = .25, habillage = d2$sexe, addEllipses = TRUE)
+```
+<figcaption>Individus dans le plan factoriel selon le sexe (fviz_mca_ind)</figcaption>
+</figure>
 
 La variable catégorielle transmise à `s.class`{data-pkg="ade4"} ou `s.chull`{data-pkg="ade4"}
 n'est pas obligatoirement une des variables retenues pour l'ACM. 
@@ -382,15 +452,6 @@ scatter(acm, col = brewer.pal(4, "Set1"))
 </figure>
 
 
-<div class="note">
-L'extension `explor`{.pkg} écrite par Julien Barnier offre une interface graphique interactive permettant d'explorer les résultats d'une analyse factorielle. Essayons donc la fonction `explor`{data-rdoc="explor"}. C'est magique !
-
-```{r, eval=FALSE}
-library(explor)
-explor(acm)
-```
-
-</div>
 
 
 ## ACM avec FactoMineR{#factominer}
