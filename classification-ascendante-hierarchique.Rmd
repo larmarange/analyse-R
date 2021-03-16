@@ -390,6 +390,14 @@ La matrice des distances s'obtient dès lors avec la fonction `dist.dudi`{data-p
 md <- dist.dudi(acm)
 ```
 
+Pour une matrice de distances basée sur la distance de Gower, nous aurions eu plutôt recours à la fonction `daisy`{data-pkg="cluster"} de l'extension `cluster`{.pkg}.
+
+```{r}
+library(cluster)
+md_gower <- daisy(d2, metric = "gower")
+```
+
+
 ## Calcul du dendrogramme
 
 Il faut ensuite choisir une méthode d'<dfn>agrégation</dfn> pour construire le dendrogramme. De nombreuses
@@ -435,6 +443,17 @@ plot(arbre, labels = FALSE, main = "Dendrogramme")
 ```
 <figcaption>Dendrogramme obtenu avec hclust</figcaption>
 </figure>
+
+Pour afficher un dendrogramme via `ggplot2`{.pkg}, on pourra avoir recours à la fonction `ggdendrogram`{data-pkg="ggdendro"} de l'extension `ggdendro`{.pkg}.
+
+<figure>
+```{r}
+library(ggdendro)
+ggdendrogram(arbre, labels = FALSE)
+```
+<figcaption>Dendrogramme obtenu avec ggdendrogram</figcaption>
+</figure>
+
 
 La fonction `agnes`{data-pkg="cluster"} de l'extension `cluster`{.pkg} peut également 
 être utilisée pour calculer le dendrogramme. Cependant, à l'usage, elle semble être un peu plus lente que 
@@ -500,6 +519,28 @@ rect.hclust(arbre, 8, border = "blue3")
 <figcaption>Différentes partitions du dendrogramme</figcaption>
 </figure>
 
+On peut également avoir recours à l'extension `dendextend`{.pkg} et sa fonction `color_branches`{data-pkg="dendextend"}. À noter que `dendextend`{.pkg} fournit une méthode permettant de passer un dendrogramme à `ggplot`{data-pkg="ggplot2"}.
+
+<figure>
+```{r}
+library(dendextend)
+library(ggplot2)
+ggplot(color_branches(arbre, k = 5), labels = FALSE)
+```
+<figcaption>Un dendrogramme coloré avec dendextend</figcaption>
+</figure>
+
+On peut aussi avoir recours à la fonction `fviz_dend`{data-pkg="factoextra"} de l'extension `factoextra`.
+
+
+<figure>
+```{r}
+library(factoextra)
+fviz_dend(arbre, k = 5, show_labels = FALSE, rect = TRUE)
+```
+<figcaption>Un dendrogramme coloré avec factoextra</figcaption>
+</figure>
+
 L'extension `FactoMineR`{.pkg} (que nous aborderons 
 [dans une section dédiée ci-après](#factominer)) suggère d'utiliser la partition 
 ayant la plus grande <dfn>perte relative d'inertie</dfn><dfn data-index="indertie, perte relative"></dfn>. 
@@ -517,11 +558,22 @@ library(devtools)
 install_github("larmarange/JLutils")
 ```
 
+Pour installer `JLutils`{.pkg} sur un PC sous **Windows**, vous aurez également besoin de **Rtools**, téléchargeable sur <https://cran.r-project.org/bin/windows/Rtools/>. Une fois installée, pensez à charger l'extension.
+
+```{r}
+library(JLutils)
+```
+
+Si vous rencontrez des difficultés avec l'installation de `JLutils`{.pkg} et si vous avez seulement besoin de `best.cutree`{data-pkg="JLutils"}, vous pouvez avoir recours à la commande suivante.
+
+```{r, eval=FALSE}
+source(url("https://raw.githubusercontent.com/larmarange/JLutils/master/R/clustering.R"))
+```
+
 Par défaut, `best.cutree`{data-pkg="JLutils"} regarde quelle serait la meilleure partition entre 3 
 et 20 classes.
 
 ```{r}
-library(JLutils)
 best.cutree(arbre)
 ```
 
@@ -555,6 +607,12 @@ freq(typo)
 Il existe de multiples autres indicateurs statistiques cherchant à mesurer la <q>qualité</q> de chaque partition. Pour cela, on pourra par exemple avoir recours à la fonction `as.clustrange`{data-pkg="WeightedCluster"} de l'extension `WeightedCluster`{.pkg}.
 
 Pour plus d'informations, voir le [*manuel de la librairie WeightedCluster*](https://cran.r-project.org/web/packages/WeightedCluster/vignettes/WeightedClusterFR.pdf), chapitre 7.
+
+```{r}
+library(WeightedCluster)
+plot(as.clustrange(arbre, md))
+```
+
 </div>
 
 La typologie obtenue peut être représentée dans le plan factoriel avec `s.class`{data-pkg="ade4"}.
@@ -580,6 +638,13 @@ facilement un dendrogramme avec les branches colorées^[Voir
 Par commodité, cette fonction est disponible directement au sein de l'extension 
 `JLutils`{.pkg}.
 
+Si vous rencontrez des difficultés à installer `JLutils`{.pkg}, vous pouvez également charger seulement `A2Rplot`{data-pkg="JLutils"}source()  avec la commande :
+
+```{r eval=FALSE}
+source(url("https://raw.githubusercontent.com/larmarange/JLutils/master/R/A2Rplot.R"))
+```
+
+
 Pour réaliser le graphique, on indiquera le nombre de classes et les couleurs à utiliser pour chaque
 branche de l'arbre :
 
@@ -587,11 +652,6 @@ branche de l'arbre :
 A2Rplot(arbre, k = 5, boxes = FALSE, col.up = "gray50", col.down = brewer.pal(5, "Dark2"), show.labels = FALSE)
 ```
 
-On pourra aussi noter l'extension `ggdendro`{.pkg} pour représenter
-des dendrogrammes avec `ggplot2`{.pkg} ou encore l'extension
-`dendextend`{.pkg} qui permet de manipuler, représenter et
-comparer des dendrogrammes^[Pour une présentation succincte, voir l'introduction de l'extension sur 
-<https://cran.r-project.org/web/packages/dendextend/vignettes/introduction.html> (en anglais).].
 </div>
 
 
