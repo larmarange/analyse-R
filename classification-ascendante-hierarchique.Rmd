@@ -603,6 +603,16 @@ typo <- cutree(arbre, 5)
 freq(typo)
 ```
 
+<div class="important">
+
+Je peux ajouter directement ma typologie à mon objet `d2` ou même `d` dans la mesure où je n'ai pas modifié depuis le début du script l'ordre de mes observations. Dès lors, l'ordre du résultat renvoyé par `cutree`{data-pkg="stats"} correspond à l'ordre de ma matrice de distance qui elle-même est ordonnée selon les observations de l'ACM qui est ordonnée selon l'ordre des observations du tableau de données initial.
+
+```{r}
+d2$typo <- cutree(arbre, 5)
+```
+
+</div>
+
 <div class="note">
 Il existe de multiples autres indicateurs statistiques cherchant à mesurer la <q>qualité</q> de chaque partition. Pour cela, on pourra par exemple avoir recours à la fonction `as.clustrange`{data-pkg="WeightedCluster"} de l'extension `WeightedCluster`{.pkg}.
 
@@ -658,6 +668,37 @@ A2Rplot(arbre, k = 5, boxes = FALSE, col.up = "gray50", col.down = brewer.pal(5,
 <div class="note">
 Pour plus d'options graphiques concernant les dendrogrammes en général, on pourra se référer à l'extension `dendextend`{.pkg} : <https://talgalili.github.io/dendextend/>.
 </div>
+
+## Caractériser la typologie
+
+Reste le travail le plus important (et parfois le plus difficile) qui consiste à catégoriser la typologie obtenue et le cas échéant à nommer les classes.
+
+En premier lieu, on peut croiser la typologie obtenue avec les différentes variables inclues dans l'ACM. Le plus simple est d'avoir recours à `tbl_summary`{data-pkg="gtsummary"} de `gtsummary`{.pkg}.
+
+```{r}
+library(gtsummary)
+d2 %>%
+  tbl_summary(by = typo)
+```
+
+On peut également avoir recours à `ggtable`{data-pkg="GGally"} de `GGally`{.pkg} pour représenter les résidus du Chi² et mieux repérer les différences.
+
+<figure>
+```{r fig.height=10, fig.width=8}
+library(GGally)
+d2$typo <- factor(d2$typo)
+ggtable(
+  d2, 
+  columnsX = "typo", 
+  columnsY = names(d2)[1:9],
+  cells = "col.prop",
+  fill = "std.resid"
+) + 
+  labs(fill = "Résidus standardizés du Chi²") +
+  theme(legend.position = "bottom")
+```
+<figcaption>Résidus du Chi²</figcaption>
+</figure>
 
 ## CAH avec l'extension FactoMineR{#factominer}
 
