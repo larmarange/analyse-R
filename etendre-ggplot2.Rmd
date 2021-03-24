@@ -112,6 +112,17 @@ ggplot(df) +
   theme_minimal()
 ```
 
+### Points reliés (*pointpath*)
+
+L'extension `ggh4x` propose une géométrie `geom_pointpath`{data-pkg="ggh4x"} pour afficher des points reliés entre eux par un tiret. La géométrie `geom_pointpath`{data-pkg="lemon"} est également proposée par l'extension `lemon`{.pkg}.
+
+```{r}
+library(ggh4x)
+ggplot(pressure) +
+  aes(x = temperature, y = pressure) +
+  geom_pointpath()
+```
+
 
 ### Accolades de comparaison (*bracket*)
 
@@ -196,19 +207,10 @@ L'extension `ggmosaic`{.pkg} permets de réaliser des graphiques en mosaïque av
 
 ```{r, message=FALSE}
 library(ggmosaic)
-ggplot(data = fly) +
-  geom_mosaic(
-    aes(x = product(RudeToRecline), fill = RudeToRecline), 
-    na.rm=TRUE
-  )
-```
+data(titanic)
 
-```{r}
-ggplot(data = fly) +
-  geom_mosaic(
-    aes(x = product(DoYouRecline, RudeToRecline), fill = DoYouRecline),
-    na.rm = TRUE
-  )
+ggplot(data = titanic) +
+  geom_mosaic(aes(x = product(Class), fill = Survived))
 ```
 
 
@@ -251,6 +253,22 @@ pcapped <- p +
 cowplot::plot_grid(p, pcapped, nrow = 1)
 ```
 
+Une autre possibilité est d'avoir recours à la fonction `guide_axis_truncated`{data-pkg="ggh4x"} de l'extension `ggh4x`{.pkg}.
+
+```{r}
+library(ggh4x)
+ggplot(mtcars) +
+  aes(x=cyl, y=mpg) + 
+  geom_point() +
+  theme_classic() +
+  scale_y_continuous(breaks = c(15, 20, 25, 30)) +
+  guides(
+    x = guide_axis_truncated(trunc_lower = 5, trunc_upper = 7),
+    y = guide_axis_truncated()
+  )
+```
+
+
 
 ### Répéter les étiquettes des axes sur des facettes
 
@@ -273,6 +291,48 @@ ggplot(mpg) +
   geom_point() +
   facet_rep_wrap(~ cyl, repeat.tick.labels = TRUE)
 ```
+
+### Encoches mineures sur les axes
+
+Par défaut, des encoches (*ticks*) sont dessinées sur les axes uniquement pour la grille principale (*major breaks*). La fonction `guide_axis_minor`{data-pkg="ggh4x"} de l'extension `ggh4x`{.pkg} permet de rajouter des encoches aux points de la grille mineure (*minor breaks*).
+
+```{r}
+p <- ggplot(mtcars) +
+  aes(x=cyl, y=mpg) + 
+  geom_point() +
+  theme_classic()
+p
+
+library(ggh4x)
+p + 
+  scale_x_continuous(
+    minor_breaks = 16:32/4,
+    guide = guide_axis_minor()
+  ) +
+  # to control relative length of minor ticks
+  theme(ggh4x.axis.ticks.length.minor = rel(.8))
+```
+
+### Relations imbriquées
+
+La fonction `guide_axis_nested`{data-pkg="ggh4x"} de l'extension `ggh4x`{.pkg} permet d'afficher sur un axe des relations imbriquées.
+
+```{r}
+library(ggh4x)
+df <- data.frame(
+  item = c("Coffee", "Tea", "Apple", "Pear", "Car"),
+  type = c("Drink", "Drink", "Fruit", "Fruit", ""),
+  amount = c(5, 1, 2, 3, 1),
+  stringsAsFactors = FALSE
+)
+
+ggplot(df) +
+  aes(x = interaction(item, type), y = amount) +
+  geom_col() +
+  guides(x = guide_axis_nested())
+```
+
+
 
 ## Cartes
 
