@@ -594,3 +594,327 @@ ggplot(conn) +
   )
 ```
 
+## Évolutions temporelles
+
+Pour cet exemple, nous allons utiliser des données fictives. Dans les années 1950, au sortir de la guerre, la Syldavie et la Bordurie (deux pays fictifs inventés par Hergé) ont décidé de mettre un programme de distribution de bandes dessinées de Tintin dans des écoles et des collèges afin de motiver les élèves à lire plus. Nous disposons des rapports d'activités des différents agents du programme qui indident, par mois et par type d'établissement, le nombre d'élèves rencontrés et le nombre de bandes dessinées distribués.
+
+Commençons par importer les données, qui sont au format **Excel**. Nous utiliserons donc la fonction `read_excel`{data-pkg="readxl"} de l'extension `readxl`{.pkg}. Profitons-en pour charger également en mémoire le `tidyverse`{.pkg} ainsi que l'extension `lubridate`{.pkg} qui nous servira pour la gestion des dates.
+
+```{r include=FALSE}
+library(readxl)
+library(tidyverse)
+library(lubridate)
+bd <- read_excel("data/bandes_dessinees_tintin.xlsx")
+```
+
+```{r eval=FALSE}
+library(readxl)
+library(tidyverse)
+library(lubridate)
+url <- "https://larmarange.github.io/analyse-R/data/bandes_dessinees_tintin.xlsx"
+destfile <- "bandes_dessinees_tintin.xlsx"
+curl::curl_download(url, destfile)
+bd <- read_excel(destfile)
+```
+
+```{r}
+glimpse(bd)
+```
+
+### Bandes dessinées distribuées par mois
+
+En premier lieu, nous souhaiterions représenter le nombre de bandes dessinées distribuées par mois. Comme on peut le voir, nous n'avons pas directement une variable date, l'année et le mois étant indiqués dans deux variables différentes. Nous allons donc commencer par créer une telle variable, qui correspondra au premier jour du mois.
+
+Nous allons utiliser la fonction `paste0`{data-pkg="base"} qui permets de concaténer du texte pour créer des chaines de texte au format *ANNEE-MOIS-JOUR* puis transformer cela en objet **Date** avec `ymd`{data-pkg="lubridate"} de l'extension `lubridate`{.pkg}.
+
+```{r}
+bd$date <- paste0(bd$annee, "-", bd$mois, "-01") %>% ymd()
+summary(bd$date)
+```
+
+Nous pouvons maintenant commencer à réaliser notre graphique. Nous allons compter le nombre de BD distribuées par mois et représenter cela sous forme d'un graphique en barres. `geom_bar`{data-pkg="ggplot2"} utilise la statistique `stat_count`{data-pkg="ggplot2"} pour compter le nombre d'observations. Cependant, le nombre de BD distribuées varie d'une ligne du fichier à l'autre. Nous allons donc utiliser l'esthétique `weight` pour pondérer le calcul et obtenir le total de bandes dessinées distribuées. Nous allons également utiliser l'esthétique `fill` pour distinguer les écoles primaires et les collèges.
+
+```{r}
+p <- ggplot(bd) +
+  aes(x = date, weight = bd_distribuees, fill = type_etablissement) +
+  geom_bar()
+p
+```
+
+Avec `facet_grid`{data-pkg="ggplot2"} nous pouvons comparer la Syldavie et la Bordurie.
+
+```{r}
+p + facet_grid(cols = vars(pays))
+```
+
+Essayons de faire un peu mieux en répétant l'axe des y sur le graphique de droite, ce qui peut être fait avec la fonction `facet_rep_grid`{data-pkg="lemon"} de l'extension `lemon`{.pkg}.
+
+
+```{r}
+library(lemon, quietly = TRUE)
+p + facet_rep_grid(cols = vars(pays))
+```
+
+Cela a répété les encoches (*ticks*). Pour répéter également les étiquettes, il nous faut ajouter l'option `repeat.tick.labels = TRUE`.
+
+```{r}
+p <- p + facet_rep_grid(cols = vars(pays), repeat.tick.labels = TRUE)
+p
+```
+
+Allégeons un peu le graphique (voir exemple précédent). Pour cela, nous allons utiliser le thème `theme_clean`{data-pkg="ggthemes"} fourni par `ggthemes`{.pkg}.
+
+```{r}
+library(ggthemes)
+p <- p +
+  xlab("") + ylab("") + labs(fill = "") +
+  ggtitle("Bandes dessinées distribuées par mois") +
+  theme_clean() +
+  theme(
+    legend.position = "bottom"
+  )
+p
+```
+
+De même, nous allons utiliser une palette de couleurs adaptées aux personnes daltoniennes, en s'appuyant sur `scale_fill_bright`{data-pkg="khroma"} disponible avec `khroma`{.pkg}.
+
+```{r}
+library(khroma)
+p <- p + scale_fill_bright()
+p
+```
+
+Reste à améliorer la présentation de l'axe des x avec `scale_x_date`{data-pkg="ggplot2}. L'option `date_labels` permet de personnaliser l'affichage des dates via des raccourcis décrits dans l'aide de la fonction `strptime`{data-pkg="base"}. Ainsi, `%b` correspond au mois écrit textuellement de manière abrégée et `%Y` à l'année sur 4 chiffres. `\n` est utilisé pour indiquer un retour à la ligne. L'option `date_breaks` permet d'indiquer de manière facilitée la durée attendue entre deux étiquettes, ici trois mois.
+
+```{r}
+p <- p + scale_x_date(
+  date_labels = "%b\n%Y", 
+  date_breaks = "3 months"
+)
+p
+```
+
+Pour améliorer le graphique, nous aimerions rajouter une encoche sous chaque mois. Ceci est rendu possible avec la fonction `guide_axis_minor`{data-pkg="ggh4x"} de `ggh4x`{.pkg}.
+
+```{r}
+library(ggh4x)
+p <- p + scale_x_date(
+  date_labels = "%b\n%Y", 
+  date_breaks = "3 months",
+  date_minor_breaks = "1 month",
+  guide = guide_axis_minor()
+)
+p
+```
+
+Le code complet de ce graphique est donc :
+
+```{r}
+library(ggthemes)
+library(khroma)
+library(ggh4x)
+library(lemon)
+ggplot(bd) +
+  aes(x = date, weight = bd_distribuees, fill = type_etablissement) +
+  geom_bar() +
+  facet_rep_grid(cols = vars(pays), repeat.tick.labels = TRUE) +
+  xlab("") + ylab("") + labs(fill = "") +
+  ggtitle("Bandes dessinées distribuées par mois") +
+  scale_x_date(
+    date_labels = "%b\n%Y", 
+    date_breaks = "3 months",
+    date_minor_breaks = "1 month",
+    guide = guide_axis_minor()
+  ) +
+  scale_fill_bright() +
+  theme_clean() +
+  theme(
+    legend.position = "bottom"
+  )
+```
+
+### Évolution du nombre moyen de bandes dessinées remises par élève
+
+Nous disposons dans les rapports d'activités du nombre de bandes dessinées distribuées et du nombre d'élèves rencontrés. Nous pouvons donc regarder comment à évaluer au cours du temps le nombre moyen de bandes dessinées distribuées par élève, à savoir l'évolution du ratio **bd_distribuees** / **eleves_rencontres**. 
+
+```{r}
+ggplot(bd) +
+  aes(x = date, y = bd_distribuees / eleves_rencontres, colour = type_etablissement) +
+  geom_point()
+```
+
+Comme on le voit sur la figure précédente, si l'on représente directement cet indicateur, nous obtenons plusieurs points pour chaque date. En effet, nous avons plusieurs observations par date et nous obtenons donc un point pour chacune de ces observations. Nous souhaiterions avoir la moyenne pour chaque date. Cela est possible en ayant recours à `stat_weighted_mean`{data-pkg="GGally"} de l'extension `GGally`{.pkg}. Pour que le calcul soit correct, il faut réaliser une moyenne pondérée par le dénominateur, à savoir ici le nombre d'élèves.
+
+```{r}
+library(GGally)
+ggplot(bd) +
+  aes(x = date, y = bd_distribuees / eleves_rencontres, colour = type_etablissement) +
+  geom_point(stat = "weighted_mean")
+```
+
+Le graphique sera plus lisible si nous représentons des lignes.
+
+```{r}
+library(GGally)
+ggplot(bd) +
+  aes(x = date, y = bd_distribuees / eleves_rencontres, colour = type_etablissement) +
+  geom_line(stat = "weighted_mean")
+```
+
+Pour améliorer la comparaison, il serait pertinent d'ajouter les intervalles de confiance sur le graphique. Cela peut être réalisé par exemple avec des rubans de couleur. Mais pour cela, il va falloir avoir recours à quelques astuces pour permettre le calcul de ces intervalles de confiance à la volée.
+
+Tout d'abord, pour calculer l'intervalle de confiance d'un ratio de nombres entiers, nous pouvons utiliser un <dfn>test de Poisson</dfn><dfn data-index="Poisson, test"></dfn> avec `poisson.test`{data-pkg="stats"} auquel nous devons transmettre le numérateur et le dénominateur. Par exemple, pour 48 bandes dessinées distribuées à 27 élèves :
+
+```{r}
+test <- poisson.test(48, 27)
+test
+str(test)
+```
+
+Comme nous le montre `str`{data-pkg="utils"}, `poisson.test`{data-pkg="stats"} renvoie une liste avec différents éléments et l'intervalle de confiance est disponible dans le sous-objet `"conf.int"`. Il est possible d'y accéder avec l'opérateur `$` ou bien avec la fonction `pluck`{data-pkg="purrr"} de l'extension `purrr`{.pkg} chargée par défaut avec le `tidyverse`{.pkg}.
+
+```{r}
+test$conf.int
+test %>% pluck("conf.int")
+```
+
+Pour obtenir la borne inférieure de l'intervalle de confiance, il nous faut maintenant extraire le premier élément.
+
+```{r}
+test$conf.int[1]
+test %>% pluck("conf.int", 1)
+```
+
+Nous avons trouvé la manière de calculer la borne inférieure de l'intervalle de confiance pour une ligne d'observations. Mais comment procéder pour plusieurs observations. Supposons que nous ayons 4 observations :
+
+```{r}
+num <- c(50, 25, 32, 48)
+denom <- c(25, 17, 25, 31)
+```
+
+Si nous passons ces vecteurs de données à `poisson.test`{data-pkg="stats"}, nous obtenons un message d'erreur car `poisson.test`{data-pkg="stats"} ne permets de calculer qu'un seul test à la fois.
+
+```{r, eval=FALSE}
+poisson.test(num, denom)
+```
+
+```
+Error in poisson.test(num, denom) : le cas k > 2 n'est pas implémenté
+```
+
+Dans notre cas, nous souhaitons exécuter `poisson.test`{data-pkg="stats"} ligne à ligne. Cela peut être réalisée avec la famille de fonctions `map`{data-pkg="purrr"} fournies par l'extension `purrr`{.pkg}. Plus précisément, dans notre situation, nous allons avoir recours à `map2`{data-pkg="purrr"} qui permet de fournir deux vecteurs en entrée et d'appliquer une fonction ligne à ligne. On passera à `map2`{data-pkg="purrr"} soit une fonction à utiliser telle quelle ou bien une formule décrivant une fonction personnalisée à la levée, ce que nous allons faire. Dans cette formule décrivant le calcul à effectuer, on utilisera `.x` pour se référer à l'élément du premier vecteur et à `.y` pour se référer au deuxième vecteur.
+
+```{r}
+map2(num, denom, ~ poisson.test(.x, .y) %>% pluck("conf.int", 1))
+```
+
+Le résultat obtenu est une liste de 4 éléments, chaque élément contenu la borne inférieur des intervalles. Nous préférerions que la fonction nous retourne un vecteur de valeurs numériques (*double*) plutôt qu'une liste. Nous allons donc utiliser `map2_dbl`{data-pkg="purrr"} plutôt que `map2`{data-pkg="purrr"}.
+
+```{r}
+map2_dbl(num, denom, ~ poisson.test(.x, .y) %>% pluck("conf.int", 1))
+```
+
+Nous y sommes presque. Il nous reste plus qu'à avoir recours à `after_stat`{data-pkg="ggplot2"} pour avoir accès aux numérateurs et dénominateurs calculés par `stat_weighted_mean`{data-pkg="GGally"}.
+
+
+```{r}
+ggplot(bd) +
+  aes(
+    x = date, y = bd_distribuees / eleves_rencontres, weight = eleves_rencontres, 
+    ymin = map2_dbl(after_stat(numerator), after_stat(denominator), ~ poisson.test(.x, .y) %>% pluck("conf.int", 1)),
+    ymax = map2_dbl(after_stat(numerator), after_stat(denominator), ~ poisson.test(.x, .y) %>% pluck("conf.int", 2)),
+    colour = type_etablissement, fill = type_etablissement
+  ) +
+  geom_ribbon(stat = "weighted_mean", alpha = .5) +
+  geom_line(stat = "weighted_mean")
+```
+
+Faisons quelques ajustements pour une meilleur lisibilité : effaçons les limites supérieures et inférieures des rubans avec `color = "transparent"`, augmentons la transparence des rubans avec `alpha = .2` et épaississons les courbes principales avec `size = 1`.
+
+```{r}
+p <- ggplot(bd) +
+  aes(
+    x = date, y = bd_distribuees / eleves_rencontres, weight = eleves_rencontres, 
+    ymin = map2_dbl(after_stat(numerator), after_stat(denominator), ~ poisson.test(.x, .y) %>% pluck("conf.int", 1)),
+    ymax = map2_dbl(after_stat(numerator), after_stat(denominator), ~ poisson.test(.x, .y) %>% pluck("conf.int", 2)),
+    colour = type_etablissement, fill = type_etablissement
+  ) +
+  geom_ribbon(stat = "weighted_mean", alpha = .25, color = "transparent") +
+  geom_line(stat = "weighted_mean", size = 1)
+p
+```
+
+Comme tous les calculs sont réalisés à la volée, il est possible de définir simplement et rapidement des facettes pour séparer les résultats par pays.
+
+```{r}
+p <- p + facet_rep_grid(cols = vars(pays), repeat.tick.labels = TRUE)
+p
+```
+
+Faisons un peu d'habillage :
+
+```{r}
+p <- p +
+  xlab("") + ylab("") + labs(fill = "", colour = "") +
+  ggtitle(
+    "Nombre moyen de bandes dessinées distribuées par élève", 
+    subtitle = "par mois, type d'établissement et pays"
+  ) +
+  scale_x_date(
+    date_labels = "%b\n%Y", 
+    date_breaks = "3 months",
+    date_minor_breaks = "1 month",
+    guide = guide_axis_minor()
+  ) +
+  scale_fill_bright() +
+  scale_colour_bright() +
+  theme_clean() +
+  theme(
+    legend.position = "bottom"
+  )
+p
+```
+
+Voilà !
+
+Le code final de notre graphique est donc :
+
+
+```{r}
+library(ggthemes)
+library(khroma)
+library(ggh4x)
+library(GGally)
+library(lemon)
+ggplot(bd) +
+  aes(
+    x = date, y = bd_distribuees / eleves_rencontres, weight = eleves_rencontres, 
+    ymin = map2_dbl(after_stat(numerator), after_stat(denominator), ~ poisson.test(.x, .y) %>% pluck("conf.int", 1)),
+    ymax = map2_dbl(after_stat(numerator), after_stat(denominator), ~ poisson.test(.x, .y) %>% pluck("conf.int", 2)),
+    colour = type_etablissement, fill = type_etablissement
+  ) +
+  geom_ribbon(stat = "weighted_mean", alpha = .25, color = "transparent") +
+  geom_line(stat = "weighted_mean", size = 1) +
+  facet_rep_grid(cols = vars(pays), repeat.tick.labels = TRUE) +
+  xlab("") + ylab("") + labs(fill = "", colour = "") +
+  ggtitle(
+    "Nombre moyen de bandes dessinées distribuées par élève", 
+    subtitle = "par mois, type d'établissement et pays"
+  ) +
+  scale_x_date(
+    date_labels = "%b\n%Y", 
+    date_breaks = "3 months",
+    date_minor_breaks = "1 month",
+    guide = guide_axis_minor()
+  ) +
+  scale_fill_bright() +
+  scale_colour_bright() +
+  theme_clean() +
+  theme(
+    legend.position = "bottom"
+  )
+```
+
+## Pour aller plus loin
+
+On pourra jeter un œil au chapitre [Étendre **ggplot2**](etendre-ggplot2.html).

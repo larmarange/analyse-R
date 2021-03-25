@@ -13,13 +13,22 @@
 
 <title>Exemples de graphiques avancés</title>
 
-<script src="libs/header-attrs-2.6/header-attrs.js"></script>
+<script src="libs/header-attrs-2.7/header-attrs.js"></script>
 <script src="libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
 <script src="libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
@@ -73,7 +82,14 @@
   </style>
 
 
-<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
@@ -160,39 +176,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   }
 })();
 </script>
-<style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
-</style>
 
 
-<style type="text/css">
-h1 {
-  font-size: 34px;
-}
-h1.title {
-  font-size: 38px;
-}
-h2 {
-  font-size: 30px;
-}
-h3 {
-  font-size: 24px;
-}
-h4 {
-  font-size: 18px;
-}
-h5 {
-  font-size: 16px;
-}
-h6 {
-  font-size: 12px;
-}
-.table th:not([align]) {
-  text-align: left;
-}
-</style>
 
 
 
@@ -203,10 +188,6 @@ h6 {
   max-width: 940px;
   margin-left: auto;
   margin-right: auto;
-}
-code {
-  color: inherit;
-  background-color: rgba(0, 0, 0, 0.04);
 }
 img {
   max-width:100%;
@@ -223,6 +204,9 @@ button.code-folding-btn:focus {
 summary {
   display: list-item;
 }
+pre code {
+  padding: 0;
+}
 </style>
 
 
@@ -235,7 +219,6 @@ summary {
   max-height: 500px;
   min-height: 44px;
   overflow-y: auto;
-  background: white;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
@@ -478,7 +461,7 @@ summary {
 <div class="col-sm-9" role="main">
 <article>
 
-<div class="fluid-row" id="header">
+<div id="header">
 
 
 
@@ -492,6 +475,12 @@ summary {
 <ul>
 <li><a href="#code-final-du-graphique">Code final du graphique</a></li>
 </ul></li>
+<li><a href="#évolutions-temporelles">Évolutions temporelles</a>
+<ul>
+<li><a href="#bandes-dessinées-distribuées-par-mois">Bandes dessinées distribuées par mois</a></li>
+<li><a href="#évolution-du-nombre-moyen-de-bandes-dessinées-remises-par-élève">Évolution du nombre moyen de bandes dessinées remises par élève</a></li>
+</ul></li>
+<li><a href="#pour-aller-plus-loin">Pour aller plus loin</a></li>
 </ul>
 </div>
 
@@ -1024,6 +1013,293 @@ $ reponse  &lt;fct&gt; non, oui, oui, non, oui, oui, non, non...</code></pre>
 <p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-27-1.png" width="1050" /></p>
 </div>
 </div>
+<div id="évolutions-temporelles" class="section level2">
+<h2>Évolutions temporelles</h2>
+<p>Pour cet exemple, nous allons utiliser des données fictives. Dans les années 1950, au sortir de la guerre, la Syldavie et la Bordurie (deux pays fictifs inventés par Hergé) ont décidé de mettre un programme de distribution de bandes dessinées de Tintin dans des écoles et des collèges afin de motiver les élèves à lire plus. Nous disposons des rapports d’activités des différents agents du programme qui indident, par mois et par type d’établissement, le nombre d’élèves rencontrés et le nombre de bandes dessinées distribués.</p>
+<p>Commençons par importer les données, qui sont au format <strong>Excel</strong>. Nous utiliserons donc la fonction <code data-pkg="readxl">read_excel</code> de l’extension <code class="pkg">readxl</code>. Profitons-en pour charger également en mémoire le <code class="pkg">tidyverse</code> ainsi que l’extension <code class="pkg">lubridate</code> qui nous servira pour la gestion des dates.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;https://larmarange.github.io/analyse-R/data/bandes_dessinees_tintin.xlsx&quot;</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>destfile <span class="ot">&lt;-</span> <span class="st">&quot;bandes_dessinees_tintin.xlsx&quot;</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>curl<span class="sc">::</span><span class="fu">curl_download</span>(url, destfile)</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>bd <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(destfile)</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(bd)</span></code></pre></div>
+<pre><code>Rows: 4,331
+Columns: 6
+$ annee              &lt;dbl&gt; 1950, 1950, 1951, 1951, 1951, 1~
+$ mois               &lt;dbl&gt; 9, 10, 4, 2, 4, 5, 5, 3, 2, 5, ~
+$ pays               &lt;chr&gt; &quot;Bordurie&quot;, &quot;Bordurie&quot;, &quot;Bordur~
+$ type_etablissement &lt;chr&gt; &quot;école primaire&quot;, &quot;école primai~
+$ eleves_rencontres  &lt;dbl&gt; 2, 3, 6, 16, 1, 5, 6, 3, 5, 3, ~
+$ bd_distribuees     &lt;dbl&gt; 3, 3, 6, 16, 1, 5, 12, 4, 6, 5,~</code></pre>
+<div id="bandes-dessinées-distribuées-par-mois" class="section level3">
+<h3>Bandes dessinées distribuées par mois</h3>
+<p>En premier lieu, nous souhaiterions représenter le nombre de bandes dessinées distribuées par mois. Comme on peut le voir, nous n’avons pas directement une variable date, l’année et le mois étant indiqués dans deux variables différentes. Nous allons donc commencer par créer une telle variable, qui correspondra au premier jour du mois.</p>
+<p>Nous allons utiliser la fonction <code data-pkg="base">paste0</code> qui permets de concaténer du texte pour créer des chaines de texte au format <em>ANNEE-MOIS-JOUR</em> puis transformer cela en objet <strong>Date</strong> avec <code data-pkg="lubridate">ymd</code> de l’extension <code class="pkg">lubridate</code>.</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>bd<span class="sc">$</span>date <span class="ot">&lt;-</span> <span class="fu">paste0</span>(bd<span class="sc">$</span>annee, <span class="st">&quot;-&quot;</span>, bd<span class="sc">$</span>mois, <span class="st">&quot;-01&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">ymd</span>()</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bd<span class="sc">$</span>date)</span></code></pre></div>
+<pre><code>        Min.      1st Qu.       Median         Mean 
+&quot;1949-12-01&quot; &quot;1950-07-01&quot; &quot;1950-12-01&quot; &quot;1950-11-13&quot; 
+     3rd Qu.         Max. 
+&quot;1951-04-01&quot; &quot;1951-07-01&quot; </code></pre>
+<p>Nous pouvons maintenant commencer à réaliser notre graphique. Nous allons compter le nombre de BD distribuées par mois et représenter cela sous forme d’un graphique en barres. <code data-pkg="ggplot2">geom_bar</code> utilise la statistique <code data-pkg="ggplot2">stat_count</code> pour compter le nombre d’observations. Cependant, le nombre de BD distribuées varie d’une ligne du fichier à l’autre. Nous allons donc utiliser l’esthétique <code>weight</code> pour pondérer le calcul et obtenir le total de bandes dessinées distribuées. Nous allons également utiliser l’esthétique <code>fill</code> pour distinguer les écoles primaires et les collèges.</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(bd) <span class="sc">+</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> date, <span class="at">weight =</span> bd_distribuees, <span class="at">fill =</span> type_etablissement) <span class="sc">+</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>()</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-32-1.png" width="1050" /></p>
+<p>Avec <code data-pkg="ggplot2">facet_grid</code> nous pouvons comparer la Syldavie et la Bordurie.</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>p <span class="sc">+</span> <span class="fu">facet_grid</span>(<span class="at">cols =</span> <span class="fu">vars</span>(pays))</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-33-1.png" width="1050" /></p>
+<p>Essayons de faire un peu mieux en répétant l’axe des y sur le graphique de droite, ce qui peut être fait avec la fonction <code data-pkg="lemon">facet_rep_grid</code> de l’extension <code class="pkg">lemon</code>.</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lemon, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>p <span class="sc">+</span> <span class="fu">facet_rep_grid</span>(<span class="at">cols =</span> <span class="fu">vars</span>(pays))</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-34-1.png" width="1050" /></p>
+<p>Cela a répété les encoches (<em>ticks</em>). Pour répéter également les étiquettes, il nous faut ajouter l’option <code>repeat.tick.labels = TRUE</code>.</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">facet_rep_grid</span>(<span class="at">cols =</span> <span class="fu">vars</span>(pays), <span class="at">repeat.tick.labels =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-35-1.png" width="1050" /></p>
+<p>Allégeons un peu le graphique (voir exemple précédent). Pour cela, nous allons utiliser le thème <code data-pkg="ggthemes">theme_clean</code> fourni par <code class="pkg">ggthemes</code>.</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggthemes)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Bandes dessinées distribuées par mois&quot;</span>) <span class="sc">+</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_clean</span>() <span class="sc">+</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-36-1.png" width="1050" /></p>
+<p>De même, nous allons utiliser une palette de couleurs adaptées aux personnes daltoniennes, en s’appuyant sur <code data-pkg="khroma">scale_fill_bright</code> disponible avec <code class="pkg">khroma</code>.</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(khroma)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">scale_fill_bright</span>()</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-37-1.png" width="1050" /></p>
+<p>Reste à améliorer la présentation de l’axe des x avec <code>scale_x_date</code>{data-pkg="ggplot2}. L’option <code>date_labels</code> permet de personnaliser l’affichage des dates via des raccourcis décrits dans l’aide de la fonction <code data-pkg="base">strptime</code>. Ainsi, <code>%b</code> correspond au mois écrit textuellement de manière abrégée et <code>%Y</code> à l’année sur 4 chiffres. <code>\n</code> est utilisé pour indiquer un retour à la ligne. L’option <code>date_breaks</code> permet d’indiquer de manière facilitée la durée attendue entre deux étiquettes, ici trois mois.</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">scale_x_date</span>(</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">date_labels =</span> <span class="st">&quot;%b</span><span class="sc">\n</span><span class="st">%Y&quot;</span>,</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">date_breaks =</span> <span class="st">&quot;3 months&quot;</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-38-1.png" width="1050" /></p>
+<p>Pour améliorer le graphique, nous aimerions rajouter une encoche sous chaque mois. Ceci est rendu possible avec la fonction <code data-pkg="ggh4x">guide_axis_minor</code> de <code class="pkg">ggh4x</code>.</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggh4x)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">scale_x_date</span>(</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">date_labels =</span> <span class="st">&quot;%b</span><span class="sc">\n</span><span class="st">%Y&quot;</span>,</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">date_breaks =</span> <span class="st">&quot;3 months&quot;</span>,</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">date_minor_breaks =</span> <span class="st">&quot;1 month&quot;</span>,</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">guide =</span> <span class="fu">guide_axis_minor</span>()</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>Scale for &#39;x&#39; is already present. Adding another scale
+for &#39;x&#39;, which will replace the existing scale.</code></pre>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-39-1.png" width="1050" /></p>
+<p>Le code complet de ce graphique est donc :</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggthemes)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(khroma)</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggh4x)</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lemon)</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bd) <span class="sc">+</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> date, <span class="at">weight =</span> bd_distribuees, <span class="at">fill =</span> type_etablissement) <span class="sc">+</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_rep_grid</span>(<span class="at">cols =</span> <span class="fu">vars</span>(pays), <span class="at">repeat.tick.labels =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Bandes dessinées distribuées par mois&quot;</span>) <span class="sc">+</span></span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(</span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">date_labels =</span> <span class="st">&quot;%b</span><span class="sc">\n</span><span class="st">%Y&quot;</span>,</span>
+<span id="cb46-15"><a href="#cb46-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">date_breaks =</span> <span class="st">&quot;3 months&quot;</span>,</span>
+<span id="cb46-16"><a href="#cb46-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">date_minor_breaks =</span> <span class="st">&quot;1 month&quot;</span>,</span>
+<span id="cb46-17"><a href="#cb46-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">guide =</span> <span class="fu">guide_axis_minor</span>()</span>
+<span id="cb46-18"><a href="#cb46-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb46-19"><a href="#cb46-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_bright</span>() <span class="sc">+</span></span>
+<span id="cb46-20"><a href="#cb46-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_clean</span>() <span class="sc">+</span></span>
+<span id="cb46-21"><a href="#cb46-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb46-22"><a href="#cb46-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span></span>
+<span id="cb46-23"><a href="#cb46-23" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-40-1.png" width="1050" /></p>
+</div>
+<div id="évolution-du-nombre-moyen-de-bandes-dessinées-remises-par-élève" class="section level3">
+<h3>Évolution du nombre moyen de bandes dessinées remises par élève</h3>
+<p>Nous disposons dans les rapports d’activités du nombre de bandes dessinées distribuées et du nombre d’élèves rencontrés. Nous pouvons donc regarder comment à évaluer au cours du temps le nombre moyen de bandes dessinées distribuées par élève, à savoir l’évolution du ratio <strong>bd_distribuees</strong> / <strong>eleves_rencontres</strong>.</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bd) <span class="sc">+</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> date, <span class="at">y =</span> bd_distribuees <span class="sc">/</span> eleves_rencontres, <span class="at">colour =</span> type_etablissement) <span class="sc">+</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-41-1.png" width="1050" /></p>
+<p>Comme on le voit sur la figure précédente, si l’on représente directement cet indicateur, nous obtenons plusieurs points pour chaque date. En effet, nous avons plusieurs observations par date et nous obtenons donc un point pour chacune de ces observations. Nous souhaiterions avoir la moyenne pour chaque date. Cela est possible en ayant recours à <code data-pkg="GGally">stat_weighted_mean</code> de l’extension <code class="pkg">GGally</code>. Pour que le calcul soit correct, il faut réaliser une moyenne pondérée par le dénominateur, à savoir ici le nombre d’élèves.</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bd) <span class="sc">+</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> date, <span class="at">y =</span> bd_distribuees <span class="sc">/</span> eleves_rencontres, <span class="at">colour =</span> type_etablissement) <span class="sc">+</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">stat =</span> <span class="st">&quot;weighted_mean&quot;</span>)</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-42-1.png" width="1050" /></p>
+<p>Le graphique sera plus lisible si nous représentons des lignes.</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bd) <span class="sc">+</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> date, <span class="at">y =</span> bd_distribuees <span class="sc">/</span> eleves_rencontres, <span class="at">colour =</span> type_etablissement) <span class="sc">+</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">stat =</span> <span class="st">&quot;weighted_mean&quot;</span>)</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-43-1.png" width="1050" /></p>
+<p>Pour améliorer la comparaison, il serait pertinent d’ajouter les intervalles de confiance sur le graphique. Cela peut être réalisé par exemple avec des rubans de couleur. Mais pour cela, il va falloir avoir recours à quelques astuces pour permettre le calcul de ces intervalles de confiance à la volée.</p>
+<p>Tout d’abord, pour calculer l’intervalle de confiance d’un ratio de nombres entiers, nous pouvons utiliser un <dfn>test de Poisson</dfn><dfn data-index="Poisson, test"></dfn> avec <code data-pkg="stats">poisson.test</code> auquel nous devons transmettre le numérateur et le dénominateur. Par exemple, pour 48 bandes dessinées distribuées à 27 élèves :</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> <span class="fu">poisson.test</span>(<span class="dv">48</span>, <span class="dv">27</span>)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>test</span></code></pre></div>
+<pre><code>
+    Exact Poisson test
+
+data:  48 time base: 27
+number of events = 48, time base = 27, p-value =
+0.0002246
+alternative hypothesis: true event rate is not equal to 1
+95 percent confidence interval:
+ 1.310793 2.357075
+sample estimates:
+event rate 
+  1.777778 </code></pre>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(test)</span></code></pre></div>
+<pre><code>List of 9
+ $ statistic  : Named num 48
+  ..- attr(*, &quot;names&quot;)= chr &quot;number of events&quot;
+ $ parameter  : Named num 27
+  ..- attr(*, &quot;names&quot;)= chr &quot;time base&quot;
+ $ p.value    : num 0.000225
+ $ conf.int   : num [1:2] 1.31 2.36
+  ..- attr(*, &quot;conf.level&quot;)= num 0.95
+ $ estimate   : Named num 1.78
+  ..- attr(*, &quot;names&quot;)= chr &quot;event rate&quot;
+ $ null.value : Named num 1
+  ..- attr(*, &quot;names&quot;)= chr &quot;event rate&quot;
+ $ alternative: chr &quot;two.sided&quot;
+ $ method     : chr &quot;Exact Poisson test&quot;
+ $ data.name  : chr &quot;48 time base: 27&quot;
+ - attr(*, &quot;class&quot;)= chr &quot;htest&quot;</code></pre>
+<p>Comme nous le montre <code data-pkg="utils">str</code>, <code data-pkg="stats">poisson.test</code> renvoie une liste avec différents éléments et l’intervalle de confiance est disponible dans le sous-objet <code>"conf.int"</code>. Il est possible d’y accéder avec l’opérateur <code>$</code> ou bien avec la fonction <code data-pkg="purrr">pluck</code> de l’extension <code class="pkg">purrr</code> chargée par défaut avec le <code class="pkg">tidyverse</code>.</p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>test<span class="sc">$</span>conf.int</span></code></pre></div>
+<pre><code>[1] 1.310793 2.357075
+attr(,&quot;conf.level&quot;)
+[1] 0.95</code></pre>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>test <span class="sc">%&gt;%</span> <span class="fu">pluck</span>(<span class="st">&quot;conf.int&quot;</span>)</span></code></pre></div>
+<pre><code>[1] 1.310793 2.357075
+attr(,&quot;conf.level&quot;)
+[1] 0.95</code></pre>
+<p>Pour obtenir la borne inférieure de l’intervalle de confiance, il nous faut maintenant extraire le premier élément.</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>test<span class="sc">$</span>conf.int[<span class="dv">1</span>]</span></code></pre></div>
+<pre><code>[1] 1.310793</code></pre>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>test <span class="sc">%&gt;%</span> <span class="fu">pluck</span>(<span class="st">&quot;conf.int&quot;</span>, <span class="dv">1</span>)</span></code></pre></div>
+<pre><code>[1] 1.310793</code></pre>
+<p>Nous avons trouvé la manière de calculer la borne inférieure de l’intervalle de confiance pour une ligne d’observations. Mais comment procéder pour plusieurs observations. Supposons que nous ayons 4 observations :</p>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>num <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">25</span>, <span class="dv">32</span>, <span class="dv">48</span>)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>denom <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">25</span>, <span class="dv">17</span>, <span class="dv">25</span>, <span class="dv">31</span>)</span></code></pre></div>
+<p>Si nous passons ces vecteurs de données à <code data-pkg="stats">poisson.test</code>, nous obtenons un message d’erreur car <code data-pkg="stats">poisson.test</code> ne permets de calculer qu’un seul test à la fois.</p>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">poisson.test</span>(num, denom)</span></code></pre></div>
+<pre><code>Error in poisson.test(num, denom) : le cas k &gt; 2 n&#39;est pas implémenté</code></pre>
+<p>Dans notre cas, nous souhaitons exécuter <code data-pkg="stats">poisson.test</code> ligne à ligne. Cela peut être réalisée avec la famille de fonctions <code data-pkg="purrr">map</code> fournies par l’extension <code class="pkg">purrr</code>. Plus précisément, dans notre situation, nous allons avoir recours à <code data-pkg="purrr">map2</code> qui permet de fournir deux vecteurs en entrée et d’appliquer une fonction ligne à ligne. On passera à <code data-pkg="purrr">map2</code> soit une fonction à utiliser telle quelle ou bien une formule décrivant une fonction personnalisée à la levée, ce que nous allons faire. Dans cette formule décrivant le calcul à effectuer, on utilisera <code>.x</code> pour se référer à l’élément du premier vecteur et à <code>.y</code> pour se référer au deuxième vecteur.</p>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map2</span>(num, denom, <span class="sc">~</span> <span class="fu">poisson.test</span>(.x, .y) <span class="sc">%&gt;%</span> <span class="fu">pluck</span>(<span class="st">&quot;conf.int&quot;</span>, <span class="dv">1</span>))</span></code></pre></div>
+<pre><code>[[1]]
+[1] 1.484439
+
+[[2]]
+[1] 0.9516872
+
+[[3]]
+[1] 0.8755191
+
+[[4]]
+[1] 1.141658</code></pre>
+<p>Le résultat obtenu est une liste de 4 éléments, chaque élément contenu la borne inférieur des intervalles. Nous préférerions que la fonction nous retourne un vecteur de valeurs numériques (<em>double</em>) plutôt qu’une liste. Nous allons donc utiliser <code data-pkg="purrr">map2_dbl</code> plutôt que <code data-pkg="purrr">map2</code>.</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map2_dbl</span>(num, denom, <span class="sc">~</span> <span class="fu">poisson.test</span>(.x, .y) <span class="sc">%&gt;%</span> <span class="fu">pluck</span>(<span class="st">&quot;conf.int&quot;</span>, <span class="dv">1</span>))</span></code></pre></div>
+<pre><code>[1] 1.4844385 0.9516872 0.8755191 1.1416584</code></pre>
+<p>Nous y sommes presque. Il nous reste plus qu’à avoir recours à <code data-pkg="ggplot2">after_stat</code> pour avoir accès aux numérateurs et dénominateurs calculés par <code data-pkg="GGally">stat_weighted_mean</code>.</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bd) <span class="sc">+</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> date, <span class="at">y =</span> bd_distribuees <span class="sc">/</span> eleves_rencontres, <span class="at">weight =</span> eleves_rencontres,</span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">ymin =</span> <span class="fu">map2_dbl</span>(<span class="fu">after_stat</span>(numerator), <span class="fu">after_stat</span>(denominator), <span class="sc">~</span> <span class="fu">poisson.test</span>(.x, .y) <span class="sc">%&gt;%</span> <span class="fu">pluck</span>(<span class="st">&quot;conf.int&quot;</span>, <span class="dv">1</span>)),</span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">ymax =</span> <span class="fu">map2_dbl</span>(<span class="fu">after_stat</span>(numerator), <span class="fu">after_stat</span>(denominator), <span class="sc">~</span> <span class="fu">poisson.test</span>(.x, .y) <span class="sc">%&gt;%</span> <span class="fu">pluck</span>(<span class="st">&quot;conf.int&quot;</span>, <span class="dv">2</span>)),</span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> type_etablissement, <span class="at">fill =</span> type_etablissement</span>
+<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb69-8"><a href="#cb69-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">stat =</span> <span class="st">&quot;weighted_mean&quot;</span>, <span class="at">alpha =</span> .<span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb69-9"><a href="#cb69-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">stat =</span> <span class="st">&quot;weighted_mean&quot;</span>)</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-51-1.png" width="1050" /></p>
+<p>Faisons quelques ajustements pour une meilleur lisibilité : effaçons les limites supérieures et inférieures des rubans avec <code>color = "transparent"</code>, augmentons la transparence des rubans avec <code>alpha = .2</code> et épaississons les courbes principales avec <code>size = 1</code>.</p>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(bd) <span class="sc">+</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> date, <span class="at">y =</span> bd_distribuees <span class="sc">/</span> eleves_rencontres, <span class="at">weight =</span> eleves_rencontres,</span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">ymin =</span> <span class="fu">map2_dbl</span>(<span class="fu">after_stat</span>(numerator), <span class="fu">after_stat</span>(denominator), <span class="sc">~</span> <span class="fu">poisson.test</span>(.x, .y) <span class="sc">%&gt;%</span> <span class="fu">pluck</span>(<span class="st">&quot;conf.int&quot;</span>, <span class="dv">1</span>)),</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">ymax =</span> <span class="fu">map2_dbl</span>(<span class="fu">after_stat</span>(numerator), <span class="fu">after_stat</span>(denominator), <span class="sc">~</span> <span class="fu">poisson.test</span>(.x, .y) <span class="sc">%&gt;%</span> <span class="fu">pluck</span>(<span class="st">&quot;conf.int&quot;</span>, <span class="dv">2</span>)),</span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> type_etablissement, <span class="at">fill =</span> type_etablissement</span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">stat =</span> <span class="st">&quot;weighted_mean&quot;</span>, <span class="at">alpha =</span> .<span class="dv">25</span>, <span class="at">color =</span> <span class="st">&quot;transparent&quot;</span>) <span class="sc">+</span></span>
+<span id="cb70-9"><a href="#cb70-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">stat =</span> <span class="st">&quot;weighted_mean&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>)</span>
+<span id="cb70-10"><a href="#cb70-10" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-52-1.png" width="1050" /></p>
+<p>Comme tous les calculs sont réalisés à la volée, il est possible de définir simplement et rapidement des facettes pour séparer les résultats par pays.</p>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">facet_rep_grid</span>(<span class="at">cols =</span> <span class="fu">vars</span>(pays), <span class="at">repeat.tick.labels =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-53-1.png" width="1050" /></p>
+<p>Faisons un peu d’habillage :</p>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">&quot;&quot;</span>, <span class="at">colour =</span> <span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Nombre moyen de bandes dessinées distribuées par élève&quot;</span>,</span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">&quot;par mois, type d&#39;établissement et pays&quot;</span></span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(</span>
+<span id="cb72-8"><a href="#cb72-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">date_labels =</span> <span class="st">&quot;%b</span><span class="sc">\n</span><span class="st">%Y&quot;</span>,</span>
+<span id="cb72-9"><a href="#cb72-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">date_breaks =</span> <span class="st">&quot;3 months&quot;</span>,</span>
+<span id="cb72-10"><a href="#cb72-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">date_minor_breaks =</span> <span class="st">&quot;1 month&quot;</span>,</span>
+<span id="cb72-11"><a href="#cb72-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">guide =</span> <span class="fu">guide_axis_minor</span>()</span>
+<span id="cb72-12"><a href="#cb72-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb72-13"><a href="#cb72-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_bright</span>() <span class="sc">+</span></span>
+<span id="cb72-14"><a href="#cb72-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_bright</span>() <span class="sc">+</span></span>
+<span id="cb72-15"><a href="#cb72-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_clean</span>() <span class="sc">+</span></span>
+<span id="cb72-16"><a href="#cb72-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb72-17"><a href="#cb72-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span></span>
+<span id="cb72-18"><a href="#cb72-18" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb72-19"><a href="#cb72-19" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-54-1.png" width="1050" /></p>
+<p>Voilà !</p>
+<p>Le code final de notre graphique est donc :</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggthemes)</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(khroma)</span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggh4x)</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lemon)</span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bd) <span class="sc">+</span></span>
+<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> date, <span class="at">y =</span> bd_distribuees <span class="sc">/</span> eleves_rencontres, <span class="at">weight =</span> eleves_rencontres,</span>
+<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">ymin =</span> <span class="fu">map2_dbl</span>(<span class="fu">after_stat</span>(numerator), <span class="fu">after_stat</span>(denominator), <span class="sc">~</span> <span class="fu">poisson.test</span>(.x, .y) <span class="sc">%&gt;%</span> <span class="fu">pluck</span>(<span class="st">&quot;conf.int&quot;</span>, <span class="dv">1</span>)),</span>
+<span id="cb73-10"><a href="#cb73-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">ymax =</span> <span class="fu">map2_dbl</span>(<span class="fu">after_stat</span>(numerator), <span class="fu">after_stat</span>(denominator), <span class="sc">~</span> <span class="fu">poisson.test</span>(.x, .y) <span class="sc">%&gt;%</span> <span class="fu">pluck</span>(<span class="st">&quot;conf.int&quot;</span>, <span class="dv">2</span>)),</span>
+<span id="cb73-11"><a href="#cb73-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> type_etablissement, <span class="at">fill =</span> type_etablissement</span>
+<span id="cb73-12"><a href="#cb73-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb73-13"><a href="#cb73-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">stat =</span> <span class="st">&quot;weighted_mean&quot;</span>, <span class="at">alpha =</span> .<span class="dv">25</span>, <span class="at">color =</span> <span class="st">&quot;transparent&quot;</span>) <span class="sc">+</span></span>
+<span id="cb73-14"><a href="#cb73-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">stat =</span> <span class="st">&quot;weighted_mean&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb73-15"><a href="#cb73-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_rep_grid</span>(<span class="at">cols =</span> <span class="fu">vars</span>(pays), <span class="at">repeat.tick.labels =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb73-16"><a href="#cb73-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
+<span id="cb73-17"><a href="#cb73-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
+<span id="cb73-18"><a href="#cb73-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">&quot;&quot;</span>, <span class="at">colour =</span> <span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
+<span id="cb73-19"><a href="#cb73-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(</span>
+<span id="cb73-20"><a href="#cb73-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Nombre moyen de bandes dessinées distribuées par élève&quot;</span>,</span>
+<span id="cb73-21"><a href="#cb73-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">&quot;par mois, type d&#39;établissement et pays&quot;</span></span>
+<span id="cb73-22"><a href="#cb73-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb73-23"><a href="#cb73-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(</span>
+<span id="cb73-24"><a href="#cb73-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">date_labels =</span> <span class="st">&quot;%b</span><span class="sc">\n</span><span class="st">%Y&quot;</span>,</span>
+<span id="cb73-25"><a href="#cb73-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">date_breaks =</span> <span class="st">&quot;3 months&quot;</span>,</span>
+<span id="cb73-26"><a href="#cb73-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">date_minor_breaks =</span> <span class="st">&quot;1 month&quot;</span>,</span>
+<span id="cb73-27"><a href="#cb73-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">guide =</span> <span class="fu">guide_axis_minor</span>()</span>
+<span id="cb73-28"><a href="#cb73-28" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb73-29"><a href="#cb73-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_bright</span>() <span class="sc">+</span></span>
+<span id="cb73-30"><a href="#cb73-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_bright</span>() <span class="sc">+</span></span>
+<span id="cb73-31"><a href="#cb73-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_clean</span>() <span class="sc">+</span></span>
+<span id="cb73-32"><a href="#cb73-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb73-33"><a href="#cb73-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span></span>
+<span id="cb73-34"><a href="#cb73-34" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p><img src="graphs/exemples-graphiques-avances/unnamed-chunk-55-1.png" width="1050" /></p>
+</div>
+</div>
+<div id="pour-aller-plus-loin" class="section level2">
+<h2>Pour aller plus loin</h2>
+<p>On pourra jeter un œil au chapitre <a href="etendre-ggplot2.html">Étendre <strong>ggplot2</strong></a>.</p>
+</div>
 
 </article>
 </div>
@@ -1244,7 +1520,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
   $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
+    $(this).parent().toggleClass('nav-tabs-open');
   });
 });
 </script>
