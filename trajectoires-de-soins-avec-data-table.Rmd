@@ -1,5 +1,5 @@
 ---
-title: "Trajectoires de soins : un exemple de données longitudinales"
+title: "Trajectoires de soins : un exemple de données longitudinales avec data.table"
 ---
 
 ```{r options_communes, include=FALSE}
@@ -12,7 +12,7 @@ knitr::opts_chunk$set(tidy = FALSE, warning = FALSE)
 </style>
 
 <div class="note">
-Une version de ce chapitre ustilisant l'extension `data.table`{.pkg} plutôt que `dplyr`{.pkg} [est également disponible](trajectoires-de-soins-avec-data-table.html).
+Ceci est une version du chapitre [trajectoires de soins](trajectoires-de-soins.html) utilisant l'extension `data.table`{.pkg} plutôt que `dplyr`{.pkg}.
 </div>
 
 Dans ce chapitre, nous allons aborder plusieurs méthodes d'analyse à partir d'un jeu de données longitudinales. Tout d'abord, importons les données dans **R** avec la commande suivante :
@@ -30,11 +30,11 @@ class(care_trajectories)
 ```
 
 
-Nous obtenons un objet appelé `care_trajectories`. La fonction `class`{data-pkg="base"} nous montre qu'il s'agit d'un tableau de données au format `data.table`{.pkg} (voir le [chapitre dédié](manipulations-avancees-avec-data-table.html)). Chargeons le `tidyverse`{.pkg} et utilisons `as_tibble`{data-pkg="tibble"} pour convertir le tableau de données.
+Nous obtenons un objet appelé `care_trajectories`. La fonction `class`{data-pkg="base"} nous montre qu'il s'agit d'un tableau de données au format `data.table`{.pkg} (voir le [chapitre dédié](manipulations-avancees-avec-data-table.html)). Chargeons donc cette extension ainsi que le `tidyverse`{.pkg}.
 
 ```{r, message=FALSE}
 library(tidyverse, quietly = TRUE)
-care_trajectories <- as_tibble(care_trajectories)
+library(data.table, quietly = TRUE)
 ```
 
 ## Première description des données
@@ -57,13 +57,6 @@ Pour une description des variables, on pourra avoir recours à `describe`{data-p
 library(questionr)
 describe(care_trajectories, freq.n.max = 10)
 ```
-
-Nous pouvons également utiliser `look_for`{data-pkg="labelled"} de `labelled`{.pkg}.
-
-```{r}
-care_trajectories %>% look_for()
-```
-
 
 Dans cette étude, on a suivi des patients à partir du moment où ils ont été diagnostiqués pour une pathologie grave et chronique et on a suivi leurs parcours de soins chaque mois à partir du diagnostic. La variable `status` contient le statut dans les soins de chaque individu pour chaque mois de suivi :
 
@@ -111,11 +104,7 @@ Améliorons ce graphique en y ajoutant la distribution selon le statut dans les 
 
 ```{r, message=FALSE}
 library(viridis)
-n <- care_trajectories %>%
-  filter(month %in% (0:8*6)) %>%
-  group_by(month) %>%
-  count() %>%
-  pluck("n")
+n <- care_trajectories[month %in% (0:8*6), .(n = .N), by = month]$n
 etiquettes <- paste0("M", 0:8*6, "\n(n=", n, ")")
 val_labels(care_trajectories$care_status) <- c(
   "diagnostiqué, mais pas suivi" = "D",
@@ -160,7 +149,7 @@ ggplot(care_trajectories) +
 Les effectifs sont très faibles au-delà de 36 mois et il serait préférable de couper la cascade au-delà de M36, ce que l'on peut faire aisément ne gardant que les lignes correspondantes de `care_trajectories`.
 
 ```{r}
-casc_obs <- ggplot(care_trajectories %>% filter(month <= 36)) +
+casc_obs <- ggplot(care_trajectories[month <= 36]) +
   aes(x = month, fill = to_factor(care_status)) +
   geom_bar(color = "gray50", width = 1, position = "fill") +
   scale_x_continuous(breaks = 0:8*6, labels = etiquettes) +
@@ -192,42 +181,49 @@ Pour le moment, contentons-nous de regarder la **première** entrée en soins, l
 
 
 ```{r}
-ind <- care_trajectories %>% filter(month == 0)
+ind <- care_trajectories[month == 0]
 ind$diagnostic <- 0
-ind <- ind %>%
-  left_join(
-    care_trajectories %>%
-      filter(care_status %in% c("C", "T", "S")) %>%
-      group_by(id) %>%
-      dplyr::summarise(entree_soins = min(month)),
-    by = "id"
-  ) %>%
-  left_join(
-    care_trajectories %>%
-      filter(care_status %in% c("T", "S")) %>%
-      group_by(id) %>%
-      dplyr::summarise(initiation_tt = min(month)),
-    by = "id"
-  ) %>%
-  left_join(
-    care_trajectories %>%
-      filter(care_status == "S") %>%
-      group_by(id) %>%
-      dplyr::summarise(controle = min(month)),
-    by = "id"
-  )
+ind <- merge(
+  ind,
+  care_trajectories[
+    care_status %in% c("C", "T", "S"), 
+    .(entree_soins = min(month)),
+    by = id
+  ],
+  by = "id", 
+  all.x = TRUE
+)
+ind <- merge(
+  ind,
+  care_trajectories[
+    care_status %in% c("T", "S"), 
+    .(initiation_tt = min(month)),
+    by = id
+  ],
+  by = "id", 
+  all.x = TRUE
+)
+ind <- merge(
+  ind,
+  care_trajectories[
+    care_status == "S", 
+    .(controle = min(month)),
+    by = id
+  ],
+  by = "id", 
+  all.x = TRUE
+)
 ```
 
 Il nous faut également la durée de suivi par individu.
 
 ```{r}
-ind <- ind %>%
-  left_join(
-    care_trajectories %>%
-      group_by(id) %>%
-      dplyr::summarise(suivi = max(month)),
-    by = "id"
-  )
+ind <- merge(
+  ind,
+  care_trajectories[, .(suivi = max(month)), by = id],
+  by = "id", 
+  all.x = TRUE
+)
 ```
 
 Pour faciliter la suite des analyses, nous allons nous créer une petite fonction qui, en fonction de la date d'origine et la date d'événement retenues, calculera la courbe de <dfn>Kaplan-Meier</dfn> correspondante (voir le chapitre sur l'[analyse de suivie](analyse-de-survie.html) pour le calcul de la courbe de survie et celui dédié à l'[écriture de fonctions](ecrire-ses-propres-fonctions.html)).
@@ -339,6 +335,7 @@ library(tidyr)
 large <- care_trajectories %>%
   dplyr::select(id, m = month, care_status) %>%
   pivot_wider(names_from = m, values_from = care_status, names_prefix = "m") 
+setDT(large)
 head(large)
 ```
 
@@ -347,7 +344,7 @@ On utilise `seqdef`{data-pkg="TraMineR"} de `TraMineR`{.pkg} pour créer nos sé
 ```{r}
 library(TraMineR, quietly = TRUE)
 seq_all <- seqdef(
-  large %>% dplyr::select(m0:m50),
+  large[, m0:m50],
   id = large$id,
   alphabet = c("D", "C", "T", "S"),
   states = c("diagnostiqué", "en soins", "sous traitement", "inf. contrôlée"),
@@ -398,12 +395,9 @@ Reprenons notre analyse en se limitant aux individus observés au moins 18 mois 
 
 ```{r, fig.height=7}
 large$seq_length <- seqlength(seq_all)
-large_m18 <- large %>%
-  dplyr::filter(seq_length >= 19) %>%
-  dplyr::select(id:m18)
-  
+large_m18 <- large[seq_length >= 19, id:m18]
 seq_m18 <- seqdef(
-  large_m18 %>% dplyr::select(m0:m18),
+  large_m18[, m0:m18],
   id = large_m18$id,
   alphabet = c("D", "C", "T", "S"),
   states = c("diagnostiqué", "en soins", "sous traitement", "inf. contrôlée"),
@@ -480,11 +474,8 @@ large_m18$typo_pam <- pam_m18$clustering
 Un tableau croisé nous permets de voir que les deux typologies restent proches.
 
 ```{r}
-library(gtsummary)
-large_m18 %>% 
-  tbl_cross(row = typo_cah, col = typo_pam)
+table(large_m18$typo_cah, large_m18$typo_pam)
 ```
-
 
 Regardons les tapis de séquence des deux typologies.
 
@@ -533,31 +524,28 @@ large_m18$groupe <- factor(
 )
 
 # calculer le rang des individus dans chaque groupe
-large_m18 <- large_m18 %>%
-  group_by(groupe) %>%
-  arrange(ordre_cmd) %>%
-  mutate(rang_cmd = rank(ordre_cmd, ties.method = "first"))
+setorder(large_m18, "ordre_cmd")
+large_m18[, rang_cmd := 1:.N, by = groupe]
 
 # créer un fichier long
-long_m18 <- care_trajectories %>%
-  filter(id %in% large_m18$id & month <= 18) %>%
-  left_join(
-    large_m18 %>% dplyr::select(id, groupe, rang_cmd),
-    by = "id"
-  )
-
+long_m18 <- care_trajectories[id %in% large_m18$id & month <= 18]
+long_m18 <- merge(
+  long_m18,
+  large_m18[, .(id, groupe, rang_cmd)],
+  by = "id",
+  all.x = TRUE
+)
 long_m18$care_statusF <- to_factor(long_m18$care_status)
 
 # calculer les effectifs par groupe
-tmp <- large_m18 %>% 
-  dplyr::count(groupe) %>%
-  mutate(groupe_n = paste0(groupe, "\n(n=", n, ")"))
-
-long_m18 <- long_m18 %>%
-  left_join(
-    tmp %>% dplyr::select(groupe, groupe_n),
-    by = "groupe"
-  )
+tmp <- large_m18[, .(n = .N), by = groupe]
+tmp[, groupe_n := paste0(groupe, "\n(n=", n, ")")]
+long_m18 <- merge(
+  long_m18,
+  tmp[, .(groupe, groupe_n)],
+  by = "groupe",
+  all.x = TRUE
+)
 ```
 
 
@@ -586,13 +574,15 @@ Une fois les différents groupes de trajectoires identifiés, il est courant de 
 Ces différentes variables sont renseignées pour chaque mois dans le tableau de données `care_trajectories`, en tenant compte des éventuels changements au cours du temps. Ici, notre analyse est menée au niveau individuel. Nous allons donc récupérer la valeur de ces différentes variables au moment du diagnostic, à savoir à M0.
 
 ```{r}
-large_m18 <- large_m18 %>%
-  left_join(
-    care_trajectories %>%
-      dplyr::filter(month == 0) %>%
-      dplyr::select(id, sex, age, education),
-    by = "id"
-  )
+large_m18 <- merge(
+  large_m18,
+  care_trajectories[
+    month == 0, 
+    .(id, sex, age, education)
+  ],
+  by = "id",
+  all.x = TRUE
+)
 ```
 
 La fonction `tbl_summary`{data-pkg="gtsummary"} de l'extension `gtsummary`{.pkg} permets de produire aisément une série de tableaux croisés. À noter le recours à `add_p()`{data-pkg="summary"} pour ajouter les p-valeurs au <dfn>test du Chi²</dfn><dfn data-index="Chi², test"></dfn>.^[Pour plus de détails sur les tableaux croisés et le test du Chi², voir le chapitre sur la [statisque bivariée](statistique-bivariee.html#deux-variables-qualitatives) et le chapitre sur les [tests de comparaison ](comparaisons-moyennes-et-proportions.html#chi2).] La fonction `add_overall`{data-pkg="gtsummary"} permets d'ajouter une colonne avec l'ensemble de l'échantillon. Notez que nous avons utiliser `unlabelled`{data-pkg="labelled"} de l'extension `labelled`{.pkg} pour convertir en amont les vecteurs labellisés en facteurs.
@@ -600,9 +590,7 @@ La fonction `tbl_summary`{data-pkg="gtsummary"} de l'extension `gtsummary`{.pkg}
 
 ```{r}
 library(gtsummary)
-large_m18 %>%
-  ungroup() %>%
-  unlabelled() %>% 
+unlabelled(large_m18) %>% 
   tbl_summary(by = "groupe", include = c("groupe", "sex", "age", "education")) %>%
   add_p() %>%
   add_overall(last = TRUE)
@@ -655,7 +643,7 @@ Un graphique similaire peut s'obtenir très facilement en ayant recours à la fo
 ```{r, fig.height=6, fig.width=6}
 library(GGally)
 ggbivariate(
-  large_m18 %>% ungroup() %>% unlabelled(), 
+  unlabelled(large_m18), 
   outcome = "groupe", 
   explanatory = c("sex", "age", "education"),
   columnLabelsY = c("Sex", "Âge", "Éducation")
@@ -668,7 +656,7 @@ Pour mieux visualiser les relations entre les variables, on peut avoir recours �
 ```{r, fig.height=6, fig.width=6}
 library(GGally)
 ggtable(
-  large_m18 %>% ungroup() %>% unlabelled(), 
+  unlabelled(large_m18), 
   columnsX = "groupe", 
   columnsY = c("sex", "age", "education"),
   cells = "col.prop",
@@ -689,7 +677,6 @@ Pour affiner les résultats, on aura recours à un modèle multivarié en exécu
 
 ```{r results="hide"}
 library(nnet)
-large_m18 <- large_m18 %>% ungroup()
 large_m18$groupe2 <- relevel(large_m18$groupe, "Hors soins")
 regm <- multinom(
   groupe2 ~ sex + age + education, 
@@ -719,13 +706,10 @@ Nous n'aborderons que brièvement ici ce type de modèles complexes. Sous **R**,
 Commençons par préparer les données.
 
 ```{r, results="hide"}
-care_trajectories <- care_trajectories %>%
-  mutate(
-    num_status = as.integer(to_factor(care_status)),
-    sexF = to_factor(sex),
-    ageF = to_factor(age),
-    educationF = to_factor(education)
-  )
+care_trajectories$num_status <- as.integer(to_factor(care_trajectories$care_status))
+care_trajectories[, sexF := to_factor(sex)]
+care_trajectories[, ageF := to_factor(age)]
+care_trajectories[, educationF := to_factor(education)]
 ```
 
 Ici, nous allons modéliser le statut dans les soins en fonction du temps. Il faut indiquer au modèle, via le paramètre `ng` le nombre de groupes ou classes latentes souhaité. Ici, nous avons retenu 4 en lien avec les résultats de notre analyse de séquences. L'argument `link = "thresholds"` permets d'indiquer que notre variable d'intérêt est ordinale. Les modèles `lcmm`{data-pkg="lcmm"} peuvent également prendre en compte des variables continues.
@@ -769,11 +753,12 @@ head(mod4$pprob)
 Récupérons la classe dans notre fichier de données.
 
 ```{r}
-care_trajectories <- care_trajectories %>%
-  left_join(
-    mod4$pprob %>% dplyr::select(id, mod4_class = class),
-    by = "id"
-  )
+care_trajectories <- merge(
+  care_trajectories,
+  mod4$pprob %>% dplyr::select(id, mod4_class = class),
+  by = "id",
+  all.x = TRUE
+)
 ```
 
 Améliorons les intitulés des classes et ajoutons le nombre d'individu par classes.
@@ -798,7 +783,7 @@ Représentons la cascade observée dans chacune de ces classes.
 
 ```{r, fig.height=6, fig.width=10}
 care_trajectories$care_statusF <- to_factor(care_trajectories$care_status)
-ggplot(care_trajectories %>% filter(month <= 36)) +
+ggplot(care_trajectories[month <= 36]) +
   aes(x = month, fill = care_statusF) +
   geom_bar(color = "gray50", width = 1, position = "fill") +
   scale_x_continuous(breaks = 0:6*6, labels = paste0("M", 0:6*6)) +
@@ -814,13 +799,18 @@ ggplot(care_trajectories %>% filter(month <= 36)) +
 
 Une manière alternative de présenter les classes consiste à représenter chaque mois, non pas la distribution dans chaque état, mais un <q>état moyen</q> en considérant que le statut dans les soins peut être assimilé à un score allant de 1 à 4.
 
-Les valeurs moyennes seront calculées à la volée grace à la statistique `stat_weighted_mean`{data-pkg="GGally"} de `GGally`{.pkg}.
+```{r}
+moyennes_mensuelles <- care_trajectories[
+  month <= 36, 
+  .(status_moyen = mean(num_status)), 
+  by = .(month, mod4_class2)
+]
+```
 
 ```{r}
-library(GGally)
-ggplot(care_trajectories %>% filter(month <= 36)) + 
-  aes(x = month, y = num_status, color = mod4_class2) +
-  geom_line(stat = "weighted_mean", size = 1.5) +
+ggplot(moyennes_mensuelles) + 
+  aes(x = month, y = status_moyen, color = mod4_class2) +
+  geom_line(size = 2) +
   scale_x_continuous(breaks = 0:6*6, labels = paste0("M", 0:6*6)) +
   scale_y_continuous(
     breaks = 1:4, limits = c(1, 4),
@@ -834,18 +824,14 @@ ggplot(care_trajectories %>% filter(month <= 36)) +
   )
 ```
 
-
 Il faut cependant rester vigilant, dans la mesure où ce type de représentation synthétique peut masquer la diversité des trajectoires sous-jacentes, notamment en termes de durée ou d'enchaînement des événements. Même si cela est peut-être plus difficile à lire, il est toujours bon de regarder les tapis de séquences.
 
 ```{r, results="hide"}
-care_trajectories <- care_trajectories %>%
-  group_by(mod4_class) %>%
-  mutate(tmp_rang = as.integer(fct_infreq(factor(id)))) %>%
-  ungroup()
+care_trajectories[, tmp_rang := as.integer(fct_infreq(factor(id))), by = mod4_class]
 ```
 
 ```{r, fig.width=6, fig.height=8}
-ggplot(care_trajectories %>% filter(month <= 36)) +
+ggplot(care_trajectories[month <= 36]) +
   aes(x = month, y = tmp_rang, fill = care_statusF) +
   geom_raster() +
   facet_grid(mod4_class2 ~ ., space = "free", scales = "free") +
@@ -872,21 +858,17 @@ Vue la nature de notre variable d'intérêt (plusieurs modalités ordonnées), n
 Ici, nous allons utiliser `ordgee`{data-pkg="geepack"}. Il nous faut tout d'abord transformer notre variable d'intérêt en un facteur ordonné.
 
 ```{r, results="hide"}
-care_trajectories$care_statusF <- care_trajectories$care_status %>%
-  to_factor(ordered = TRUE)
+care_trajectories[, care_statusF := to_factor(care_status, ordered = TRUE)]
 ```
 
 Nous allons transformer nos variables explicatives en facteurs. Pour le temps, dans la mesure où sont effet n'est pas forcément linéaire, nous allons l'intégrer en tant que variable catégorielle. Par contre, comme nous n'avons que très peu d'observations individuelles après 3 ans, nous ne prendrons en compte que les observations des 36 premiers mois. Nous allons aussi retirer les observations à M0 puisqu'à ce moment précis tous les individus sont dans la même situation (diagnostiqués mais pas en soins.)
 
 ```{r, results="hide"}
-ct36 <- care_trajectories %>%
-  filter(month > 0 & month <= 36) %>%
-  mutate(
-    sexF = to_factor(sex),
-    ageF = to_factor(age),
-    educationF = to_factor(education),
-    monthF = to_factor(month)
-  )
+ct36 <- care_trajectories[month > 0 & month <= 36, ]
+ct36[, sexF := to_factor(sex)]
+ct36[, ageF := to_factor(age)]
+ct36[, educationF := to_factor(education)]
+ct36[, monthF := to_factor(month)]
 ```
 
 Calculons notre modèle.
@@ -991,9 +973,14 @@ res$term <- fct_recode(res$term,
                "M34" = "monthF34",
                "M35" = "monthF35",
                "M36" = "monthF36")
-res$variable <- c("sexe", "âge", "âge", "éducation", "éducation", rep("mois", 35))
+res$var_group <- c("a", "b", "b", "c", "c", rep("d", 35))
 
-res %>% GGally::ggcoef_plot(y = "term", facet_row = "variable", colour = "variable")
+GGally::ggcoef(
+    res, exponentiate = TRUE, 
+    mapping = aes(x = estimate, y = fct_rev(term), color = var_group)
+  ) +
+  theme_classic() + ylab("") + xlab("Odds Ratio") +
+  theme(legend.position = "none")
 ```
 
 Sur ce graphique, on visualise bien l'évolution temporelle traduite par les odds ratios associés à chaque mois, ainsi que les effets globaux de nos covariables : les femmes ont une meilleure progression dans la cascade de soins que les hommes, de même que les plus éduqués et les plus âgés.
@@ -1007,15 +994,13 @@ En premier lieu, pour cette extension, ils nous faut disposer des données sous 
 ```{r}
 library(msm)
 care_trajectories$status <- as.integer(to_factor(care_trajectories$care_status))
-care_trajectories <- care_trajectories %>%
-  arrange(id, month)
+setorder(care_trajectories, id, month)
 ```
 
-Par ailleurs, nous n'allons conserver dans l'analyse que les individus avec au moins deux points d'observation, ici ceux observés au moins jusqu'à un mois.
+Par ailleurs, nous n'allons concerver dans l'analyse que les individus avec au moins deux points d'observation, ici ceux observés au moins jusqu'à un mois.
 
 ```{r}
-ct <- care_trajectories %>%
-  filter(id %in% (care_trajectories %>% filter(month == 1) %>% pluck("id")))
+ct <- care_trajectories[id %in% care_trajectories[month == 1, id]]
 ```
 
 La fonction `statetable.msm`{data-pkg="msm"} permet de calculer le nombre et le type de transitions observées dans les données.
@@ -1162,7 +1147,7 @@ casc_est <- ggplot(prev) +
   labs(fill = "Statut dans les soins") + 
   scale_fill_viridis(discrete = TRUE, direction = -1) +
   guides(fill = guide_legend(nrow = 2))
-cowplot::plot_grid(casc_obs, casc_est, ncol = 1)
+multiplot(casc_obs, casc_est)
 ```
 
 Comme on peut le voir, dans le modèle, l'évolution est plus <q>lissée</q> comparativement aux données brutes observées.
@@ -1198,33 +1183,29 @@ head(hr)
 On va recoder certaines étiquettes en vue de faire un graphique des résultats.
 
 ```{r}
-hr$type <- case_when(
-  hr$transition == c("State 2 - State 1") ~ "Transition descendante",
-  hr$transition == c("State 3 - State 2") ~ "Transition descendante",
-  hr$transition == c("State 4 - State 3") ~ "Transition descendante",
-  TRUE ~"Transition ascendante"
+hr$type <- "Transition ascendante"
+hr[hr$transition == c("State 2 - State 1"),]$type <- "Transition descendante"
+hr[hr$transition == c("State 3 - State 2"),]$type <- "Transition descendante"
+hr[hr$transition == c("State 4 - State 3"),]$type <- "Transition descendante"
+
+hr$term <- fct_recode(
+  fct_inorder(hr$term),
+  "femme vs. homme" = "sexfemme",
+  "30-59 vs. 16-29" = "age30-59",
+  "60+ vs. 16-29" = "age60+",
+  "éduc. secondaire vs. primaire" = "educationsecondaire",
+  "éduc. supérieure vs. primaire" = "educationsupérieur"
 )
 
-hr$term <- hr$term %>%
-  fct_inorder() %>%
-  fct_recode(
-    "femme vs. homme" = "sexfemme",
-    "30-59 vs. 16-29" = "age30-59",
-    "60+ vs. 16-29" = "age60+",
-    "éduc. secondaire vs. primaire" = "educationsecondaire",
-    "éduc. supérieure vs. primaire" = "educationsupérieur"
-  )
-
-hr$transition <- hr$transition %>%
-  fct_inorder() %>%
-  fct_recode(
-    "entrée en soins" = "State 1 - State 2",
-    "sortie de soins" = "State 2 - State 1",
-    "initiation traitement" = "State 2 - State 3",
-    "arrêt traitement" = "State 3 - State 2",
-    "contrôle infection" = "State 3 - State 4",
-    "échec virologique" = "State 4 - State 3"
-  )
+hr$transition <- fct_recode(
+  fct_inorder(hr$transition),
+  "entrée en soins" = "State 1 - State 2",
+  "sortie de soins" = "State 2 - State 1",
+  "initiation traitement" = "State 2 - State 3",
+  "arrêt traitement" = "State 3 - State 2",
+  "contrôle infection" = "State 3 - State 4",
+  "échec virologique" = "State 4 - State 3"
+)
 
 head(hr)
 ```
@@ -1232,7 +1213,7 @@ head(hr)
 Vu le nombre de coefficients (un risque relatif par covariable et par transition), on va organiser le graphique en distinguant les transitions acsendantes et les transitions descendantes, d'une part, et en regroupant les risques relatifs d'une même covariable, d'autre part. Pour alléger le graphique, nous allons également retirer la covariable `timeperiod` créé par l'argument `pci`, en ayant recours à `str_detect`{data-pkg="stringr"} de l'extension `stringr`{.pkg} pour repérer les lignes en questions (voir le chapitre sur la [manipulation de texte](manipuler-du-texte.html#str_detect)).
 
 ```{r, fig.width=8, fig.height=5}
-ggplot(data = hr %>% filter(!str_detect(term, "time"))) +
+ggplot(data = hr[!str_detect(hr$term, "time"), ]) +
   aes(
     x = fct_rev(term), y = estimate, color = fct_rev(transition),
     ymin = conf.low, ymax = conf.high 
@@ -1252,3 +1233,11 @@ ggplot(data = hr %>% filter(!str_detect(term, "time"))) +
 ```
 
 Ce modèle de survie multi-états permet de mettre en évidence des effets différenciés selon la transition considérée. Par exemple, les femmes sont plus rapides en matière d'entrée en soins et de contrôle de l'infection (une fois le traitement initié) mais plus lentes à démarrer le traitement (une fois entrées en soins). Par contre, le sexe ne semble pas jouer sur les transitions descendantes (échec virologique, arrête du traitement ou sortie de soins).
+
+
+<!--
+
+## Résumé
+
+<!-- indiquer avec chaque approche la question qui a été posée -->
+
