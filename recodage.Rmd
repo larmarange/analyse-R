@@ -281,6 +281,51 @@ dplyr::glimpse(unlabelled(df, user_na_to_na = TRUE))
 dplyr::glimpse(unlabelled(df, drop_unused_labels = TRUE))
 ```
 
+## Nettoyage
+
+L'extension `cleaner`{.pkg} propose plusieurs fonctions utiles lorsque l'on doit nettoyer une variable mal encodées.
+
+```{r}
+library(cleaner)
+
+# Recoder en valeurs logiques
+clean_logical(c("Yes", "No", "Invalid", "Unknown"))
+clean_logical(c("Oui, c'est ca", "Non, pas encore")) 
+clean_logical(c("ya :)", "tidak :("))
+clean_logical(
+  x = c("Positive", "Negative", "Unknown", "Unknown"),
+  true = "pos",
+  false = "neg"
+)
+
+# Valeurs numériques
+clean_numeric(c("$ 12,345.67",
+                "€ 12.345,67",
+                "12,345.67",
+                "12345,67"))
+clean_numeric("qwerty123456")
+clean_numeric("Positive (0.143)")
+
+# Facteurs
+gender_age <- c("male 0-50", "male 50+", "female 0-50", "female 50+")
+gender_age
+clean_factor(gender_age, levels = c("M", "F"))
+clean_factor(gender_age, levels = c("Male", "Female"))
+
+clean_factor(gender_age, levels = c("0-50", "50+"), ordered = TRUE)
+clean_factor(
+  gender_age, 
+  levels = c(
+    "female" = "Group A", 
+    "male 50+" = "Group B",
+    ".*" = "Other"
+  )
+)
+
+# Dates
+clean_Date("12-06-2012")
+clean_Date(38071)
+```
 
 
 ## Découper une variable numérique en classes {#decouper_en_classes}
