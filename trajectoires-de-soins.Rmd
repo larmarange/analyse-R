@@ -338,7 +338,7 @@ Pour aller plus loin avec les outils de l'analyse de survie classique, il serait
 
 L'<dfn>analyse de séquences</dfn><dfn data-index="séquence, analyse"></dfn> permet d'appréhender l'ensemble de la trajectoire de soins à travers la succession des états dans lesquels se trouvent les patients observés.
 
-Nous allons donc réaliser une analyse de séquences (voir le [chapitre dédié](analyse-de-sequences.html)) sur l'ensemble de notre fichier. Pour cela, il va falloir préalable que nous transformions nos donnée actuellement dans un format <q>long</q> en un tableau <q>large</q>, c'est-à-dire avec une ligne par individu et une variable différentes par pas de temps. On peut réaliser cela facilement avec `pivot_wider`{data-pkg="tidyr"} de `tidyr`{.pkg} (voir le [chapitre dédié à **tidyr**](reorganiser-ses-donnees-avec-tidyr.html#spread-disperser-des-lignes)). Il faut noter que le résultat ne sera pas un tableau **data.table**, d'où le recours à `setDT`{data-pkg="data.table"} pour convertir le résultat.
+Nous allons donc réaliser une analyse de séquences (voir le [chapitre dédié](analyse-de-sequences.html)) sur l'ensemble de notre fichier. Pour cela, il va falloir préalable que nous transformions nos donnée actuellement dans un format <q>long</q> en un tableau <q>large</q>, c'est-à-dire avec une ligne par individu et une variable différentes par pas de temps. On peut réaliser cela facilement avec `pivot_wider`{data-pkg="tidyr"} de `tidyr`{.pkg} (voir le [chapitre dédié à **tidyr**](reorganiser-ses-donnees-avec-tidyr.html#spread-disperser-des-lignes)).
 
 ```{r}
 library(tidyr)
@@ -856,7 +856,7 @@ Il faut cependant rester vigilant, dans la mesure où ce type de représentation
 ```{r, results="hide"}
 care_trajectories <- care_trajectories %>%
   group_by(mod4_class) %>%
-  mutate(tmp_rang = as.integer(fct_infreq(factor(id)))) %>%
+  mutate(tmp_rang = fct_infreq(factor(id))) %>%
   ungroup()
 ```
 
@@ -865,10 +865,10 @@ ggplot(care_trajectories %>% filter(month <= 36)) +
   aes(x = month, y = tmp_rang, fill = care_statusF) +
   geom_raster() +
   facet_grid(mod4_class2 ~ ., space = "free", scales = "free") +
-  scale_x_continuous(breaks = 0:6*6, labels = paste0("M", 0:6*6)) +
-  scale_y_continuous(breaks = 0:5*200, minor_breaks = NULL) +
+  scale_x_continuous(breaks = 0:6*6, labels = paste0("M", 0:6*6), expand = c(0, 0)) +
+  scale_y_discrete(labels = NULL) +
   xlab("") + ylab("") +
-  theme_light() +
+  theme_minimal() +
   theme(legend.position = "bottom") +
   labs(fill = "Statut dans les soins") + 
   scale_fill_viridis(discrete = TRUE, direction = -1) +
