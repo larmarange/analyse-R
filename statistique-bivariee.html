@@ -13,7 +13,7 @@
 
 <title>Statistique bivariée</title>
 
-<script src="libs/header-attrs-2.7/header-attrs.js"></script>
+<script src="libs/header-attrs-2.8/header-attrs.js"></script>
 <script src="libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -490,6 +490,7 @@ pre code {
 <li><a href="#tests-statistiques-1">Tests statistiques</a></li>
 </ul></li>
 <li><a href="#tableaux-faciles-avec-gtsummary">Tableaux faciles avec <code>gtsummary</code></a></li>
+<li><a href="#analyse-des-associations-avec-gdatools">Analyse des associations avec GDAtools</a></li>
 </ul>
 </div>
 
@@ -2927,6 +2928,154 @@ Exemple de barres cumulées
   
 </table></div>
 <p>Pour une présentation de toutes les possibilités offertes, voir la vignette dédiée sur <a href="http://www.danieldsjoberg.com/gtsummary/articles/tbl_summary.html" class="uri">http://www.danieldsjoberg.com/gtsummary/articles/tbl_summary.html</a>.</p>
+</div>
+<div id="analyse-des-associations-avec-gdatools" class="section level2">
+<h2>Analyse des associations avec GDAtools</h2>
+<p>L’extension <code class="pkg">GDAtools</code> développée par Nicolas Robette propose, entre autres, plusieurs fonctions pour décrire les associations statistiques entre deux variables catégorielles et/ou continues.</p>
+<p>Pour une présentation détaillée, on pourra se référer à la vignette (en français) fournie par le package : <a href="https://nicolas-robette.github.io/GDAtools/articles/french/Tutoriel_descr.html" class="uri">https://nicolas-robette.github.io/GDAtools/articles/french/Tutoriel_descr.html</a></p>
+<p>Pour deux variables catégorielles, on aura recours à , <code data-pkg="GDAtools">assoc.twocat</code>, <code data-pkg="GDAtools">ggassoc_crosstab</code> et <code data-pkg="GDAtools">ggassoc_phiplot</code>.</p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GDAtools)</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">assoc.twocat</span>(d<span class="sc">$</span>sexe, d<span class="sc">$</span>cuisine)</span></code></pre></div>
+<pre><code>$freq
+       Non  Oui  Sum
+Homme  629  270  899
+Femme  490  611 1101
+Sum   1119  881 2000
+
+$prop
+         Non    Oui    Sum
+Homme  31.45  13.50  44.95
+Femme  24.50  30.55  55.05
+Sum    55.95  44.05 100.00
+
+$rprop
+           Non      Oui Sum
+Homme 69.96663 30.03337 100
+Femme 44.50500 55.49500 100
+Sum   55.95000 44.05000 100
+
+$cprop
+           Non       Oui    Sum
+Homme  56.2109  30.64699  44.95
+Femme  43.7891  69.35301  55.05
+Sum   100.0000 100.00000 100.00
+
+$expected
+           Non      Oui
+Homme 502.9905 396.0095
+Femme 616.0095 484.9905
+
+$chi.squared
+[1] 130.1798
+
+$cramer.v
+[1] 0.2551272
+
+$permutation.pvalue
+NULL
+
+$pearson.residuals
+            Non       Oui
+Homme  5.618539 -6.332140
+Femme -5.077028  5.721853
+
+$phi
+             Non        Oui
+Homme  0.2551272 -0.2551272
+Femme -0.2551272  0.2551272
+
+$phi.perm.pval
+NULL
+
+$local.pem
+        Non   Oui
+Homme  31.8 -31.8
+Femme -31.8  31.8
+
+$global.pem
+[1] 31.8
+
+$gather
+   Var1 Var2 Freq   prop     rprop     cprop expected
+1 Homme  Non  629 0.3145 0.6996663 0.5621090 502.9905
+2 Femme  Non  490 0.2450 0.4450500 0.4378910 616.0095
+3 Homme  Oui  270 0.1350 0.3003337 0.3064699 396.0095
+4 Femme  Oui  611 0.3055 0.5549500 0.6935301 484.9905
+  std.residuals        phi local.pem
+1      5.618539  0.2551272      31.8
+2     -5.077028 -0.2551272     -31.8
+3     -6.332140 -0.2551272     -31.8
+4      5.721853  0.2551272      31.8</code></pre>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggassoc_crosstab</span>(d, <span class="fu">aes</span>(<span class="at">x =</span> sexe, <span class="at">y =</span> cuisine))</span></code></pre></div>
+<pre><code>Registered S3 method overwritten by &#39;GGally&#39;:
+  method from   
+  +.gg   ggplot2</code></pre>
+<p><img src="graphs/statistique-bivariee/unnamed-chunk-35-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggassoc_phiplot</span>(d, <span class="fu">aes</span>(<span class="at">x =</span> sexe, <span class="at">y =</span> cuisine))</span></code></pre></div>
+<p><img src="graphs/statistique-bivariee/unnamed-chunk-35-2.png" width="1050" /></p>
+<p>Pour une variable catégorielle croisée avec une variable continue, on aura recours à , <code data-pkg="GDAtools">assoc.catcont</code> et <code data-pkg="GDAtools">ggassoc_boxplot</code>.</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">assoc.catcont</span>(d<span class="sc">$</span>sport, d<span class="sc">$</span>heures.tv)</span></code></pre></div>
+<pre><code>$eta.squared
+[1] 0.03108813
+
+$permutation.pvalue
+NULL
+
+$cor
+   Non    Oui 
+ 0.176 -0.176 
+
+$cor.perm.pval
+NULL</code></pre>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggassoc_boxplot</span>(d, <span class="fu">aes</span>(<span class="at">x =</span> sport, <span class="at">y =</span> heures.tv))</span></code></pre></div>
+<pre><code>Warning: Removed 5 rows containing non-finite values
+(stat_ydensity).</code></pre>
+<pre><code>Warning: Removed 5 rows containing non-finite values
+(stat_boxplot).</code></pre>
+<p><img src="graphs/statistique-bivariee/unnamed-chunk-36-1.png" width="1050" /></p>
+<p>Pour deux variables continues, on aura recours à , <code data-pkg="GDAtools">assoc.twocont</code> et <code data-pkg="GDAtools">ggassoc_scatter</code>.</p>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">assoc.twocont</span>(d<span class="sc">$</span>age, d<span class="sc">$</span>heures.tv)</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+pearson
+</th>
+<th style="text-align:right;">
+spearman
+</th>
+<th style="text-align:right;">
+kendall
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+value
+</td>
+<td style="text-align:right;">
+0.1776249
+</td>
+<td style="text-align:right;">
+0.1726882
+</td>
+<td style="text-align:right;">
+0.1240544
+</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggassoc_scatter</span>(d, <span class="fu">aes</span>(<span class="at">x =</span> age, <span class="at">y =</span> heures.tv))</span></code></pre></div>
+<pre><code>`geom_smooth()` using formula &#39;y ~ s(x, bs = &quot;cs&quot;)&#39;</code></pre>
+<pre><code>Warning: Removed 5 rows containing non-finite values
+(stat_smooth).</code></pre>
+<pre><code>Warning: Removed 5 rows containing missing values
+(geom_point).</code></pre>
+<p><img src="graphs/statistique-bivariee/unnamed-chunk-37-1.png" width="1050" /></p>
 </div>
 <div class="footnotes">
 <hr />
