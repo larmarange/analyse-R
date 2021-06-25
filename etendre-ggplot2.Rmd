@@ -222,6 +222,15 @@ ggplot(data = titanic) +
 
 Plus d'informations : <https://cran.r-project.org/web/packages/ggmosaic/vignettes/ggmosaic.html>
 
+
+### Représentations graphiques des distributions et de l'incertitude
+
+L'extension `ggdist`{.pkg} propose plusieurs géométries permettant de représenter l'incertitude autour de certaines mesures.
+
+![](images/ggdist_preview.png)
+
+
+
 ### Graphique de pirates : alternative aux boîtes à moustache (*pirat plot*)
 
 Cette représentation alternative aux boîtes à moustache s'obtient avec la géométrie `geom_pirate`{data-pkg="ggpirate"} de l'extension `ggpirate`{.pkg}^[Cette extension n'étant pas sur CRAN, on l'installera avec la commande `devtools::install_github("mikabr/ggpirate")`.].
@@ -236,6 +245,38 @@ ggplot(mpg, aes(x = class, y = cty)) +
 
 Pour plus d'informations : <https://github.com/mikabr/ggpirate>
 
+### Nuages de pluie (*raincloud plots*)
+
+
+Il existe encore d'autres approches graphiques pour mieux rendre compte visuellement différentes distrubutions comme les <dfn lang="en">raincloud plots</dfn>. Pour en savoir plus, on pourra se référer à un [billet de blog en anglais de Cédric Scherer](https://www.cedricscherer.com/2021/06/06/visualizing-distributions-with-raincloud-plots-with-ggplot2/) ou encore à l'extension `raincloudplots`{.pkg}. 
+
+![](images/raincloud_plot_example.png)
+
+### Demi-géométries
+
+L'extension `gghalves`{.pkg} propose des <q>demi-géométries</q> qui peuvent être combinées entre elles.
+
+```{r}
+library(gghalves)
+ggplot(iris, aes(x = Species, y = Sepal.Width)) +
+  geom_half_boxplot(fill = "lightblue") +
+  geom_half_violin(side = "r", fill = "navajowhite")
+```
+
+### Annotations avec des formes gémoétriques
+
+L'extension `ggforce`{.pkg} fournie plusieurs géométries permettant d'annoter les points d'un nuage : `geom_mark_circle`{data-pkg="ggforce"}, `geom_mark_ellipse`{data-pkg="ggforce"}, `geom_mark_rect`{data-pkg="ggforce"} et `geom_mark_hull`{data-pkg="ggforce"}.
+
+```{r}
+library(ggforce)
+ggplot(iris, aes(Petal.Length, Petal.Width)) +
+  geom_mark_rect(aes(fill = Species, label = Species)) +
+  geom_point()
+
+ggplot(iris, aes(Petal.Length, Petal.Width)) +
+  geom_mark_hull(aes(fill = Species, label = Species)) +
+  geom_point()
+```
 
 
 
@@ -352,7 +393,34 @@ tidy_movies %>%
     geom_bar() +
     scale_x_upset(n_intersections = 20)
 ```
+### Zoom sur un axe
 
+L'extension `ggforce`{.pkg} propose une fonction `facet_zoom`{data-pkg="ggforce"} permettant de zoomer une partie d'un axe.
+
+```{r}
+library(ggforce)
+ggplot(iris, aes(Petal.Length, Petal.Width, colour = Species)) +
+  geom_point() +
+  facet_zoom(x = Species == "versicolor")
+```
+
+### Des facettes paginées (diviser en plusieurs sous-graphiques)
+
+Les fonctions `facet_wrap_paginate`{data-pkg="ggforce"} et `facet_grid_paginate`{data-pkg="ggforce"} de `ggforce`{.pkg} permet de découper facilement un graphique en facettes en plusieurs pages.
+
+```{r}
+ggplot(diamonds) +
+    geom_point(aes(carat, price), alpha = 0.1) +
+    facet_wrap_paginate(~ cut:clarity, ncol = 3, nrow = 3, page = 1)
+
+ggplot(diamonds) +
+    geom_point(aes(carat, price), alpha = 0.1) +
+    facet_wrap_paginate(~ cut:clarity, ncol = 3, nrow = 3, page = 2)
+
+ggplot(diamonds) +
+    geom_point(aes(carat, price), alpha = 0.1) +
+    facet_wrap_paginate(~ cut:clarity, ncol = 3, nrow = 3, page = 3)
+```
 
 
 ## Cartes
@@ -361,7 +429,7 @@ Voir le [chapitre dédié](cartes.html).
 
 ## Graphiques complexes
 
-### Graphiques divergents
+### Graphiques divergents 
 
 L'extension `ggcharts` fournit plusieurs fonctions de haut niveau pour faciliter la réalisation de graphiques divergents en barres (`diverging_bar_chart`{data-pkg="ggcharts"}), en sucettes (`diverging_lollipop_chart`{data-pkg="ggcharts"}) voire même une pyramide des âges (`pyramid_chart`{data-pkg="ggcharts"}).
 
@@ -387,11 +455,33 @@ diverging_lollipop_chart(
 )
 ```
 
+
+
+
+### Pyramides des âges
+
+Plussieurs solutions sont disponible pour réaliser une <dfn>pyramide des âges<dfn>.
+
+Tout d'abord, `ggcharts`{.pkg} propose une fonction `pyramid_chart`{.ggcharts}.
+
+
 ```{r}
+library(ggcharts)
 data("popch")
 pyramid_chart(data = popch, x = age, y = pop, group = sex)
 ```
 
+L'extension `apyramid`{.pkg} dédiée aux pyramides des âges fournit une fonction `age_pyramid`{data-pkg="apyramid"}.
+
+```{r}
+library(apyramid)
+data(us_2018)
+age_pyramid(us_2018, age_group = age, split_by = gender, count = count)
+```
+
+Pour aller plus loin, notamment avec `ggplot2`{.pkg}, on pourra se référer (en anglais), au [chapitre dédié du *Epidemiologist R Handbook*](https://epirhandbook.com/demographic-pyramids-and-likert-scales.html), par exemple pour savoir comme réaliser deux pyramides superposées : 
+
+![](images/exemple_pyramide_age_avancee.png)
 
 
 ### Graphiques interactifs
