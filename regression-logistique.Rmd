@@ -595,6 +595,39 @@ d %>%
 
 Il est à noter que `tbl_regression`{data-pkg="gtsummary"} sait prendre en compte les effets d'interactions (voir ci-après).
 
+La fonction `tbl_uvregression`{data-pkg="gtsummary"} permets quant à elle de réaliser plusieurs régressions univariées et de les présenter dans un tableau unique.
+
+```{r}
+tbl_u <- d %>%
+  dplyr::select(sport, sexe, grpage, etud, relig, heures.tv) %>%
+  tbl_uvregression(
+    method = glm,
+    y = sport,
+    method.args = list(family = binomial),
+    exponentiate = TRUE,
+    pvalue_fun = ~ style_pvalue(.x, digits = 2)
+  ) %>%
+  add_global_p() %>%  
+  add_nevent()
+tbl_u
+```
+
+Il est possible de réunir analyse univariée et multivariée en un seul table avec `tbl_merge`{data-pkg="gtsummary"}.
+
+```{r}
+tbl_m <- reg %>%
+  tbl_regression(
+    exponentiate = TRUE,
+    pvalue_fun = ~ style_pvalue(.x, digits = 2)
+  ) %>%
+  add_global_p()
+
+tbl_merge(
+  list(tbl_u, tbl_m),
+  tab_spanner = c("**Univarié**", "**Multivarié**")
+)
+```
+
 
 #### finalfit
 
