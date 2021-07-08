@@ -282,6 +282,83 @@ ggplot(iris, aes(Petal.Length, Petal.Width)) +
 
 ## Axes, légende et facettes
 
+### Texte mis en forme
+
+L'extension `ggtext`{.pkg} permet d'utiliser du *markdown* et du *HTML* pour une mise en forme avancée de texte (axes, titres, légendes...).
+
+```{r}
+library(ggtext)
+
+library(tidyverse)
+library(ggtext)
+library(glue)
+
+data <- tibble(
+  bactname = c("Staphylococcaceae", "Moraxella", "Streptococcus", "Acinetobacter"),
+  OTUname = c("OTU 1", "OTU 2", "OTU 3", "OTU 4"),
+  value = c(-0.5, 0.5, 2, 3)
+)
+
+data %>% mutate(
+  color = c("#009E73", "#D55E00", "#0072B2", "#000000"),
+  name = glue("<i style='color:{color}'>{bactname}</i> ({OTUname})"),
+  name = fct_reorder(name, value)
+)  %>%
+  ggplot(aes(value, name, fill = color)) + 
+  geom_col(alpha = 0.5) + 
+  scale_fill_identity() +
+  labs(caption = "Example posted on **stackoverflow.com**<br>(using made-up data)") +
+  theme(
+    axis.text.y = element_markdown(),
+    plot.caption = element_markdown(lineheight = 1.2)
+  )
+
+
+ggplot(mtcars, aes(disp, mpg)) + 
+  geom_point() +
+  labs(
+    title = "<b>Fuel economy vs. engine displacement</b><br>
+    <span style = 'font-size:10pt'>Lorem ipsum *dolor sit amet,*
+    consectetur adipiscing elit, **sed do eiusmod tempor incididunt** ut
+    labore et dolore magna aliqua. <span style = 'color:red;'>Ut enim
+    ad minim veniam,</span> quis nostrud exercitation ullamco laboris nisi
+    ut aliquip ex ea commodo consequat.</span>",
+    x = "displacement (in<sup>3</sup>)",
+    y = "Miles per gallon (mpg)<br><span style = 'font-size:8pt'>A measure of
+    the car's fuel efficiency.</span>"
+  ) +
+  theme(
+    plot.title.position = "plot",
+    plot.title = element_textbox_simple(
+      size = 13,
+      lineheight = 1,
+      padding = margin(5.5, 5.5, 5.5, 5.5),
+      margin = margin(0, 0, 5.5, 0),
+      fill = "cornsilk"
+    ),
+    axis.title.x = element_textbox_simple(
+      width = NULL,
+      padding = margin(4, 4, 4, 4),
+      margin = margin(4, 0, 0, 0),
+      linetype = 1,
+      r = grid::unit(8, "pt"),
+      fill = "azure1"
+    ),
+    axis.title.y = element_textbox_simple(
+      hjust = 0,
+      orientation = "left-rotated",
+      minwidth = unit(1, "in"),
+      maxwidth = unit(2, "in"),
+      padding = margin(4, 4, 2, 4),
+      margin = margin(0, 0, 2, 0),
+      fill = "lightsteelblue1"
+    )
+  )
+
+```
+
+
+
 ### Axes <q>limités</q>
 
 `coord_capped_cart`{data-pkg="lemon"} et `coord_capped_flip`{data-pkg="lemon" data-rdoc="coord_capped_cart"} de l'extension `lemon`{.pkg} permet de limiter le dessin des axes au minimum et au maximum. Voir l'exemple ci-dessous.
