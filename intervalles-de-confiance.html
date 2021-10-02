@@ -13,8 +13,8 @@
 
 <title>Intervalles de confiance</title>
 
-<script src="libs/header-attrs-2.9/header-attrs.js"></script>
-<script src="libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
 <script src="libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -474,6 +474,7 @@ pre code {
 <div id="TOC">
 <ul>
 <li><a href="#ic_moyenne">Intervalle de confiance d’une moyenne</a></li>
+<li><a href="#ic_mediane">Intervalle de confiance d’une médiane</a></li>
 <li><a href="#ic_proportion">Intervalle de confiance d’une proportion</a></li>
 <li><a href="#survey">Données pondérées et l’extension survey</a></li>
 </ul>
@@ -513,16 +514,33 @@ mean of x
  2.246566 </code></pre>
 <p>Le nombre d’heures moyennes à regarder la télévision parmi les enquêtés s’avère être de 2,2 heures, avec un intervalle de confiance à 95 % de [2,17 - 2,33] et un intervalle de confiance à 90 % de [2,18 - 2,31].</p>
 </div>
+<div id="ic_mediane" class="section level2">
+<h2>Intervalle de confiance d’une médiane</h2>
+<p>L’<dfn>intervalle de confiance d’une médiane</dfn><dfn data-index="médiane, intervalle de confiance"></dfn> peut être calculé avec la fonction <code data-pkg="stats">wilcox.test</code> en précisant <code>conf.int = TRUE</code> :</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wilcox.test</span>(d<span class="sc">$</span>heures.tv, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<pre><code>
+    Wilcoxon signed rank test with continuity correction
+
+data:  d$heures.tv
+V = 1542646, p-value &lt; 2.2e-16
+alternative hypothesis: true location is not equal to 0
+95 percent confidence interval:
+ 2.499994 2.500000
+sample estimates:
+(pseudo)median 
+      2.499948 </code></pre>
+<p>D’autres approches existent pour le calcul d’un tel intervalle de confiance. On pourra se référer à la fonction <code data-pkg="DescTools">MedianCI</code> de l’extension <code class="pkg">DescTools</code>.</p>
+</div>
 <div id="ic_proportion" class="section level2">
 <h2>Intervalle de confiance d’une proportion</h2>
 <p>La fonction <code data-pkg="stats">prop.test</code> permet de calculer l’<dfn>intervalle de confiance d’une proportion</dfn><dfn data-index="proportion, intervalle de confiance"></dfn><dfn data-index="intervalle de confiance"></dfn>. Une première possibilité consiste à lui transmettre une table à une dimension et deux entrées. Par exemple, si l’on s’intéresse à la proportion de personnes ayant pratiqué une activité physique au cours des douze derniers mois :</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(d<span class="sc">$</span>sport)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(d<span class="sc">$</span>sport)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1277","2":"63.8","3":"63.8","_rn_":"Non"},{"1":"723","2":"36.1","3":"36.1","_rn_":"Oui"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.test</span>(<span class="fu">table</span>(d<span class="sc">$</span>sport))</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.test</span>(<span class="fu">table</span>(d<span class="sc">$</span>sport))</span></code></pre></div>
 <pre><code>
     1-sample proportions test with continuity correction
 
@@ -535,7 +553,7 @@ sample estimates:
      p 
 0.6385 </code></pre>
 <p>On remarquera que la fonction a calculé l’intervalle de confiance correspondant à la première entrée du tableau, autrement dit celui de la proportion d’enquêtés n’ayant pas pratiqué une activité sportive. Or, nous sommes intéressé par la proportion complémentaire, à savoir celle d’enquêtés ayant pratiqué une activité sportive. On peut dès lors modifier l’ordre de la table en indiquant notre modalité d’intérêt avec la fonction <code data-pkg="stats">relevel</code> ou bien indiquer à <code data-pkg="stats">prop.test</code> d’abord le nombre de succès puis l’effectif total :</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.test</span>(<span class="fu">table</span>(<span class="fu">relevel</span>(d<span class="sc">$</span>sport, <span class="st">&quot;Oui&quot;</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.test</span>(<span class="fu">table</span>(<span class="fu">relevel</span>(d<span class="sc">$</span>sport, <span class="st">&quot;Oui&quot;</span>)))</span></code></pre></div>
 <pre><code>
     1-sample proportions test with continuity correction
 
@@ -547,7 +565,7 @@ alternative hypothesis: true p is not equal to 0.5
 sample estimates:
      p 
 0.3615 </code></pre>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.test</span>(<span class="fu">sum</span>(d<span class="sc">$</span>sport <span class="sc">==</span> <span class="st">&quot;Oui&quot;</span>), <span class="fu">length</span>(d<span class="sc">$</span>sport))</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.test</span>(<span class="fu">sum</span>(d<span class="sc">$</span>sport <span class="sc">==</span> <span class="st">&quot;Oui&quot;</span>), <span class="fu">length</span>(d<span class="sc">$</span>sport))</span></code></pre></div>
 <pre><code>
     1-sample proportions test with continuity correction
 
@@ -560,7 +578,7 @@ sample estimates:
      p 
 0.3615 </code></pre>
 <p>Enfin, le niveau de confiance peut être modifié via l’argument <code>conf.level</code> :</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.test</span>(<span class="fu">table</span>(<span class="fu">relevel</span>(d<span class="sc">$</span>sport, <span class="st">&quot;Oui&quot;</span>)), <span class="at">conf.level =</span> <span class="fl">0.9</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.test</span>(<span class="fu">table</span>(<span class="fu">relevel</span>(d<span class="sc">$</span>sport, <span class="st">&quot;Oui&quot;</span>)), <span class="at">conf.level =</span> <span class="fl">0.9</span>)</span></code></pre></div>
 <pre><code>
     1-sample proportions test with continuity correction
 
@@ -578,33 +596,33 @@ sample estimates:
 <div class="note">
 <p>Pour se simplifier un peu la vie, le package <code class="pkg">JLutils</code> propose une fonction <code data-pkg="JLutils">prop.ci</code> (et ses deux variantes <code data-pkg="JLutils">prop.ci.lower</code> et <code data-pkg="JLutils">prop.ci.upper</code>) permettant d’appeler plus facilement <code data-pkg="stats">prop.test</code> et renvoyant directement l’intervalle de confiance.</p>
 <p><code class="pkg">JLutils</code> n’étant disponible que sur <a href="https://github.com/larmarange/JLutils">GitHub</a>, on aura recours au package <code class="pkg">devtools</code> et à sa fonction <code data-pkg="devtools">install_github</code> pour l’installer :</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</span></code></pre></div>
 <p><code data-pkg="JLutils">prop.ci</code> fonction accepte directement un tri à plat obtenu avec <code data-pkg="base">table</code>, un vecteur de données, un vecteur logique (issu d’une condition), ou bien le nombre de succès et le nombre total d’essais. Voir les exemples ci-après :</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(JLutils)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(d<span class="sc">$</span>sport)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(JLutils)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(d<span class="sc">$</span>sport)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1277","2":"63.8","3":"63.8","_rn_":"Non"},{"1":"723","2":"36.1","3":"36.1","_rn_":"Oui"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci</span>(d<span class="sc">$</span>sport)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci</span>(d<span class="sc">$</span>sport)</span></code></pre></div>
 <pre><code>[1] 0.6169447 0.6595179</code></pre>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci.lower</span>(d<span class="sc">$</span>sport)</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci.lower</span>(d<span class="sc">$</span>sport)</span></code></pre></div>
 <pre><code>[1] 0.6169447</code></pre>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci.upper</span>(d<span class="sc">$</span>sport)</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci.upper</span>(d<span class="sc">$</span>sport)</span></code></pre></div>
 <pre><code>[1] 0.6595179</code></pre>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci</span>(d<span class="sc">$</span>sport, <span class="at">conf.level =</span> <span class="fl">0.9</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci</span>(d<span class="sc">$</span>sport, <span class="at">conf.level =</span> <span class="fl">0.9</span>)</span></code></pre></div>
 <pre><code>[1] 0.6204011 0.6562194</code></pre>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci</span>(<span class="fu">table</span>(d<span class="sc">$</span>sport))</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci</span>(<span class="fu">table</span>(d<span class="sc">$</span>sport))</span></code></pre></div>
 <pre><code>[1] 0.6169447 0.6595179</code></pre>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci</span>(d<span class="sc">$</span>sport <span class="sc">==</span> <span class="st">&quot;Non&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci</span>(d<span class="sc">$</span>sport <span class="sc">==</span> <span class="st">&quot;Non&quot;</span>)</span></code></pre></div>
 <pre><code>[1] 0.6169447 0.6595179</code></pre>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci</span>(d<span class="sc">$</span>sport <span class="sc">==</span> <span class="st">&quot;Oui&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci</span>(d<span class="sc">$</span>sport <span class="sc">==</span> <span class="st">&quot;Oui&quot;</span>)</span></code></pre></div>
 <pre><code>[1] 0.3404821 0.3830553</code></pre>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci.lower</span>(<span class="fu">c</span>(<span class="dv">1277</span>, <span class="dv">723</span>), <span class="at">n =</span> <span class="dv">2000</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci.lower</span>(<span class="fu">c</span>(<span class="dv">1277</span>, <span class="dv">723</span>), <span class="at">n =</span> <span class="dv">2000</span>)</span></code></pre></div>
 <pre><code>[1] 0.6169447 0.3404821</code></pre>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci.upper</span>(<span class="fu">c</span>(<span class="dv">1277</span>, <span class="dv">723</span>), <span class="at">n =</span> <span class="dv">2000</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.ci.upper</span>(<span class="fu">c</span>(<span class="dv">1277</span>, <span class="dv">723</span>), <span class="at">n =</span> <span class="dv">2000</span>)</span></code></pre></div>
 <pre><code>[1] 0.6595179 0.3830553</code></pre>
 </div>
 </div>
@@ -612,25 +630,25 @@ sample estimates:
 <h2>Données pondérées et l’extension survey</h2>
 <p>Lorsque l’on utilise des données pondérées définies à l’aide de l’extension <code class="pkg">survey</code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, l’<dfn>intervalle de confiance d’une moyenne</dfn><dfn data-index="moyenne, intervalle de confiance"></dfn> s’obtient avec <code data-pkg="survey" data-rdoc="surveysummary">confint</code> et celui d’une <dfn data-index="intervalle de confiance d'une proportion">proportion</dfn><dfn data-index="proportion, intervalle de confiance"></dfn> avec <code data-pkg="survey">svyciprop</code>.</p>
 <p>Quelques exemples :</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survey)</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>dw <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span><span class="dv">1</span>, <span class="at">data =</span> d, <span class="at">weights =</span> <span class="sc">~</span>poids)</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">svymean</span>(<span class="sc">~</span>age, dw)</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survey)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>dw <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span><span class="dv">1</span>, <span class="at">data =</span> d, <span class="at">weights =</span> <span class="sc">~</span>poids)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="fu">svymean</span>(<span class="sc">~</span>age, dw)</span></code></pre></div>
 <pre><code>      mean     SE
 age 46.347 0.5284</code></pre>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(<span class="fu">svymean</span>(<span class="sc">~</span>age, dw)) <span class="co"># Intervalle de confiance d&#39;une moyenne</span></span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(<span class="fu">svymean</span>(<span class="sc">~</span>age, dw)) <span class="co"># Intervalle de confiance d&#39;une moyenne</span></span></code></pre></div>
 <pre><code>      2.5 %   97.5 %
 age 45.3117 47.38282</code></pre>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(<span class="fu">svyby</span>(<span class="sc">~</span>age, <span class="sc">~</span>sexe, dw, svymean)) <span class="co"># Intervalles de confiance pour chaque sexe</span></span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(<span class="fu">svyby</span>(<span class="sc">~</span>age, <span class="sc">~</span>sexe, dw, svymean)) <span class="co"># Intervalles de confiance pour chaque sexe</span></span></code></pre></div>
 <pre><code>         2.5 %   97.5 %
 Homme 43.74781 46.65618
 Femme 45.88867 48.79758</code></pre>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(<span class="fu">svytable</span>(<span class="sc">~</span>sexe, dw))</span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(<span class="fu">svytable</span>(<span class="sc">~</span>sexe, dw))</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["n"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["%"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["val%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"5149382","2":"46.5","3":"46.5","_rn_":"Homme"},{"1":"5921844","2":"53.5","3":"53.5","_rn_":"Femme"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svyciprop</span>(<span class="sc">~</span>sexe, dw) <span class="co"># Intervalle de confiance d&#39;une proportion</span></span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svyciprop</span>(<span class="sc">~</span>sexe, dw) <span class="co"># Intervalle de confiance d&#39;une proportion</span></span></code></pre></div>
 <pre><code>            2.5% 97.5%
 sexe 0.535 0.507  0.56</code></pre>
 </div>
