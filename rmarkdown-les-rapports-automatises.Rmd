@@ -568,6 +568,8 @@ mtcars[1:5, 1:4] %>%
 
 L'extension `gt`{.pkg} en cours de développement par l'équipe de **RStudio** vise, un peu sur le modèle de `ggplot2`{.pkg}, à proposer une <dfn>grammaire des tableaux</dfn>. L'extension n'est pour le moment compatible qu'avec un rendu **HTML** mais la prise en compte du format **PDF** est prévue. C'est une extension encore assez nouvelle mais qui risque de se développer assez rapidement vu les équipes en charge de son développement.
 
+Pour en savoir plus : <https://gt.rstudio.com/>
+
 ```{r}
 library(gt)
 exibble %>%
@@ -624,7 +626,53 @@ exibble %>%
 
 ```
 
-Pour en savoir plus : <https://gt.rstudio.com/>
+
+
+#### gtExtras
+
+L'extension `gtExtras`{.pkg} propose des fonctions additionnelles pour personnaliser encore plus les tableaux réalisés avec `gt`{.pkg}. Attention : il s'agit encore d'une extension expérimentale en développement.
+
+Plus d'informations sur <https://jthomasmock.github.io/gtExtras/>
+
+```{r}
+library(gtExtras)
+
+data.frame(x = c(1.2345, 12.345, 123.45, 1234.5, 12345)) %>%
+  gt() %>%
+  fmt(fns = function(x){pad_fn(x, nsmall = 4)}) %>%
+  tab_style(
+    # MUST USE A MONO-SPACED FONT
+    style = cell_text(font = google_font("Fira Mono")),
+    locations = cells_body(columns = x)
+    )
+
+mtcars %>%
+  head() %>%
+  gt() %>%
+  gt_color_rows(
+    mpg:disp, palette = c("white", "green"),
+    # could also use palette = c("#ffffff", "##00FF00")
+    use_paletteer = FALSE)
+
+mtcars %>%
+  head() %>%
+  dplyr::select(cyl, mpg) %>%
+  dplyr::mutate(
+    mpg_pct_max = round(mpg / max(mpg) * 100, digits = 2),
+    mpg_scaled = mpg / max(mpg) * 100
+  ) %>%
+  dplyr::mutate(mpg_unscaled = mpg) %>%
+  gt() %>%
+  gt_plt_bar_pct(column = mpg_scaled, scaled = TRUE) %>%
+  gt_plt_bar_pct(column = mpg_unscaled, scaled = FALSE, fill = "blue", background = "lightblue") %>%
+  cols_align("center", contains("scale")) %>%
+  cols_width(
+    4 ~ px(125),
+    5 ~ px(125)
+  )
+```
+
+
 
 #### printr
 
