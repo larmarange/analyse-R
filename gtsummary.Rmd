@@ -1,0 +1,210 @@
+---
+title: "Tableaux statistiques avancés avec gtsummary"
+---
+
+```{r options_communes, include=FALSE}
+source("options_communes.R")
+```
+
+L'extension `gtsummary`{.pkg} a déjà été abordée dans d'autres chapitres, notamment via les fonctions `tbl_summary`{data_pkg="gtsummary"} et `tbl_svysummary`{data_pkg="gtsummary"} dans le chapitre sur la [statistique bivariée](statistique-bivariee.html) ou la fonction `tbl_regression`{data_pkg="gtsummary"} dans le chapitre sur la [régression logistique](regression-logistique.html).
+
+Dans ce chapitre, nous allons explorer plus en profondeur les différentes options offertes `gtsummary`{.pkg} pour la réalisation de tableaux statistiques prêts à être publiés.
+
+Les personnes anglophones pourront également se référer à l'excellent site de documentation du package : <https://www.danieldsjoberg.com/gtsummary/>
+
+```{r, results='hide'}
+library(gtsummary)
+```
+
+
+## Remarques sur les types de variables et les sélecteurs associés
+
+`gtsummary`{.pkg} permets de réaliser des tableaux statistiques combinant plusieurs variables, l'affichage des résultats pouvant dépendre du type de variables. 
+
+Par défaut, `gtsummary`{.pkg} considère qu'une variable est **catégorielle** s'il s'agit d'un facteur, d'une variable textuelle ou d'une variable numérique ayant moins de 10 valeurs différentes.
+
+Une variable sera considérée comme **dichotomique** (variable catégorielle à seulement deux modalités) s'il s'agit d'un vecteur logique (`TRUE`/`FALSE`), d'une variable textuelle codée `yes`/`no` ou d'une variable numérique codée `0`/`1`.
+
+Dans les autres cas, une variable numérique sera considérée comme **continue**.
+
+Nous verrons plus loin qu'il est possible de forcer le type d'une variable et l'existence d'autres types de variables.
+
+`gtsummary`{.pkg} fournit des sélecteurs qui pourront être utilisés dans les options des différentes fonctions, en particulier `all_continuous`{data_pkg="gtsummary"} pour les variables continues, `all_dichotolous`{data_pkg="gtsummary"} pour les variables dichotomiques et `all_categorical`{data_pkg="gtsummary"} pour les variables catégorielles (incluant les variables dichotomiques, utiliser `all_categorical(dichotomous = FALSE)` pour sélectionner les variables catégorielles en excluant les variables dichotomiques).
+
+Dans le cadre des tableaux présentant les résultats d'un modèle statistique, il existe en plus d'autres sélecteurs pour sélectionner certains termes spécifiques : `all_intercepts`{data_pkg="gtsummary"} (pour sélectionner seulement le ou les *intercepts* du modèle), `all_interaction`{data_pkg="gtsummary"} pour les termes d'interactions entre plusieurs variables, `all_contrasts`{data_pkg="gtsummary"} pour sélectionner les variables catégorielles codées avec un contraste particulier.
+
+## Remarques sur la syntaxe des options
+
+De nombreuses options des fonctions de `gtsummary`{.pkg} peuvent s'appliquer seulement à une ou certaines variables. Pour ces options-là, `gtsummary`{.pkg} attends une formule de la forme `variables concernées ~ valeur de l'option` ou bien une liste de formules ayant cette forme.
+
+Par exemple, pour modifier l'étiquette associée à une certaine variable, on peut utiliser l'option `label` de `tbl_svysummary`{data_pkg="gtsummary"}.
+
+```{r eval=FALSE}
+tbl_summary(trial, label = age ~ "Âge")
+tbl_summary(trial, label = list(age ~ "Âge", trt ~ "Traitement"))
+```
+
+`gtsummary`{.pkg} est très flexible sur la manière d'indiquer la ou les variables concernées. Il peut s'agir du nom de la variable, d'une chaîne de caractères contenant le nom de la variable, ou d'un vecteur contenant le nom de la variable. Les syntaxes ci-dessous sont ainsi équivalentes.
+
+```{r eval=FALSE}
+tbl_summary(trial, label = age ~ "Âge")
+tbl_summary(trial, label = "age" ~ "Âge")
+v <- "age"
+tbl_summary(trial, label = v ~ "Âge")
+tbl_summary(trial, label = vars(age) ~ "Âge")
+```
+
+Pour appliquer le même changement à plusieurs variables, plusieurs syntaxes sont acceptées pour lister plusieurs variables.
+
+```{r eval=FALSE}
+tbl_summary(trial, label = c("age", "trt") ~ "Une même étiquette")
+tbl_summary(trial, label = c(age, trt) ~ "Une même étiquette")
+tbl_summary(trial, label = vars(age, trt) ~ "Une même étiquette")
+```
+
+Il est également possible d'utiliser la syntaxe `tidyselect`{.pkg} et les sélecteurs de `tidyselect`{.pkg} comme `everything`{data-pkg="tidyselect"}, `starts_with`{data-pkg="tidyselect"}, `contains`{data-pkg="tidyselect"} ou `all_of`{data-pkg="tidyselect"}. Ces différents sélecteurs peuvent être combinés au sein d'un `c()` ou de `vars()`.
+
+```{r eval=FALSE}
+tbl_summary(trial, label = everything() ~ "Une même étiquette")
+tbl_summary(trial, label = starts_with("a") ~ "Une même étiquette")
+tbl_summary(trial, label = c(everything(), -age, -trt) ~ "Une même étiquette")
+tbl_summary(trial, label = age:trt ~ "Une même étiquette")
+```
+
+Bien sûr, il est possible d'utiliser les sélecteurs propres à `gtsummary`{.pkg}.
+
+```{r eval=FALSE}
+tbl_summary(trial, label = all_continuous() ~ "Une même étiquette")
+tbl_summary(trial, label = list(
+  all_continuous() ~ "Variable continue",
+  all_dichotomous() ~ "Variable dichotomique",
+  all_categorical(dichotomous = FALSE) ~ "Variable catégorielle"
+))
+```
+
+Enfin, si l'on ne précise rien à gauche du `~`, ce sera considéré comme équivalent à `everything()`. Les deux syntaxes ci-dessous sont donc équivalentes.
+
+```{r eval=FALSE}
+tbl_summary(trial, label = ~ "Une même étiquette")
+tbl_summary(trial, label = everything() ~ "Une même étiquette")
+```
+
+## Thèmes
+
+## Statistiques descriptives avec tbl_summary()
+
+### Sélection des variables (include)
+
+
+### En fonction d'une seconde variable (by, add_overall)
+
+
+### Statistiques affichées (statistic, percent, sort)
+
+Aborder aussi le type de pourcentage (percent)
+
+Le tri des variables catégorielles (sort)
+
+### Forcer le type de variable (type, value)
+
+Aborder ici continuous2
+
+value pour les variables dichotomiques
+
+### Mise en forme des statistiques (digits)
+
+### Données manquantes (missing, missing_text)
+
+### Étiquettes des variables (label)
+
+aborder aussi labelled::var_label
+
+### Afficher les effectifs (add_n)
+
+### Affichage du nom des statistiques (add_stat_label, separate_p_footnotes )
+
+### Mise en forme du tableau (bold_labels, italicize_levels)
+
+
+### Intervalles de confiance (add_ci)
+
+### Tests de comparaisons (add_p, add_q)
+
+### Différences entre groupes (add_difference)
+
+## Tableau croisé avec tbl_cross()
+
+
+## Données pondérées et tbl_svysummary()
+
+
+## Statistiques personnalisées avec tbl_continous() et tbl_custom_summary()
+
+### tbl_continuous()
+
+### tbl_custom_summary()
+
+### add_stat()
+
+## Résultats d'un modèle avec tbl_regression()
+
+include et label générique
+
+### Exponentiation des coefficients (exponentiate)
+
+### Afficher des étoiles de signification (add_significance_stars)
+
+### Variables dichotomiques sur une ligne (show_single_row)
+
+### Afficher l'intercept (intercept)
+
+### Mise en forme des coefficients (estimate_fun, pvalue_fun)
+
+### Afficher les coefficients pour les références (add_estimate_to_reference_rows)
+
+### P-valeurs globales (add_global_p)
+
+### Ajouter les VIF (add_vif)
+
+### Représenter graphiquement le modèle (plot)
+
+### Afficher des statistiques globales du modèle (add_glance_table, add_glance_source_note)
+
+## Régressions univariées multiples avec tbl_uvregression()
+
+## Tables de survie avec tbl_survfit()
+
+## Modifier un tableau
+
+### Modifier les titres de colonne (modify_header)
+
+### Afficher/Masquer une colonne (modify_column_hide, modify_column_unhide)
+
+### Ajouter un titre global (modify_caption)
+
+### Regrouper des colonnes (modify_spanning_header)
+
+### Modifier les notes (modify_footnote)
+
+## Combiner des tableaux
+
+### tbl_stack()
+
+### tbl_merge()
+
+### tbl_strata()
+
+
+### tbl_split()
+
+
+
+## Plus d'options avec bstfun
+
+### tbl_likert()
+
+### Ajouter un graphique de tendances (add_sparkline)
+
+### Représentation graphique des coefficients dans le tableau (add_inline_forest_plot)
+
+### Forest plot (as_forest_plot)
