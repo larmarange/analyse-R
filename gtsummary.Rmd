@@ -17,7 +17,7 @@ library(gtsummary)
 ```
 
 
-## Remarques sur les types de variables et les sélecteurs associés
+## Remarques sur les types de variables et les sélecteurs associés {#type_variables}
 
 `gtsummary`{.pkg} permets de réaliser des tableaux statistiques combinant plusieurs variables, l'affichage des résultats pouvant dépendre du type de variables. 
 
@@ -91,25 +91,202 @@ tbl_summary(trial, label = everything() ~ "Une même étiquette")
 
 ## Thèmes
 
+`gtsummary`{.pkg} fournit plusieurs fonctions préfixées `theme_gtsummary_*()` permettant de modifier l'affichage par défaut des tableaux.
+
+La fonction `theme_gtsummary_journal`{data-pkg="gtsummary"} permets d'adopter les standards de certaines grandes revues scientifiques telles que *JAMA* (*Journal of the American Medical Association*), *The Lancet* ou encore le *NEJM* (*New England Journal of Medicine*).
+
+Par défaut, `tbl_summarry`{data-pkg="gtsummary"} utilise la médiane et l'intervalle interquartile pour les variables continues. Si on applique `theme_gtsummary_mean_sd`{data-pkg="gtsummary"}, la moyenne et l'écart-type seront utilisés par défaut.
+
+Le thème `theme_gtsummary_journal`{data-pkg="gtsummary"} permets de modifier la langue utilisée par défaut dans les tableaux. Les options `decimal.mark` et `big.mark` permettent de définir respectivement le séparateur de décimales et le séparateur des milliers. Ainsi, pour présenter un tableau en français, on appliquera en début de script :
+
+```{r}
+theme_gtsummary_language(language = "fr", decimal.mark = ",", big.mark = " ")
+```
+
 ## Statistiques descriptives avec tbl_summary()
 
+La fonction `tbl_summarry`{data-pkg="gtsummary"} permets de réaliser des tris à plats de plusieurs variables, éventuellement croisés selon une variable catégorielle.
+
+On lui passe en entrée un tableaux de données (*data.frame*) et par défaut toutes les variables sont résumées.
+
+```{r}
+trial %>%
+  tbl_summary()
+```
+
 ### Sélection des variables (include)
+
+La paramètre `include` permets de spécifier les variables à inclure dans le tableau (et leur ordre). On peut lui passer un vecteur de noms de variables, ou bien utiliser des sélecteurs *tidyselect* (utiliser `c()` si plusieurs sélecteurs).
+
+```{r}
+trial %>%
+  tbl_summary(include = c("age", "marker", "response"))
+
+trial %>%
+  tbl_summary(include = c(age:stage, starts_with("t")))
+```
 
 
 ### En fonction d'une seconde variable (by, add_overall)
 
+Le paramètre `by` permets de résumer chacune des variables inclues en fonction d'une variable catégorielle.
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(age, stage, response),
+    by = trt
+  )
+```
+
+La fonction `add_overall`{data-pkg="gtsummary"}, appliquée après `tbl_summarry`{data-pkg="gtsummary"}, permets, lorsqu'une variable `by` a été définie, de rajouter une colonne avec l'ensemble du fichier. L'option `last` permets de spécifier si l'on veut ajouter cette colonne à la droite du tableau et `col_label` permet de personnaliser le titre de la colonne (noter le recours aux `**` pour indiquer ce qui doit être affiché en gras et `{N}` qui sera remplacé par le nombre d'observations).
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(age, stage, response),
+    by = trt
+  ) %>%
+  add_overall(last = TRUE, col_label = "**Ensemble** (effectif total: {N})")
+```
 
 ### Statistiques affichées (statistic, percent, sort)
 
-Aborder aussi le type de pourcentage (percent)
+Le paramètre `statistic` permets de sélectionner les statistiques à afficher pour chaque variable. On indiquera une chaîne de caractères dont les différentes statistiques seront indiquées entre accolades (`{}`).
 
-Le tri des variables catégorielles (sort)
+Pour une **variable continue**, on pourra utiliser `{median}` pour la médiane, `{mean}` pour la moyenne, `{sd}` pour l'écart type, `{var}` pour la variance, `{min}` pour le minimum, `{max}` pour le maximum, ou encore `{p##}` (en remplacant `##` par un nombre entier entre 00 et 100) pour le percentile correspondant (par exemple `p25` et `p75` pour le premier et le troisième quartile). Utilisez `all_continous`{data-pkg="gtsummary"} pour sélectionner toutes les variables continues.
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(age, marker),
+    statistic = all_continuous() ~ "Moy. : {mean} [min-max : {min}-{max}]"
+  )
+```
+
+Il est possible d'afficher des statistiques différentes pour chaque variable.
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(age, marker),
+    statistic = list(
+      age ~ "Méd. : {median} [IQR: {p25}-{p75}]",
+      marker ~ "Moy. : {mean} (ET : {sd})"
+    )
+  )
+```
+
+Pour les variables continues, il est également possible d'indiquer le nom d'une fonction personnalisée qui prends un vecteur et renvoie une valeur résumé. Par exemple, pour afficher la moyenne des carrés :
+
+```{r}
+moy_carres <- function(x) {
+  mean(x^2, na.rm = TRUE)
+}
+trial %>%
+  tbl_summary(
+    include = marker,
+    statistic = ~ "MC : {moy_carres}"
+  )
+```
+
+Pour une **variable catégorielle**, les statistiques possibles sont `{n}` le nombre d'observations, `{N}` le nombre total d'observations, et `{p}` le pourcentage correspondant. Utilisez `all_categorical`{data-pkg="gtsummary"} pour sélectionner toutes les variables catégorielles.
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(stage, response),
+    statistic = all_categorical() ~ "{p} % ({n}/{N})"
+  )
+```
+
+Il est possible, pour une variable catégorielle, de trier les modalités de la plus fréquente à la moins fréquente avec le paramètre `sort`.
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(stage, response),
+    sort = all_categorical() ~ "frequency"
+  )
+```
+
+Lorsqu'une variable `by` est définie, on peut utiliser `percent` pour indiquer le type de pourcentages : en ligne avec `row`, en colonne avec `column` et `cell` pour les pourcentages totaux.
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(stage, response),
+    by = grade,
+    statistic = all_categorical() ~ "{p} % ({n}/{N})",
+    percent = "row"
+  ) %>%
+  add_overall(last = TRUE)
+```
+
+### Affichage du nom des statistiques (add_stat_label)
+
+Lorsque l'on affiche de multiples statistiques, la liste des statistiques est regroupée dans une note de tableau qui peut vite devenir un peu confuse.
+
+```{r}
+tbl <- trial %>%
+  tbl_summary(
+    include = c(age, marker, grade),
+    by = trt,
+    statistic = list(
+      age ~ "{median} [{p25}-{p75}]",
+      marker ~ "{mean} ({sd})"
+    )
+  )
+tbl
+```
+
+La fonction `add_stat_label`{data-pkg="gtsummary"} permets d'indiquer le type de statistique à côté du nom des variables ou bien dans une colonne dédiée, plutôt qu'en note de tableau.
+
+```{r}
+tbl %>% add_stat_label()
+tbl %>% add_stat_label(location = "column")
+```
 
 ### Forcer le type de variable (type, value)
 
-Aborder ici continuous2
+Comme [abordé plus haut](#type_variables), `gtsummary`{.pkg} détermine automatiquement le type de chaque variable. Par défaut, la variabe `age` est traitée comme variable continue, `death` comme dichotomique (seule la valeur 1 est affichée) et `grade` comme variable catégorielle.
 
-value pour les variables dichotomiques
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(grade, age, death)
+    )
+```
+
+Il est cependant possible de forcer un certain type avec l'argument `type`. Précision, lorsque l'on force une variable en dichotomique, il faut indiquer avec `value` la valeur à afficher (les autres sont alors masquées).
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(grade, age, death),
+    type = list(
+      grade ~ "dichotomous",
+      age ~ "categorical",
+      death ~ "categorical"
+    ),
+    value = grade ~ "III",
+    label = grade ~ "Grade III"
+  )
+```
+
+
+### Afficher des statistiques sur plusieurs lignes (continuous2)
+
+Pour les variables continues, `gtsummary`{.pkg} a introduit un type de variable `"continuous2"`, qui doit être attribué manuellement via `type`, et qui permets d'afficher plusieurs lignes de statistiques (en indiquant plusieurs chaînes de caractères dans `statistic`).
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(age, marker, ttdeath),
+    type = c(age, marker) ~ "continuous2",
+    statistic = all_continuous2() ~ c("{median} ({p25} - {p75}", "{mean} ({sd})", "{min} - {max}")
+  )
+```
 
 ### Mise en forme des statistiques (digits)
 
@@ -121,16 +298,20 @@ aborder aussi labelled::var_label
 
 ### Afficher les effectifs (add_n)
 
-### Affichage du nom des statistiques (add_stat_label, separate_p_footnotes )
 
 ### Mise en forme du tableau (bold_labels, italicize_levels)
 
 
+### Tests de comparaisons (add_p, add_q, separate_p_footnotes)
+
+
+
+
 ### Intervalles de confiance (add_ci)
 
-### Tests de comparaisons (add_p, add_q)
 
 ### Différences entre groupes (add_difference)
+
 
 ## Tableau croisé avec tbl_cross()
 
@@ -204,7 +385,7 @@ include et label générique
 
 ![Formats d'export d'un tableau gtsummary](images/gtsummary_output_formats.png)
 
-```{r}
+```{r, eval=FALSE}
 tbl %>%
   as_gt() %>%
   gt::gtsave(filename = ".") # use extensions .html .tex .ltx .rtf
