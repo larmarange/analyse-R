@@ -1,18 +1,177 @@
 ---
-title: "Mettre en forme des nombres"
+title: "Mettre en forme des nombres avec scales"
 ---
 
 ```{r options_communes, include=FALSE}
 source("options_communes.R")
 ```
 
-<div class="important">
-Ce chapitre est en cours d'écriture.
-</div>
-
 <div class="webin-R">
 Ce chapitre est évoqué dans le webin-R #09 (Graphiques uni- et bivariés avec ggplot2) sur [YouTube](https://youtu.be/73xvKXSnV1I).
 </div>
 
+Il existe de nombreuses fonctions pour mettre en forme des nombres sous **R**. La fonction de base est `format`{data-pkg="base"}. Plusieurs packages proposent des variations pour rendre cette mise en forme plus facile. Cependant, s'il y a une extension à retenir, c'est l'extension `scales`{.pkg}.
 
-Le plus simple est d'avoir recours à l'extension `scales`{.pkg} et aux fonctions `number`{data-pkg="scales" data-rdoc="number_format"}, `comma`{data-pkg="scales" data-rdoc="number_format"}, `percent`{data-pkg="scales" data-rdoc="number_format"}, `unit`{data-pkg="scales" data-rdoc="number_format"}, `ordinal`{data-pkg="scales" data-rdoc="ordinal_format"} et `pvalue`{data-pkg="scales" data-rdoc="pvalue_format"}.
+## number() ou label_number() ?
+
+Les deux fonctions de base sont `number`{data-pkg="scales"} et `label_number`{data-pkg="scales"}. Elles ont l'air très similaires et partagent un grand nombre de paramètres en commun. La différence est que `number`{data-pkg="scales"} a besoin d'un vecteur numérique en entrée qu'elle va mettre en forme, tandis que que `label_number`{data-pkg="scales"} renvoie une fonction que l'on pourra ensuite appliquer à un vecteur numérique.
+
+```{r}
+library(scales)
+x <- c(0.0023, .123, 4.567, 874.44, 8957845)
+number(x)
+
+f <- label_number()
+f(x)
+label_number()(x)
+```
+
+Dans de nombreux cas de figure (par exemple pour un graphique `ggplot2`{.pkg} ou un tableau `gtsummary`{.pkg}), il sera demandé de fournir une fonction, auquel cas on aura recours aux fonctions de `scales`{.pkg} préfixées par `label_*()`.
+
+## label_number()
+
+`label_number`{data-pkg="scales"} est la fonction de base de mise en forme de nombres dans `scales`{.pkg}, une majorité des autres fonctions faisant appel à `label_number`{data-pkg="scales"} et partageant les mêmes arguments.
+
+Le paramètre `accurary` permets de définir le niveau d'arrondi à utiliser. Par exemple, `.1` pour afficher une seule décimale. Il est aussi possible d'indiquer un nombre qui n'est pas une puissance de 10 (par exemple `.25`). Si on n'indique rien (`NULL`), alors `label_number`{data-pkg="scales"} essaiera de deviner un nombre de décimales pertinent en fonction des valeurs du vecteur de nombres à mettre en forme.
+
+```{r}
+label_number(accuracy = NULL)(x)
+label_number(accuracy = .1)(x)
+label_number(accuracy = .25)(x)
+label_number(accuracy = 10)(x)
+```
+
+L'option `scale` permets d'indiquer un facteur multiplicatif à appliquer avant de mettre en forme. On utilisera le plus souvent les options `prefix` et `suffix` en même temps pour indiquer les unités.
+
+```{r}
+label_number(scale = 100, suffix = "%")(x) # pour cent
+label_number(scale = 1000, suffix = "\u2030")(x) # pour mille
+label_number(scale = .001, suffix = " milliers", accuracy = .1)(x)
+```
+
+Les arguments `decimal.mark` et `big.mark` permettent de définir, respectivement, le séparateur de décimale et le séparateur de milliers. Ainsi, pour afficher des nombres <q>à la française</q> (virgule pour les décimales, espace pour les milliers) :
+
+```{r}
+label_number(decimal.mark = ",", big.mark = " ")(x)
+```
+
+Note : il est possible d'utiliser `small.interval` et `small.mark` pour ajouter des séparateurs parmi les décimales.
+
+```{r}
+label_number(accuracy = 10^-9, small.mark = "|", small.interval = 3)(x)
+```
+
+## label_comma()
+
+`label_comma`{data-pkg="scales"} (et `comma`{data-pkg="scales"}) est une variante de `label_number`{data-pkg="scales"} qui, par défaut, affiche les nombres à l'américaine, avec une virgule comme séparateur de milliers.
+
+```{r}
+label_comma()(x)
+```
+
+## label_percent()
+
+`label_percent`{data-pkg="scales"} (et `percent`{data-pkg="scales"}) est une variante de `label_number`{data-pkg="scales"} qui affiche les nombres sous formes de pourcentages (`scale = 100, suffix = "%"`).
+
+```{r}
+label_percent()(x)
+```
+
+## label_dollar()
+
+`label_dollar`{data-pkg="scales"} est adapté à l'affichage des valeurs monétaires.
+
+```{r}
+label_dollar()(x)
+label_dollar(prefix = "", suffix = " €", accuracy = .01, big.mark = " ")(x)
+```
+
+L'option `negative_parens` permet d'afficher les valeurs négatives avec des parenthèses, convention utilisée dans certaines disciplines.
+
+```{r}
+label_dollar()(c(12.5, -4, 21, -56.36))
+label_dollar(negative_parens = TRUE)(c(12.5, -4, 21, -56.36))
+```
+
+## label_pvalue(), style_pvalue() & signif_stars()
+
+`label_pvalue`{data-pkg="scales"} est adapté pour la mise en forme de p-valeurs.
+
+```{r}
+label_pvalue()(c(0.000001, 0.023, 0.098, 0.60, 0.9998))
+label_pvalue(accuracy = .01, add_p = TRUE)(c(0.000001, 0.023, 0.098, 0.60))
+```
+
+À noter, la fonction `style_pvalue`{data-pkg="gtsummary"} de l'extension `gtsummary`{.pkg} ayant à peu près le même objectif mais adaptant le nombre de décimales en fonction de la p-valeur.
+
+```{r}
+gtsummary::style_pvalue(c(0.000001, 0.023, 0.098, 0.60, 0.9998))
+```
+
+La fonction `signif_stars`{data-pkg="GGally"} de `GGally`{.pkg} permet quant à elle d'afficher les p-valeurs sous forme d'étoiles de significativité, Par défaut, trois astérisques si p < 0.001, deux si p < 0.01, une si p < 0.05 et un point si p < 0.10. Les valeurs sont bien sur paramétrables.
+
+```{r}
+p <- c(0.5, 0.1, 0.05, 0.01, 0.001)
+GGally::signif_stars(p)
+GGally::signif_stars(p, one = .15, point = NULL)
+```
+
+## label_number_si()
+
+`label_number_si`{data-pkg="scales"} cherche le [préfixe du Système international d'unités](https://fr.wikipedia.org/wiki/Pr%C3%A9fixes_du_Syst%C3%A8me_international_d%27unit%C3%A9s) le plus proche et arrondi chaque valeur en fonction, en ajoutant la précision correspondante.
+
+```{r}
+label_number_si(unit = "g")(c(.00000145, .0034, 5, 12478, 14569787))
+```
+
+## label_scientific()
+
+`label_scientific`{data-pkg="scales"} affiche les nombres dans un format scientifique (avec des puissances de 10).
+
+```{r}
+label_scientific(unit = "g")(c(.00000145, .0034, 5, 12478, 14569787))
+```
+
+## label_bytes()
+
+`label_bytes`{data-pkg="scales"} mets en forme des tailles exprimées en octets, utilisant au besoin des multiples de 1024.
+
+```{r}
+b <- c(478, 1235468, 546578944897)
+label_bytes()(b)
+label_bytes(units = "auto_binary")(b)
+```
+
+## label_ordinal()
+
+`label_bytes`{data-pkg="scales"} permets d'afficher des rangs ou nombres ordinaux. Plusieurs langues sont disponibles.
+
+```{r}
+label_ordinal()(1:5)
+label_ordinal(rules = ordinal_french())(1:5)
+label_ordinal(rules = ordinal_french(gender = "f", plural = TRUE))(1:5)
+```
+
+## label_date(), label_date_short() & label_time()
+
+`label_date`{data-pkg="scales"}, `label_date_short`{data-pkg="scales"} et `label_time`{data-pkg="scales"} peuvent être utilisées pour la mise en forme de dates.
+
+```{r}
+label_date()(as.Date("2020-02-14"))
+label_date(format = "%d/%m/%Y")(as.Date("2020-02-14"))
+label_date_short()(as.Date("2020-02-14"))
+```
+
+La mise en forme des dates est un peu complexe. Ne pas hésiter à consulter le fichier d'aide de la fonction  `strptime`{data-pkg="base"} pour plus d'informations.
+
+## label_wrap()
+
+La fonction `label_wrap`{data-pkg="scales"} est un peu différente. Elle permets d'insérer des retours à la ligne (`\n`) dans des chaines de caractères. Elle tient compte des espaces pour identifier les mots et éviter ainsi des coupures au milieu d'un mot.
+
+```{r}
+x <- "Ceci est un texte assez long et que l'on souhaiterait afficher sur plusieurs lignes. Cependant, on souhaite éviter que des coupures apparaissent au milieu d'un mot."
+label_wrap(80)(x)
+label_wrap(80)(x) |> message()
+label_wrap(40)(x) |> message()
+```
+
