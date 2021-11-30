@@ -210,7 +210,7 @@ trial %>%
   )
 ```
 
-Lorsqu'une variable `by` est définie, on peut utiliser `percent` pour indiquer le type de pourcentages : en ligne avec `row`, en colonne avec `column` et `cell` pour les pourcentages totaux.
+Lorsqu'une variable `by` est définie, on peut utiliser `percent` pour indiquer le type de pourcentages : en ligne avec `"row"`, en colonne avec `"column"` et `"cell"` pour les pourcentages totaux.
 
 ```{r}
 trial %>%
@@ -222,6 +222,8 @@ trial %>%
   ) %>%
   add_overall(last = TRUE)
 ```
+
+Pour toutes les variables (catégorielles et continues), les statistiques suivantes sont également disponibles : `{N_obs}` le nombre total d'observations, `{N_miss}` le nombre d'observations manquantes (`NA`), `{N_nonmiss}` le nombre d'observations non manquantes, `{p_miss}` le pourcentage d'observations manquantes (i.e. `N_miss / N_obs`) et `{p_nonmiss}` le pourcentage d'observations non manquantes (i.e. `N_nonmiss / N_obs`).
 
 ### Affichage du nom des statistiques (add_stat_label)
 
@@ -277,7 +279,7 @@ trial %>%
 
 ### Afficher des statistiques sur plusieurs lignes (continuous2)
 
-Pour les variables continues, `gtsummary`{.pkg} a introduit un type de variable `"continuous2"`, qui doit être attribué manuellement via `type`, et qui permets d'afficher plusieurs lignes de statistiques (en indiquant plusieurs chaînes de caractères dans `statistic`).
+Pour les variables continues, `gtsummary`{.pkg} a introduit un type de variable `"continuous2"`, qui doit être attribué manuellement via `type`, et qui permets d'afficher plusieurs lignes de statistiques (en indiquant plusieurs chaînes de caractères dans `statistic`). À noter le sélecteur dédié `all_continuous2`{data-pkg="gtsummary"}.
 
 ```{r}
 trial %>%
@@ -290,38 +292,275 @@ trial %>%
 
 ### Mise en forme des statistiques (digits)
 
+L'argument `digits` permet de spécifier comment mettre en forme les différentes statistiques. Le plus simple est d'indiquer le nombre de décimales à afficher. Il est important de tenir compte que plusieurs statistiques peuvent être affichées pour une même variable. On peut alors indiquer une valeur différente pour chaque statistique.
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(age, stage),
+    by = trt,
+    digits = list(
+      all_continuous() ~ 1,
+      all_categorical() ~ c(0, 1)
+    )
+  )
+```
+
+Au lieu d'un nombre de décimales, on peut indiquer plutôt une fonction à appliquer pour mettre en forme le résultat. Par exemple, `gtsummary`{.pkg} fournit les fonctions suivantes : `style_number`{data-pkg="gtsummary} pour les nombres de manière générale, `style_percent`{data-pkg="gtsummary} pour les pourcentages (les valeurs sont multipliées par 100, mais le symbole % n'est pas ajouté), `style_pvalue`{data-pkg="gtsummary} pour les p-valeurs, `style_sigfig`{data-pkg="gtsummary} qui n'affiche (par défaut) que deux chiffres significatifs, ou encore `style_ratio`{data-pkg="gtsummary} qui est une variante de `style_sigfig`{data-pkg="gtsummary} pour les ratios (comme les *odds ratios*) que l'on compare à 1.
+
+Il faiut bien noter que ce qui est attendu par `digits`, c'est une fonction et non le résultat d'une fonction. On indiquera donc le nom de la fonction sans parenthèse.
+
+```{r}
+trial %>%
+  tbl_summary(include = marker)
+
+trial %>%
+  tbl_summary(
+    include = marker,
+    digits = all_continuous() ~ c(style_percent, style_pvalue, style_ratio)
+  )
+```
+
+Comme `digits` attends à recevoir une fonction (et non le résultat) d'une fonction, on ne peut pas passer directement des arguments aux fonctions `style_*()` de `gtsummary`{.pkg}. Pour cela il faut créer une fonction à la levée :
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = marker,
+    statistic = ~ "{mean} pour 100",
+    digits = ~ function(x){style_percent(x, digits = 1)}
+  )
+```
+
+À noter dans l'exemple précédent que les fonctions `style_*()` de `gtsummary`{.pkg} tiennent compte du thème défini (ici la virgule comme séparateur de décimale). 
+
+Pour une mise en forme plus avancée des nombres, il faut se tourner vers l'extension `scales`{.pkg} (choir le [chapitre dédié](formater-nombres.html)). ATTENTION : les fonctions de `scales`{.pkg} n'héritent pas des paramètres du thème gtsummary actif. Il faut donc personnaliser le séparateur de décimal dans l'appel à la fonction.
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = marker,
+    statistic = ~ "{mean}",
+    digits = ~ scales::label_number(accuracy = .01, suffix = " ng/mL", decimal.mark = ",")
+  )
+```
+
 ### Données manquantes (missing, missing_text)
+
+Le paramètre `missing` permets d'indiquer s'il faut afficher le nombre d'observations manquantes (c'est-à-dire égales à `NA`) : `"ifany"` (valeur par défaut) affiche ce nombre seulement s'il y en a, `"no"` masque ce nombre et `"always"` force l'affichage de ce nombre même s'il n'y pas de valeur manquante. Le paramètre `missing_text` permets de personnaliser le texte affiché.
+
+```{r}
+trial %>%
+  tbl_summary(include = c(trt, age))
+trial %>%
+  tbl_summary(
+    include = c(trt, age),
+    missing = "always",
+    missing_text = "Nbre observations manquantes"
+  )
+```
+
+Il est à noter, pour les variables catégorielles, que les valeurs manquantes ne sont jamais pris en compte pour le calcul des pourcentages. Pour les inclure dans le calcul, il faut les transformer en valeurs explicites, par exemple avec `fct_explicit_na`{data-pkg="forcats"} de `forcats`{.pkg}.
+
+```{r}
+trial %>%
+  tbl_summary(include = response, type = response ~ "categorical")
+trial %>%
+  mutate(response = response %>% as.factor() %>% forcats::fct_explicit_na(na_level = "non observé")) %>%
+  tbl_summary(include = response)
+```
 
 ### Étiquettes des variables (label)
 
-aborder aussi labelled::var_label
+`gtsummary`, par défaut, prends en compte les étiquettes de variables, si elles existent, et sinon utilisera le nom de chaque variable dans le tableau. Pour rappel, les étiquettes de variables peuvent être manipulées avec l'extension `labelled`{.pkg} et les fonctions `var_label`{data-pkg="labelled"} et `set_variable_labels`{data-pkg="labelled"}.
+
+Il est aussi possible d'utiliser l'option `label` de `tbl_summary`{data-pkg="gtsummary"} pour indiquer des étiquettes personnalisées.
+
+```{r}
+iris %>%
+  labelled::set_variable_labels(
+    Petal.Length = "Longueur du pétale",
+    Petal.Width = "Largeur du pétale"
+  ) %>%
+  tbl_summary(label = Species ~ "Espèce")
+```
+
+Pour modifier les modalités d'une variable catégorielle, il faut modifier en amont les niveaux du facteur correspondant.
 
 ### Afficher les effectifs (add_n)
+
+La fonction `add_n`{data-pkg="gtsummary"} permets d'ajouter une colonne avec le nombre d'observations (non manquantes par défaut). Plusieurs options permettent de personnaliser le résultat : `col_label` pour modifier l'intitulé de la colonne; `statistic` pour personnaliser la ou les statistiques affichées (la liste des statistiques disponibles est disponible dans le fichier d'aide `add_n.tbl_summary`{data-pkg="gtsummary"}); `last` pour la positition de la colonne; `footnote` pour l'ajout d'une note de tableau.
+
+
+```{r}
+trial %>%
+  tbl_summary(include = c(age, marker)) %>%
+  add_n()
+trial %>%
+  tbl_summary(
+    include = c(age, marker),
+    by = trt,
+    missing = "no"
+  ) %>%
+  add_n(
+    statistic = "{n}/{N}",
+    col_label = "**Effectifs** (observés / total)",
+    last = TRUE,
+    footnote = TRUE
+  ) %>%
+  add_overall(last = TRUE)
+```
 
 
 ### Mise en forme du tableau (bold_labels, italicize_levels)
 
+Les fonctions `bold_labels`{data-pkg="gtsummary"}, `bold_levels`{data-pkg="gtsummary"}, `italicize_labels`{data-pkg="gtsummary"} et `italicize_levels`{data-pkg="gtsummary"} permettent d'afficher les étiquettes de variables et les modalités des variables catégorielles en gras ou en italique.
 
-### Tests de comparaisons (add_p, add_q, separate_p_footnotes)
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(marker, grade, stage),
+    by = trt
+  ) %>%
+  bold_labels() %>%
+  italicize_levels()
+```
 
+### Tests de comparaisons (add_p, separate_p_footnotes)
 
+Lorsqu'une variable `by` est définie, la fonction `add_p`{data-pkg="gtsummary"} permets d'ajouter des tests de comparaisons entre les groupes et d'afficher les p-valeurs.
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(trt, marker, age, response, stage),
+    by = trt
+  ) %>%
+  add_p()
+```
+
+Par défaut, pour les **variables continues**, un <dfn>test de Kruskal-Wallis</dfn> calculé avec la fonction `kruskal.test`{data-pkg="stats"} est utilisé lorsqu'il y a trois groupes ou plus, et un <dfn>test de Wilcoxon-Mann-Whitney</dfn> calculé avec `wilcox.test`{data-pkg="stats"} (test de comparaison des rangs) lorsqu'il n'y a que deux groupes.
+
+Si l'on affiche des moyennes, il serait plus juste d'utiliser un <dfn>test t de Student</dfn> (test de compairaison des moyennes) calculé avec `t.test`{data-pkg="stats"}.
+
+Pour les **variables catégorielles**, un <dfn>test du Chi²</dfn> calculé avec `chisq.test`{data-pkg="stats"} est utilisé par défaut lorsque les effectifs théoriques sont supérieurs à 5, sinon un <dfn>test de Fosher</dfn> calculé avec `fisher.test`{data-pkg="stats"} est utilisé.
+
+D'autres tests sont disponibles et sont détaillés dans le fichier d'aide `add_p.tbl_summary`{data-pkg="gtsummary"}. 
+
+Le paramètre `test` permets de spécifier pour chaque variable le type de tests à utiliser. La fonction `separate_p_footnotes`{data-pkg="gtsummary"} peut être utilisée pour créer une note de tableau différente pour chaque test. Le paramètre `pvalue_fun` permet d'indiquer une fonction personnalisée pour la mise en forme des p-valeurs.
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(trt, marker, age, response, stage),
+    statistic = age ~ "{mean} ({sd})",
+    by = trt
+  ) %>%
+  add_stat_label() %>%
+  add_p(
+    test = list(
+      response ~ "fisher.test",
+      age ~ "t.test"
+    ),
+    pvalue_fun = scales::label_pvalue(accuracy = .0001)
+  ) %>%
+  separate_p_footnotes()
+```
 
 
 ### Intervalles de confiance (add_ci)
 
+La fonction `add_ci`{data-pkg="gtsummary"} permets d'ajouter des intervalles de confiance dans des colonnes additionnelles. ATTENTION : par défaut, pour les variables continues, cela calcule les intervalles de confiance d'une moyenne et non d'une médiane. Le type d'intervalle peut être modifié avec `method` (par exemple `"wilcox.test"` pour l'intervalle de confiance d'une médiane). `statistic` permet de personnaliser la présentation de l'intervalle. `conf.level` permets de changer le niveau de confiance. `style_fun` permets de modifier la fonction de formatage des 
+
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(age, stage),
+    by = trt,
+    statistic = all_continuous() ~ "{mean}"
+  ) %>%
+  add_overall() %>%
+  add_ci()
+
+trial %>%
+  tbl_summary(
+    include = c(age, marker), 
+    statistic = ~ "{median}"
+  ) %>%
+  add_ci(
+    method = ~ "wilcox.test",
+    statistic = ~ "entre {conf.low} et {conf.high}",
+    conf.level = .9,
+    style_fun = ~ scales::label_number(accuracy = .01, decimal.mark = ",")
+  )
+```
 
 ### Différences entre groupes (add_difference)
 
+Si la variable spécfiée dans `by` a exactement 2 niveaux, il est possible de calculer la différence entre deux moyennes (variable continue) ou entre deux proportions (variables dichotomiques uniquement, pas les variables catégorielles), d'afficher l'intervalle de confiance de cette différence et la p-valeur associée (la différence est-elle significativement différente de 0) avec `add_difference`{data-pkg="gtsummary"}.
+
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = c(age, marker, response),
+    by = trt,
+    statistic = list(
+      all_continuous() ~ "{mean}",
+      all_categorical() ~ "{p}%"
+    ),
+    digits = list(
+      all_continuous() ~ 2,
+      all_categorical() ~ 1
+    )
+  ) %>%
+  add_difference()
+```
+
+D'autres options sont disponibles (comme la possibilité de calculer des différences ajustées sur d'autres variables) et sont explicitées dans le fichier d'aide de `add_difference`{data-pkg="gtsummary"}.
 
 ## Tableau croisé avec tbl_cross()
+
+La fonction `tbl_cross`{data-pkg="gtsummary"} est une variation de `tbl_summary`{data-pkg="gtsummary"} permettant de croiser deux variables spécfiées avec les arguments `row` et `col`. Le type de pourcentage peut-être précisé avec l'arguement `percent`. Il est possible d'ajouter le résultat d'un test du Chi² avec `add_p.tbl_cross`{data-pkg="gtsummary"}.
+
+```{r}
+trial %>%
+  tbl_cross(
+    row = grade,
+    col = trt,
+    percent = "row"
+  ) %>%
+  add_p(source_note = TRUE)
+```
 
 
 ## Données pondérées et tbl_svysummary()
 
+La fonction `tbl_svysummary`{data-pkg="gtsummary"} est similaire à `tbl_summary`{data-pkg="gtsummary"} à l'exception qu'elle prend en entrée un objet de type `survey`{.pkg} défini avec l'extension homonyme. Cela permet de définir une pondération des observations et un plan d'échantillonnage complexe. Les options de `tbl_svysummary`{data-pkg="gtsummary"} sont similaires et il est possible d'utiliser les autres fonctions de `gtsummary`{.pkg} telles que `add_overall`{data-pkg="gtsummary"}, `add_p`{data-pkg="gtsummary"}, `add_n`{data-pkg="gtsummary"}, `add_stat_label`{data-pkg="gtsummary"}, etc.
+
+Il faut noter que les tests statistiques disponibles ne sont pas les mêmes et sont détaillés dans le fichier d'aide de `add_p.tbl_svysummary`{data-pkg="gtsummary"}.
+
+```{r}
+Titanic %>%
+  as.data.frame() %>%
+  survey::svydesign(~ 1, data = ., weights = ~Freq) %>%
+  tbl_svysummary(
+    by = Survived, 
+    percent = "row"
+  ) %>%
+  add_stat_label(location = "column") %>%
+  add_n() %>%
+  add_overall(last = TRUE) %>%
+  add_p() %>%
+  separate_p_footnotes()
+```
 
 ## Statistiques personnalisées avec tbl_continous() et tbl_custom_summary()
 
 ### tbl_continuous()
+
+
 
 ### tbl_custom_summary()
 
