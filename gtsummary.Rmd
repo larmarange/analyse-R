@@ -261,7 +261,7 @@ Comme [abordé plus haut](#type_variables), `gtsummary`{.pkg} détermine automat
 trial %>%
   tbl_summary(
     include = c(grade, age, death)
-    )
+  )
 ```
 
 Il est cependant possible de forcer un certain type avec l'argument `type`. Précision, lorsque l'on force une variable en dichotomique, il faut indiquer avec `value` la valeur à afficher (les autres sont alors masquées).
@@ -849,7 +849,7 @@ mod %>%
 ```
 
 ### Changer l'intitulé des colonnes
- 
+
 Comme pour tout tableau `gtsummary`{.pkg}, l'intitulé des colonnes peut être modifié avec `modify_header`{data-pkg="gtsummary"}. On pourra avoir recours à  `show_header_names`{data-pkg="gtsummary"} pour connaître le nom de chaque colonne.
 
 ```{r}
@@ -873,63 +873,393 @@ lm(time ~ ph.ecog + sex, survival::lung) %>%
   )
 ```
 
-
 ### Variables dichotomiques sur une ligne (show_single_row)
+
+L'argument `show_single_row` permet d'indiquer une liste de variables dichotomiques que l'on souhaite afficher sur une seule ligne (la modalité de référence étant alors masquée). Il est possible d'indiquer `all_dichotomous`{data-pkg="gtsummary"}`()` pour appliquer cette option à toutes les variables dichotomiques.
+
+```{r}
+mod %>%
+  tbl_regression(show_single_row = trt)
+```
 
 ### Afficher l'intercept (intercept)
 
+Par défaut, l'intercept n'est pas affiché. Mais on peut forcer son affichage avec `intercept = TRUE`.
+
+```{r}
+mod %>%
+  tbl_regression(intercept = TRUE)
+```
+
 ### Mise en forme des coefficients (estimate_fun, pvalue_fun)
+
+L'argument `estimate_fun` permet de fournir une fonction qui sera utilisée pour mettre en forme les coefficients (et les intervalles de confiance) et `pvalue_fun` pour une fonction utilisée pour les p-valeurs. Voir le [chapitre dédié à la mise en forme des nombres](formater-nombres.html).
+
+```{r}
+mod %>%
+  tbl_regression(
+    estimate_fun = scales::label_number(accuracy = .001, decimal.mark = ","),
+    pvalue_fun = scales::label_pvalue(accuracy = .001, decimal.mark = ",", add_p = TRUE)
+  )
+```
 
 ### Afficher les coefficients pour les références (add_estimate_to_reference_rows)
 
+L'option `add_estimate_to_reference_rows = TRUE` ajoute la valeur du coefficient pour les modalités de références.
+
+```{r}
+mod %>%
+  tbl_regression(add_estimate_to_reference_rows = TRUE, exponentiate = TRUE)
+```
+
 ### P-valeurs globales (add_global_p)
+
+La fonction `add_global_p`{data-pkg="gtsummary"} calcule une p-valeur globale pour chaque variable. On ajoutera `keep = TRUE` pour conserver les p-valeurs individuelles de chaque coefficient.
+
+**Note :** par défaut, les p-valeurs globales calculées sont du type III. Voir la [note dédiée aux p-valeurs globales](regression-logistique.html#type_global_p) dans le chapitre sur la régression logistique.
+
+```{r}
+mod %>%
+  tbl_regression() %>%
+  add_global_p(keep = TRUE)
+```
 
 ### Ajouter les VIF (add_vif)
 
+Dans le [chapitre sur la multicolinéarité](multicolinearite.html), nous avons abordé les <dfn>facteurs d'inflation de la variance</dfn> (<dfn>FIV</dfn>) ou <dfn lang="en">variance inflation factor</dfn> (<dfn lang="en">VIF</dfn>) en anglais. Ils peuvent être facilement calculés avec `add_vif`{data-pkg="gtsummary"}.
+
+```{r}
+mod %>%
+  tbl_regression() %>%
+  add_vif()
+```
+
 ### Représenter graphiquement le modèle (plot)
+
+Nous avons déjà abordé dans d'autres chapitres la fonction `ggcoef_model`{data-pkg="gtsummary"} de `GGally`{.pkg} pour la représentation graphiques des coefficients. Pour un graphique rapide, on peut appliquer `plot()` à un tableau généré avec `tbl_regression`{data-pkg="gtsummary"} pour produire rapidement un graphique des coefficients.
+
+```{r}
+mod %>%
+  tbl_regression(exponentiate = TRUE) %>%
+  plot()
+```
+
+Cependant, si l'on souhaite plus d'options de personnalisation, on utilisera directement `ggcoef_model`{data-pkg="gtsummary"} de `GGally`{.pkg}.
+
+```{r}
+mod %>% 
+  GGally::ggcoef_model(exponentiate = TRUE)
+```
 
 ### Afficher des statistiques globales du modèle (add_glance_table, add_glance_source_note)
 
+La méthode `glance`{data-pkg="broom"} de `broom`{.pkg} permets de calculer des statistiques globales sur un modèle (comme le R² ou l'AIC, les statistiques calculées dépendant de chaque modèle). 
 
+```{r}
+mod %>% broom::glance()
+```
+
+Ces statistiques globales peuvent être ajoutées au tableau avec `add_glance_table`{data-pkg="gtsummary"} ou en notes avec `add_glance_source_note`{data-pkg="gtsummary"}. Le paramètre `include` permets de choisir les éléments à afficher parmi les colonnes du tableau générés par `glance`{data-pkg="broom"}.
+
+```{r}
+mod %>%
+  tbl_regression() %>%
+  add_glance_table()
+
+mod %>%
+  tbl_regression() %>%
+  add_glance_source_note(include = c("nobs", "AIC"))
+```
 
 ## Combiner des tableaux
 
-### tbl_stack()
+### tbl_stack() & tbl_merge()
 
-### tbl_merge()
+La fonction `tbl_stack`{data-pkg="gtsummary"} permets de <q>coller</q> deux (ou plus) tableaux l'un au-dessus de l'autre tandis que `tbl_merge`{data-pkg="gtsummary"} les placera côte-à-côte, en s'assurant qu'une même variable sera bien affichée sur la même ligne. 
+
+
+```{r}
+t1 <-
+  glm(response ~ trt, trial, family = binomial) %>%
+  tbl_regression(exponentiate = TRUE)
+
+t2 <-
+  glm(response ~ grade + trt + stage + marker, trial, family = binomial) %>%
+  tbl_regression(exponentiate = TRUE)
+
+tbl_stack(
+  list(t1, t2),
+  group_header = c("Modèle bivarié", "Modèle multivarié")
+)
+tbl_merge(
+  list(t1, t2),
+  tab_spanner = c("Modèle bivarié", "Modèle multivarié")
+)
+```
+
 
 ### tbl_strata()
 
+La fonction `tbl_strata`{data-pkg="gtsummary"} permet de calculer un tableau `gtsummary`{.pkg} pour chaque modalité d'une variable catégorielle définie via `strata`, puis de combiner les tableaux entre eux. Le paramètre `.tbl_fun` indique la fonction à utiliser pour le calcul du tableau. On peut utiliser la syntaxe rapide d'écritude de fonction propre au *tidyverse* en indiquant une formule (qui commence par `~`) et en utilisant `.x` pour indiquer où passer le sous-ensemble de données.
+
+Par défaut les sous-tableaux produits sont combinés avec `tbl_merge`{data-pkg="gtsummary"}.
+
+
+```{r}
+trial %>%
+  select(age, grade, stage, trt) %>%
+  mutate(grade = paste("Grade", grade)) %>%
+  tbl_strata(
+    strata = grade,
+    .tbl_fun =
+      ~ .x %>%
+        tbl_summary(by = trt, missing = "no") %>%
+        add_n()
+  )
+```
+
+Pour les combiner avec `tbl_stack`{data-pkg="gtsummary"}, on indiquera `.combine_with = "tbl_stack"`.
+
+```{r}
+trial %>%
+  select(age, grade, stage, trt) %>%
+  mutate(grade = paste("Grade", grade)) %>%
+  tbl_strata(
+    strata = grade,
+    .tbl_fun =
+      ~ .x %>%
+        tbl_summary(by = trt, missing = "no") %>%
+        add_n(),
+    .combine_with = "tbl_stack"
+  )
+```
 
 ### tbl_split()
 
+Lorsqu'un tableau est trop long et qu'on souhaite le couper en plusieurs tableaux, on pourra utiliser `tbl_spit`{data-pkg="gtsummary"} en indiquant le nom des variables après lesquelles le tableau doit être coupé.
+
+```{r, eval=FALSE}
+trial %>%
+  tbl_summary() %>%
+  tbl_split(variables = c(marker, grade))
+```
 
 ## Régressions univariées multiples avec tbl_uvregression()
 
+La fonction `tbl_uvregression`{data-pkg="gtsummary"} est utile pour réaliser plusieurs régressions univariées. Il faut lui passer un tableau ne contenant que la variable à expliquer et les variables explicatives. La variable à expliquer sera indiquée avec `y`. L'argument `method` indique la fonction à utiliser pour le calcul des modèles univariés, par exemple `glm`{data-pkg="stats"} pour une régression logistique ordinale. On pourra indiquer des paramètres à transmettre à cette fonction avec `method.args`, par exemple `list(family = binomial)` dans le cadre d'une régreession logistique binaire.
+
+
+```{r}
+tbl_uni <- tbl_uvregression(
+    trial %>% select(response, age, grade, stage),
+    method = glm,
+    y = response,
+    method.args = list(family = binomial),
+    exponentiate = TRUE,
+    hide_n = TRUE
+  )
+tbl_uni
+```
+
+On peut facilement présenter côte-à-côte l'analyse descriptive, l'analyse bivariée et l'analyse multivariée avec `tbl_merge`{data-pkg="gtsummary"}.
+
+```{r}
+tbl_desc <- trial %>%
+  tbl_summary(
+    by = response,
+    include = c(age, grade, stage)
+  )
+tbl_multi <- trial %>%
+  glm(
+    response ~ age + grade + stage,
+    data = .,
+    family = binomial 
+  ) %>%
+  tbl_regression(exponentiate = TRUE)
+
+tbl_merge(
+  list(tbl_desc, tbl_uni, tbl_multi),
+  tab_spanner = c("**Analyse descriptive**", "**Modèles bivariés**", "**Modèle multivarié**")
+)
+```
+
 ## Tables de survie avec tbl_survfit()
+
+L'analyse de survie et les courbes de <dfn>Kaplan-Meier</dfn> sont abordées dans un [chapitre dédié](analyse-de-survie.html). La fonction `tbl_survfit`{data-pkg="gtsummary"} permets de représenter la probabilité encore en vie à différents points de temps définis avec `times`.
+
+```{r}
+library(survival)
+km <- survfit(Surv(ttdeath, death) ~ trt, trial)
+survminer::ggsurvplot(km)
+km %>%
+  tbl_survfit(
+    times = c(0, 6, 12, 18, 24),
+    label_header = "**Mois {time}**"
+  )
+```
+
+On peut alternativement représenter la proportion ayant vécu l'évènement avec `reverse = TRUE`.
+
+```{r}
+km %>%
+  tbl_survfit(
+    times = c(6, 12),
+    reverse = TRUE
+  )
+```
+
+Au lieu d'indiquer des points de temps, on peut indiquer des quantiles avec `probs` et représenter le temps requis pour atteindre ces quantiles.
+
+```{r}
+km %>% 
+  tbl_survfit(probs = c(.25, .5, .75))
+```
+
+Il est également possible de passer une liste d'objets `survfit`{data-pkg="survival"}.
+
+```{r}
+list(
+  survfit(Surv(ttdeath, death) ~ 1, trial),
+  survfit(Surv(ttdeath, death) ~ trt, trial),
+  survfit(Surv(ttdeath, death) ~ grade, trial)
+) %>%
+  tbl_survfit(
+    times = c(6, 12, 18),
+    label_header = "**Mois {time}**"
+  )
+```
+
+Dernière possibilité, il est possible de passer un tableau de données et d'indiquer les variables à analyser. Les tables de survie seront alors calculées à la volée.
+
+```{r}
+trial %>%
+  tbl_survfit(
+    y = Surv(ttdeath, death),
+    include = c(trt, grade, stage),
+    probs = 0.5,
+    label_header = "**Survie médiane en mois** (IC 95%)",
+    estimate_fun = scales::label_number(accuracy = .1)
+  )
+```
+
 
 ## Exporter un tableau
 
+Les tableaux produits par `gtsummary`{.pkg} peuvent être rendus avec plusieurs moteurs de tableaux, grace aux fonctions `as_flex_table`{data-pkg="gtsummary"}, `as_hux_table`{data-pkg="gtsummary"}, `as_kable_extra`{data-pkg="gtsummary"}, et `as_kable`{data-pkg="gtsummary"}. Ils peuvent même être convertis en tableaux de données avec , `as_tibble`{data-pkg="gtsummary"}. 
+
+Dans un [document R Markdown](rmarkdown-les-rapports-automatises.html), `gtsummary`{.pkg} utilisera le moteur de tableaux le plus adapté selon la sortie (HTML, PDF ou Word).
+
 ![Formats d'export d'un tableau gtsummary](images/gtsummary_output_formats.png)
+
+```{r}
+tbl <- trial %>%
+  tbl_summary(
+    include = c(age, grade),
+    by = trt
+  ) %>%
+  add_p()
+
+tbl %>% as_gt()
+tbl %>% as_flex_table()
+tbl %>% as_hux_table()
+tbl %>% as_kable_extra()
+tbl %>% as_tibble()
+```
+
+En dehors d'un fichier R markdown, pour exporter un tableau dans un fichier HTML, TeX ou RTF, on pourra utiliser `gtsave`{data-pkg="gt"} de `gt`{.pkg}.
+
 
 ```{r, eval=FALSE}
 tbl %>%
   as_gt() %>%
   gt::gtsave(filename = ".") # use extensions .html .tex .ltx .rtf
+```
 
+Pour exporter un tableau dans un fichier Word, on pourra avoir recours à `save_as_docx`{data-pkg="flextable"} de `flextable`{.pkg}.
+
+```{r, eval=FALSE}
 tbl %>%
   as_flex_table() %>%
   flextable::save_as_docx()
 ```
 
-
-
 ## Plus d'options avec bstfun
+
+L'extension `bstfun`{.pkg} est une petite sœur de `gtsummary`{.pkg}, développée par la même équipe. Cette extension n'est pas disponible sur CRAN mais seulement sur GitHub et elle permet, entre autres, de tester certaines fonctionnalités avant leur éventuelle intégration dans `gtsummary`{.pkg}.
+
+Cette extension n'étant disponible que sur GitHub, elle s'installe avec la commande ci-après. ATTENTION : sous Windows, vous aurez besoin d'avoir installer en amont l'outil **R Tools** disponible sur <https://cran.r-project.org/bin/windows/Rtools/>.
+
+```{r, eval=FALSE}
+devtools::install_github("ddsjoberg/bstfun")
+```
 
 ### tbl_likert()
 
+En sciences sociales, il est fréquent de mesurer des connaissances ou des opinions selon une <dfn>échelle de Likert</dfn><dfn data-index="Likert, échelle"></dfn>. Dans cette situation, nous avons alors plusieurs variables catégorielles partageant les mêmes modalités.
+
+Prenons les données utilisées dans le chapitre [Exemples de graphiques avancés](exemples-graphiques-avances.html#questions-de-connaissance).
+
+```{r, eval=FALSE}
+load(url("https://larmarange.github.io/analyse-R/data/connaissances.RData"))
+```
+
+```{r, echo=FALSE}
+load("data/connaissances.RData")
+```
+
+```{r}
+library(labelled)
+quest %>% lookfor("conn")
+```
+
+Nous avons une série de 8 variables avec les mêmes modalités (Oui, Non et NSP). Un tri à plat peut-être un peu fastidieux à lire.
+
+```{r}
+quest %>%
+  tbl_summary(include = starts_with("conn_"))
+```
+
+La fonction `tbl_likert`{data-pkg="bstfun"} de `bstfun`{.pkg} est plus adaptée pour présenter ce type de données.
+
+```{r}
+library(bstfun)
+quest %>%
+  tbl_likert(
+    include = starts_with("conn_"),
+    statistic = ~ "{p}%"
+  ) %>%
+  add_n()
+```
+
 ### Ajouter un graphique de tendances (add_sparkline)
+
+La fonction `add_sparkline`{data-pkg="bstfun"} ajoute une représentation graphique de la distribution d'une variable continue.
+
+```{r}
+trial %>%
+  tbl_summary(include = c(age, marker)) %>%
+  add_sparkline(column_header = "**Distribution**")
+```
+
 
 ### Représentation graphique des coefficients dans le tableau (add_inline_forest_plot)
 
+La fonction `add_inline_forest_plot`{data-pkg="bstfun"} ajoute aux tableaux représentant les coefficients d'un modèle une représentation graphique de ces coefficients et de leur intervalle de confiance.
+
+```{r}
+mod %>%
+  tbl_regression(exponentiate = TRUE) %>%
+  add_inline_forest_plot()
+```
+
+
 ### Forest plot (as_forest_plot)
+
+La fonction `as_forest_plot`{data-pkg="bstfun"} permets d'afficher un graphique des coefficients utilisant la fonction `forestplot`{data-pkg="forestplot"} de l'extension homonyme `forestplot`{.pkg} à partir d'un tableau construit avec `tbl_regression`{data-pkg="gtsummary"}.
+
+```{r}
+mod %>% 
+  tbl_regression() %>%
+  as_forest_plot()
+```
+
