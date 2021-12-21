@@ -6,6 +6,12 @@ title: "Tableaux statistiques avancés avec gtsummary"
 source("options_communes.R")
 ```
 
+<div class="webin-R">
+Ce chapitre est évoqué dans le webin-R #22 (tableaux statistiques avec gtsummary) sur [YouTube](https://youtu.be/52AN4vHK3-c).
+
+Ce chapitre est évoqué dans le webin-R #23 (tableaux statistiques avec gtsummary : suite) sur [YouTube](https://youtu.be/yPSIrTlfGS0).
+</div>
+
 L'extension `gtsummary`{.pkg} a déjà été abordée dans d'autres chapitres, notamment via les fonctions `tbl_summary`{data-pkg="gtsummary"} et `tbl_svysummary`{data-pkg="gtsummary"} dans le chapitre sur la [statistique bivariée](statistique-bivariee.html) ou la fonction `tbl_regression`{data-pkg="gtsummary"} dans le chapitre sur la [régression logistique](regression-logistique.html).
 
 Dans ce chapitre, nous allons explorer plus en profondeur les différentes options offertes `gtsummary`{.pkg} pour la réalisation de tableaux statistiques prêts à être publiés.
@@ -336,6 +342,17 @@ trial %>%
   )
 ```
 
+Une syntaxe alternative consiste à avoir recours à la fonction `partial`{data-pkg="purrr"} de `purrr`{.pkg} qui permet d'appeler <q>partiellement</q> une fonction et de renvoyer une nouvelle fonction.
+
+```{r}
+trial %>%
+  tbl_summary(
+    include = marker,
+    statistic = ~ "{mean} pour 100",
+    digits = ~ purrr::partial(style_percent, digits = 1)
+  )
+```
+
 À noter dans l'exemple précédent que les fonctions `style_*()` de `gtsummary`{.pkg} tiennent compte du thème défini (ici la virgule comme séparateur de décimale). 
 
 Pour une mise en forme plus avancée des nombres, il faut se tourner vers l'extension `scales`{.pkg} (choir le [chapitre dédié](formater-nombres.html)). ATTENTION : les fonctions de `scales`{.pkg} n'héritent pas des paramètres du thème gtsummary actif. Il faut donc personnaliser le séparateur de décimal dans l'appel à la fonction.
@@ -662,7 +679,7 @@ Par exemple, pour afficher la proportion de personnes étant à l'étape "T3" ou
 trial %>%
   tbl_custom_summary(
     include = c("grade", "trt"),
-    stat_fns = ~ proportion_summary(variable = "stage", value = "T3"),
+    stat_fns = ~ proportion_summary(variable = "stage", value = c("T3", "T4")),
     statistic = ~ "{prop}% [{conf.low}-{conf.high}]",
     digits = ~ scales::label_percent(accuracy = .1, decimal.mark = ",", suffix = "")
   )
@@ -696,6 +713,7 @@ Il est également possible, et c'est là toute la puissance de `tbl_custom_summa
 Cette fonction sera appellée pour chaque cellule du tableau, chaque cellule étant calculée indépendamment.
 
 Une telle fonction recevra les arguments suivants :
+
 - `data` est un tableau de données contenant un sous-ensemble des données transmises à `tbl_custom_summary`{data-pkg="gtsummary"}, plus précisément le sous-ensemble défini par la valeur courante de `variable` et de `by`. Il faut noter que les valeurs manquantes (`NA`) de `variable` sont également exclues de `data`.
 - `full_data` est le tableau de données complet transmis à `tbl_custom_summary`{data-pkg="gtsummary"}.
 - `variable` est une valeur textuelle contenant le nom de la variable sur laquelle porte le calcul en cours.
