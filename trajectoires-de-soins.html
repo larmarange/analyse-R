@@ -41,7 +41,7 @@
 <script src="libs/mermaid-0.3.0/dist/mermaid.slim.min.js"></script>
 <link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
 <script src="libs/chromatography-0.1/chromatography.js"></script>
-<script src="libs/DiagrammeR-binding-1.0.6.1/DiagrammeR.js"></script>
+<script src="libs/DiagrammeR-binding-1.0.8/DiagrammeR.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
@@ -370,7 +370,7 @@ pre code {
   		            <li class="dropdown-header">Statistiques intermédiaires</li>
   		            <li><a href="intervalles-de-confiance.html">Intervalles de confiance</a></li>
                   <li><a href="comparaisons-moyennes-et-proportions.html">Comparaisons (moyennes et proportions)</a></li>
-                  <li><a href="definir-un-plan-d-echantillonnage-complexe.html">Définir un plan d'échantillonnage complexe</a></li>
+                  <li><a href="definir-un-plan-d-echantillonnage-complexe.html">Définir un plan d'échantillonnage complexe avec <strong>survey</strong></a></li>
                   <li><a href="regression-lineaire.html">Régression linéaire</a></li>
                   <li><a href="regression-logistique.html">Régression logistique binaire, multinomiale et ordinale</a></li>
                   <li><a href="analyse-des-correspondances-multiples.html">Analyse des correspondances multiples (ACM)</a></li>
@@ -1392,16 +1392,16 @@ Total               49365 100.0</code></pre>
 [1] 1
 
 $sm
-                  diagnostiqué-&gt; en soins-&gt;
-diagnostiqué-&gt;                 0          2
-en soins-&gt;                     2          0
-sous traitement-&gt;              2          2
-inf. contrôlée-&gt;               2          2
-                  sous traitement-&gt; inf. contrôlée-&gt;
-diagnostiqué-&gt;                    2                2
-en soins-&gt;                        2                2
-sous traitement-&gt;                 0                2
-inf. contrôlée-&gt;                  2                0</code></pre>
+                diagnostiqué en soins sous traitement
+diagnostiqué               0        2               2
+en soins                   2        0               2
+sous traitement            2        2               0
+inf. contrôlée             2        2               2
+                inf. contrôlée
+diagnostiqué                 2
+en soins                     2
+sous traitement              2
+inf. contrôlée               0</code></pre>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>couts<span class="sc">$</span>sm[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>couts<span class="sc">$</span>sm[<span class="dv">2</span>, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>)</span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>couts<span class="sc">$</span>sm[<span class="dv">3</span>, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
@@ -1412,23 +1412,23 @@ inf. contrôlée-&gt;                  2                0</code></pre>
 [1] 1.5
 
 $sm
-                  diagnostiqué-&gt; en soins-&gt;
-diagnostiqué-&gt;                 0          1
-en soins-&gt;                     1          0
-sous traitement-&gt;              2          1
-inf. contrôlée-&gt;               3          2
-                  sous traitement-&gt; inf. contrôlée-&gt;
-diagnostiqué-&gt;                    2                3
-en soins-&gt;                        1                2
-sous traitement-&gt;                 0                1
-inf. contrôlée-&gt;                  1                0</code></pre>
+                diagnostiqué en soins sous traitement
+diagnostiqué               0        1               2
+en soins                   1        0               1
+sous traitement            2        1               0
+inf. contrôlée             3        2               1
+                inf. contrôlée
+diagnostiqué                 3
+en soins                     2
+sous traitement              1
+inf. contrôlée               0</code></pre>
 <div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>dist_all <span class="ot">&lt;-</span> <span class="fu">seqdist</span>(seq_all, <span class="at">method =</span> <span class="st">&quot;OM&quot;</span>, <span class="at">sm =</span> couts<span class="sc">$</span>sm, <span class="at">indel =</span> couts<span class="sc">$</span>indel)</span></code></pre></div>
 <pre><code> [&gt;] 2929 sequences with 4 distinct states</code></pre>
 <pre><code> [&gt;] checking &#39;sm&#39; (size and triangle inequality)</code></pre>
 <pre><code> [&gt;] 1370 distinct  sequences </code></pre>
 <pre><code> [&gt;] min/max sequence lengths: 1/51</code></pre>
 <pre><code> [&gt;] computing distances using the OM metric</code></pre>
-<pre><code> [&gt;] elapsed time: 1.8 secs</code></pre>
+<pre><code> [&gt;] elapsed time: 2.2 secs</code></pre>
 <p>Calculons le dendrogramme et représentons le avec le tapis de séquence grace à <code data-pkg="seqhandbook">seq_heatmap</code> de l’extension <code class="pkg">seqhandbook</code>.</p>
 <div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>arbre_all <span class="ot">&lt;-</span> <span class="fu">hclust</span>(<span class="fu">as.dist</span>(dist_all), <span class="at">method =</span> <span class="st">&quot;ward.D2&quot;</span>)</span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(seqhandbook, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
@@ -1467,7 +1467,7 @@ inf. contrôlée-&gt;                  1                0</code></pre>
 <pre><code> [&gt;] 578 distinct  sequences </code></pre>
 <pre><code> [&gt;] min/max sequence lengths: 19/19</code></pre>
 <pre><code> [&gt;] computing distances using the OM metric</code></pre>
-<pre><code> [&gt;] elapsed time: 0.4 secs</code></pre>
+<pre><code> [&gt;] elapsed time: 0.41 secs</code></pre>
 <div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>arbre_m18 <span class="ot">&lt;-</span> <span class="fu">hclust</span>(<span class="fu">as.dist</span>(dist_m18), <span class="at">method =</span> <span class="st">&quot;ward.D2&quot;</span>)</span>
 <span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="fu">seq_heatmap</span>(seq_m18, arbre_m18)</span></code></pre></div>
 <p><img src="graphs/trajectoires-de-soins/unnamed-chunk-26-1.png" width="1050" /></p>
@@ -3749,8 +3749,8 @@ prob&gt;0.9  11.26  33.99  21.93   3.51
 <span id="cb117-13"><a href="#cb117-13" aria-hidden="true" tabindex="-1"></a><span class="st">3--arrêt&lt;br /&gt;traitement--&gt;2</span></span>
 <span id="cb117-14"><a href="#cb117-14" aria-hidden="true" tabindex="-1"></a><span class="st">4--échec&lt;br/&gt;virologique--&gt;3</span></span>
 <span id="cb117-15"><a href="#cb117-15" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span>, <span class="at">height =</span> <span class="dv">300</span>)</span></code></pre></div>
-<div id="htmlwidget-4f8af90ed951c8f92eeb" style="width:1050px;height:300px;" class="DiagrammeR html-widget"></div>
-<script type="application/json" data-for="htmlwidget-4f8af90ed951c8f92eeb">{"x":{"diagram":"\ngraph TD\n1[diagnostiqué, mais pas suivi]\n2[suivi, mais pas sous traitement]\n3[sous traitement, mais infection non contrôlée]\n4[sous traitement et infection contrôlée]\n\n1--entrée<br />en soins-->2\n2--initiation<br />traitement-->3\n2--sortie<br />de soins-->1\n3--contrôle<br />infection-->4\n3--arrêt<br />traitement-->2\n4--échec<br/>virologique-->3\n"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-01b24343fdb32f1f545a" style="width:1050px;height:300px;" class="DiagrammeR html-widget"></div>
+<script type="application/json" data-for="htmlwidget-01b24343fdb32f1f545a">{"x":{"diagram":"\ngraph TD\n1[diagnostiqué, mais pas suivi]\n2[suivi, mais pas sous traitement]\n3[sous traitement, mais infection non contrôlée]\n4[sous traitement et infection contrôlée]\n\n1--entrée<br />en soins-->2\n2--initiation<br />traitement-->3\n2--sortie<br />de soins-->1\n3--contrôle<br />infection-->4\n3--arrêt<br />traitement-->2\n4--échec<br/>virologique-->3\n"},"evals":[],"jsHooks":[]}</script>
 <p>Il ne nous reste plus qu’à spécifier notre modèle. L’option <code>obstype = 1</code> indique à <code data-pkg="msm">msm</code> que nos données correspondent à des <em>snapshots</em> à certains moments donnés (ici tous les mois) et donc que les transitions d’un état à un autre ont eu lieu entre nos points d’observation. Les types 2 et 3 correspondent à des dates de transition exactes (voir l’aide la fonction pour plus de détails).</p>
 <div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a>ms_mod <span class="ot">&lt;-</span> <span class="fu">msm</span>(</span>
 <span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a>  status <span class="sc">~</span> month, <span class="at">subject =</span> id, <span class="at">data =</span> ct, <span class="at">qmatrix =</span> tr, <span class="at">obstype =</span> <span class="dv">1</span></span>
