@@ -188,13 +188,13 @@ relocate(airports, lon, lat, name)
 Une variante de `select`{data-pkg="dplyr"} est `rename`{data-pkg="dplyr" data-rdoc="select"}^[Il est également possible de renommer des colonnes directement avec `select`, avec la même syntaxe que pour `rename`.], qui permet de renommer facilement des colonnes. On l'utilise en lui passant des paramètres de la forme `nouveau_nom = ancien_nom`. Ainsi, si on veut renommer les colonnes <var>lon</var> et <var>lat</var> de `airports` en <var>longitude</var> et <var>latitude</var> :
 
 ```{r}
-rename(airports, longitude = lon, latitude = lat)
+dplyr::rename(airports, longitude = lon, latitude = lat)
 ```
 
 Si les noms de colonnes comportent des espaces ou des caractères spéciaux, on peut les entourer de guillemets (`"`) ou de quotes inverses (`` ` ``) :
 
 ```{r}
-tmp <- rename(flights, 
+tmp <- dplyr::rename(flights, 
               "retard départ" = dep_delay,
               "retard arrivée" = arr_delay)
 select(tmp, `retard départ`, `retard arrivée`)
@@ -208,25 +208,25 @@ select(tmp, `retard départ`, `retard arrivée`)
 Ainsi, si on veut trier le tableau `flights` selon le retard au départ croissant :
 
 ```{r}
-arrange(flights, dep_delay)
+dplyr::arrange(flights, dep_delay)
 ```
 
 On peut trier selon plusieurs colonnes. Par exemple selon le mois, puis selon le retard au départ :
 
 ```{r}
-arrange(flights, month, dep_delay)
+dplyr::arrange(flights, month, dep_delay)
 ```
 
 Si on veut trier selon une colonne par ordre décroissant, on lui applique la fonction `desc()`{data-pkg="dplyr"} :
 
 ```{r}
-arrange(flights, desc(dep_delay))
+dplyr::arrange(flights, desc(dep_delay))
 ```
 
 Combiné avec `slice`{data-pkg="dplyr"}, `arrange`{data-pkg="dplyr"} permet par exemple de sélectionner les trois vols ayant eu le plus de retard :
 
 ```{r}
-tmp <- arrange(flights, desc(dep_delay)) 
+tmp <- dplyr::arrange(flights, desc(dep_delay)) 
 slice(tmp, 1:3)
 ```
 
@@ -432,14 +432,14 @@ On peut voir la différence en comparant les deux résultats suivants :
 ```{r}
 flights %>% 
   group_by(month) %>% 
-  arrange(desc(dep_delay))
+  dplyr::arrange(desc(dep_delay))
 ```
 
 
 ```{r}
 flights %>% 
   group_by(month) %>% 
-  arrange(desc(dep_delay), .by_group = TRUE)
+  dplyr::arrange(desc(dep_delay), .by_group = TRUE)
 ```
 
 
@@ -450,8 +450,10 @@ flights %>%
 
 ```{r}
 flights %>% 
-  summarise(retard_dep = mean(dep_delay, na.rm=TRUE),
-            retard_arr = mean(arr_delay, na.rm=TRUE))
+  dplyr::summarise(
+    retard_dep = mean(dep_delay, na.rm=TRUE),
+    retard_arr = mean(arr_delay, na.rm=TRUE)
+  )
 ```
 
 Cette fonction est en général utilisée avec `group_by`{data-pkg="dplyr"}, puisqu'elle permet du coup d'agréger et résumer les lignes du tableau groupe par groupe. Si on souhaite calculer le délai maximum, le délai minimum et le délai moyen au départ pour chaque mois, on pourra faire :
@@ -459,9 +461,11 @@ Cette fonction est en général utilisée avec `group_by`{data-pkg="dplyr"}, pui
 ```{r}
 flights %>%
   group_by(month) %>%
-  summarise(max_delay = max(dep_delay, na.rm=TRUE),
-            min_delay = min(dep_delay, na.rm=TRUE),
-            mean_delay = mean(dep_delay, na.rm=TRUE))
+  dplyr::summarise(
+    max_delay = max(dep_delay, na.rm=TRUE),
+    min_delay = min(dep_delay, na.rm=TRUE),
+    mean_delay = mean(dep_delay, na.rm=TRUE)
+  )
 ```
 
 `summarise`{data-pkg="dplyr"} dispose d'un opérateur spécial, `n()`{data-pkg="dplyr"}, qui retourne le nombre de lignes du groupe. Ainsi si on veut le nombre de vols par destination, on peut utiliser :
@@ -469,7 +473,7 @@ flights %>%
 ```{r}
 flights %>%
   group_by(dest) %>%
-  summarise(nb = n())
+  dplyr::summarise(nb = n())
 ```
 
 `n()`{data-pkg="dplyr"} peut aussi être utilisée avec `filter`{data-pkg="dplyr"} et `mutate`{data-pkg="dplyr"}.
@@ -478,7 +482,7 @@ flights %>%
 
 ```{r}
 flights %>%
-  count(dest)
+  dplyr::count(dest)
 ```
 
 
@@ -489,16 +493,16 @@ On peut grouper selon plusieurs variables à la fois, il suffit de les indiquer 
 ```{r}
 flights %>%
   group_by(month, dest) %>%
-  summarise(nb = n()) %>%
-  arrange(desc(nb))
+  dplyr::summarise(nb = n()) %>%
+  dplyr::arrange(desc(nb))
 ```
 
 On peut également compter selon plusieurs variables :
 
 ```{r}
 flights %>% 
-  count(origin, dest) %>% 
-  arrange(desc(n))
+  dplyr::count(origin, dest) %>% 
+  dplyr::arrange(desc(n))
 ```
 
 On peut utiliser plusieurs opérations de groupage dans le même *pipeline*. Ainsi, si on souhaite déterminer le couple origine/destination ayant le plus grand nombre de vols selon le mois de l'année, on devra procéder en deux étapes : 
@@ -511,7 +515,7 @@ Au final, on obtient le code suivant :
 ```{r}
 flights %>%
   group_by(month, origin, dest) %>%
-  summarise(nb = n()) %>%
+  dplyr::summarise(nb = n()) %>%
   group_by(month) %>%
   filter(nb == max(nb))
 ```
@@ -521,7 +525,7 @@ Lorsqu'on effectue un `group_by`{data-pkg="dplyr"} suivi d'un `summarise`{data-p
 ```{r}
 flights %>%
   group_by(month, origin, dest) %>%
-  summarise(nb = n())
+  dplyr::summarise(nb = n())
 ```
 
 Cela peut permettre "d'enchaîner" les opérations groupées. Dans l'exemple suivant on calcule le pourcentage des trajets pour chaque destination par rapport à tous les trajets du mois :
@@ -529,7 +533,7 @@ Cela peut permettre "d'enchaîner" les opérations groupées. Dans l'exemple sui
 ```{r}
 flights %>%
   group_by(month, dest) %>%
-  summarise(nb = n()) %>% 
+  dplyr::summarise(nb = n()) %>% 
   mutate(pourcentage = nb / sum(nb) * 100)
 ```
 
@@ -538,16 +542,16 @@ On peut à tout moment "dégrouper" un tableau à l'aide de `ungroup`{data-pkg="
 ```{r}
 flights %>%
   group_by(month, dest) %>%
-  summarise(nb = n()) %>% 
+  dplyr::summarise(nb = n()) %>% 
   ungroup() %>% 
   mutate(pourcentage = nb / sum(nb) * 100)
 ```
 
-À noter que `count`{data-pkg="dplyr" data-rdoc="tally"}, par contre, renvoit un tableau non groupé :
+À noter que `count`{data-pkg="dplyr"}, par contre, renvoit un tableau non groupé :
 
 ```{r}
 flights %>% 
-  count(month, dest)
+  dplyr::count(month, dest)
 ```
 
 
@@ -606,7 +610,6 @@ flights %>%
   group_by(month, origin, dest) %>% 
   tally %>%
   tally
-
 ```
 
 ### distinct
