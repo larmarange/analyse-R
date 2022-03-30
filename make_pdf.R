@@ -13,6 +13,7 @@ for (div in divs)
       tdm <- div
 
 chapitres <- unique(xml_attr(xml_find_all(tdm, ".//a"), 'href'))
+chapitres <- chapitres[str_starts(chapitres, "#", negate = TRUE)]
 
 ## Récupérer le contenu de chaque chapitre
 for (chap in chapitres) {
