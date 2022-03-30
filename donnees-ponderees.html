@@ -13,7 +13,7 @@
 
 <title>Données pondérées</title>
 
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.12/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -32,8 +32,9 @@
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
@@ -80,6 +81,7 @@
   ul.task-list{list-style: none;}
       .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+
 
 
 <style type="text/css">
@@ -204,6 +206,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -382,6 +387,7 @@ pre code {
                   <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: un exemple de données longitudinales</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+                  <li><a href="analyse-textuelle.html">Analyse textuelle</a></li>
   	            </ul>
               </div>
             </div>
@@ -474,17 +480,17 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#options-de-certaines-fonctions">Options de certaines fonctions</a></li>
-<li><a href="#survey">Données pondérées avec l’extension survey</a>
+<li><a href="#options-de-certaines-fonctions">Options de certaines fonctions<span></span></a></li>
+<li><a href="#survey">Données pondérées avec l’extension survey<span></span></a>
 <ul>
-<li><a href="#gtsummary-et-survey">gtsummary et survey</a></li>
-<li><a href="#graphiques-natifs-avec-survey">Graphiques natifs avec survey</a></li>
-<li><a href="#graphiques-ggplot2">Graphiques ggplot2</a></li>
-<li><a href="#extraire-un-sous-échantillon">Extraire un sous-échantillon</a></li>
-<li><a href="#modèles-logistiques">Modèles logistiques</a></li>
-<li><a href="#dplyr-et-survey">dplyr et survey</a></li>
+<li><a href="#gtsummary-et-survey">gtsummary et survey<span></span></a></li>
+<li><a href="#graphiques-natifs-avec-survey">Graphiques natifs avec survey<span></span></a></li>
+<li><a href="#graphiques-ggplot2">Graphiques ggplot2<span></span></a></li>
+<li><a href="#extraire-un-sous-échantillon">Extraire un sous-échantillon<span></span></a></li>
+<li><a href="#modèles-logistiques">Modèles logistiques<span></span></a></li>
+<li><a href="#dplyr-et-survey">dplyr et survey<span></span></a></li>
 </ul></li>
-<li><a href="#conclusion">Conclusion</a></li>
+<li><a href="#conclusion">Conclusion<span></span></a></li>
 </ul>
 </div>
 
@@ -498,13 +504,13 @@ pre code {
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> hdv2003</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(d<span class="sc">$</span>poids)</span></code></pre></div>
 <pre><code>[1]    78.07834 31092.14132</code></pre>
-<div id="options-de-certaines-fonctions" class="section level2">
-<h2>Options de certaines fonctions</h2>
+<div id="options-de-certaines-fonctions" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Options de certaines fonctions<a href="#options-de-certaines-fonctions" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Tout d’abord, certaines fonctions de <strong>R</strong> acceptent en argument un vecteur permettant de pondérer les observations (l’option est en général nommée <code>weights</code> ou <code>row.w</code>). C’est le cas par exemple des méthodes d’estimation de modèles linéaires<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> (<code data-pkg="stats">lm</code>) ou de modèles linéaires généralisés <a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> (<code data-pkg="stats">glm</code>) ou dans les analyses de correspondances<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> des extensions <code class="pkg">ade4</code> ou <code class="pkg">FactoMineR</code>.</p>
 <p>Par contre cette option n’est pas présente dans les fonctions de base comme <code data-pkg="base">mean</code>, <code data-pkg="base" data-rdoc="cor">var</code>, <code data-pkg="base">table</code> ou <code data-pkg="stats">chisq.test</code>.</p>
 </div>
-<div id="survey" class="section level2">
-<h2>Données pondérées avec l’extension survey</h2>
+<div id="survey" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Données pondérées avec l’extension survey<a href="#survey" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">survey</code> est spécialement dédiée au traitement d’enquêtes ayant des techniques d’échantillonnage et de pondération potentiellement très complexes.</p>
 <p>L’extension s’installe comme la plupart des autres :</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;survey&quot;</span>)</span></code></pre></div>
@@ -589,8 +595,8 @@ sexe       Oui   Non   Ne sait pas Total
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["sexe"],"name":[1],"type":["fct"],"align":["left"]},{"label":["age"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"Homme","2":"45.20200","3":"0.7419450","_rn_":"Homme"},{"1":"Femme","2":"47.34313","3":"0.7420836","_rn_":"Femme"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<div id="gtsummary-et-survey" class="section level3">
-<h3>gtsummary et survey</h3>
+<div id="gtsummary-et-survey" class="section level3 hasAnchor">
+<h3 class="hasAnchor">gtsummary et survey<a href="#gtsummary-et-survey" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">gtsummary</code> fournit une fonction <code data-pkg="gtsummary">tbl_svysummary</code>, similaire à <code data-pkg="gtsummary">tbl_summary</code>, mais adaptée aux objets <code>survey</code>.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">&quot;fr&quot;</span>, <span class="at">decimal.mark =</span> <span class="st">&quot;,&quot;</span>, <span class="at">big.mark =</span> <span class="st">&quot; &quot;</span>)</span></code></pre></div>
@@ -1407,8 +1413,8 @@ sexe       Oui   Non   Ne sait pas Total
 </table>
 </div>
 </div>
-<div id="graphiques-natifs-avec-survey" class="section level3">
-<h3>Graphiques natifs avec survey</h3>
+<div id="graphiques-natifs-avec-survey" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Graphiques natifs avec survey<a href="#graphiques-natifs-avec-survey" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><code class="pkg">survey</code> est également capable de produire des graphiques à partir des données pondérées. Quelques exemples :</p>
 <figure>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
@@ -1422,8 +1428,8 @@ Fonctions graphiques de l’extension survey
 </figcaption>
 </figure>
 </div>
-<div id="graphiques-ggplot2" class="section level3">
-<h3>Graphiques ggplot2</h3>
+<div id="graphiques-ggplot2" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Graphiques ggplot2<a href="#graphiques-ggplot2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><code class="pkg">ggplot2</code> accepte une esthétique <code>weight</code> pour indiquer des poids à prendre en compte dans les différents graphiques. La fonction <code data-pkg="survey" data-rdoc="weights.survei.design">weights</code> permets justement de récupérer les poids d’un objet <code>survey</code>. La fonction <code data-pkg="ggplot2">ggplot</code> n’accepte pas d’objet <code>survey</code> mais a besoin d’un tableau de données. Ce dernier peut être récupéré avec <code>$variables</code>.</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dw<span class="sc">$</span>variables) <span class="sc">+</span></span>
@@ -1446,22 +1452,22 @@ Fonctions graphiques de l’extension survey
 <span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="fu">install_github</span>(<span class="st">&quot;juba/questionr&quot;</span>)</span></code></pre></div>
 </div>
 </div>
-<div id="extraire-un-sous-échantillon" class="section level3">
-<h3>Extraire un sous-échantillon</h3>
+<div id="extraire-un-sous-échantillon" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Extraire un sous-échantillon<a href="#extraire-un-sous-échantillon" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Si l’on souhaite travailler sur un <dfn>sous-échantillon</dfn> tout en gardant les informations d’échantillonnage, on utilisera la fonction <code data-pkg="survey" data-rdoc="subset.survey.design">subset</code> présentée en détail dans le chapitre <a href="sous-ensembles.html">Sous-ensembles</a>.</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>sous <span class="ot">&lt;-</span> <span class="fu">subset</span>(dw, sexe <span class="sc">==</span> <span class="st">&quot;Femme&quot;</span> <span class="sc">&amp;</span> age <span class="sc">&gt;=</span> <span class="dv">40</span>)</span></code></pre></div>
 </div>
-<div id="modèles-logistiques" class="section level3">
-<h3>Modèles logistiques</h3>
+<div id="modèles-logistiques" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Modèles logistiques<a href="#modèles-logistiques" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Pour réaliser des modèles logistiques (binaires, multinomiaux ou ordinaux) avec prise en compte d’un plan d’échantillonnage, on pourra se référer à la <a href="regression-logistique.html#survey">sous-section dédiée du chapitre Régression logistique</a>.</p>
 </div>
-<div id="dplyr-et-survey" class="section level3">
-<h3>dplyr et survey</h3>
+<div id="dplyr-et-survey" class="section level3 hasAnchor">
+<h3 class="hasAnchor">dplyr et survey<a href="#dplyr-et-survey" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">srvyr</code> vise à permettre d’utiliser les verbes de <code class="pkg">dplyr</code> avec <code class="pkg">survey</code>. Le fonctionnement de cette extension est expliqué dans une vignette dédiée : <a href="https://cran.r-project.org/web/packages/srvyr/vignettes/srvyr-vs-survey.html" class="uri">https://cran.r-project.org/web/packages/srvyr/vignettes/srvyr-vs-survey.html</a>.</p>
 </div>
 </div>
-<div id="conclusion" class="section level2">
-<h2>Conclusion</h2>
+<div id="conclusion" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Conclusion<a href="#conclusion" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Si, la gestion de la pondération sous <strong>R</strong> n’est sans doute pas ce qui se fait de plus pratique et de plus simple, on pourra quand même donner les conseils suivants :</p>
 <ul>
 <li>utiliser les options de pondération des fonctions usuelles ou les fonctions d’extensions comme <code class="pkg">questionr</code> pour les cas les plus simples ;</li>
@@ -1470,7 +1476,7 @@ Fonctions graphiques de l’extension survey
 <li>surtout ne jamais modifier les variables du design. Toujours effectuer recodages et manipulations sur les données non pondérées, puis redéclarer le design pour que les mises à jour effectuées soient disponibles pour l’analyse.</li>
 </ul>
 </div>
-<div class="footnotes">
+<div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
 <li id="fn1"><p>On notera que cette variable est utilisée à titre purement illustratif. Le jeu de données étant un extrait d’enquête et la variable de pondération n’ayant pas été recalculée, elle n’a ici à proprement parler aucun sens.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>

@@ -13,7 +13,7 @@
 
 <title>Définir un plan d’échantillonnage complexe avec survey</title>
 
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.12/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -32,8 +32,9 @@
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
@@ -80,6 +81,7 @@
   ul.task-list{list-style: none;}
       .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+
 
 
 <style type="text/css">
@@ -204,6 +206,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -382,6 +387,7 @@ pre code {
                   <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: un exemple de données longitudinales</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+                  <li><a href="analyse-textuelle.html">Analyse textuelle</a></li>
   	            </ul>
               </div>
             </div>
@@ -474,10 +480,10 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#différents-types-déchantillonnage">Différents types d’échantillonnage</a></li>
-<li><a href="#les-options-de-svydesign">Les options de svydesign</a></li>
-<li><a href="#quelques-exemples">Quelques exemples</a></li>
-<li><a href="#extraire-un-sous-échantillon">Extraire un sous-échantillon</a></li>
+<li><a href="#différents-types-déchantillonnage">Différents types d’échantillonnage<span></span></a></li>
+<li><a href="#les-options-de-svydesign">Les options de svydesign<span></span></a></li>
+<li><a href="#quelques-exemples">Quelques exemples<span></span></a></li>
+<li><a href="#extraire-un-sous-échantillon">Extraire un sous-échantillon<span></span></a></li>
 </ul>
 </div>
 
@@ -486,15 +492,15 @@ pre code {
 </div>
 <p>L’extension <code class="pkg">survey</code> ne permet pas seulement d’indiquer une variable de pondération mais également de prendre les spécificités du plan d’échantillonnage (strates, grappes, …). Le plan d’échantillonnage ne joue pas seulement sur la pondération des données, mais influence le calcul des variances et par ricochet tous les tests statistiques. Deux échantillons identiques avec la même variable de pondération mais des designs différents produiront les mêmes moyennes et proportions mais des intervalles de confiance différents.</p>
 <p>Le site officiel (en anglais) comporte beaucoup d’informations, mais pas forcément très accessibles : <br /><a href="http://r-survey.r-forge.r-project.org/" class="uri">http://r-survey.r-forge.r-project.org/</a>.</p>
-<div id="différents-types-déchantillonnage" class="section level2">
-<h2>Différents types d’échantillonnage</h2>
+<div id="différents-types-déchantillonnage" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Différents types d’échantillonnage<a href="#différents-types-déchantillonnage" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’<dfn>échantillonnage aléatoire simple</dfn><dfn data-index="aléatoire, échantillonnage"></dfn> ou <dfn>échantillonnage équiprobable</dfn><dfn data-index="équiprobable, échantillonnage"></dfn> est une méthode pour laquelle tous les échantillons possibles (de même taille) ont la même probabilité d’être choisis et tous les éléments de la population ont une chance égale de faire partie de l’échantillon. C’est l’échantillonnage le plus simple : chaque individu à la même probabilité d’être sélectionné.</p>
 <p>L’<dfn>échantillonnage stratifié</dfn><dfn data-index="stratifié, échantillonnage"></dfn> est une méthode qui consiste d’abord à subdiviser la population en groupes homogènes (<dfn data-index="strate">strates</dfn>) pour ensuite extraire un échantillon aléatoire de chaque strate. Cette méthode suppose la connaissance de la structure de la population. Pour estimer les paramètres, les résultats doivent être pondérés par l’importance relative de chaque strate dans la population.</p>
 <p>L’<dfn>échantillonnage par grappes</dfn> est une méthode qui consiste à choisir un échantillon aléatoire d’unités qui sont elles-mêmes des sous-ensembles de la population (<dfn data-index="grappe, échantillonnage">grappes</dfn> ou <dfn data-index="cluster" lang="en">clusters</dfn> en anglais). Cette méthode suppose que les unités de chaque grappe sont représentatives. Elle possède l’avantage d’être souvent plus économique.</p>
 <p>Il est possible de combiner plusieurs de ces approches. Par exemple, les <em>Enquêtes Démographiques et de Santé</em><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> (EDS) sont des enquêtes stratifiées en grappes à deux degrés. Dans un premier temps, la population est divisée en strates par région et milieu de résidence. Dans chaque strate, des zones d’enquêtes, correspondant à des unités de recensement, sont tirées au sort avec une probabilité proportionnelle au nombre de ménages de chaque zone au dernier recensement de population. Enfin, au sein de chaque zone d’enquête sélectionnée, un recensement de l’ensemble des ménages est effectué puis un nombre identique de ménages par zone d’enquête est tiré au sort de manière alétoire simple.</p>
 </div>
-<div id="les-options-de-svydesign" class="section level2">
-<h2>Les options de svydesign</h2>
+<div id="les-options-de-svydesign" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Les options de svydesign<a href="#les-options-de-svydesign" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>La fonction <code data-pkg="survey">svydesign</code> accepte plusieurs arguments décrits sur sa page d’aide (obtenue avec la commande <code>?svydesign</code>).</p>
 <p>L’agument <code>data</code> permet de spécifier le tableau de données contenant les observations.</p>
 <p>L’argument <code>ids</code> est obligatoire et spécifie sous la forme d’une formule les identifiants des différents niveaux d’un tirage en grappe. S’il s’agit d’un échantillon aléatoire simple, on entrera <code>ids=˜1</code>. Autre situation : supposons une étude portant sur la population française. Dans un premier temps, on a tiré au sort un certain nombre de départements français. Dans un second temps, on tire au sort dans chaque département des communes. Dans chaque commune sélectionnée, on tire au sort des quartiers. Enfin, on interroge de manière exhaustive toutes les personnes habitant les quartiers enquêtés. Notre fichier de données devra donc comporter pour chaque observation les variables <em>id_departement</em>, <em>id_commune</em> et <em>id_quartier</em>. On écrira alors pour l’argument <code>ids</code> la valeur suivante :<br /><code>ids=˜id_departement+id_commune+id_quartier</code>.</p>
@@ -502,8 +508,8 @@ pre code {
 <p>Il faut encore spécifier les probabilités de tirage de chaque cluster ou bien la pondération des individus. Si l’on dispose de la probabilité de chaque observation d’être sélectionnée, on utilisera l’argument <code>probs</code>. Si, par contre, on connaît la pondération de chaque observation (qui doit être proportionnelle à l’inverse de cette probabilité), on utilisera l’argument <code>weights</code>.</p>
 <p>Si l’échantillon est stratifié, qu’au sein de chaque strate les individus ont été tirés au sort de manière aléatoire et que l’on connaît la taille de chaque strate, il est possible de ne pas avoir à spécifier la probabilité de tirage ou la pondération de chaque observation. Il est préférable de fournir une variable contenant la taille de chaque strate à l’argument <code>fpc</code>. De plus, dans ce cas-là, une petite correction sera appliquée au modèle pour prendre en compte la taille finie de chaque strate.</p>
 </div>
-<div id="quelques-exemples" class="section level2">
-<h2>Quelques exemples</h2>
+<div id="quelques-exemples" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Quelques exemples<a href="#quelques-exemples" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Échantillonnage aléatoire simple</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>plan <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span><span class="dv">1</span>, <span class="at">data =</span> donnees)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -527,12 +533,12 @@ pre code {
 <p>Une autre possibilité et d’utiliser l’extension <code class="pkg">srvyr</code> qui permet d’utiliser les verbes de <code class="pkg">dplyr</code> avec <code class="pkg">survey</code>. Le fonctionnement de cette extension est expliqué dans une vignette dédiée : <a href="https://cran.r-project.org/web/packages/srvyr/vignettes/srvyr-vs-survey.html" class="uri">https://cran.r-project.org/web/packages/srvyr/vignettes/srvyr-vs-survey.html</a>.</p>
 </div>
 </div>
-<div id="extraire-un-sous-échantillon" class="section level2">
-<h2>Extraire un sous-échantillon</h2>
+<div id="extraire-un-sous-échantillon" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Extraire un sous-échantillon<a href="#extraire-un-sous-échantillon" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Si l’on souhaite travailler sur un <dfn>sous-échantillon</dfn> tout en gardant les informations d’échantillonnage, on utilisera la fonction <code data-pkg="survey" data-rdoc="subset.survey.design">subset</code> présentée en détail dans le chapitre <a href="pem_manipulation.html#subset">Manipulation de données</a>.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sous <span class="ot">&lt;-</span> <span class="fu">subset</span>(plan, sexe <span class="sc">==</span> <span class="st">&quot;Femme&quot;</span> <span class="sc">&amp;</span> age <span class="sc">&gt;=</span> <span class="dv">40</span>)</span></code></pre></div>
 </div>
-<div class="footnotes">
+<div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
 <li id="fn1"><p>Vaste programme d’enquêtes réalisées à intervalles réguliers dans les pays du Sud, disponibles sur <a href="http://www.dhsprogram.com/" class="uri">http://www.dhsprogram.com/</a>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>

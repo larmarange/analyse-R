@@ -13,7 +13,7 @@
 
 <title>Analyse des correspondances multiples (ACM)</title>
 
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.12/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -32,8 +32,9 @@
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
@@ -80,6 +81,7 @@
   ul.task-list{list-style: none;}
       .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+
 
 
 <style type="text/css">
@@ -204,6 +206,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -382,6 +387,7 @@ pre code {
                   <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: un exemple de données longitudinales</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+                  <li><a href="analyse-textuelle.html">Analyse textuelle</a></li>
   	            </ul>
               </div>
             </div>
@@ -474,18 +480,18 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#principe-général">Principe général</a></li>
-<li><a href="#acm-avec-ade4">ACM avec ade4</a></li>
-<li><a href="#factominer">ACM avec FactoMineR</a></li>
-<li><a href="#extensions-complémentaires">Extensions complémentaires</a>
+<li><a href="#principe-général">Principe général<span></span></a></li>
+<li><a href="#acm-avec-ade4">ACM avec ade4<span></span></a></li>
+<li><a href="#factominer">ACM avec FactoMineR<span></span></a></li>
+<li><a href="#extensions-complémentaires">Extensions complémentaires<span></span></a>
 <ul>
-<li><a href="#factoextra">factoextra</a></li>
-<li><a href="#explor">explor</a></li>
-<li><a href="#gdatools">GDAtools</a></li>
-<li><a href="#factoshiny">Factoshiny</a></li>
-<li><a href="#factoinvestigate">FactoInvestigate</a></li>
+<li><a href="#factoextra">factoextra<span></span></a></li>
+<li><a href="#explor">explor<span></span></a></li>
+<li><a href="#gdatools">GDAtools<span></span></a></li>
+<li><a href="#factoshiny">Factoshiny<span></span></a></li>
+<li><a href="#factoinvestigate">FactoInvestigate<span></span></a></li>
 </ul></li>
-<li><a href="#voir-aussi">Voir aussi</a></li>
+<li><a href="#voir-aussi">Voir aussi<span></span></a></li>
 </ul>
 </div>
 
@@ -539,14 +545,15 @@ pre code {
 <div class="note">
 <p>On trouvera également de nombreux supports de cours en français sur l’analyse factorielle sur le site de François Gilles Carpentier : <a href="http://geai.univ-brest.fr/~carpenti/" class="uri">http://geai.univ-brest.fr/~carpenti/</a>.</p>
 </div>
-<div id="principe-général" class="section level2">
-<h2>Principe général</h2>
+<div id="principe-général" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Principe général<a href="#principe-général" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’analyse des correspondances multiples est une technique descriptive visant à résumer l’information contenu dans un grand nombre de variables afin de faciliter l’interprétention des corrélations existantes entre ces différentes variables. On cherche à savoir quelles sont les modalités corrélées entre elles.</p>
-<p>L’idée générale est la suivante<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. L’ensemble des individus peut être représenté dans un espace à plusieurs dimensions où chaque axe représente les différentes variables utilisées pour décrire chaque individu. Plus précisément, pour chaque variable qualitative, il y a autant d’axes que de modalités moins un. Ainsi il faut trois axes pour décrire une variable à quatre modalités. Un tel nuage de points est aussi difficile à interpréter que de lire directement le fichier de données. On ne voit pas les corrélations qu’il peut y avoir entre modalités, par exemple qu’aller au cinéma est plus fréquent chez les personnes habitant en milieu urbain. Afin de mieux représenter ce nuage de points, on va procéder à un changement de systèmes de coordonnées. Les individus seront dès lors projetés et représentés sur un nouveau système d’axe. Ce nouveau système d’axes est choisis de telle manière que la majorité des variations soit concentrées sur les premiers axes. Les deux-trois premiers axes permettront d’expliquer la majorité des différences observées dans l’échantillon, les autres axes n’apportant qu’une faible part additionnelle d’information. Dès lors, l’analyse pourra se concentrer sur ses premiers axes qui constitueront un bon résumé des variations observables dans l’échantillon.</p>
+<p>L’idée générale est la suivante<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. L’ensemble des individus peut être représenté dans un espace à plusieurs dimensions où chaque axe représente les différentes variables utilisées pour décrire chaque individu. Plus précisément, pour chaque variable qualitative, il y a autant d’axes que de modalités moins un. Ainsi il faut trois axes pour décrire une variable à quatre modalités. Un tel nuage de points est aussi difficile à interpréter que de lire directement le fichier de données. On ne voit pas les corrélations qu’il peut y avoir entre modalités, par exemple qu’aller au cinéma est plus fréquent chez les personnes habitant en milieu urbain. Afin de mieux représenter ce nuage de points, on va procéder à un changement de systèmes de coordonnées. Les individus seront dès lors projetés et représentés sur un nouveau système d’axe. Ce nouveau système d’axes est choisis de telle manière que la majorité des variations soit
+concentrées sur les premiers axes. Les deux-trois premiers axes permettront d’expliquer la majorité des différences observées dans l’échantillon, les autres axes n’apportant qu’une faible part additionnelle d’information. Dès lors, l’analyse pourra se concentrer sur ses premiers axes qui constitueront un bon résumé des variations observables dans l’échantillon.</p>
 <p>Avant toute ACM, il est indispensable de réaliser une analyse préliminaire de chaque variable, afin de voir si toutes les classes sont aussi bien représentées ou s’il existe un déséquilibre. L’ACM est sensible aux effectifs faibles, aussi il est préférable de regrouper les classes peu représentées le cas échéant.</p>
 </div>
-<div id="acm-avec-ade4" class="section level2">
-<h2>ACM avec ade4</h2>
+<div id="acm-avec-ade4" class="section level2 hasAnchor">
+<h2 class="hasAnchor">ACM avec ade4<a href="#acm-avec-ade4" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Si l’extension <code class="pkg">ade4</code> n’est pas présente sur votre PC, il vous faut l’installer :</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;ade4&quot;</span>, <span class="at">dep =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>Dans tous les cas, il faut penser à la charger en mémoire :</p>
@@ -853,8 +860,8 @@ La fonction scatter appliquée au résultat d’une ACM
 </figcaption>
 </figure>
 </div>
-<div id="factominer" class="section level2">
-<h2>ACM avec FactoMineR</h2>
+<div id="factominer" class="section level2 hasAnchor">
+<h2 class="hasAnchor">ACM avec FactoMineR<a href="#factominer" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Comme avec <code class="pkg">ade4</code>, il est nécessaire de préparer les données au préalable (voir section précédente).</p>
 <p>L’ACM se calcule avec la fonction <code data-pkg="FactoMineR">MCA</code>, l’argument <code>ncp</code> permettant de choisir le nombre d’axes à retenir :</p>
 <div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(FactoMineR)</span></code></pre></div>
@@ -1009,15 +1016,15 @@ Source : <a href="http://factominer.free.fr/factosbest/description-des-dimensio
 <div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>dd <span class="ot">&lt;-</span> <span class="fu">dimdesc</span>(acm2, <span class="at">axes =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>)</span>
 <span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>dd<span class="sc">$</span><span class="st">`</span><span class="at">Dim 1</span><span class="st">`</span></span></code></pre></div>
 </div>
-<div id="extensions-complémentaires" class="section level2">
-<h2>Extensions complémentaires</h2>
-<div id="factoextra" class="section level3">
-<h3>factoextra</h3>
+<div id="extensions-complémentaires" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Extensions complémentaires<a href="#extensions-complémentaires" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="factoextra" class="section level3 hasAnchor">
+<h3 class="hasAnchor">factoextra<a href="#factoextra" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">factoextra</code> fournit des fonctions graphiques <code class="pkg">ggplot2</code> pour visualiser les résultats d’une analyse factorielle, réalisée avec <code class="pkg">ade4</code> ou <code class="pkg">FactoMineR</code>.</p>
 <p>Plus d’informations sur <a href="https://rpkgs.datanovia.com/factoextra/" class="uri">https://rpkgs.datanovia.com/factoextra/</a>.</p>
 </div>
-<div id="explor" class="section level3">
-<h3>explor</h3>
+<div id="explor" class="section level3 hasAnchor">
+<h3 class="hasAnchor">explor<a href="#explor" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">explor</code> fournit une interface graphique pour explorer les résultats d’une analyse factorielle, réalisée avec <code class="pkg">ade4</code> ou <code class="pkg">FactoMineR</code>.</p>
 <div class="figure">
 <img src="https://raw.githubusercontent.com/juba/explor/master/resources/screencast_0.3.gif" alt="" />
@@ -1025,28 +1032,28 @@ Source : <a href="http://factominer.free.fr/factosbest/description-des-dimensio
 </div>
 <p>Plus d’informations sur <a href="https://github.com/juba/explor/" class="uri">https://github.com/juba/explor/</a>.</p>
 </div>
-<div id="gdatools" class="section level3">
-<h3>GDAtools</h3>
+<div id="gdatools" class="section level3 hasAnchor">
+<h3 class="hasAnchor">GDAtools<a href="#gdatools" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">GDAtools</code> développé par Nicolas Robette propose plusieurs outils pour l’interprétation et la visualisation des analyses factorielles ainsi que différentes variables d’ACM, pour la prise en compte par exemple des valeurs manquantes.</p>
 <p>On pourra se référer au tutoriel dédié disponible en français sur <a href="https://nicolas-robette.github.io/GDAtools/articles/french/Tutoriel_AGD.html" class="uri">https://nicolas-robette.github.io/GDAtools/articles/french/Tutoriel_AGD.html</a>.</p>
 </div>
-<div id="factoshiny" class="section level3">
-<h3>Factoshiny</h3>
+<div id="factoshiny" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Factoshiny<a href="#factoshiny" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">Factoshiny</code> permet d’améliorer facilement et de façon interactive les graphiques produits par <code class="pkg">FactoMineR</code> pour les rendre beaucoup plus lisibles.</p>
 <p>Plus d’informations sur <a href="http://factominer.free.fr/graphs/factoshiny-fr.html" class="uri">http://factominer.free.fr/graphs/factoshiny-fr.html</a>.</p>
 </div>
-<div id="factoinvestigate" class="section level3">
-<h3>FactoInvestigate</h3>
+<div id="factoinvestigate" class="section level3 hasAnchor">
+<h3 class="hasAnchor">FactoInvestigate<a href="#factoinvestigate" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">FactoInvestigate</code> décrit et interprète automatiquement les résultats de votre analyse factorielle (ACP, AFC ou ACM) en choisissant les graphes les plus appropriés pour un rapport.</p>
 <p>Vous avez juste à faire l’analyse comme habituellement avec <code class="pkg">FactoMineR</code> ou <code class="pkg">Factoshiny</code>, et ensuite utiliser <code class="pkg">FactoInvestigate</code> pour obtenir un rapport automatisé.</p>
 <p>Plus d’informations sur <a href="http://factominer.free.fr/reporting/index_fr.html" class="uri">http://factominer.free.fr/reporting/index_fr.html</a>.</p>
 </div>
 </div>
-<div id="voir-aussi" class="section level2">
-<h2>Voir aussi</h2>
+<div id="voir-aussi" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Voir aussi<a href="#voir-aussi" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Un tutoriel détaillé en français, <q>Visualiser une analyse géométrique des données avec ggplot2 (R/RStudio)</q>, est disponible sur le blog Quanti : <a href="https://quanti.hypotheses.org/1871" class="uri">https://quanti.hypotheses.org/1871</a>.</p>
 </div>
-<div class="footnotes">
+<div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
 <li id="fn1"><p>Pour une présentation plus détaillée, voir <br /><a href="http://www.math.univ-toulouse.fr/~baccini/zpedago/asdm.pdf" class="uri">http://www.math.univ-toulouse.fr/~baccini/zpedago/asdm.pdf</a>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>

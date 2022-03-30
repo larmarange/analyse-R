@@ -13,7 +13,7 @@
 
 <title>Trajectoires de soins : un exemple de données longitudinales avec data.table</title>
 
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.12/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -32,8 +32,9 @@
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 <script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
 <script src="libs/d3-3.3.8/d3.min.js"></script>
 <script src="libs/dagre-0.4.0/dagre-d3.min.js"></script>
@@ -88,6 +89,7 @@
   ul.task-list{list-style: none;}
       .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+
 
 
 <style type="text/css">
@@ -212,6 +214,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -390,6 +395,7 @@ pre code {
                   <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: un exemple de données longitudinales</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+                  <li><a href="analyse-textuelle.html">Analyse textuelle</a></li>
   	            </ul>
               </div>
             </div>
@@ -482,15 +488,15 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#première-description-des-données">Première description des données</a></li>
-<li><a href="#évolution-de-la-cascade-de-soins-au-cours-du-temps">Évolution de la cascade de soins au cours du temps</a></li>
-<li><a href="#analyse-de-survie-classique">Analyse de survie classique</a></li>
-<li><a href="#une-première-analyse-de-séquences-sur-lensemble-du-fichier">Une première analyse de séquences sur l’ensemble du fichier</a></li>
-<li><a href="#une-seconde-analyse-de-séquences-limitées-aux-18-premiers-mois">Une seconde analyse de séquences limitées aux 18 premiers mois</a></li>
-<li><a href="#facteurs-associés-à-lappartenance-à-chaque-groupe">Facteurs associés à l’appartenance à chaque groupe</a></li>
-<li><a href="#modèle-mixte-à-classes-latentes">Modèle mixte à classes latentes</a></li>
-<li><a href="#modèle-à-observations-répétées">Modèle à observations répétées</a></li>
-<li><a href="#modèle-de-survie-multi-états">Modèle de survie multi-états</a></li>
+<li><a href="#première-description-des-données">Première description des données<span></span></a></li>
+<li><a href="#évolution-de-la-cascade-de-soins-au-cours-du-temps">Évolution de la cascade de soins au cours du temps<span></span></a></li>
+<li><a href="#analyse-de-survie-classique">Analyse de survie classique<span></span></a></li>
+<li><a href="#une-première-analyse-de-séquences-sur-lensemble-du-fichier">Une première analyse de séquences sur l’ensemble du fichier<span></span></a></li>
+<li><a href="#une-seconde-analyse-de-séquences-limitées-aux-18-premiers-mois">Une seconde analyse de séquences limitées aux 18 premiers mois<span></span></a></li>
+<li><a href="#facteurs-associés-à-lappartenance-à-chaque-groupe">Facteurs associés à l’appartenance à chaque groupe<span></span></a></li>
+<li><a href="#modèle-mixte-à-classes-latentes">Modèle mixte à classes latentes<span></span></a></li>
+<li><a href="#modèle-à-observations-répétées">Modèle à observations répétées<span></span></a></li>
+<li><a href="#modèle-de-survie-multi-états">Modèle de survie multi-états<span></span></a></li>
 </ul>
 </div>
 
@@ -507,8 +513,8 @@ pre code {
 <p>Nous obtenons un objet appelé <code>care_trajectories</code>. La fonction <code data-pkg="base">class</code> nous montre qu’il s’agit d’un tableau de données au format <code class="pkg">data.table</code> (voir le <a href="manipulations-avancees-avec-data-table.html">chapitre dédié</a>). Chargeons donc cette extension ainsi que le <code class="pkg">tidyverse</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<div id="première-description-des-données" class="section level2">
-<h2>Première description des données</h2>
+<div id="première-description-des-données" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Première description des données<a href="#première-description-des-données" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Jetons un premier regard aux données.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(care_trajectories)</span></code></pre></div>
 <table>
@@ -694,7 +700,8 @@ Total               49365 100.0</code></pre>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> month) <span class="sc">+</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>()</span></code></pre></div>
 <p><img src="graphs/trajectoires-de-soins-avec-data-table/unnamed-chunk-10-1.png" width="1050" /></p>
-<p>Améliorons ce graphique en y ajoutant la distribution selon le statut dans les soins chaque mois, en améliorant l’axe du temps (tous les 6 mois est plus facile à lire) et en y ajoutant un titre et des étiquettes appropriées. Afin de disposer d’une palette de couleurs à fort contraste, nous allons utiliser l’extension <code class="pkg">viridis</code>. Enfin, nous allons utiliser une petite astuce pour indiquer les effectifs sur l’axe horizontal. Au passage, nous allons également franciser les étiquettes de la variable <code>care_status</code> avec <code data-pkg="labelled">val_labels</code> (notez aussi le recours à <code data-pkg="labelled">to_factor</code> dans <code data-pkg="ggplot2">aes</code> qui nous permet de transformer à la volée la variable en facteur, format attendu par <code class="pkg">ggplot2</code> pour les variables catégorielles). On se référera au <a href="ggplot2.html">chapitre dédié à <strong>ggplot2</strong></a> pour plus de détails sur les différentes fonctions de cette extension graphique.</p>
+<p>Améliorons ce graphique en y ajoutant la distribution selon le statut dans les soins chaque mois, en améliorant l’axe du temps (tous les 6 mois est plus facile à lire) et en y ajoutant un titre et des étiquettes appropriées. Afin de disposer d’une palette de couleurs à fort contraste, nous allons utiliser l’extension <code class="pkg">viridis</code>. Enfin, nous allons utiliser une petite astuce pour indiquer les effectifs sur l’axe horizontal. Au passage, nous allons également franciser les étiquettes de la variable <code>care_status</code> avec <code data-pkg="labelled">val_labels</code> (notez aussi le recours à <code data-pkg="labelled">to_factor</code> dans <code data-pkg="ggplot2">aes</code> qui nous permet de transformer à la volée la variable en facteur, format attendu par <code class="pkg">ggplot2</code> pour les variables catégorielles). On se référera au <a href="ggplot2.html">chapitre dédié à <strong>ggplot2</strong></a> pour plus de détails sur les différentes fonctions
+de cette extension graphique.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(viridis)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> care_trajectories[month <span class="sc">%in%</span> (<span class="dv">0</span><span class="sc">:</span><span class="dv">8</span><span class="sc">*</span><span class="dv">6</span>), .(<span class="at">n =</span> .N), by <span class="ot">=</span> month]<span class="sc">$</span>n</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>etiquettes <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;M&quot;</span>, <span class="dv">0</span><span class="sc">:</span><span class="dv">8</span><span class="sc">*</span><span class="dv">6</span>, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">(n=&quot;</span>, n, <span class="st">&quot;)&quot;</span>)</span>
@@ -718,8 +725,8 @@ Total               49365 100.0</code></pre>
 <p><img src="graphs/trajectoires-de-soins-avec-data-table/unnamed-chunk-11-1.png" width="1050" /></p>
 <p>On s’aperçoit qu’une majorité des personnes suivies ne l’ont été que peu de temps, avec une décroissance rapide des effectifs.</p>
 </div>
-<div id="évolution-de-la-cascade-de-soins-au-cours-du-temps" class="section level2">
-<h2>Évolution de la cascade de soins au cours du temps</h2>
+<div id="évolution-de-la-cascade-de-soins-au-cours-du-temps" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Évolution de la cascade de soins au cours du temps<a href="#évolution-de-la-cascade-de-soins-au-cours-du-temps" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>On nomme communément <q>cascade de soins</q> la proportion d’individus dans chaque statut à un moment du temps donné. On peut facilement obtenir celle-ci à partir du code du graphique précédent en ajoutant l’option <code>position = fill</code> à <code data-pkg="ggplot2">geom_bar</code>.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(care_trajectories) <span class="sc">+</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> month, <span class="at">fill =</span> <span class="fu">to_factor</span>(care_status)) <span class="sc">+</span></span>
@@ -750,8 +757,8 @@ Total               49365 100.0</code></pre>
 <span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>casc_obs</span></code></pre></div>
 <p><img src="graphs/trajectoires-de-soins-avec-data-table/unnamed-chunk-13-1.png" width="1050" /></p>
 </div>
-<div id="analyse-de-survie-classique" class="section level2">
-<h2>Analyse de survie classique</h2>
+<div id="analyse-de-survie-classique" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Analyse de survie classique<a href="#analyse-de-survie-classique" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’<dfn>analyse de survie</dfn><dfn data-index="survie, analyse"></dfn> constitue l’approche statistique la plus fréquente pour appréhender des données biographiques. Dans sa version classique, l’analyse de survie modélise le temps mis pour vivre un événement particulier à partir d’un événement origine.</p>
 <p>Dans notre exemple, l’événement d’origine commun à tous les individus est le diagnostic VIH. Les personnes suivies peuvent vivre trois événements principaux :</p>
 <ul>
@@ -884,8 +891,8 @@ Total               49365 100.0</code></pre>
 <p>Ici, on voit plus clairement que l’étape où il y a le plus de <q>perdition</q> est celle de l’entrée en soins, moins des trois quarts des personnes diagnostiquées étant venu en clinique au mois une fois dans les trois ans suivant le diagnostic. Par contre, l’initiation du traitement une fois entré en clinique et le contrôle de l’infection une fois le traitement initié sont beaucoup plus rapide.</p>
 <p>Pour aller plus loin avec les outils de l’analyse de survie classique, il serait possible de faire des analyses bivariées (Kaplan-Meier) ou multivariées (Cox) pour chacune de ces étapes. Cependant, il serait plus intéressant de trouver une approache statistique permettant de considérer dans un même modèle l’ensemble des transitions possibles.</p>
 </div>
-<div id="une-première-analyse-de-séquences-sur-lensemble-du-fichier" class="section level2">
-<h2>Une première analyse de séquences sur l’ensemble du fichier</h2>
+<div id="une-première-analyse-de-séquences-sur-lensemble-du-fichier" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Une première analyse de séquences sur l’ensemble du fichier<a href="#une-première-analyse-de-séquences-sur-lensemble-du-fichier" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’<dfn>analyse de séquences</dfn><dfn data-index="séquence, analyse"></dfn> permet d’appréhender l’ensemble de la trajectoire de soins à travers la succession des états dans lesquels se trouvent les patients observés.</p>
 <p>Nous allons donc réaliser une analyse de séquences (voir le <a href="analyse-de-sequences.html">chapitre dédié</a>) sur l’ensemble de notre fichier. Pour cela, il va falloir préalable que nous transformions nos donnée actuellement dans un format <q>long</q> en un tableau <q>large</q>, c’est-à-dire avec une ligne par individu et une variable différentes par pas de temps. On peut réaliser cela facilement avec <code data-pkg="tidyr">pivot_wider</code> de <code class="pkg">tidyr</code> (voir le <a href="reorganiser-ses-donnees-avec-tidyr.html#spread-disperser-des-lignes">chapitre dédié à <strong>tidyr</strong></a>). Il faut noter que le résultat ne sera pas un tableau <strong>data.table</strong>, d’où le recours à <code data-pkg="data.table">setDT</code> pour convertir le résultat.</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
@@ -1364,8 +1371,8 @@ Attachement du package : &#39;seqhandbook&#39;</code></pre>
 <p>Dans notre exemple, nous pouvons considérer que les séquences courtes ne sont pas pertinentes à retenir dans l’analyse car l’observation n’est pas assez longue pour voir le parcours de soins des patients. Une solution consiste à ne retenir que les individus observées au moins <code>n</code> mois et analyser leur trajectoire sur seulement <code>n</code> mois, ce qui permet de n’avoir que des séquences de même longueur. Dès lors, la distance entre deux séquences ne dépendra plus que des différences de parcours. On serait tenté de prendre un <code>n</code> élévé pour avoir ainsi des parcours de soins longs. Mais dans ce cas là, l’analyse ne se fera que sur un tout petit nombre d’individus et on manquera de puissance. Si, à l’inverse, on prends un <code>n</code> petit, nous aurons des effectifs élevés mais les séquences seront peut-être trop courtes pour mettre en évidence la variété des trajectoires. Il faut dès lors trouver un compromis entre ces deux contraintes.</p>
 <p>Si l’on regarde notre premier graphique montrant le nombre d’observations au cours du temps, il apparaît une sorte de point d’inflexion au niveau de M18 avec un brusque décrochage. D’un autre côté, 18 mois offre un minimum de durée d’observations pour espérer voir émerger des trajectoires plus complexes.</p>
 </div>
-<div id="une-seconde-analyse-de-séquences-limitées-aux-18-premiers-mois" class="section level2">
-<h2>Une seconde analyse de séquences limitées aux 18 premiers mois</h2>
+<div id="une-seconde-analyse-de-séquences-limitées-aux-18-premiers-mois" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Une seconde analyse de séquences limitées aux 18 premiers mois<a href="#une-seconde-analyse-de-séquences-limitées-aux-18-premiers-mois" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Reprenons notre analyse en se limitant aux individus observés au moins 18 mois (soit 19 status entre M0 et M18) et en se limitant aux 18 premiers mois pour modéliser les séquences. La fonction <code data-pkg="TraMineR">seqlength</code> permets de récupérer la longueur de chaque séquence.</p>
 <div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>large<span class="sc">$</span>seq_length <span class="ot">&lt;-</span> <span class="fu">seqlength</span>(seq_all)</span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>large_m18 <span class="ot">&lt;-</span> large[seq_length <span class="sc">&gt;=</span> <span class="dv">19</span>, id<span class="sc">:</span>m18]</span>
@@ -1877,7 +1884,8 @@ Attachement du package : &#39;seqhandbook&#39;</code></pre>
 <li>les <em>inaboutis</em>, qui entrent en soins mais n’initient pas le traitement ;</li>
 <li>les <em>hors soins</em>, qui ne sont pas entrés en soins où n’y sont pas restés.</li>
 </ul>
-<p>Le graphique obtenu avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqIplot</code> affiche visuellement chaque groupe avec la même hauteur, pouvant laisser accroire que chaque groupe a le même poids dans l’échantillon. Pour produire une représentation graphique des tapis de séquences plus <q>correcte</q>, où chaque la hauteur de chaque groupe correspondrait à son poids dans l’échantillon, nous allons passer par <code class="pkg">ggplot2</code>. Un tapis de séquences peut-être vu comme un <q>raster</q> et dès lors représenté avec <code data-pkg="ggplot2">geom_raster</code>. Pour travailler avec <code class="pkg">ggplot2</code>, nos données doivent être au format <em>tidy</em>, c’est-à-dire avec une ligne par point d’observation, soit une ligne par personne et par jour. Nous allons donc repartir du fichier <code>care_trajectories</code>. Le mois d’observation indiquera la position en abscisse. Quant à la position en ordonnée, il faudra que nous la calculions, séparément pour chaque groupe, afin d’éviter des <q>lignes vides</q> dans le graphique.</p>
+<p>Le graphique obtenu avec <code data-pkg="TraMineR" data-rdoc="seqplot">seqIplot</code> affiche visuellement chaque groupe avec la même hauteur, pouvant laisser accroire que chaque groupe a le même poids dans l’échantillon. Pour produire une représentation graphique des tapis de séquences plus <q>correcte</q>, où chaque la hauteur de chaque groupe correspondrait à son poids dans l’échantillon, nous allons passer par <code class="pkg">ggplot2</code>. Un tapis de séquences peut-être vu comme un <q>raster</q> et dès lors représenté avec <code data-pkg="ggplot2">geom_raster</code>. Pour travailler avec <code class="pkg">ggplot2</code>, nos données doivent être au format <em>tidy</em>, c’est-à-dire avec une ligne par point d’observation, soit une ligne par personne et par jour. Nous allons donc repartir du fichier <code>care_trajectories</code>. Le mois d’observation indiquera la position en abscisse. Quant à la position en ordonnée, il faudra que nous la calculions, séparément pour
+chaque groupe, afin d’éviter des <q>lignes vides</q> dans le graphique.</p>
 <div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="co"># nommer les groupes</span></span>
 <span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>large_m18<span class="sc">$</span>groupe <span class="ot">&lt;-</span> <span class="fu">factor</span>(</span>
 <span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>  large_m18<span class="sc">$</span>typo_pam,</span>
@@ -1923,8 +1931,8 @@ Attachement du package : &#39;seqhandbook&#39;</code></pre>
 <span id="cb88-13"><a href="#cb88-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">2</span>))</span></code></pre></div>
 <p><img src="graphs/trajectoires-de-soins-avec-data-table/unnamed-chunk-38-1.png" width="1050" /></p>
 </div>
-<div id="facteurs-associés-à-lappartenance-à-chaque-groupe" class="section level2">
-<h2>Facteurs associés à l’appartenance à chaque groupe</h2>
+<div id="facteurs-associés-à-lappartenance-à-chaque-groupe" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Facteurs associés à l’appartenance à chaque groupe<a href="#facteurs-associés-à-lappartenance-à-chaque-groupe" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Une fois les différents groupes de trajectoires identifiés, il est courant de vouloir regarder si certains facteurs influencent l’appartenance à un groupe plutôt qu’un autre. Dans nos données d’exemple, nous nous intéresserons aux variables suivantes : sexe, groupe d’âges et niveau d’éducation.</p>
 <p>Ces différentes variables sont renseignées pour chaque mois dans le tableau de données <code>care_trajectories</code>, en tenant compte des éventuels changements au cours du temps. Ici, notre analyse est menée au niveau individuel. Nous allons donc récupérer la valeur de ces différentes variables au moment du diagnostic, à savoir à M0.</p>
 <div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a>large_m18 <span class="ot">&lt;-</span> <span class="fu">merge</span>(</span>
@@ -2475,8 +2483,8 @@ Attachement du package : &#39;seqhandbook&#39;</code></pre>
 <span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a>cowplot<span class="sc">::</span><span class="fu">plot_grid</span>(<span class="at">plotlist =</span> <span class="fu">plot</span>(<span class="fu">ggeffect</span>(regm)), <span class="at">ncol =</span> <span class="dv">3</span>)</span></code></pre></div>
 <p><img src="graphs/trajectoires-de-soins-avec-data-table/unnamed-chunk-46-1.png" width="1800" /></p>
 </div>
-<div id="modèle-mixte-à-classes-latentes" class="section level2">
-<h2>Modèle mixte à classes latentes</h2>
+<div id="modèle-mixte-à-classes-latentes" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Modèle mixte à classes latentes<a href="#modèle-mixte-à-classes-latentes" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Un autre type d’approche envisageable pour identifier des classes de trajectoires est celle des <dfn data-index="modèle mixte à classes latentes">modèles mixtes à classes latentes</dfn><dfn data-index="mixte, modèle mixte à classes latentes"></dfn><dfn data-index="classes latentes, modèle mixte"></dfn><dfn data-index="latente, modèle mixte à classes latentes"></dfn>. Ce type de modèles peut prendre en compte une grande variété d’indicateurs, continus, binaires ou ordinaux. On peut y intégrer des co-variables et il n’est pas nécessaire de disposer du même nombre d’observations par individu.</p>
 <p>Nous n’aborderons que brièvement ici ce type de modèles complexes. Sous <strong>R</strong>, ils peuvent être réalisés via l’extension <code class="pkg">lcmm</code> et sa fonction homonyme <code data-pkg="lcmm">lcmm</code>.</p>
 <p>Commençons par préparer les données.</p>
@@ -2751,8 +2759,8 @@ prob&gt;0.9  11.26  33.99  21.93   3.51
 <span id="cb111-12"><a href="#cb111-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">2</span>))</span></code></pre></div>
 <p><img src="graphs/trajectoires-de-soins-avec-data-table/unnamed-chunk-59-1.png" width="900" /></p>
 </div>
-<div id="modèle-à-observations-répétées" class="section level2">
-<h2>Modèle à observations répétées</h2>
+<div id="modèle-à-observations-répétées" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Modèle à observations répétées<a href="#modèle-à-observations-répétées" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Pour prendre en considération l’ensemble des observations présentes (sans se limiter aux individus observés au moins sur une certaine période), nous pouvons avoir recours à un <dfn>modèle à observations répétées</dfn><dfn data-index="observations répétées, modèle"></dfn>.</p>
 <p>Il s’agit de modèles classiques sauf qu’au lieu de considérer une ligne par individu, nous allons intégrer dans le modèle une ligne par individu et par pas de temps. Dans la mesure où nous avons plusieurs observations pour une même personne, cela doit être pris en compte par l’ajout d’un <dfn>effet aléatoire</dfn><dfn data-index="aléatoire, effet"></dfn> dans le cadre d’un <dfn>modèle mixte</dfn><dfn data-index="mixte, modèle"></dfn> ou en ayant recours à un <dfn data-index="modèle GEE"></dfn><dfn data-index="GEE, modèle"></dfn> (voir le chapitre sur les <a href="modeles-a-effets-aleatoires.html">modèles à effets aléatoires</a>).</p>
 <p>Vue la nature de notre variable d’intérêt (plusieurs modalités ordonnées), nous aurons recours à une <dfn>régression logistique ordinale</dfn><dfn data-index="ordinale, régression logistique"></dfn> (voir le <a href="regression-logistique.html#regression-logistique-ordinale">chapitre dédié</a>). Pour un modèle mixte ordinal on peut utiliser la fonction <code data-pkg="ordinal">clmm</code> de l’extension <code class="pkg">ordinal</code>. Pour un modèle GEE ordinal, citons <code data-pkg="geepack">ordgee</code> de l’extension <code class="pkg">geepack</code> ou encore <code data-pkg="multgee">ordLORgee</code> de <code class="pkg">multgee</code>. Il importe également que la dimension temporelle soit inclue dans les variables du modèle.</p>
@@ -3227,8 +3235,8 @@ prob&gt;0.9  11.26  33.99  21.93   3.51
 <p><img src="graphs/trajectoires-de-soins-avec-data-table/unnamed-chunk-68-1.png" width="1050" /></p>
 <p>Sur ce graphique, on visualise bien l’évolution temporelle traduite par les odds ratios associés à chaque mois, ainsi que les effets globaux de nos covariables : les femmes ont une meilleure progression dans la cascade de soins que les hommes, de même que les plus éduqués et les plus âgés.</p>
 </div>
-<div id="modèle-de-survie-multi-états" class="section level2">
-<h2>Modèle de survie multi-états</h2>
+<div id="modèle-de-survie-multi-états" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Modèle de survie multi-états<a href="#modèle-de-survie-multi-états" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Depuis la fin du XX<sup>e</sup> siècle, de nombreux développements ont réalisés pour étendre les modèles de survie à des processus <dfn data-index="modèle de survie multi-états">multi-états</dfn><dfn data-index="survie, modèle multi-états"></dfn><dfn data-index="multi-états, modèle de survie"></dfn>. Ces modèles permettent de considérer une grande variété de processus. Plusieurs implémentations existent dans <strong>R</strong><a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>. Ici, nous allons utiliser l’extension <code class="pkg">msm</code> qui repose sur des modèles de Markov multi-états et peut prendre en compte des co-variables dans le modèle.</p>
 <p>En premier lieu, pour cette extension, ils nous faut disposer des données sous une forme longue, c’est-à-dire avec une ligne par individu et point d’observation dans le temps, ce qui est déjà le cas du fichier <code>care_trajectories</code>. Les différents status possibles doivent également être codés sous la forme de nombres entiers croissants (ici 1 correspondra à D, 2 à C, 3 à T et 4 à S).</p>
 <div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(msm)</span>
@@ -3700,7 +3708,7 @@ $`Expected percentages`
 
 <!-- indiquer avec chaque approche la question qui a été posée -->
 </div>
-<div class="footnotes">
+<div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
 <li id="fn1"><p>Pour plus de détails sur les tableaux croisés et le test du Chi², voir le chapitre sur la <a href="statistique-bivariee.html#deux-variables-qualitatives">statisque bivariée</a> et le chapitre sur les <a href="comparaisons-moyennes-et-proportions.html#chi2">tests de comparaison</a>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>

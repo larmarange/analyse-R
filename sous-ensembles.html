@@ -13,7 +13,7 @@
 
 <title>Sous-ensembles</title>
 
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.12/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -32,8 +32,9 @@
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
@@ -80,6 +81,7 @@
   ul.task-list{list-style: none;}
       .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+
 
 
 <style type="text/css">
@@ -204,6 +206,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -382,6 +387,7 @@ pre code {
                   <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: un exemple de données longitudinales</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+                  <li><a href="analyse-textuelle.html">Analyse textuelle</a></li>
   	            </ul>
               </div>
             </div>
@@ -474,11 +480,11 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#par-indexation">Par indexation</a></li>
-<li><a href="#subset">Fonction subset</a></li>
-<li><a href="#tapply">Fonction tapply</a></li>
-<li><a href="#extension-dplyr">Extension dplyr</a></li>
-<li><a href="#extension-data.table">Extension data.table</a></li>
+<li><a href="#par-indexation">Par indexation<span></span></a></li>
+<li><a href="#subset">Fonction subset<span></span></a></li>
+<li><a href="#tapply">Fonction tapply<span></span></a></li>
+<li><a href="#extension-dplyr">Extension dplyr<span></span></a></li>
+<li><a href="#extension-data.table">Extension data.table<span></span></a></li>
 </ul>
 </div>
 
@@ -486,8 +492,8 @@ pre code {
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(questionr)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(hdv2003)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> hdv2003</span></code></pre></div>
-<div id="par-indexation" class="section level2">
-<h2>Par indexation</h2>
+<div id="par-indexation" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Par indexation<a href="#par-indexation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>La première manière de construire des sous-populations est d’utiliser l’indexation par conditions. On peut ainsi facilement sélectionner une partie des observations suivant un ou plusieurs critères et placer le résultat dans un nouveau tableau de données.</p>
 <p>Par exemple si l’on souhaite isoler les hommes et les femmes :</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dh <span class="ot">&lt;-</span> d[d<span class="sc">$</span>sexe <span class="sc">==</span> <span class="st">&quot;Homme&quot;</span>, ]</span>
@@ -529,8 +535,8 @@ pre code {
 <pre><code>[1] 480  20</code></pre>
 <p>C’est notamment pour cette raison qu’on préfèrera le plus souvent utiliser la fonction <code data-pkg="base">subset</code>.</p>
 </div>
-<div id="subset" class="section level2">
-<h2>Fonction subset</h2>
+<div id="subset" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Fonction subset<a href="#subset" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>La fonction <code data-pkg="base">subset</code> permet d’extraire des sous-populations de manière plus simple et un peu plus intuitive que l’indexation directe.</p>
 <p>Celle-ci prend trois arguments principaux :</p>
 <ul>
@@ -562,8 +568,8 @@ pre code {
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> <span class="fu">subset</span>(d, <span class="at">select =</span> <span class="fu">c</span>(sexe, sport))</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> <span class="fu">subset</span>(d, age <span class="sc">&gt;</span> <span class="dv">25</span>, <span class="at">select =</span> <span class="sc">-</span><span class="fu">c</span>(id, age, cinema))</span></code></pre></div>
 </div>
-<div id="tapply" class="section level2">
-<h2>Fonction tapply</h2>
+<div id="tapply" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Fonction tapply<a href="#tapply" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <div class="note">
 <p>Cette section documente une fonction qui peut être très utile, mais pas forcément indispensable au départ.</p>
 </div>
@@ -610,16 +616,16 @@ d$sexe: Femme
 [1] 48.1535</code></pre>
 </div>
 </div>
-<div id="extension-dplyr" class="section level2">
-<h2>Extension dplyr</h2>
+<div id="extension-dplyr" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Extension dplyr<a href="#extension-dplyr" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>On utilisera tout simplement la fonction <code data-pkg="dplyr">filter</code>.</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>tbl <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(hdv2003)</span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>hommes_jeunes <span class="ot">&lt;-</span> tbl <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sexe <span class="sc">==</span> <span class="st">&quot;Homme&quot;</span>, age <span class="sc">&lt;</span> <span class="dv">30</span>)</span></code></pre></div>
 <p>Voir le <a href="manipuler-les-donnees-avec-dplyr.html">chapitre dédié à dplyr</a> pour plus de détails.</p>
 </div>
-<div id="extension-data.table" class="section level2">
-<h2>Extension data.table</h2>
+<div id="extension-data.table" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Extension data.table<a href="#extension-data.table" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Il suffit d’indiquer la condition entre crochets.</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">as.data.table</span>(hdv2003)</span>

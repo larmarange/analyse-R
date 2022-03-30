@@ -13,7 +13,7 @@
 
 <title>Formules</title>
 
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.12/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -32,8 +32,9 @@
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
@@ -80,6 +81,7 @@
   ul.task-list{list-style: none;}
       .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+
 
 
 <style type="text/css">
@@ -204,6 +206,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -382,6 +387,7 @@ pre code {
                   <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: un exemple de données longitudinales</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+                  <li><a href="analyse-textuelle.html">Analyse textuelle</a></li>
   	            </ul>
               </div>
             </div>
@@ -474,21 +480,21 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#statistiques-descriptives">Statistiques descriptives</a>
+<li><a href="#statistiques-descriptives">Statistiques descriptives<span></span></a>
 <ul>
-<li><a href="#tableaux-croisés-avec-xtabs">Tableaux croisés avec xtabs</a></li>
-<li><a href="#statistiques-bivariées-avec-aggregate">Statistiques bivariées avec aggregate</a></li>
+<li><a href="#tableaux-croisés-avec-xtabs">Tableaux croisés avec xtabs<span></span></a></li>
+<li><a href="#statistiques-bivariées-avec-aggregate">Statistiques bivariées avec aggregate<span></span></a></li>
 </ul></li>
-<li><a href="#panels-graphiques-avec-lattice">Panels graphiques avec lattice</a>
+<li><a href="#panels-graphiques-avec-lattice">Panels graphiques avec lattice<span></span></a>
 <ul>
-<li><a href="#visualisation-bivariée">Visualisation bivariée</a></li>
-<li><a href="#visualisation-par-petits-multiples">Visualisation par <q>petits multiples</q></a></li>
+<li><a href="#visualisation-bivariée">Visualisation bivariée<span></span></a></li>
+<li><a href="#visualisation-par-petits-multiples">Visualisation par <q>petits multiples</q><span></span></a></li>
 </ul></li>
-<li><a href="#spécifier-des-modèles">Spécifier des modèles</a>
+<li><a href="#spécifier-des-modèles">Spécifier des modèles<span></span></a>
 <ul>
-<li><a href="#les-formules-r">Les formules R</a></li>
+<li><a href="#les-formules-r">Les formules R<span></span></a></li>
 </ul></li>
-<li><a href="#pour-aller-plus-loin">Pour aller plus loin</a></li>
+<li><a href="#pour-aller-plus-loin">Pour aller plus loin<span></span></a></li>
 </ul>
 </div>
 
@@ -497,8 +503,8 @@ pre code {
 <p>Dans plusieurs autres chapitres, les opérations décrites ci-dessus sont effectuées avec les extensions <code class="pkg">dplyr</code> d’une part, et <code class="pkg">ggplot2</code> d’autre part. On se servira également de ces extensions dans ce chapitre, de manière à mener une comparaison des différentes manières d’effectuer certaines opérations dans <strong>R</strong>, avec ou sans la notation <q>formule</q> :</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code></pre></div>
-<div id="statistiques-descriptives" class="section level2">
-<h2>Statistiques descriptives</h2>
+<div id="statistiques-descriptives" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Statistiques descriptives<a href="#statistiques-descriptives" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Les premiers exemples de ce chapitre montrent l’utilisation de cette notation pour produire des tableaux croisés et des statistiques descriptives. Le jeu de données utilisé, <code data-pkg="questionr">hdv2003</code>, a déjà été utilisé dans plusieurs chapitres, et font partie de l’extension <code class="pkg">questionr</code>. Chargeons cette extension et le jeu de données <code data-pkg="questionr">hdv2003</code> :</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(questionr)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(hdv2003)</span></code></pre></div>
@@ -526,8 +532,8 @@ $ bricol        &lt;fct&gt; Non, Non, Non, Oui, Non, Non, Non, Oui, Non, Non, O~
 $ cinema        &lt;fct&gt; Non, Oui, Non, Oui, Non, Oui, Non, Non, Oui, Oui, O~
 $ sport         &lt;fct&gt; Non, Oui, Oui, Oui, Non, Oui, Non, Non, Non, Oui, N~
 $ heures.tv     &lt;dbl&gt; 0.0, 1.0, 0.0, 2.0, 3.0, 2.0, 2.9, 1.0, 2.0, 2.0, 1~</code></pre>
-<div id="tableaux-croisés-avec-xtabs" class="section level3">
-<h3>Tableaux croisés avec xtabs</h3>
+<div id="tableaux-croisés-avec-xtabs" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Tableaux croisés avec xtabs<a href="#tableaux-croisés-avec-xtabs" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Utilisons, pour ce premier exemple, la variable <var>occup</var> du jeu de données <code data-pkg="questionr">hdv2003</code>, qui correspond au statut professionnel des individus inclus dans l’échantillon. La fonction de base pour compter les individus par statut est la fonction <code data-pkg="base">table</code> :</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(hdv2003<span class="sc">$</span>occup)</span></code></pre></div>
 <pre><code>
@@ -1046,8 +1052,8 @@ occup                   Homme Femme
   Autre inactif             0     0</code></pre>
 <p>Cet exemple permet simplement de réaliser que la variable <var>trav.imp</var>, qui contient les réponses à une question portant sur l’importance du travail, n’a été mesurée (c’est-à-dire que la question n’a été posée) qu’aux seuls individus actifs de l’échantillon.</p>
 </div>
-<div id="statistiques-bivariées-avec-aggregate" class="section level3">
-<h3>Statistiques bivariées avec aggregate</h3>
+<div id="statistiques-bivariées-avec-aggregate" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Statistiques bivariées avec aggregate<a href="#statistiques-bivariées-avec-aggregate" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(heures.tv <span class="sc">~</span> sexe, mean, <span class="at">data =</span> hdv2003)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
@@ -1198,8 +1204,8 @@ Attachement du package : &#39;Hmisc&#39;</code></pre>
 </div>
 </div>
 </div>
-<div id="panels-graphiques-avec-lattice" class="section level2">
-<h2>Panels graphiques avec lattice</h2>
+<div id="panels-graphiques-avec-lattice" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Panels graphiques avec lattice<a href="#panels-graphiques-avec-lattice" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Les exemples suivants montreront ensuite comment la notation <q>formule</q> peut servir à produire des graphiques par panel avec l’extension <code class="pkg">lattice</code>.</p>
 <div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice)</span></code></pre></div>
 <div class="note">
@@ -1244,14 +1250,14 @@ $ growth  &lt;dbl&gt; -3.5579515, 2.4594746, 6.4375341, 6.6119938, 6.9202012, 4~
 $ ratio   &lt;dbl&gt; 190.41908, 177.32137, 148.92981, 125.82870, 109.80940, 87~</code></pre>
 <div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co"># suppression de la première colonne</span></span>
 <span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>debt <span class="ot">&lt;-</span> debt[, <span class="sc">-</span><span class="dv">1</span>]</span></code></pre></div>
-<div id="visualisation-bivariée" class="section level3">
-<h3>Visualisation bivariée</h3>
+<div id="visualisation-bivariée" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Visualisation bivariée<a href="#visualisation-bivariée" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Le même graphique s’écrit de la manière suivante avec l’extension <code class="pkg">lattice</code> :</p>
 <div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(growth <span class="sc">~</span> Year, <span class="at">data =</span> debt)</span></code></pre></div>
 <p><img src="graphs/formules/unnamed-chunk-32-1.png" width="1050" /></p>
 </div>
-<div id="visualisation-par-petits-multiples" class="section level3">
-<h3>Visualisation par <q>petits multiples</q></h3>
+<div id="visualisation-par-petits-multiples" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Visualisation par <q>petits multiples</q><a href="#visualisation-par-petits-multiples" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Appliquons désormais la même visualisation par <q>petits multiples</q> que vue dans le chapitre :</p>
 <div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(growth <span class="sc">~</span> Year <span class="sc">|</span> Country, <span class="at">data =</span> debt)</span></code></pre></div>
 <p><img src="graphs/formules/unnamed-chunk-33-1.png" width="1050" /></p>
@@ -1266,10 +1272,10 @@ $ ratio   &lt;dbl&gt; 190.41908, 177.32137, 148.92981, 125.82870, 109.80940, 87~
 <p><img src="graphs/formules/unnamed-chunk-34-1.png" width="1050" /></p>
 </div>
 </div>
-<div id="spécifier-des-modèles" class="section level2">
-<h2>Spécifier des modèles</h2>
-<div id="les-formules-r" class="section level3">
-<h3>Les formules R</h3>
+<div id="spécifier-des-modèles" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Spécifier des modèles<a href="#spécifier-des-modèles" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="les-formules-r" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Les formules R<a href="#les-formules-r" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>En réalité, la notation par formule qu’utilise <strong>R</strong> est celle proposée par Wilkinson <em>et al.</em> dans les années 70 pour schématiser la relation entre plusieurs variables dans un plan d’expérience. Plus spécifiquement, l’idée revient à exprimer une <dfn>relation <q>fonctionnelle</q></dfn>, symbolisée par l’opérateur <code>~</code>, entre une variable réponse <code>y</code> et une ou plusieurs variables explicatives. Disons, pour simplifier, que <code>y</code> est une variable d’intérêt (numérique ou facteur selon le type de modèle), <code>x</code> une variable numérique et que <code>a</code> et <code>b</code> sont des variables catégorielles (des facteurs dans le langage <strong>R</strong>). Voici les principales relations auxquelles on peut s’intéresser dans un modèle statistique :</p>
 <ul>
 <li><code>y ~ x</code> : régression simple,</li>
@@ -1282,8 +1288,8 @@ $ ratio   &lt;dbl&gt; 190.41908, 177.32137, 148.92981, 125.82870, 109.80940, 87~
 <p>Voir le chapitre dédié à la <a href="regression-logistique.html">régression logistique</a> pour des exemples de modèles multivariés et le chapitre dédié aux <a href="effets-d-interaction.html">effets d’interaction</a> pour plus de détails sur cette notion.</p>
 </div>
 </div>
-<div id="pour-aller-plus-loin" class="section level2">
-<h2>Pour aller plus loin</h2>
+<div id="pour-aller-plus-loin" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Pour aller plus loin<a href="#pour-aller-plus-loin" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Comme vient de le voir dans ce chapitre, la notation <q>formule</q> apparaît çà et là dans les différentes fonctions de <strong>R</strong> est de ses extensions. Il est par conséquent utile d’en connaître les rudiments, et en particulier les opérateurs <code>~</code> (<em>tilde</em>) et <code>+</code>, ne serait-ce que pour pouvoir se servir des différentes fonctions présentées sur cette page. Le chapitre <a href="lattice-graphiques-et-formules.html">lattice et les formules</a> fournit plus de détails sur ces aspects.</p>
 <p>La notation <q>formule</q> devient cruciale dès que l’on souhaite rédiger des modèles : la formule <code>y ~ x</code>, par exemple, qui est équivalente à la formule <code>y ~ 1 + x</code>, correspond à l’équation mathématique <span class="math inline"><em>Y</em> = <em>a</em> + <em>b</em><em>X</em></span>. On trouvera de nombreux exemples d’usage de cette notation dans les chapitres consacrés, notamment, à la régression linéaire ou à la <a href="regression-logistique.html">régression logistique</a>.</p>
 <p>De la même manière, l’opérateur <code>|</code> (<em>pipe</em>) utilisé par l’extension <code class="pkg">lattice</code> joue aussi un rôle très important dans la rédaction de modèles multi-niveaux, où il sert à indiquer les variables à pentes ou à coefficients aléatoires. Ces modèles sont présentés dans un <a href="modeles-lineaires-a-effets-mixtes.html">chapitre dédié</a>.</p>

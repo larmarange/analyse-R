@@ -13,7 +13,7 @@
 
 <title>Modèles à effets aléatoires (modèles mixtes et GEE)</title>
 
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.12/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -32,8 +32,9 @@
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
@@ -80,6 +81,7 @@
   ul.task-list{list-style: none;}
       .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+
 
 
 <style type="text/css">
@@ -204,6 +206,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -382,6 +387,7 @@ pre code {
                   <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: un exemple de données longitudinales</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+                  <li><a href="analyse-textuelle.html">Analyse textuelle</a></li>
   	            </ul>
               </div>
             </div>
@@ -474,43 +480,49 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#de-la-régression-linéaire-aux-modèles-mixtes">De la régression linéaire aux modèles mixtes</a>
+<li><a href="#de-la-régression-linéaire-aux-modèles-mixtes">De la régression linéaire aux modèles mixtes<span></span></a>
 <ul>
-<li><a href="#généralités">Généralités</a></li>
-<li><a href="#modèles-mixtes-glmm">Modèles mixtes (GLMM)</a></li>
-<li><a href="#cas-de-lanova-à-mesures-répétées">Cas de l’ANOVA à mesures répétées</a></li>
-<li><a href="#cas-des-données-longitudinales">Cas des données longitudinales</a></li>
+<li><a href="#généralités">Généralités<span></span></a></li>
+<li><a href="#modèles-mixtes-glmm">Modèles mixtes (GLMM)<span></span></a></li>
+<li><a href="#cas-de-lanova-à-mesures-répétées">Cas de l’ANOVA à mesures répétées<span></span></a></li>
+<li><a href="#cas-des-données-longitudinales">Cas des données longitudinales<span></span></a></li>
 </ul></li>
-<li><a href="#cas-des-données-corrélées-discrètes">Cas des données corrélées discrètes</a>
+<li><a href="#cas-des-données-corrélées-discrètes">Cas des données corrélées discrètes<span></span></a>
 <ul>
-<li><a href="#approche-gee">Approche GEE</a></li>
-<li><a href="#approche-glmm">Approche GLMM</a></li>
+<li><a href="#approche-gee">Approche GEE<span></span></a></li>
+<li><a href="#approche-glmm">Approche GLMM<span></span></a></li>
 </ul></li>
 </ul>
 </div>
 
-<div id="de-la-régression-linéaire-aux-modèles-mixtes" class="section level2">
-<h2>De la régression linéaire aux modèles mixtes</h2>
-<div id="généralités" class="section level3">
-<h3>Généralités</h3>
+<div id="de-la-régression-linéaire-aux-modèles-mixtes" class="section level2 hasAnchor">
+<h2 class="hasAnchor">De la régression linéaire aux modèles mixtes<a href="#de-la-régression-linéaire-aux-modèles-mixtes" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="généralités" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Généralités<a href="#généralités" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Dans un modèle de régression classique, il s’agit d’étudier la liaison statistique entre une variable à expliquer <var>Y</var> et des variables explicatives <var>X</var> non aléatoire. Soit <var>y<sub>i</sub></var> la réponse de l’individu <var>i</var> et <var>x<sub>i</sub></var> les valeurs prises par les variables explicatives pour cet individu. La relation entre <var>X</var> et <var>Y</var> peut s’écrire sous la forme :</p>
 <p><span class="math display"><em>y</em><sub><em>i</em></sub> = <em>α</em> + <em>β</em><em>x</em><sub><em>i</em></sub> + <em>ε</em><sub><em>i</em></sub></span></p>
 <p>où <span class="math inline"><em>ε</em><sub><em>i</em></sub></span> est une variable aléatoire distribuée selon une loi normale d’espérance nulle et représentant les <dfn>résidus du modèle</dfn><dfn data-index="modèle, résidus"></dfn> ou <dfn>erreurs</dfn>, <span class="math inline"><em>α</em></span> correspond à ce qu’on appelle l’<dfn>intercept</dfn> et <span class="math inline"><em>β</em></span> représente les <dfn>coefficients du modèle</dfn><dfn data-index="modèle, coefficients"></dfn>.</p>
 <p>Dans un modèle classique, les erreurs sont supposées être indépendantes et identiquement distribuées selon une loi normale. Or, ce n’est pas le cas dans un certain nombres de cas : lorsque plusieurs réponses sont disponibles pour le même individu pour un même <var>x<sub>i</sub></var> (cas des mesures répétées), lorsque plusieurs observations sont naturellement groupées (par exemple, les membres d’une famille, des jumeaux homozygotes, des patients dans une même unité de soins, etc.), ou lorsque l’on collecte des données au cours du temps chez un même individu. Les <dfn data-index="modèle mixte">modèles mixtes</dfn><dfn data-index="mixte, modèle"></dfn> ou <dfn data-index="modèle à effets aléatoires">modèles à effets aléatoires</dfn> permettent de prendre en considération ce type d’information et de généraliser l’approche déjà connue pour l’estimation des paramètres d’un modèle de régression linéaire classique (pour observations indépendantes).</p>
 <figure>
-<img src="images/img_models.png" title="fig:" alt="Modèles de régression" />
+<div class="figure">
+<img src="images/img_models.png" alt="" />
+<p class="caption">Modèles de régression</p>
+</div>
 <figcaption>
 Typologie des modèles de régression
 </figcaption>
 </figure>
 </div>
-<div id="modèles-mixtes-glmm" class="section level3">
-<h3>Modèles mixtes (GLMM)</h3>
+<div id="modèles-mixtes-glmm" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Modèles mixtes (GLMM)<a href="#modèles-mixtes-glmm" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Par rapport au modèle linéaire (généralisé) classique, les modèles mixtes (GLMM dans la littérature anglo-saxonne) considèrent, en plus des effets fixes, des effets aléatoires qui permettent de refléter la corrélation entre les unités statistiques. Ce type de données en cluster s’observe lorsque des unités statistiques sont groupées ensemble (étudiants dans des écoles), en raison d’une corrélation intra-unité (données longitudinales) ou un mélange des deux (performance mesurée au cours du temps pour différents groupes de sujets).</p>
 <p>On rattache ce type de modèle aux approches conditionnelles, par opposition aux approches marginales telles que les GLS ou les GEE, décrites dans la deuxième partie de ce chapitre. Les modèles mixtes ne se limitent pas à un seul niveau de cluster, et il peut exister une hiérarchie de clusters imbriqués les uns dans les autres, d’où l’appelation de modèles hiérarchiques dans certains cas de figure.</p>
 <p>En ce qui concerne les effets fixes <em>versus</em> aléatoires, il existe peu de définition consensuelle, mais on peut considérer le schéma suivant pour décider si un effet doit être considéré comme fixe ou aléatoire :</p>
 <figure>
-<img src="images/img_random_vs_fixed.png" title="fig:" alt="Modèles de régression" />
+<div class="figure">
+<img src="images/img_random_vs_fixed.png" alt="" />
+<p class="caption">Modèles de régression</p>
+</div>
 <figcaption>
 Schéma décisionnel pour définir un effet
 </figcaption>
@@ -562,11 +574,14 @@ Les données “sleep” de Student
 </figcaption>
 </figure>
 </div>
-<div id="cas-de-lanova-à-mesures-répétées" class="section level3">
-<h3>Cas de l’ANOVA à mesures répétées</h3>
+<div id="cas-de-lanova-à-mesures-répétées" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Cas de l’ANOVA à mesures répétées<a href="#cas-de-lanova-à-mesures-répétées" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Voici des données concernant l’excès de graisse dans les scelles suite à une défaillance des enzymes de digestion dans l’intestin. Des suppléments en enzyme pancréatique permettent de corriger ce problème, la question étant de déterminer quel est le meilleur mode d’administration (tablette, capsule, enrobé) :</p>
 <figure>
-<img src="images/img_fecal_fat.png" title="fig:" alt="Fecal fat study" />
+<div class="figure">
+<img src="images/img_fecal_fat.png" alt="" />
+<p class="caption">Fecal fat study</p>
+</div>
 </figure>
 <p>Il n’y a qu’un seul prédicteur, le type de comprimé, qui est attaché au sujet et à la période d’administration dans le temps (répétition sur un même sujet). On dispose de plusieurs manières de décomposer la variance totale :</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
@@ -606,11 +621,14 @@ Signif. codes:
 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>Voici les résultats que l’on obtient avec ces trois modèles résumés dans un tableau de synthèse :</p>
 <figure>
-<img src="images/img_fecal_fat_aov.png" title="fig:" alt="Fecal fat study" />
+<div class="figure">
+<img src="images/img_fecal_fat_aov.png" alt="" />
+<p class="caption">Fecal fat study</p>
+</div>
 </figure>
 <p>Le premier modèle, qui suppose les observations indépendantes, ne supprime pas la variance entre sujets (presque 78~% de la variance résiduelle). Les deux modèles suivants, <code>M2</code> et <code>M3</code>, incorpore chacun des effets spécifiques aux sujets :</p>
 <p><span class="math display">$$
-y_{ij} = \mu + \text{subject}_i + \text{pilltype}_j + \varepsilon_{ij},\quad \varepsilon_{ij}\sim{\cal N}(0,\sigma_{\varepsilon}^2). 
+y_{ij} = \mu + \text{subject}_i + \text{pilltype}_j + \varepsilon_{ij},\quad \varepsilon_{ij}\sim{\cal N}(0,\sigma_{\varepsilon}^2).
 $$</span></p>
 <p>Dans le troisième modèle (<code>M3</code>), on suppose de plus que <span class="math inline">$\text{subject}_i\sim{\cal N}(0,\sigma_{s}^2)$</span>, indépendant de <span class="math inline"><em>ε</em><sub><em>i</em><em>j</em></sub></span>. L’inclusion de termes aléatoires sujet-spécifique permet de modéliser différents types de corrélation intra-unité au niveau de la variable réponse. Considérons la corrélation entre des mesures prises successivement chez le même individu. On sait que :</p>
 <p><span class="math display">$$ \text{Cor}(y_{ij},y_{ik})=\frac{\text{Cov}(y_{ij},y_{ik})}{\sqrt{\text{Var}(y_{ij})}. $$</span></p>
@@ -756,8 +774,8 @@ lme.fit
 lme.fit0 14.60857  0.0022</code></pre>
 <p>D’autres matrices de variance-covariance peuvent être retenues pour les modèles, en fonction du type de dessin expérimental. Le modèle à intercept aléatoire nous assure que la matrice e variance-covariance sera correctement contrainte. Dans le cas de l’ANOVA à mesures répétées, il est d’usage d’appliquer une correction de sphéricité (Greenhouse-Geisser ou Huynh-Feldt) ou d’utiliser une MANOVA mais celle-ci possède moins de puissance statistique. Les modèles mixtes restent donc plus souples dans la mesure où ils permettent de faire de l’inférence sur la structure de corrélation et de réaliser des comparaisons de modèle.</p>
 </div>
-<div id="cas-des-données-longitudinales" class="section level3">
-<h3>Cas des données longitudinales</h3>
+<div id="cas-des-données-longitudinales" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Cas des données longitudinales<a href="#cas-des-données-longitudinales" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Les données suivantes sont tirées du package <code class="pkg">lme4</code>:</p>
 <blockquote>
 <p>Average reaction time per day for subjects in a sleep deprivation study. On day 0 the subjects had their normal amount of sleep. Starting that night they were restricted to 3 hours of sleep per night. The observations represent the average reaction time on a series of tests given each day to each subject.</p>
@@ -942,11 +960,12 @@ Valeurs prédites et effet de régularisation
 -->
 </div>
 </div>
-<div id="cas-des-données-corrélées-discrètes" class="section level2">
-<h2>Cas des données corrélées discrètes</h2>
-<div id="approche-gee" class="section level3">
-<h3>Approche GEE</h3>
-<p>Le cas des données discrètes pose en plus le problème du choix de la distribution pour la variable réponse (ou les erreurs). Une distribution binomiale ou multinomiale convient mieux aux cas où la variable modélisée correspond à un choix binaire ou à plus de deux catégories de réponse. De plus, le choix de la stratégie de modélisation influence également les conclusions que l’on peut tirer d’une étude. Comme on l’a vu plus haut, les modèles linéaires mixtes généralisés permettent d’estimer les paramètres sujet-spécifiques d’un modèle de régression en considérant des effets fixes et/ou aléatoires, éventuellement en considérant différentes structures de corrélation. Une alternative consiste à modéliser directement les effets moyens des facteurs fixes, sans se soucier des effets individuels, en supposant toutefois une matrice de corrélation de travail qui permette de rendre compte de la corrélation intra-unité. Cette approche est connue sous le terme Équations d’estimation généralisées (GEE dans la littérature anglo-saxonne).</p>
+<div id="cas-des-données-corrélées-discrètes" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Cas des données corrélées discrètes<a href="#cas-des-données-corrélées-discrètes" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="approche-gee" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Approche GEE<a href="#approche-gee" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Le cas des données discrètes pose en plus le problème du choix de la distribution pour la variable réponse (ou les erreurs). Une distribution binomiale ou multinomiale convient mieux aux cas où la variable modélisée correspond à un choix binaire ou à plus de deux catégories de réponse. De plus, le choix de la stratégie de modélisation influence également les conclusions que l’on peut tirer d’une étude. Comme on l’a vu plus haut, les modèles linéaires mixtes généralisés permettent d’estimer les paramètres sujet-spécifiques d’un modèle de régression en considérant des effets fixes et/ou aléatoires, éventuellement en considérant différentes structures de corrélation. Une alternative consiste à modéliser directement les effets moyens des facteurs fixes, sans se soucier des effets individuels, en supposant toutefois une matrice de corrélation de travail qui permette de rendre compte de la corrélation intra-unité. Cette approche est connue sous le terme Équations d’estimation généralisées
+(GEE dans la littérature anglo-saxonne).</p>
 <p>En ce qui concerne la matrice de corrélation de travail, voici 4 solutions qui peuvent constituer notre modèle de variance. Le premier cas correspond à une matrice d’indépendance (<code>ind</code>), où toutes les observations sont indépendantes les unes des autres :</p>
 <p><span class="math display">$$
 \begin{pmatrix}
@@ -1213,8 +1232,8 @@ Probabilités marginales prédites pour les deux groupes au cours du temps
 </figcaption>
 </figure>
 </div>
-<div id="approche-glmm" class="section level3">
-<h3>Approche GLMM</h3>
+<div id="approche-glmm" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Approche GLMM<a href="#approche-glmm" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>On peut comparer les résultats précédents avec ceux que l’on obtiendrait <em>via</em> une approche par modèle linéaire mixte. La syntaxe est la suivante :</p>
 <div class="sourceCode" id="cb84"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
 <span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>fit.glmm <span class="ot">&lt;-</span> <span class="fu">glmer</span>(resp <span class="sc">~</span> age <span class="sc">+</span> smoke <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> id),</span>

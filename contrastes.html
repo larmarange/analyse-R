@@ -13,7 +13,7 @@
 
 <title>Les contrastes (codage des variables catégorielles dans un modèle)</title>
 
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.12/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -32,8 +32,9 @@
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
@@ -80,6 +81,7 @@
   ul.task-list{list-style: none;}
       .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+
 
 
 <style type="text/css">
@@ -204,6 +206,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -382,6 +387,7 @@ pre code {
                   <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: un exemple de données longitudinales</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+                  <li><a href="analyse-textuelle.html">Analyse textuelle</a></li>
   	            </ul>
               </div>
             </div>
@@ -474,24 +480,24 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#contrastes-de-type-traitement">Contrastes de type traitement</a>
+<li><a href="#contrastes-de-type-traitement">Contrastes de type traitement<span></span></a>
 <ul>
-<li><a href="#exemple-1-un-modèle-linéaire-avec-une-variable-catégorielle">Exemple 1 : un modèle linéaire avec une variable catégorielle</a></li>
-<li><a href="#exemple-2-une-régression-logistique-avec-deux-variables-catégorielles">Exemple 2 : une régression logistique avec deux variables catégorielles</a></li>
-<li><a href="#changer-la-modalité-de-référence">Changer la modalité de référence</a></li>
+<li><a href="#exemple-1-un-modèle-linéaire-avec-une-variable-catégorielle">Exemple 1 : un modèle linéaire avec une variable catégorielle<span></span></a></li>
+<li><a href="#exemple-2-une-régression-logistique-avec-deux-variables-catégorielles">Exemple 2 : une régression logistique avec deux variables catégorielles<span></span></a></li>
+<li><a href="#changer-la-modalité-de-référence">Changer la modalité de référence<span></span></a></li>
 </ul></li>
-<li><a href="#contrastes-de-type-somme">Contrastes de type somme</a></li>
-<li><a href="#lectures-additionnelles">Lectures additionnelles</a></li>
+<li><a href="#contrastes-de-type-somme">Contrastes de type somme<span></span></a></li>
+<li><a href="#lectures-additionnelles">Lectures additionnelles<span></span></a></li>
 </ul>
 </div>
 
 <p>Dans les modèles de régression (<a href="regression-lineaire.html">modèles linéaires</a> ou modèles linéaires généralisés comme la <a href="regression-logistique.html">régression logistique</a>), une transformation des variables catégorielles est nécessaire pour qu’elles puissent être prises en compte dans le modèle. On va dès lors définir des <dfn>contrastes</dfn>.</p>
 <p>De manière générale, une variable catégorielle à <em>n</em> modalités va être transformée en <em>n-1</em> variables quantitatives. Il existe cependant plusieurs manières de faire (i.e. plusieurs types de contrastes). Et, selon les contrastes choisis, les coefficients du modèles ne s’interpréteront pas de la même manière.</p>
-<div id="contrastes-de-type-traitement" class="section level2">
-<h2>Contrastes de type traitement</h2>
+<div id="contrastes-de-type-traitement" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Contrastes de type traitement<a href="#contrastes-de-type-traitement" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Par défaut, <strong>R</strong> applique des contrastes de type <q>traitement</q> pour un facteur non ordonné. Il s’agit notamment des contrastes utilisés dans le chapitre sur la <a href="regression-logistique.html">régression logistique</a>.</p>
-<div id="exemple-1-un-modèle-linéaire-avec-une-variable-catégorielle" class="section level3">
-<h3>Exemple 1 : un modèle linéaire avec une variable catégorielle</h3>
+<div id="exemple-1-un-modèle-linéaire-avec-une-variable-catégorielle" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Exemple 1 : un modèle linéaire avec une variable catégorielle<a href="#exemple-1-un-modèle-linéaire-avec-une-variable-catégorielle" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Commençons avec un premier exemple que nous allons calculer avec le jeu de données <em>trial</em> chargé en mémoire lorsque l’on appelle l’extension <code class="pkg">gtsummary</code>. Ce jeu de données contient les observations de 200 patients. Nous nous intéressons à deux variables en particulier : <strong>marker</strong> une variable numérique correspondant à un marqueur biologique et <strong>grade</strong> un facteur à trois modalités correspondant à différent groupes de patients.</p>
 <p>Regardons la moyenne de <strong>marker</strong> pour chaque valeur de <strong>grade</strong>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span>
@@ -1296,8 +1302,8 @@ III  0   1</code></pre>
 </table>
 </div>
 </div>
-<div id="exemple-2-une-régression-logistique-avec-deux-variables-catégorielles" class="section level3">
-<h3>Exemple 2 : une régression logistique avec deux variables catégorielles</h3>
+<div id="exemple-2-une-régression-logistique-avec-deux-variables-catégorielles" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Exemple 2 : une régression logistique avec deux variables catégorielles<a href="#exemple-2-une-régression-logistique-avec-deux-variables-catégorielles" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Pour ce deuxème exemple, nous allons utiliser le jeu de données <strong>hdv2003</strong> fourni par l’extension <code class="pkg">questionr</code> et recoder la variable age en groupes d’âges à 4 modalités.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(questionr)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;hdv2003&quot;</span>)</span>
@@ -1784,8 +1790,8 @@ Attachement du package : &#39;ggeffects&#39;</code></pre>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">inv_logit</span>(<span class="fl">0.9021</span> <span class="sc">-</span> <span class="fl">0.4455</span> <span class="sc">-</span> <span class="fl">1.6535</span>)</span></code></pre></div>
 <pre><code>[1] 0.2320271</code></pre>
 </div>
-<div id="changer-la-modalité-de-référence" class="section level3">
-<h3>Changer la modalité de référence</h3>
+<div id="changer-la-modalité-de-référence" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Changer la modalité de référence<a href="#changer-la-modalité-de-référence" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Il est possible de personnaliser les contrastes à utiliser et avoir un recours à un contraste de type <q>traitement</q> mais en utilisant une autre modalité que la première comme référence, avec la fonction <code data-pkg="stats">contr.treatment</code>. Le premier argument de la fonction corresponds au nombre de modalités de la variable et le paramètre <code>base</code> permets de spécifier la modalité de référence (1 par défaut).</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contr.treatment</span>(<span class="dv">4</span>, <span class="at">base =</span> <span class="dv">2</span>)</span></code></pre></div>
 <pre><code>  1 3 4
@@ -2225,8 +2231,8 @@ Attachement du package : &#39;ggeffects&#39;</code></pre>
 </div>
 </div>
 </div>
-<div id="contrastes-de-type-somme" class="section level2">
-<h2>Contrastes de type somme</h2>
+<div id="contrastes-de-type-somme" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Contrastes de type somme<a href="#contrastes-de-type-somme" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(marker <span class="sc">~</span> grade, <span class="at">data =</span> trial, <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">grade =</span> contr.sum))</span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>mod</span></code></pre></div>
 <pre><code>
@@ -2629,8 +2635,8 @@ Coefficients:
 </table>
 </div>
 </div>
-<div id="lectures-additionnelles" class="section level2">
-<h2>Lectures additionnelles</h2>
+<div id="lectures-additionnelles" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Lectures additionnelles<a href="#lectures-additionnelles" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <ul>
 <li><a href="https://rstudio-pubs-static.s3.amazonaws.com/65059_586f394d8eb84f84b1baaf56ffb6b47f.html">A (sort of) Complete Guide to Contrasts in R</a> par Rose Maier</li>
 <li><a href="https://rstudio-pubs-static.s3.amazonaws.com/84177_4604ecc1bae246c9926865db53b6cc29.html">An introductory explanation of contrast coding in R linear models</a> par Athanassios Protopapas</li>

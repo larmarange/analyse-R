@@ -13,7 +13,7 @@
 
 <title>Graphiques univariés et bivariés avec ggplot2</title>
 
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.12/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -32,8 +32,9 @@
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
@@ -80,6 +81,7 @@
   ul.task-list{list-style: none;}
       .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+
 
 
 <style type="text/css">
@@ -204,6 +206,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -382,6 +387,7 @@ pre code {
                   <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: un exemple de données longitudinales</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+                  <li><a href="analyse-textuelle.html">Analyse textuelle</a></li>
   	            </ul>
               </div>
             </div>
@@ -474,20 +480,20 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#retour-sur-les-bases-de-ggplot2">Retour sur les bases de ggplot2</a></li>
-<li><a href="#histogramme">Histogramme</a></li>
-<li><a href="#densité-et-répartition-cumulée">Densité et répartition cumulée</a></li>
-<li><a href="#boîtes-à-moustaches-et-représentations-associées">Boîtes à moustaches (et représentations associées)</a></li>
-<li><a href="#diagramme-en-bâtons">Diagramme en bâtons</a></li>
-<li><a href="#nuage-de-points">Nuage de points</a></li>
-<li><a href="#matrice-de-nuages-de-points-et-matrice-de-corrélation">Matrice de nuages de points et matrice de corrélation</a></li>
-<li><a href="#estimation-locale-de-densité-et-représentations-associées">Estimation locale de densité (et représentations associées)</a></li>
-<li><a href="#diagramme-de-cleveland">Diagramme de Cleveland</a></li>
-<li><a href="#diagrammes-en-barres">Diagrammes en barres</a></li>
-<li><a href="#comparer-plusieurs-variables-discrètes-etou-continues">Comparer plusieurs variables discrètes et/ou continues</a></li>
-<li><a href="#graphe-en-mosaïque">Graphe en mosaïque</a></li>
-<li><a href="#données-labellisées-et-ggplot2">Données labellisées et ggplot2</a></li>
-<li><a href="#exporter-les-graphiques-obtenus">Exporter les graphiques obtenus</a></li>
+<li><a href="#retour-sur-les-bases-de-ggplot2">Retour sur les bases de ggplot2<span></span></a></li>
+<li><a href="#histogramme">Histogramme<span></span></a></li>
+<li><a href="#densité-et-répartition-cumulée">Densité et répartition cumulée<span></span></a></li>
+<li><a href="#boîtes-à-moustaches-et-représentations-associées">Boîtes à moustaches (et représentations associées)<span></span></a></li>
+<li><a href="#diagramme-en-bâtons">Diagramme en bâtons<span></span></a></li>
+<li><a href="#nuage-de-points">Nuage de points<span></span></a></li>
+<li><a href="#matrice-de-nuages-de-points-et-matrice-de-corrélation">Matrice de nuages de points et matrice de corrélation<span></span></a></li>
+<li><a href="#estimation-locale-de-densité-et-représentations-associées">Estimation locale de densité (et représentations associées)<span></span></a></li>
+<li><a href="#diagramme-de-cleveland">Diagramme de Cleveland<span></span></a></li>
+<li><a href="#diagrammes-en-barres">Diagrammes en barres<span></span></a></li>
+<li><a href="#comparer-plusieurs-variables-discrètes-etou-continues">Comparer plusieurs variables discrètes et/ou continues<span></span></a></li>
+<li><a href="#graphe-en-mosaïque">Graphe en mosaïque<span></span></a></li>
+<li><a href="#données-labellisées-et-ggplot2">Données labellisées et ggplot2<span></span></a></li>
+<li><a href="#exporter-les-graphiques-obtenus">Exporter les graphiques obtenus<span></span></a></li>
 </ul>
 </div>
 
@@ -496,8 +502,8 @@ pre code {
 <p>Ce chapitre est évoqué dans le webin-R #09 (Graphiques uni- et bivariés avec ggplot2) sur <a href="https://youtu.be/73xvKXSnV1I">YouTube</a>.</p>
 </div>
 <p>Après avoir introduit l’extension <code class="pkg">ggplot2</code> au travers d’une <a href="intro-ggplot2.html">étude de cas</a>, nous reprenons ici les graphiques produits dans les chapitres <a href="statistique-univariee.html">statistique univariée</a> et <a href="statistique-bivariee.html">statistique bivariée</a> et montrons comment les réaliser avec <code class="pkg">ggplot2</code>.</p>
-<div id="retour-sur-les-bases-de-ggplot2" class="section level2">
-<h2>Retour sur les bases de ggplot2</h2>
+<div id="retour-sur-les-bases-de-ggplot2" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Retour sur les bases de ggplot2<a href="#retour-sur-les-bases-de-ggplot2" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">ggplot2</code> nécessite que les données du graphique soient sous la forme d’un tableau de données (<em>data.frame</em>) avec une ligne par observation et les différentes valeurs à représenter sous forme de variables du tableau.</p>
 <p>Tous les graphiques avec <code class="pkg">ggplot2</code> suivent une même logique. En <strong>premier</strong> lieu, on appelera la fonction <code data-pkg="ggplot2">ggplot</code> en lui passant en paramètre le fichier de données.</p>
 <p><code class="pkg">ggplot2</code> nomme <em>esthétiques</em> les différentes propriétés visuelles d’un graphique, à savoir l’axe des x (<code>x</code>), celui des y (<code>y</code>), la couleur des lignes (<code>colour</code>), celle de remplissage des polygones (<code>fill</code>), le type de lignes (<code>linetype</code>), etc. Une représentation graphique consiste donc à représenter chacune de nos variables d’intérêt selon une esthétique donnée. En <strong>second</strong> lieu, on appelera donc la fonction <code data-pkg="ggplot2">aes</code> pour indiquer la correspondance entre les variables de notre fichier de données et les esthétiques du graphique.</p>
@@ -527,8 +533,8 @@ pre code {
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;hdv2003&quot;</span>)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> hdv2003</span></code></pre></div>
 </div>
-<div id="histogramme" class="section level2">
-<h2>Histogramme</h2>
+<div id="histogramme" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Histogramme<a href="#histogramme" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Pour un <dfn>histogramme</dfn>, on aura recours à la géométrie <code data-pkg="ggplot2" data-rdoc="geom_freqpoly">geom_histogram</code>. Si l’on a une observation par ligne dans le fichier de données, l’histogramme s’obtient simplement en associant la variable d’intérêt à l’esthétique <code>x</code>. Notez la syntaxe de <code data-pkg="ggplot2">aes</code> : le nom des variables est indiqué directement, sans guillemets.</p>
 <figure>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
@@ -583,8 +589,8 @@ Un histogramme avec geom_rug()
 </figcaption>
 </figure>
 </div>
-<div id="densité-et-répartition-cumulée" class="section level2">
-<h2>Densité et répartition cumulée</h2>
+<div id="densité-et-répartition-cumulée" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Densité et répartition cumulée<a href="#densité-et-répartition-cumulée" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Une <dfn>courbe de densité</dfn><dfn data-index="densité, courbe de"></dfn> s’obtient aisément avec la géométrie <code data-pkg="ggplot2">geom_density</code>.</p>
 <figure>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
@@ -624,8 +630,8 @@ Fonction de répartition empirique cumulée
 </figcaption>
 </figure>
 </div>
-<div id="boîtes-à-moustaches-et-représentations-associées" class="section level2">
-<h2>Boîtes à moustaches (et représentations associées)</h2>
+<div id="boîtes-à-moustaches-et-représentations-associées" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Boîtes à moustaches (et représentations associées)<a href="#boîtes-à-moustaches-et-représentations-associées" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>La géométrie <code data-pkg="ggplot2">geom_boxplot</code> nécessite <em>a minima</em> deux esthétiques : <code>x</code> et <code>y</code>. Pour représenter une variable quantitative selon une variable catégorielle, on fera donc :</p>
 <figure>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
@@ -701,8 +707,8 @@ Exemple de graphique <em lang="en">raincloud</em>
 </figure>
 </div>
 </div>
-<div id="diagramme-en-bâtons" class="section level2">
-<h2>Diagramme en bâtons</h2>
+<div id="diagramme-en-bâtons" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Diagramme en bâtons<a href="#diagramme-en-bâtons" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Un <dfn>diagramme en bâtons</dfn><dfn data-index="bâtons, diagramme en"></dfn> s’obtient avec la géométrie <code data-pkg="ggplot2">geom_bar</code>.</p>
 <figure>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
@@ -728,8 +734,8 @@ Diagramme en bâtons avec ajustement de la largeur des barres
 </figcaption>
 </figure>
 </div>
-<div id="nuage-de-points" class="section level2">
-<h2>Nuage de points</h2>
+<div id="nuage-de-points" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Nuage de points<a href="#nuage-de-points" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Un <dfn>nuage de points</dfn><dfn data-index="points, nuage de"></dfn> se représente facilement avec la géométrie <code data-pkg="ggplot2">geom_point</code>.</p>
 <figure>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
@@ -819,8 +825,8 @@ Nuage de points avec droite de régression linéaire
 </figcaption>
 </figure>
 </div>
-<div id="matrice-de-nuages-de-points-et-matrice-de-corrélation" class="section level2">
-<h2>Matrice de nuages de points et matrice de corrélation</h2>
+<div id="matrice-de-nuages-de-points-et-matrice-de-corrélation" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Matrice de nuages de points et matrice de corrélation<a href="#matrice-de-nuages-de-points-et-matrice-de-corrélation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p><code class="pkg">ggplot2</code> ne fournit pas de fonction native pour la réalisation d’une matrice de nuages de points. Cependant, il existe plusieurs extensions permettant d’étendre <code class="pkg">ggplot2</code>. Parmi celles-ci, l’extension <code class="pkg">GGally</code> propose une fonction <code data-pkg="GGally">ggpairs</code> correspondant exactement à notre besoin.</p>
 <figure>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
@@ -847,8 +853,8 @@ Matrice de corrélarion
 </figcaption>
 </figure>
 </div>
-<div id="estimation-locale-de-densité-et-représentations-associées" class="section level2">
-<h2>Estimation locale de densité (et représentations associées)</h2>
+<div id="estimation-locale-de-densité-et-représentations-associées" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Estimation locale de densité (et représentations associées)<a href="#estimation-locale-de-densité-et-représentations-associées" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>On peut aisément représenter une <dfn>estimation locale de densité</dfn><dfn data-index="densité, estimation locale"></dfn> avec la géométrie <code data-pkg="ggplot2">geom_density_2d</code>.</p>
 <figure>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
@@ -919,8 +925,8 @@ Effectifs en deux dimensions (hexagones)
 <p><img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-33-1.png" width="1050" /></p>
 </div>
 </div>
-<div id="diagramme-de-cleveland" class="section level2">
-<h2>Diagramme de Cleveland</h2>
+<div id="diagramme-de-cleveland" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Diagramme de Cleveland<a href="#diagramme-de-cleveland" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Pour un <dfn>diagramme de Cleveland</dfn><dfn data-index="Cleveland, diagramme"></dfn>, on aura recours à la géométrie <code data-pkg="ggplot2">geom_point</code>. Cependant, il faudra lui préciser que l’on souhaite utiliser la statistique <code data-pkg="ggplot2" data-rdoc="geom_bar">stat_count</code> afin que les effectifs soient calculés pour chaque valeur de <code>x</code>.</p>
 <figure>
 <div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
@@ -963,8 +969,8 @@ Diagramme de Cleveland ordonné
 <p><img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-36-1.png" width="1050" /></p>
 </div>
 </div>
-<div id="diagrammes-en-barres" class="section level2">
-<h2>Diagrammes en barres</h2>
+<div id="diagrammes-en-barres" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Diagrammes en barres<a href="#diagrammes-en-barres" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Un <dfn>diagramme en barres</dfn><dfn data-index="barres, diagramme en"></dfn> se construit avec la géométrie <code data-pkg="ggplot2">geom_bar</code>.</p>
 <figure>
 <div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>qualreg <span class="ot">&lt;-</span> <span class="fu">as.character</span>(d<span class="sc">$</span>qualif)</span>
@@ -1078,8 +1084,8 @@ Diagramme en barres cumulées
 <p><img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-44-1.png" width="1050" /></p>
 </div>
 </div>
-<div id="comparer-plusieurs-variables-discrètes-etou-continues" class="section level2">
-<h2>Comparer plusieurs variables discrètes et/ou continues</h2>
+<div id="comparer-plusieurs-variables-discrètes-etou-continues" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Comparer plusieurs variables discrètes et/ou continues<a href="#comparer-plusieurs-variables-discrètes-etou-continues" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code>GGally</code>, déjà évoquée, fournit également deux fonctions utiles pour comparer plusieurs variables discrètes (et/ou continues) : <code data-pkg="GGally">ggbivariate</code> et <code data-pkg="GGally">ggtable</code>.</p>
 <p><code data-pkg="GGally">ggbivariate</code> produit des graphiques en barre pour deux variables discrètes et des boites à moustache lorsque l’on compare une variable discrète avec une variable continue.</p>
 <div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
@@ -1102,8 +1108,8 @@ Diagramme en barres cumulées
 <p><img src="graphs/graphiques-bivaries-ggplot2/unnamed-chunk-47-1.png" width="1050" /></p>
 <p>Pour plus de possibilités de personnalisation, voir la fonction <code data-pkg="GGally">ggduo</code> de <code class="pkg">GGally</code>.</p>
 </div>
-<div id="graphe-en-mosaïque" class="section level2">
-<h2>Graphe en mosaïque</h2>
+<div id="graphe-en-mosaïque" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Graphe en mosaïque<a href="#graphe-en-mosaïque" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Il n’y a pas, à ce jour, d’implémentation officielle des <dfn data-index="graphique en mosaïque">graphiques en mosaïque</dfn><dfn data-index="mosaïque, graphique"></dfn> sous <code class="pkg">ggplot2</code>. On pourra néanmoins se référer à l’extension <code class="pkg">ggmosaic</code> et sa fonction <code data-pkg="ggmosaic">geom_mosaic</code><a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>.</p>
 <figure>
 <div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggmosaic)</span>
@@ -1121,19 +1127,19 @@ Graphique en mosaïque
 </figcaption>
 </figure>
 </div>
-<div id="données-labellisées-et-ggplot2" class="section level2">
-<h2>Données labellisées et ggplot2</h2>
+<div id="données-labellisées-et-ggplot2" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Données labellisées et ggplot2<a href="#données-labellisées-et-ggplot2" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p><code class="pkg">ggplot2</code> tient compte du type des variables, attendant à ce que les variables catégorielles soient présentées sous forme de facteurs. Si l’on utilise des données labellisées (voir le <a href="facteurs-et-vecteurs-labellises.html#labelled">chapitre dédié</a>), nos variables catégorielles seront stockées sous la forme d’un vecteur numérique avec des étiquettes. Il sera donc nécessaire de convertir ces variables en facteurs, tout simplement avec la fonction <code data-pkg="labelled">to_factor</code> de l’extension <code class="pkg">labelled</code> qui pourra utiliser les étiquettes de valeurs comme modalités du facteur.</p>
 </div>
-<div id="exporter-les-graphiques-obtenus" class="section level2">
-<h2>Exporter les graphiques obtenus</h2>
+<div id="exporter-les-graphiques-obtenus" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Exporter les graphiques obtenus<a href="#exporter-les-graphiques-obtenus" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Les graphiques produits par <code class="pkg">ggplot2</code> peuvent être sauvegardés manuellement, comme expliqué dans le chapitre <q><a href="export-de-graphiques.html">Export des graphiques</a></q>, ou programmatiquement. Pour sauvegarder le dernier graphique affiché par <code class="pkg">ggplot2</code> au format PNG, il suffit d’utiliser la fonction <code data-pkg="ggplot2" data-rdoc="ggsave">ggsave</code>, qui permet d’en régler la taille (en pouces) et la résolution (en pixels par pouce ; 72 par défaut) :</p>
 <div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;mon_graphique.png&quot;</span>, <span class="at">width =</span> <span class="dv">11</span>, <span class="at">height =</span> <span class="dv">8</span>)</span></code></pre></div>
 <p>De la même manière, pour sauvegarder n’importe quel graphique construit avec <code class="pkg">ggplot2</code> et stocké dans un objet, il suffit de préciser le nom de cet objet, comme ci-dessous, où l’on sauvegarde le graphique contenu dans l’objet <code>p</code> au format vectoriel PDF, qui préserve la netteté du texte et des autres éléments du graphique à n’importe quelle résolution d’affichage :</p>
 <div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;mon_graphique.pdf&quot;</span>, <span class="at">plot =</span> p,</span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">width =</span> <span class="dv">11</span>, <span class="at">height =</span> <span class="dv">8</span>)</span></code></pre></div>
 </div>
-<div class="footnotes">
+<div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
 <li id="fn1"><p>Pour plus de détails, on pourra lire <a href="https://tgmstat.wordpress.com/2013/11/13/plot-matrix-with-the-r-package-ggally/" class="uri">https://tgmstat.wordpress.com/2013/11/13/plot-matrix-with-the-r-package-ggally/</a>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>

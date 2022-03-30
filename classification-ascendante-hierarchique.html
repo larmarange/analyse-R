@@ -13,7 +13,7 @@
 
 <title>Classification ascendante hiérarchique (CAH)</title>
 
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.12/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -32,8 +32,9 @@
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
@@ -79,6 +80,7 @@
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   ul.task-list{list-style: none;}
     </style>
+
 
 
 <style type="text/css">
@@ -203,6 +205,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -381,6 +386,7 @@ pre code {
                   <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: un exemple de données longitudinales</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+                  <li><a href="analyse-textuelle.html">Analyse textuelle</a></li>
   	            </ul>
               </div>
             </div>
@@ -473,16 +479,16 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#calculer-une-matrice-des-distances">Calculer une matrice des distances</a>
+<li><a href="#calculer-une-matrice-des-distances">Calculer une matrice des distances<span></span></a>
 <ul>
-<li><a href="#distance-de-gower">Distance de Gower</a></li>
-<li><a href="#distance-du-φ²">Distance du Φ²</a></li>
-<li><a href="#exemple">Exemple</a></li>
+<li><a href="#distance-de-gower">Distance de Gower<span></span></a></li>
+<li><a href="#distance-du-φ²">Distance du Φ²<span></span></a></li>
+<li><a href="#exemple">Exemple<span></span></a></li>
 </ul></li>
-<li><a href="#calcul-du-dendrogramme">Calcul du dendrogramme</a></li>
-<li><a href="#découper-le-dendrogramme">Découper le dendrogramme</a></li>
-<li><a href="#caractériser-la-typologie">Caractériser la typologie</a></li>
-<li><a href="#factominer">CAH avec l’extension FactoMineR</a></li>
+<li><a href="#calcul-du-dendrogramme">Calcul du dendrogramme<span></span></a></li>
+<li><a href="#découper-le-dendrogramme">Découper le dendrogramme<span></span></a></li>
+<li><a href="#caractériser-la-typologie">Caractériser la typologie<span></span></a></li>
+<li><a href="#factominer">CAH avec l’extension FactoMineR<span></span></a></li>
 </ul>
 </div>
 
@@ -497,14 +503,16 @@ pre code {
 <div class="note">
 <p>On trouvera également de nombreux supports de cours en français sur la CAH sur le site de François Gilles Carpentier : <a href="http://pagesperso.univ-brest.fr/~carpenti/" class="uri">http://pagesperso.univ-brest.fr/~carpenti/</a>.</p>
 </div>
-<div id="calculer-une-matrice-des-distances" class="section level2">
-<h2>Calculer une matrice des distances</h2>
+<div id="calculer-une-matrice-des-distances" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Calculer une matrice des distances<a href="#calculer-une-matrice-des-distances" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>La notion de <dfn>ressemblance</dfn> entre observations est évaluée par une <dfn>distance</dfn> entre individus. Plusieurs type de ditances existent selon les données utilisées.</p>
 <p>Il existe de nombreuses distances mathématiques pour les variables quantitatives (euclidiennes, Manhattan…) que nous n’aborderons pas ici<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. La plupart peuvent être calculées avec la fonction <code data-pkg="stats">dist</code>.</p>
-<p>Usuellement, pour un ensemble de variables qualitatives, on aura recours à la <dfn data-index="distance du Phi²">distance du Φ²</dfn><dfn data-index="Phi², distance"></dfn> qui est celle utilisée pour l’analyse des correspondances multiples (voir le <a href="">chapitre dédié</a>). Avec l’extension <code class="pkg">ade4</code>, la distance du Φ² s’obtient avec la fonction <code data-pkg="ade4">dist.dudi</code><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. Le cas particulier de la CAH avec l’extension <code class="pkg">FactoMineR</code> sera abordée dans une section spécifique ci-après. Nous évoquerons également la <dfn>distance de Gower</dfn><dfn data-index="Gower, distance"></dfn> qui peut s’appliquer à un ensemble de variables à la fois qualitatives et quantitatives et qui se calcule avec la fonction <code data-pkg="cluster">daisy</code> de l’extension <code class="pkg">cluster</code>. Enfin, dans le chapitre sur l’<a href="analyse-de-sequences.html">analyse de séquences</a>, nous verrons également la fonction <code data-pkg="TraMineR">seqdist</code> (extension <code class="pkg">TraMineR</code>) permettant de calculer une distance entre séquences.</p>
-<div id="distance-de-gower" class="section level3">
-<h3>Distance de Gower</h3>
-<p>En 1971, Gower a proposé un <dfn>indice de similarité</dfn><dfn data-index="similarité, indice"></dfn> qui porte son nom<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>. L’objectif de cet indice consiste à mesurer dans quelle mesure deux individus sont semblables. L’indice de Gower varie entre 0 et 1. Si l’indice vaut 1, les deux individus sont identiques. À l’opposé, s’il vaut 0, les deux individus considérés n’ont pas de point commun. Si l’on note <em>S<sub>g</sub></em> l’<dfn>indice de similarité de Gower</dfn><dfn data-index="Gower, indice de similarité"></dfn>, la distance de Gower <em>D<sub>g</sub></em> s’obtient simplement de la manière suivante : <em>D<sub>g</sub></em> = 1 - <em>S<sub>g</sub></em>. Ainsi, la distance sera nulle entre deux individus identiques et elle sera égale à 1 entre deux individus totalement différents. Cette distance s’obtient sous <strong>R</strong> avec la fonction <code data-pkg="cluster">daisy</code> du package <code class="pkg">cluster</code>.</p>
+<p>Usuellement, pour un ensemble de variables qualitatives, on aura recours à la <dfn data-index="distance du Phi²">distance du Φ²</dfn><dfn data-index="Phi², distance"></dfn> qui est celle utilisée pour l’analyse des correspondances multiples (voir le <a href="">chapitre dédié</a>). Avec l’extension <code class="pkg">ade4</code>, la distance du Φ² s’obtient avec la fonction <code data-pkg="ade4">dist.dudi</code><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. Le cas particulier de la CAH avec l’extension <code class="pkg">FactoMineR</code> sera abordée dans une section spécifique ci-après. Nous évoquerons également la <dfn>distance de Gower</dfn><dfn data-index="Gower, distance"></dfn> qui peut s’appliquer à un ensemble de variables à la fois qualitatives et quantitatives et qui se calcule avec la fonction <code data-pkg="cluster">daisy</code> de l’extension <code class="pkg">cluster</code>. Enfin, dans le chapitre sur l’<a href="analyse-de-sequences.html">analyse de
+séquences</a>, nous verrons également la fonction <code data-pkg="TraMineR">seqdist</code> (extension <code class="pkg">TraMineR</code>) permettant de calculer une distance entre séquences.</p>
+<div id="distance-de-gower" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Distance de Gower<a href="#distance-de-gower" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>En 1971, Gower a proposé un <dfn>indice de similarité</dfn><dfn data-index="similarité, indice"></dfn> qui porte son nom<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>. L’objectif de cet indice consiste à mesurer dans quelle mesure deux individus sont semblables. L’indice de Gower varie entre 0 et 1. Si l’indice vaut 1, les deux individus sont identiques. À l’opposé, s’il vaut 0, les deux individus considérés n’ont pas de point commun. Si l’on note <em>S<sub>g</sub></em> l’<dfn>indice de similarité de Gower</dfn><dfn data-index="Gower, indice de similarité"></dfn>, la distance de Gower <em>D<sub>g</sub></em> s’obtient simplement de la manière suivante : <em>D<sub>g</sub></em> = 1 - <em>S<sub>g</sub></em>. Ainsi, la distance sera nulle entre deux individus identiques et elle sera égale à 1 entre deux individus totalement différents. Cette distance s’obtient sous <strong>R</strong> avec la fonction <code data-pkg="cluster">daisy</code> du package <code
+class="pkg">cluster</code>.</p>
 <p>L’indice de similarité de Gower entre deux individus <em>x<sub>1</sub></em> et <em>x<sub>2</sub></em> se calcule de la manière suivante :</p>
 <!-- 
 $$ S_{g}(x_{1},x_{2})=\frac{1}{p}\sum_{j=1}^{p}s_{12j} $$
@@ -537,8 +545,8 @@ converted on http://www2.ph.ed.ac.uk/snuggletex/MathInputDemo
 <p>Si l’on traite les valeurs manquantes comme une modalité particulière, 1 et 2 partagent alors 2 caractères sur les 5 analysés, la distance de Gower entre eux est alors de 1 − 2/5 =1 − 0,4 = 0,6.</p>
 <p>Si on garde les valeurs manquantes, l’indice de Gower est dès lors calculé sur les seuls descripteurs renseignés à la fois pour 1 et 2. La distance de Gower sera calculée dans le cas présent uniquement sur les 4 caractères renseignés et vaudra 1 − 2/4 = 0,5.</p>
 </div>
-<div id="distance-du-φ²" class="section level3">
-<h3>Distance du Φ²</h3>
+<div id="distance-du-φ²" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Distance du Φ²<a href="#distance-du-φ²" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Il s’agit de la distance utilisée dans les analyses de correspondance multiples (ACM). C’est une variante de la <dfn data-index="distance du Chi²">distance du χ²</dfn><dfn data-index="Chi², distance"></dfn>. Nous considérons ici que nous avons <em>Q</em> questions (soit <em>Q</em> variables initiales de type facteur). À chaque individu est associé un <dfn>patron</dfn> c’est-à-dire une certaine combinaison de réponses aux <em>Q</em> questions. La distance entre deux individus correspond à la distance entre leurs deux patrons. Si les deux individus présentent le même patron, leur distance sera nulle. La distance du Φ² peut s’exprimer ainsi :</p>
 <!-- 
 $$ d_{\Phi^2}^2(L_i,L_j)=\frac{1}{Q}\sum_{k}\frac{(\delta_{ik}-\delta_{jk})^2}{f_k} $$ 
@@ -567,8 +575,8 @@ converted on http://www2.ph.ed.ac.uk/snuggletex/MathInputDemo
 <p><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"> <semantics> <mrow> <msubsup> <mi>d</mi> <msup> <mi>Φ</mi> <mn>2</mn> </msup> <mn>2</mn> </msubsup> <mfenced close=")" open="("> <msub> <mi>L</mi> <mn>1</mn> </msub> <msub> <mi>L</mi> <mn>2</mn> </msub> </mfenced> <mo>=</mo> <mfrac> <mn>1</mn> <mn>5</mn> </mfrac> <mfenced close=")" open="("> <mrow> <mfrac> <mn>1</mn> <mrow> <mn>0</mn> <mo>,</mo> <mn>52</mn> </mrow> </mfrac> <mo>+</mo> <mfrac> <mn>1</mn> <mrow> <mn>0</mn> <mo>,</mo> <mn>48</mn> </mrow> </mfrac> <mo>+</mo> <mfrac> <mn>1</mn> <mrow> <mn>0</mn> <mo>,</mo> <mn>15</mn> </mrow> </mfrac> <mo>+</mo> <mfrac> <mn>1</mn> <mrow> <mn>0</mn> <mo>,</mo> <mn>30</mn> </mrow> </mfrac> <mo>+</mo> <mfrac> <mn>1</mn> <mrow> <mn>0</mn> <mo>,</mo> <mn>80</mn> </mrow> </mfrac> <mo>+</mo> <mfrac> <mn>1</mn> <mrow> <mn>0</mn> <mo>,</mo> <mn>20</mn> </mrow> </mfrac> </mrow> </mfenced> <mo>=</mo> <mn>4</mn> <mo>,</mo> <mn>05</mn> </mrow> </semantics> </math></p>
 <p>Cette distance, bien que moins intuitive que la distance de Gower évoquée précédemment, est la plus employée pour l’analyse d’enquêtes en sciences sociales. Il faut retenir que la distance entre deux profils est dépendante de la distribution globale de chaque modalité dans la population étudiée. Ainsi, si l’on recalcule les distances entre individus à partir d’un sous-échantillon, le résultat obtenu sera différent. De manière générale, les individus présentant des caractéristiques rares dans la population vont se retrouver éloignés des individus présentant des caractéristiques fortement représentées.</p>
 </div>
-<div id="exemple" class="section level3">
-<h3>Exemple</h3>
+<div id="exemple" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Exemple<a href="#exemple" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Nous allons reprendre l’ACM calculée avec <code data-pkg="ade4">dudi.acm</code> (<code class="pkg">ade4</code>) dans le <a href="">chapitre consacré à l’ACM</a> :</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(questionr)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(hdv2003)</span>
@@ -589,9 +597,10 @@ converted on http://www2.ph.ed.ac.uk/snuggletex/MathInputDemo
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>md_gower <span class="ot">&lt;-</span> <span class="fu">daisy</span>(d2, <span class="at">metric =</span> <span class="st">&quot;gower&quot;</span>)</span></code></pre></div>
 </div>
 </div>
-<div id="calcul-du-dendrogramme" class="section level2">
-<h2>Calcul du dendrogramme</h2>
-<p>Il faut ensuite choisir une méthode d’<dfn>agrégation</dfn> pour construire le dendrogramme. De nombreuses solutions existent (saut minimum, distance maximum, moyenne, Ward…). Chacune d’elle produira un dendrogramme différent. Nous ne détaillerons pas ici ces différentes techniques<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>. Cependant, à l’usage, on privilégiera le plus souvent la <dfn>méthode de Ward</dfn><dfn data-index="Ward, méthode"></dfn><a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>. De manière simplifiée, cette méthode cherche à minimiser l’inertie intra-classe et à maximiser l’inertie inter-classe afin d’obtenir des classes les plus homogènes possibles. Cette méthode est souvent incorrectement présentée comme une <q>méthode de minimisation de la variance</q> alors qu’au sens strict Ward vise <q>l’augmentation mininum de la somme des carrés</q> (“minimum increase of sum-of-squares (of errors)”)<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a>.</p>
+<div id="calcul-du-dendrogramme" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Calcul du dendrogramme<a href="#calcul-du-dendrogramme" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Il faut ensuite choisir une méthode d’<dfn>agrégation</dfn> pour construire le dendrogramme. De nombreuses solutions existent (saut minimum, distance maximum, moyenne, Ward…). Chacune d’elle produira un dendrogramme différent. Nous ne détaillerons pas ici ces différentes techniques<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>. Cependant, à l’usage, on privilégiera le plus souvent la <dfn>méthode de Ward</dfn><dfn data-index="Ward, méthode"></dfn><a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>. De manière simplifiée, cette méthode cherche à minimiser l’inertie intra-classe et à maximiser l’inertie inter-classe afin d’obtenir des classes les plus homogènes possibles. Cette méthode est souvent incorrectement présentée comme une <q>méthode de minimisation de la variance</q> alors qu’au sens strict Ward vise <q>l’augmentation mininum de la somme des carrés</q> (“minimum increase of sum-of-squares (of errors)”)<a href="#fn7" class="footnote-ref"
+id="fnref7"><sup>7</sup></a>.</p>
 <p>En raison de la variété des distances possibles et de la variété des techniques d’agrégation, on pourra être amené à réaliser plusieurs dendrogrammes différents sur un même jeu de données jusqu’à obtenir une classification qui fait « sens ».</p>
 <p>La fonction de base pour le calcul d’un dendrogramme est <code data-pkg="stats">hclust</code> en précisant le critère d’agrégation avec <code>method</code>. Dans notre cas, nous allons opter pour la méthode de Ward appliquée au carré des distances (ce qu’on indique avec <code>method = "ward.D2"</code><a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a>) :</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>arbre <span class="ot">&lt;-</span> <span class="fu">hclust</span>(md, <span class="at">method =</span> <span class="st">&quot;ward.D2&quot;</span>)</span></code></pre></div>
@@ -624,8 +633,8 @@ Dendrogramme obtenu avec ggdendrogram
 <p>Le résultat obtenu n’est pas au même format que celui de <code data-pkg="stats">hclust</code>. Il est possible de transformer un objet <code data-pkg="cluster" data-rdoc="agnes.object">agnes</code> au format <code data-pkg="stats">hclust</code> avec <code data-pkg="cluster" data-rdoc="agnes.object">as.hclust</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.hclust</span>(arbre2)</span></code></pre></div>
 </div>
-<div id="découper-le-dendrogramme" class="section level2">
-<h2>Découper le dendrogramme</h2>
+<div id="découper-le-dendrogramme" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Découper le dendrogramme<a href="#découper-le-dendrogramme" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Pour obtenir une <dfn>partition</dfn> de la population, il suffit de découper le dendrogramme obtenu à une certaine hauteur. En premier lieu, une analyse de la forme du dendrogramme pourra nous donner une indication sur le nombre de classes à retenir. Dans notre exemple, deux branches bien distinctes apparaissent sur l’arbre.</p>
 <p>Pour nous aider, nous pouvons représenter les <dfn data-index="saut d'inertie">sauts d’inertie</dfn><dfn data-index="inertie, saut"></dfn> du dendrogramme selon le nombre de classes retenues.</p>
 <figure>
@@ -824,8 +833,8 @@ Projection de la typologie obtenue par CAH selon les 4 premiers axes
 <p>Pour plus d’options graphiques concernant les dendrogrammes en général, on pourra se référer à l’extension <code class="pkg">dendextend</code> : <a href="https://talgalili.github.io/dendextend/" class="uri">https://talgalili.github.io/dendextend/</a>.</p>
 </div>
 </div>
-<div id="caractériser-la-typologie" class="section level2">
-<h2>Caractériser la typologie</h2>
+<div id="caractériser-la-typologie" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Caractériser la typologie<a href="#caractériser-la-typologie" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Reste le travail le plus important (et parfois le plus difficile) qui consiste à catégoriser la typologie obtenue et le cas échéant à nommer les classes.</p>
 <p>En premier lieu, on peut croiser la typologie obtenue avec les différentes variables inclues dans l’ACM. Le plus simple est d’avoir recours à <code data-pkg="gtsummary">tbl_summary</code> de <code class="pkg">gtsummary</code>.</p>
 <div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span></code></pre></div>
@@ -1439,8 +1448,8 @@ Résidus du Chi²
 </figcaption>
 </figure>
 </div>
-<div id="factominer" class="section level2">
-<h2>CAH avec l’extension FactoMineR</h2>
+<div id="factominer" class="section level2 hasAnchor">
+<h2 class="hasAnchor">CAH avec l’extension FactoMineR<a href="#factominer" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">FactoMineR</code> fournit une fonction <code data-pkg="FactoMineR">HCPC</code> permettant de réaliser une classification hiérarchique à partir du résultats d’une analyse factorielle réalisée avec la même extension (voir la <a href="#factominer">section dédiée du chapitre sur l’ACM</a>).</p>
 <p><code data-pkg="FactoMineR">HCPC</code> réalise à la fois le calcul de la matrice des distances, du dendrogramme et le partitionnement de la population en classes. Par défaut, <code data-pkg="FactoMineR">HCPC</code> calcule le dendrogramme à partir du carré des distances du Φ² et avec la méthode de Ward.</p>
 <p>Par défaut, l’arbre est affiché à l’écran et l’arbre sera coupé selon la partition ayant la plus grande perte relative d’inertie (comme avec <code data-pkg="JLutils">best.cutree</code>). Utilisez <code>graph=FALSE</code> pour ne pas afficher le graphique et l’argument <code>nb.clust</code> pour indiquer le nombre de classes désirées.</p>
@@ -1526,7 +1535,7 @@ Projection des catégories sur le plan factoriel
   </script>
 </div>
 </div>
-<div class="footnotes">
+<div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
 <li id="fn1"><p>Pour une présentation de ces différentes distances, on pourra se référer à <a href="http://old.biodiversite.wallonie.be/outils/methodo/similarite_distance.htm" class="uri">http://old.biodiversite.wallonie.be/outils/methodo/similarite_distance.htm</a> ou encore à ce support de cours par D. Chessel, J. Thioulouse et A.B. Dufour disponible à <a href="http://pbil.univ-lyon1.fr/R/pdf/stage7.pdf" class="uri">http://pbil.univ-lyon1.fr/R/pdf/stage7.pdf</a>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>

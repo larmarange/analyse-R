@@ -13,7 +13,7 @@
 
 <title>Visualiser ses données</title>
 
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.12/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -32,8 +32,9 @@
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
@@ -80,6 +81,7 @@
   ul.task-list{list-style: none;}
       .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+
 
 
 <style type="text/css">
@@ -204,6 +206,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -382,6 +387,7 @@ pre code {
                   <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: un exemple de données longitudinales</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+                  <li><a href="analyse-textuelle.html">Analyse textuelle</a></li>
   	            </ul>
               </div>
             </div>
@@ -474,16 +480,16 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#inspecter">Inspection visuelle des données</a></li>
-<li><a href="#summary">summary</a></li>
-<li><a href="#str">str</a></li>
-<li><a href="#glimpse-dplyr">glimpse (dplyr)</a></li>
-<li><a href="#look_for-labelled">look_for (labelled)</a></li>
-<li><a href="#describe-questionr">describe (questionr)</a></li>
-<li><a href="#addins-de-codebook">Addins de codebook</a></li>
-<li><a href="#skim-skimr">skim (skimr)</a></li>
-<li><a href="#create_report-dataexplorer">create_report (DataExplorer)</a></li>
-<li><a href="#makecodebook-datamaid">makeCodebook (dataMaid)</a></li>
+<li><a href="#inspecter">Inspection visuelle des données<span></span></a></li>
+<li><a href="#summary">summary<span></span></a></li>
+<li><a href="#str">str<span></span></a></li>
+<li><a href="#glimpse-dplyr">glimpse (dplyr)<span></span></a></li>
+<li><a href="#look_for-labelled">look_for (labelled)<span></span></a></li>
+<li><a href="#describe-questionr">describe (questionr)<span></span></a></li>
+<li><a href="#addins-de-codebook">Addins de codebook<span></span></a></li>
+<li><a href="#skim-skimr">skim (skimr)<span></span></a></li>
+<li><a href="#create_report-dataexplorer">create_report (DataExplorer)<span></span></a></li>
+<li><a href="#makecodebook-datamaid">makeCodebook (dataMaid)<span></span></a></li>
 </ul>
 </div>
 
@@ -493,28 +499,34 @@ pre code {
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(hdv2003)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(fecondite)</span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">url</span>(<span class="st">&quot;https://github.com/larmarange/analyse-R/raw/gh-pages/data/rp99.RData&quot;</span>))</span></code></pre></div>
-<div id="inspecter" class="section level2">
-<h2>Inspection visuelle des données</h2>
+<div id="inspecter" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Inspection visuelle des données<a href="#inspecter" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>La particularité de <strong>R</strong> par rapport à d’autres logiciels comme <strong>Modalisa</strong> ou <strong>SPSS</strong> est de ne pas proposer, par défaut, de vue des données sous forme de tableau. Ceci peut parfois être un peu déstabilisant dans les premiers temps d’utilisation, même si l’on perd vite l’habitude et qu’on finit par se rendre compte que « voir » les données n’est pas forcément un gage de productivité ou de rigueur dans le traitement.</p>
 <p>Néanmoins, <strong>R</strong> propose une interface permettant de visualiser le contenu d’un tableau de données à l’aide de la fonction <code data-pkg="utils">View</code> :</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(hdv2003)</span></code></pre></div>
 <p>Sous <strong>RStudio</strong>, on peut aussi afficher la <dfn>visionneusee</dfn> (<dfn lang="en">viewer</dfn>) en cliquant sur la petite icône en forme de tableau située à droite de la ligne d’un tableau de données dans l’onglet <em>Environment</em> du quadrant supérieur droit (cf. figure ci-après).</p>
 <figure>
-<img src="images/capture_RStudio_icone_viewer.png" title="fig:" alt="Icône pour afficher une vue du contenu d’un tableau" />
+<div class="figure">
+<img src="images/capture_RStudio_icone_viewer.png" alt="" />
+<p class="caption">Icône pour afficher une vue du contenu d’un tableau</p>
+</div>
 <figcaption>
 Icône pour afficher une vue du contenu d’un tableau
 </figcaption>
 </figure>
 <p>Dans tous les cas, <strong>RStudio</strong> lancera le <em>viewer</em> dans un onglet dédié dans le quadrant supérieur gauche. Le visualiseur de <strong>RStudio</strong> est plus avancé que celui-de base fournit par <strong>R</strong>. Il est possible de trier les données selon une variable en cliquant sur le nom de cette dernière. Il y a également un champs de recherche et un bouton <em>Filter</em> donnant accès à des options de filtrage avancées.</p>
 <figure>
-<img src="images/capture_RStudio_data_viewer.png" title="fig:" alt="La visionneuse de données de RStudio" />
+<div class="figure">
+<img src="images/capture_RStudio_data_viewer.png" alt="" />
+<p class="caption">La visionneuse de données de RStudio</p>
+</div>
 <figcaption>
 La visionneuse de données de RStudio
 </figcaption>
 </figure>
 </div>
-<div id="summary" class="section level2">
-<h2>summary</h2>
+<div id="summary" class="section level2 hasAnchor">
+<h2 class="hasAnchor">summary<a href="#summary" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>La fonction <code data-pkg="base">summary</code> permet d’avoir une vue résumée d’une variable. Elle s’applique à tout type d’objets (y compris un tableau de données entier) et s’adapte à celui-ci.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hdv2003<span class="sc">$</span>age)</span></code></pre></div>
 <table>
@@ -740,8 +752,8 @@ La visionneuse de données de RStudio
 </tbody>
 </table>
 </div>
-<div id="str" class="section level2">
-<h2>str</h2>
+<div id="str" class="section level2 hasAnchor">
+<h2 class="hasAnchor">str<a href="#str" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>La fonction <code data-pkg="utils">str</code> est plus complète que <code data-pkg="base">names</code>. Elle liste les différentes variables, indique leur type et donne le cas échéant des informations supplémentaires ainsi qu’un échantillon des premières valeurs prises par cette variable :</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(hdv2003)</span></code></pre></div>
 <pre><code>&#39;data.frame&#39;:   2000 obs. of  20 variables:
@@ -769,8 +781,8 @@ La visionneuse de données de RStudio
 <p>La fonction <code data-pkg="utils">str</code> est essentielle à connaître et peut s’appliquer à n’importe quel type d’objet. C’est un excellent moyen de connaître en détail la <dfn>structure d’un objet</dfn>. Cependant, les résultats peuvent être parfois trop détaillés et on lui priviligiera dans certains cas les fonctions suivantes.</p>
 </div>
 </div>
-<div id="glimpse-dplyr" class="section level2">
-<h2>glimpse (dplyr)</h2>
+<div id="glimpse-dplyr" class="section level2 hasAnchor">
+<h2 class="hasAnchor">glimpse (dplyr)<a href="#glimpse-dplyr" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">dplyr</code> (voir le <a href="manipuler-les-donnees-avec-dplyr.html">chapitre dédié</a>), propose une fonction <code data-pkg="tibble">glimpse</code> (ce qui signifie <q>aperçu</q> en anglais) qui permet de visualiser rapidement et de manière condensée le contenu d’un tableau de données.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(hdv2003)</span></code></pre></div>
@@ -797,8 +809,8 @@ $ cinema        &lt;fct&gt; Non, Oui, Non, Oui, Non, Oui, Non, N~
 $ sport         &lt;fct&gt; Non, Oui, Oui, Oui, Non, Oui, Non, N~
 $ heures.tv     &lt;dbl&gt; 0.0, 1.0, 0.0, 2.0, 3.0, 2.0, 2.9, 1~</code></pre>
 </div>
-<div id="look_for-labelled" class="section level2">
-<h2>look_for (labelled)</h2>
+<div id="look_for-labelled" class="section level2 hasAnchor">
+<h2 class="hasAnchor">look_for (labelled)<a href="#look_for-labelled" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">labelled</code> propose une fonction <code data-pkg="labelled">look_for</code>, inspirée de Stata, qui permet de lister les différentes variables d’un fichier de données, ainsi que leurs principales caractéristiques :</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(labelled)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">look_for</span>(hdv2003)</span></code></pre></div>
@@ -898,8 +910,8 @@ $ heures.tv     &lt;dbl&gt; 0.0, 1.0, 0.0, 2.0, 3.0, 2.0, 2.9, 1~</code></pre>
 ​      ​             ​                       ​         [99] manquant   </code></pre>
 <p>À noter, le résultat renvoyé par <code data-pkg="labelled">look_for</code> est un tableau de données qui peut ensuite être aisément manipulé (voir l’aide de la fonction).</p>
 </div>
-<div id="describe-questionr" class="section level2">
-<h2>describe (questionr)</h2>
+<div id="describe-questionr" class="section level2 hasAnchor">
+<h2 class="hasAnchor">describe (questionr)<a href="#describe-questionr" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">questionr</code> fournit également une fonction bien pratique pour décrire les différentes variables d’un tableau de données. Il s’agit de <code data-pkg="questionr">describe</code>. Faisons de suite un essai :</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(hdv2003)</span></code></pre></div>
 <pre><code>[2000 obs. x 20 variables] tbl_df tbl data.frame
@@ -1084,14 +1096,14 @@ min: 1 - max: 5 - NAs: 0 (0%) - 5 unique values
 [5] très riche   370  20.4
 Total           1814 100.0</code></pre>
 </div>
-<div id="addins-de-codebook" class="section level2">
-<h2>Addins de codebook</h2>
+<div id="addins-de-codebook" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Addins de codebook<a href="#addins-de-codebook" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code>codebook</code> fournit plusieurs addins permettant d’explorer les étiquettes des différentes variables d’un tableau de données. Ils sont accessibles par le menu <strong>Addins</strong> de <strong>RStudio</strong>.</p>
 <p>On peut aussi lancer les addins manuellement, par exemple avec la commande suivante :</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>codebook<span class="sc">::</span><span class="fu">label_browser_static</span>(femmes)</span></code></pre></div>
 </div>
-<div id="skim-skimr" class="section level2">
-<h2>skim (skimr)</h2>
+<div id="skim-skimr" class="section level2 hasAnchor">
+<h2 class="hasAnchor">skim (skimr)<a href="#skim-skimr" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">skimr</code> a pour objectif de fournir une fonction <code data-pkg="skimr">skim</code> comme alternative à <code>summary</code>{base} pour les vecteurs et les tableaux de données afin de fournir plus de statistiques dans un format plus compact. Elle peut être appliquée à un vecteur donné ou directement à un tableau de données.</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(hdv2003<span class="sc">$</span>cuisine)</span></code></pre></div>
@@ -1701,16 +1713,16 @@ Le principe est d'utiliser la puissance de [R Markdown](rmarkdown-les-rapports-a
 
 ---->
 </div>
-<div id="create_report-dataexplorer" class="section level2">
-<h2>create_report (DataExplorer)</h2>
+<div id="create_report-dataexplorer" class="section level2 hasAnchor">
+<h2 class="hasAnchor">create_report (DataExplorer)<a href="#create_report-dataexplorer" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">DataExplorer</code> fournit des outils d’exploration graphique d’un fichier de données. En premier lieu, sa fonction <code data-pkg="DataExplorer">create_report</code> génère un rapport automatique à partir d’un tableau de données.</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DataExplorer)</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">create_report</span>(hdv2003)</span></code></pre></div>
 <p>Le résultat de ce rapport est visible sur <a href="http://larmarange.github.io/analyse-R/data/hdv2003_DataExplorer_report.html" class="uri">http://larmarange.github.io/analyse-R/data/hdv2003_DataExplorer_report.html</a>.</p>
 <p>L’extension fournit également différentes fonctions graphiques, présentées en détail dans la vignette inclue dans l’extension et visible sur <a href="https://cran.r-project.org/web/packages/DataExplorer/vignettes/dataexplorer-intro.html" class="uri">https://cran.r-project.org/web/packages/DataExplorer/vignettes/dataexplorer-intro.html</a>.</p>
 </div>
-<div id="makecodebook-datamaid" class="section level2">
-<h2>makeCodebook (dataMaid)</h2>
+<div id="makecodebook-datamaid" class="section level2 hasAnchor">
+<h2 class="hasAnchor">makeCodebook (dataMaid)<a href="#makecodebook-datamaid" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">dataMaid</code> propose une fonction <code data-pkg="dataMaid">makeCodebook</code> permettant de générer une présentation de l’ensemble des variables d’un tableau de données, au format PDF, Word ou HTML.</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dataMaid)</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">makeCodebook</span>(hdv2003)</span></code></pre></div>

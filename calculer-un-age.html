@@ -13,7 +13,7 @@
 
 <title>Calculer un âge</title>
 
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.12/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -32,8 +32,9 @@
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
@@ -80,6 +81,7 @@
   ul.task-list{list-style: none;}
       .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+
 
 
 <style type="text/css">
@@ -204,6 +206,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -382,6 +387,7 @@ pre code {
                   <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: un exemple de données longitudinales</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+                  <li><a href="analyse-textuelle.html">Analyse textuelle</a></li>
   	            </ul>
               </div>
             </div>
@@ -474,16 +480,16 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#rappel-sur-les-âges">Rappel sur les âges</a></li>
-<li><a href="#le-package-lubridate">Le package lubridate</a></li>
-<li><a href="#calcul-dun-âge-exact">Calcul d’un âge exact</a>
+<li><a href="#rappel-sur-les-âges">Rappel sur les âges<span></span></a></li>
+<li><a href="#le-package-lubridate">Le package lubridate<span></span></a></li>
+<li><a href="#calcul-dun-âge-exact">Calcul d’un âge exact<span></span></a>
 <ul>
-<li><a href="#cas-particulier-des-personnes-nées-un-29-février">Cas particulier des personnes nées un 29 février</a></li>
+<li><a href="#cas-particulier-des-personnes-nées-un-29-février">Cas particulier des personnes nées un 29 février<span></span></a></li>
 </ul></li>
-<li><a href="#âge-révolu-ou-âge-au-dernier-anniversaire">Âge révolu ou âge au dernier anniversaire</a></li>
-<li><a href="#âge-par-différence-de-millésimes">Âge par différence de millésimes</a></li>
-<li><a href="#calcul-dun-âge-moyen">Calcul d’un âge moyen</a></li>
-<li><a href="#notes">Notes</a></li>
+<li><a href="#âge-révolu-ou-âge-au-dernier-anniversaire">Âge révolu ou âge au dernier anniversaire<span></span></a></li>
+<li><a href="#âge-par-différence-de-millésimes">Âge par différence de millésimes<span></span></a></li>
+<li><a href="#calcul-dun-âge-moyen">Calcul d’un âge moyen<span></span></a></li>
+<li><a href="#notes">Notes<span></span></a></li>
 </ul>
 </div>
 
@@ -491,8 +497,8 @@ pre code {
 <p>La version originale de cette astuce a été publiée par Joseph Larmarange sur <a href="http://joseph.larmarange.net/?Calculer-proprement-un-age-sous-R" class="uri">http://joseph.larmarange.net/?Calculer-proprement-un-age-sous-R</a>.</p>
 </div>
 <p>Le calcul d’un <dfn>âge</dfn> sous <strong>R</strong> n’est pas forcément aussi trivial qu’il n’y parait.</p>
-<div id="rappel-sur-les-âges" class="section level2">
-<h2>Rappel sur les âges</h2>
+<div id="rappel-sur-les-âges" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Rappel sur les âges<a href="#rappel-sur-les-âges" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Il convient en premier lieu de rappeler les principaux âges utilisés les démographes :</p>
 <blockquote>
 <p>L’âge – on précise parfois âge chronologique – est une des caractéristiques fondamentales de la structure des populations. On l’exprime généralement en années, ou en années et mois, voire en mois et jours, pour les enfants en bas âge ; parfois en années et fractions décimales d’année. Les démographes arrondissent d’ordinaire l’âge à l’unité inférieure, l’exprimant ainsi en années révolues, ou années accomplies, le cas échéant en mois révolus, ou mois accomplis. Cet âge est aussi l’âge au dernier anniversaire. On trouve aussi, dans les statistiques, l’âge atteint dans l’année, qui est égal à la différence de millésimes entre l’année considérée et l’année de naissance. […] On est parfois conduit à préciser que l’on considère un âge exact, pour éviter toute confusion avec un âge en années révolues, qui représente en fait une classe d’âges exacts.</p>
@@ -501,13 +507,13 @@ Source : <a href="http://fr-ii.demopaedia.org/wiki/32#322"><cite>Demopædia</ci
 </footer>
 </blockquote>
 </div>
-<div id="le-package-lubridate" class="section level2">
-<h2>Le package lubridate</h2>
+<div id="le-package-lubridate" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Le package lubridate<a href="#le-package-lubridate" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">lubridate</code> est spécialement développée pour faciliter la manipulation et le calcul autour des <dfn data-index="date, variable">dates</dfn>. Elle intègre une fonction <code data-pkg="lubridate">time_length</code> adaptée au calcul des âges exacts.</p>
 <p>Nous noterons <code>naiss</code> la date de naissance et <code>evt</code> la date à laquelle nous calculerons l’âge.</p>
 </div>
-<div id="calcul-dun-âge-exact" class="section level2">
-<h2>Calcul d’un âge exact</h2>
+<div id="calcul-dun-âge-exact" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Calcul d’un âge exact<a href="#calcul-dun-âge-exact" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>On appelle <dfn>âge exact</dfn><dfn data-index="exact, âge"></dfn> l’expression d’un âge avec sa partie décimale.</p>
 <p>Une approche simple consiste à calculer une différence en jours puis à diviser par 365. Or, le souci c’est que toutes les années n’ont pas le même nombre de jours. Regardons par exemple ce qui se passe si l’on calcule l’âge au 31 décembre 1999 d’une personne née le 1<sup>er</sup> janvier 1900.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
@@ -545,8 +551,8 @@ Source : <a href="http://fr-ii.demopaedia.org/wiki/32#322"><cite>Demopædia</ci
 <pre><code>[1] 99.99452</code></pre>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">time_length</span>(<span class="fu">as.duration</span>(<span class="fu">interval</span>(naiss, evt)), <span class="st">&quot;years&quot;</span>)</span></code></pre></div>
 <pre><code>[1] 99.99452</code></pre>
-<div id="cas-particulier-des-personnes-nées-un-29-février" class="section level3">
-<h3>Cas particulier des personnes nées un 29 février</h3>
+<div id="cas-particulier-des-personnes-nées-un-29-février" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Cas particulier des personnes nées un 29 février<a href="#cas-particulier-des-personnes-nées-un-29-février" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Pour les personnes nées un 29 février, il existe un certain flou concernant leur date d’anniversaire pour les années non bissextiles. Doit-on considérer qu’il s’agit du 28 février ou du 1<sup>er</sup> mars ?</p>
 <p>Au sens strict, on peut considérer que leur anniversaire a lieu entre le 28 février soir à minuit et le 1<sup>er</sup> mars à 0 heure du matin, autrement dit que le 28 février ils n’ont pas encore fêté leur anniversaire. C’est la position adoptée par la fonction <code data-pkg="lubridate">time_length</code>.</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>naiss <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="st">&quot;1992-02-29&quot;</span>)</span>
@@ -573,8 +579,8 @@ Source : <a href="http://fr-ii.demopaedia.org/wiki/32#322"><cite>Demopædia</ci
 <pre><code>[1] 22.00011</code></pre>
 </div>
 </div>
-<div id="âge-révolu-ou-âge-au-dernier-anniversaire" class="section level2">
-<h2>Âge révolu ou âge au dernier anniversaire</h2>
+<div id="âge-révolu-ou-âge-au-dernier-anniversaire" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Âge révolu ou âge au dernier anniversaire<a href="#âge-révolu-ou-âge-au-dernier-anniversaire" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Une fois que l’on sait calculer un âge exact, le calcul d’un <dfn>âge révolu</dfn><dfn data-index="révolu, âge"></dfn> ou <dfn>âge au dernier anniversaire</dfn> est assez simple. Il suffit de ne garder que la partie entière de l’âge exact (approche conseillée).</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>naiss <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="st">&quot;1980-01-09&quot;</span>)</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>evt <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="st">&quot;2015-01-01&quot;</span>)</span>
@@ -588,20 +594,20 @@ Source : <a href="http://fr-ii.demopaedia.org/wiki/32#322"><cite>Demopædia</ci
 <div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.period</span>(<span class="fu">interval</span>(naiss, evt))<span class="sc">@</span>year</span></code></pre></div>
 <pre><code>[1] 34</code></pre>
 </div>
-<div id="âge-par-différence-de-millésimes" class="section level2">
-<h2>Âge par différence de millésimes</h2>
+<div id="âge-par-différence-de-millésimes" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Âge par différence de millésimes<a href="#âge-par-différence-de-millésimes" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’<dfn>âge par différence de millésimes</dfn>, encore appelé <dfn>âge atteint dans l’année</dfn>, s’obtient tout simplement en soustrayant l’année de naissance à l’année de l’événement.</p>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>naiss <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="st">&quot;1980-01-09&quot;</span>)</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>evt <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="st">&quot;2015-01-01&quot;</span>)</span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="fu">year</span>(evt) <span class="sc">-</span> <span class="fu">year</span>(naiss)</span></code></pre></div>
 <pre><code>[1] 35</code></pre>
 </div>
-<div id="calcul-dun-âge-moyen" class="section level2">
-<h2>Calcul d’un âge moyen</h2>
+<div id="calcul-dun-âge-moyen" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Calcul d’un âge moyen<a href="#calcul-dun-âge-moyen" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Le calcul d’un <dfn>âge moyen</dfn><dfn data-index="moyenne, âge"></dfn> s’effectue normalement à partir d’âges exacts. Il arrive fréquemment que l’on ne dispose dans les données d’enquêtes que de l’âge révolu. Auquel cas, il faut bien penser à rajouter 0,5 au résultat obtenu. En effet, un âge révolu peut être vu comme une classe d’âges exacts : les individus ayant 20 ans révolus ont entre 20 et 21 ans exacts, soit en moyenne 20,5 ans !</p>
 </div>
-<div id="notes" class="section level2">
-<h2>Notes</h2>
+<div id="notes" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Notes<a href="#notes" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’ensemble des fonctions présentées peuvent être appliquées à des vecteurs et, par conséquent, aux colonnes d’un tableau de données (<em>data.frame</em>).</p>
 <p>En l’absence du package <code class="pkg">lubridate</code>, il reste facile de calculer une durée en jours avec les fonctions de base de <strong>R</strong> :</p>
 <div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>naiss <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="st">&quot;1900-01-01&quot;</span>)</span>

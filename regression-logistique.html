@@ -13,7 +13,7 @@
 
 <title>Régression logistique binaire, multinomiale et ordinale</title>
 
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.12/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -32,8 +32,9 @@
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
@@ -80,6 +81,7 @@
   ul.task-list{list-style: none;}
       .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+
 
 
 <style type="text/css">
@@ -204,6 +206,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -382,6 +387,7 @@ pre code {
                   <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: un exemple de données longitudinales</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+                  <li><a href="analyse-textuelle.html">Analyse textuelle</a></li>
   	            </ul>
               </div>
             </div>
@@ -474,26 +480,26 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#préparation-des-données">Préparation des données</a></li>
-<li><a href="#régression-logistique-binaire">Régression logistique binaire</a>
+<li><a href="#préparation-des-données">Préparation des données<span></span></a></li>
+<li><a href="#régression-logistique-binaire">Régression logistique binaire<span></span></a>
 <ul>
-<li><a href="#coefficients-du-modèle">Coefficients du modèle</a></li>
-<li><a href="#représentation-graphique-du-modèle">Représentation graphique du modèle</a></li>
-<li><a href="#représentation-graphique-des-effets">Représentation graphique des effets</a></li>
-<li><a href="#matrice-de-confusion">Matrice de confusion</a></li>
-<li><a href="#identifier-les-variables-ayant-un-effet-significatif">Identifier les variables ayant un effet significatif</a></li>
-<li><a href="#sélection-de-modèles">Sélection de modèles</a></li>
-<li><a href="#tableaux-all-in-one">Tableaux <q>all-in-one</q></a></li>
-<li><a href="#effets-dinteraction-dans-le-modèle">Effets d’interaction dans le modèle</a></li>
-<li><a href="#multicolinéarité">Multicolinéarité</a></li>
+<li><a href="#coefficients-du-modèle">Coefficients du modèle<span></span></a></li>
+<li><a href="#représentation-graphique-du-modèle">Représentation graphique du modèle<span></span></a></li>
+<li><a href="#représentation-graphique-des-effets">Représentation graphique des effets<span></span></a></li>
+<li><a href="#matrice-de-confusion">Matrice de confusion<span></span></a></li>
+<li><a href="#identifier-les-variables-ayant-un-effet-significatif">Identifier les variables ayant un effet significatif<span></span></a></li>
+<li><a href="#sélection-de-modèles">Sélection de modèles<span></span></a></li>
+<li><a href="#tableaux-all-in-one">Tableaux <q>all-in-one</q><span></span></a></li>
+<li><a href="#effets-dinteraction-dans-le-modèle">Effets d’interaction dans le modèle<span></span></a></li>
+<li><a href="#multicolinéarité">Multicolinéarité<span></span></a></li>
 </ul></li>
-<li><a href="#régression-logistique-multinomiale">Régression logistique multinomiale</a></li>
-<li><a href="#régression-logistique-ordinale">Régression logistique ordinale</a></li>
-<li><a href="#survey">Données pondérées et l’extension survey</a>
+<li><a href="#régression-logistique-multinomiale">Régression logistique multinomiale<span></span></a></li>
+<li><a href="#régression-logistique-ordinale">Régression logistique ordinale<span></span></a></li>
+<li><a href="#survey">Données pondérées et l’extension survey<span></span></a>
 <ul>
-<li><a href="#régression-logistique-binaire-1">Régression logistique binaire</a></li>
-<li><a href="#régression-multinomiale">Régression multinomiale</a></li>
-<li><a href="#régression-ordinale">Régression ordinale</a></li>
+<li><a href="#régression-logistique-binaire-1">Régression logistique binaire<span></span></a></li>
+<li><a href="#régression-multinomiale">Régression multinomiale<span></span></a></li>
+<li><a href="#régression-ordinale">Régression ordinale<span></span></a></li>
 </ul></li>
 </ul>
 </div>
@@ -510,8 +516,8 @@ pre code {
 <p>La <dfn>régression logistique</dfn><dfn data-index="logistique, régression"></dfn> est fréquemment utilisée en sciences sociales car elle permet d’effectuer un raisonnement dit <em>toutes choses étant égales par ailleurs</em>. Plus précisément, la régression logistique a pour but d’isoler les effets de chaque variable, c’est-à-dire d’identifier les effets résiduels d’une <dfn>variable explicative</dfn><dfn data-index="explicative, variable"></dfn> sur une <dfn>variable d’intérêt</dfn>, une fois pris en compte les autres variables explicatives introduites dans le modèle. La régression logistique est ainsi prisée en épidémiologie pour identifier les facteurs associés à telle ou telle pathologie.</p>
 <p>La <dfn>régression logistique ordinaire</dfn><dfn data-index="ordinaire, régression logistique"></dfn> ou <dfn>régression logistique binaire</dfn><dfn data-index="binaire, régression logistique"></dfn> vise à expliquer une variable d’intérêt binaire (c’est-à-dire de type « oui / non » ou « vrai / faux »). Les variables explicatives qui seront introduites dans le modèle peuvent être <dfn data-index="variable quantitative">quantitatives</dfn><dfn data-index="quantitative, variable"></dfn> ou <dfn data-index="variable qualitative">qualitatives</dfn><dfn data-index="qualitative, variable"></dfn>.</p>
 <p>La <dfn>régression logistique multinomiale</dfn><dfn data-index="multinomiale, régression logistique"></dfn> est une extension de la régression logistique aux variables qualitatives à trois modalités ou plus, la <dfn>régression logistique ordinale</dfn><dfn data-index="ordinale, régression logistique"></dfn> aux variables qualitatives à trois modalités ou plus qui sont ordonnées hiérarchiquement.</p>
-<div id="préparation-des-données" class="section level2">
-<h2>Préparation des données</h2>
+<div id="préparation-des-données" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Préparation des données<a href="#préparation-des-données" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Dans ce chapite, nous allons encore une fois utiliser les données de l’enquête <em>Histoire de vie</em>, fournies avec l’extension <code class="pkg">questionr</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(questionr)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(hdv2003)</span>
@@ -599,8 +605,8 @@ pre code {
 [3] &quot;Technique/Professionnel&quot; &quot;Supérieur&quot;              
 [5] &quot;manquant&quot;               </code></pre>
 </div>
-<div id="régression-logistique-binaire" class="section level2">
-<h2>Régression logistique binaire</h2>
+<div id="régression-logistique-binaire" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Régression logistique binaire<a href="#régression-logistique-binaire" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>La fonction <code data-pkg="stats">glm</code> (pour <dfn lang="en">generalized linear models</dfn> soit <dfn>modèle linéaire généralisé</dfn> en français) permet de calculer une grande variété de modèles statistiques. La régression logistique ordinaire correspond au modèle <em>logit</em> de la famille des modèles binomiaux, ce que l’on indique à <code data-pkg="stats">glm</code> avec l’argument <code>family=binomial(logit)</code>.</p>
 <p>Le modèle proprement dit sera renseigné sous la forme d’une <dfn>formule</dfn> (que nous avons déjà rencontrée dans le chapitre sur la <a href="statistique-bivariee.html">statistique bivariée</a> et présentée plus en détails dans un <a href="formules.html">chapitre dédié</a>). On indiquera d’abord la variable d’intérêt, suivie du signe <code>~</code> (que l’on obtient en appuyant sur les touches <kbd>Alt Gr</kbd> et <kbd>3</kbd> sur un clavier de type PC) puis de la liste des variables explicatives séparées par un signe <code>+</code>. Enfin, l’argument <code>data</code> permettra d’indiquer notre tableau de données.</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>reg <span class="ot">&lt;-</span> <span class="fu">glm</span>(sport <span class="sc">~</span> sexe <span class="sc">+</span> grpage <span class="sc">+</span> etud <span class="sc">+</span> relig <span class="sc">+</span> heures.tv, <span class="at">data =</span> d, <span class="at">family =</span> <span class="fu">binomial</span>(logit))</span>
@@ -704,8 +710,8 @@ Residual deviance: 2206.2  on 1980  degrees of freedom
 AIC: 2236.2
 
 Number of Fisher Scoring iterations: 4</code></pre>
-<div id="coefficients-du-modèle" class="section level3">
-<h3>Coefficients du modèle</h3>
+<div id="coefficients-du-modèle" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Coefficients du modèle<a href="#coefficients-du-modèle" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Dans le cadre d’un modèle logistique, généralement on ne présente pas les <dfn data-index="coefficient, modèle">coefficients</dfn> du modèle mais leur valeur exponentielle, cette dernière correspondant en effet à des <dfn data-index="odds ratio" lang="en">odds ratio</dfn>, également appelés <dfn data-index="rapport des cotes">rapports des cotes</dfn>. L’odds ratio diffère du <dfn>risque relatif</dfn><dfn data-index="relatif, risque"></dfn>. Cependent son interprétation est similaire. Un <em>odds ratio</em> de 1 signifie l’absence d’effet. Un <em>odds ratio</em> largement supérieur à 1 correspond à une augmentation du phénomène étudié et un <em>odds ratio</em> largement inféieur à 1 correspond à une diminution du phénomène étudié<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>.</p>
 <p>La fonction <code data-pkg="stats">coef</code> permet d’obtenir les coefficients d’un modèle, <code data-pkg="stats">confint</code> leurs intervalles de confiance et <code data-pkg="base" data-rdoc="log">exp</code> de calculer l’exponentiel. Les <em>odds ratio</em> et leurs <dfn data-index="intervalle de confiance d'un odds ratio">intervalles de confiance</dfn><dfn data-index="odds ratio, intervalle de confiance"></dfn> s’obtiennent ainsi :</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>(reg))</span></code></pre></div>
@@ -1300,8 +1306,8 @@ Attachement du package : &#39;gtsummary&#39;</code></pre>
 </div>
 <p>On pourra se référer à la <a href="https://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html">vignette dédiée (en anglais)</a> pour découvrir les différentes options de <code data-pkg="gtsummary">tbl_regression</code>.</p>
 </div>
-<div id="représentation-graphique-du-modèle" class="section level3">
-<h3>Représentation graphique du modèle</h3>
+<div id="représentation-graphique-du-modèle" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Représentation graphique du modèle<a href="#représentation-graphique-du-modèle" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Il est possible de représenter graphiquement les différents odds ratios avec la fonction <code data-pkg="GGally">ggcoef_model</code> de <code class="pkg">GGally</code>.</p>
 <figure>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GGally)</span></code></pre></div>
@@ -1328,8 +1334,8 @@ La fonction forest_model
 <p>A la différence de <code data-pkg="GGally">ggcoef_model</code> qui fonctionne avec la plupart des types de modèles (dont les modèles à effets mixtes ou ceux réalisés avec un plan d’échantillonnage complexe), <code data-pkg="forestmodel">forest_model</code> ne fonctionne qu’avec les modèles les plus courants.</p>
 </div>
 </div>
-<div id="représentation-graphique-des-effets" class="section level3">
-<h3>Représentation graphique des effets</h3>
+<div id="représentation-graphique-des-effets" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Représentation graphique des effets<a href="#représentation-graphique-des-effets" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">effects</code> propose une représentation graphique résumant les effets de chaque variable du modèle. Pour cela, il suffit d’appliquer la méthode <code data-pkg="effects" data-rdoc="summary.effect">plot</code> au résultat de la fonction <code data-pkg="effects" data-rdoc="effect">allEffects</code>. Nous obtenons alors la <a href="#reglog_alleffects">figure ci-dessous</a>.</p>
 <figure id="reglog_alleffects">
 <div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(effects)</span></code></pre></div>
@@ -1370,8 +1376,8 @@ Effet du modèles représentés avec ggeffect
 </figure>
 <p>On pourra noter la prise en compte par <code class="pkg">ggeffect</code> des étiquettes de variables définies plus haut.</p>
 </div>
-<div id="matrice-de-confusion" class="section level3">
-<h3>Matrice de confusion</h3>
+<div id="matrice-de-confusion" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Matrice de confusion<a href="#matrice-de-confusion" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Une manière de tester la qualité d’un modèle est le calcul d’une <dfn>matrice de confusion</dfn><dfn data-index="confusion, matrice"></dfn>, c’est-à-dire le tableau croisé des valeurs observées et celles des valeurs prédites en appliquant le modèle aux données d’origine.</p>
 <p>La méthode <code data-pkg="stats" data-rdoc="predict.glm">predict</code> avec l’argument <code>type="response"</code> permet d’appliquer notre modèle logistique à un tableau de données et renvoie pour chaque individu la probabilité qu’il ait vécu le phénomène étudié.</p>
 <div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>sport.pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(reg, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>, <span class="at">newdata =</span> d)</span>
@@ -1388,8 +1394,8 @@ Effet du modèles représentés avec ggeffect
   TRUE   199  336</code></pre>
 <p>Nous avons donc 583 (384+199) prédictions incorrectes sur un total de 1993, soit un taux de mauvais classement de 29,3 %.</p>
 </div>
-<div id="identifier-les-variables-ayant-un-effet-significatif" class="section level3">
-<h3>Identifier les variables ayant un effet significatif</h3>
+<div id="identifier-les-variables-ayant-un-effet-significatif" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Identifier les variables ayant un effet significatif<a href="#identifier-les-variables-ayant-un-effet-significatif" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Les p-values associées aux odds ratios nous indique si un odd ratio est significativement différent de 1, par rapport à la modalité de référebce. Mais cela n’indique pas si globalement une variable a un effet significatif sur le modèle. Pour tester l’effet global sur un modèle, on peut avoir recours à la fonction <code data-pkg="stats">drop1</code>. Cette dernière va tour à tour supprimer chaque variable du modèle et réaliser une analyse de variance (ANOVA, voir fonction <code data-pkg="stats">anova</code>) pour voir si la variance change significativement.</p>
 <div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">drop1</span>(reg, <span class="at">test =</span> <span class="st">&quot;Chisq&quot;</span>)</span></code></pre></div>
 <div data-pagedtable="false">
@@ -1895,8 +1901,8 @@ Attachement du package : &#39;car&#39;</code></pre>
 </div>
 </div>
 </div>
-<div id="sélection-de-modèles" class="section level3">
-<h3>Sélection de modèles</h3>
+<div id="sélection-de-modèles" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Sélection de modèles<a href="#sélection-de-modèles" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Il est toujours tentant lorsque l’on recherche les facteurs associés à un phénomène d’inclure un nombre important de variables explicatives potentielles dans un mmodèle logistique. Cependant, un tel modèle n’est pas forcément le plus efficace et certaines variables n’auront probablement pas d’effet significatif sur la variable d’intérêt.</p>
 <p>Pour une présentation didactique du cadre théorique de la sélection de modèle, vous pouvez consulter en ligne le <a href="https://perso.univ-rennes2.fr/system/files/users/rouviere_l/chapitre3_glm.pdf">cours de L. Rouvière sur la sélection/validation de modèles</a>.</p>
 <p>La technique de <dfn>sélection descendante pas à pas</dfn><dfn data-index="pas à pas, sélection descendante"></dfn> est une approche visant à améliorer son modèle explicatif<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>. On réalise un premier modèle avec toutes les variables spécifiées, puis on regarde s’il est possible d’améliorer le modèle en supprimant une des variables du modèle. Si plusieurs variables permettent d’améliorer le modèle, on supprimera la variable dont la suppression améliorera le plus le modèle. Puis on recommence le même procédé pour voir si la suppression d’une seconde variable peut encore améliorer le modèle et ainsi de suite. Lorsque le modèle ne peut plus être améliorer par la suppresion d’une variable, on s’arrête.</p>
@@ -2013,10 +2019,10 @@ La fonction ggcoef_compare
 </figcaption>
 </figure>
 </div>
-<div id="tableaux-all-in-one" class="section level3">
-<h3>Tableaux <q>all-in-one</q></h3>
-<div id="gtsummary" class="section level4">
-<h4>gtsummary</h4>
+<div id="tableaux-all-in-one" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Tableaux <q>all-in-one</q><a href="#tableaux-all-in-one" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="gtsummary" class="section level4 hasAnchor">
+<h4 class="hasAnchor">gtsummary<a href="#gtsummary" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>Nous avons déjà vu précédemment la fonction <code data-pkg="gtsummary">tbl_regression</code> de l’extension <code class="pkg">gtsummary</code>. Une <a href="http://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html">vignette dédiée</a> de l’extension explicite les possibilités de personnalisation des résultats. Par exemple <code data-pkg="gtsummary">add_global_p</code> permet d’ajouter des p-valeurs globales pour chaque variable.</p>
 <div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span>
 <span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">&quot;fr&quot;</span>, <span class="at">decimal.mark =</span> <span class="st">&quot;,&quot;</span>, <span class="at">big.mark =</span> <span class="st">&quot; &quot;</span>)</span></code></pre></div>
@@ -5511,8 +5517,8 @@ La fonction ggcoef_compare
 </table>
 </div>
 </div>
-<div id="finalfit" class="section level4">
-<h4>finalfit</h4>
+<div id="finalfit" class="section level4 hasAnchor">
+<h4 class="hasAnchor">finalfit<a href="#finalfit" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>L’extension <code class="pkg">finalfit</code> fournit une fonction <code data-pkg="finalfit">finalfit</code> du type <q lang="en">all-in-one</q> qui calcule un tableau avec les tris croisés, les odds ratios univariés et un modèle multivarié.</p>
 <p>Il faut d’abord définir la variable dépendante et les variables explicatives.</p>
 <div class="sourceCode" id="cb97"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>dep <span class="ot">&lt;-</span> <span class="st">&quot;sport&quot;</span></span>
@@ -6030,17 +6036,17 @@ Graphique des odds ratios obtenu avec or_plot
 <p><strong>ATTENTION :</strong> <code data-pkg="final_fit">or_plot</code> n’est pas compatible avec les effets d’interactions (cf. ci-dessous).</p>
 </div>
 </div>
-<div id="effets-dinteraction-dans-le-modèle" class="section level3">
-<h3>Effets d’interaction dans le modèle</h3>
+<div id="effets-dinteraction-dans-le-modèle" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Effets d’interaction dans le modèle<a href="#effets-dinteraction-dans-le-modèle" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Voir le <a href="effets-d-interaction.html">chapitre dédié aux effets d’interaction</a>.</p>
 </div>
-<div id="multicolinéarité" class="section level3">
-<h3>Multicolinéarité</h3>
+<div id="multicolinéarité" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Multicolinéarité<a href="#multicolinéarité" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Voir le <a href="multicolinearite.html">chapitre dédié</a>.</p>
 </div>
 </div>
-<div id="régression-logistique-multinomiale" class="section level2">
-<h2>Régression logistique multinomiale</h2>
+<div id="régression-logistique-multinomiale" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Régression logistique multinomiale<a href="#régression-logistique-multinomiale" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <div class="webin-R">
 <p>La régression logistique multinomiale est évoquée dans le webin-R #17 (trajectoires de soins : un exemple de données longitudinales) sur <a href="https://youtu.be/JV1Srrg09oI">YouTube</a>.</p>
 </div>
@@ -6738,8 +6744,8 @@ Représentation alternative des effets marginaux du modèle multinomial
 </figcaption>
 </figure>
 </div>
-<div id="régression-logistique-ordinale" class="section level2">
-<h2>Régression logistique ordinale</h2>
+<div id="régression-logistique-ordinale" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Régression logistique ordinale<a href="#régression-logistique-ordinale" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>La <dfn>régression logistique ordinale</dfn><dfn data-index="ordinale, régression logistique"></dfn> s’applique lorsque la variable à expliquer possède trois ou plus modalités qui sont ordonnées (par exemple : modéré, moyen, fort).</p>
 <p>L’extension la plus utilisée pour réaliser des modèles ordinaux est <code class="pkg">ordinal</code> et sa fonction <code data-pkg="ordinal">clm</code>. Il est même possible de réaliser des modèles ordinaux avec des <a href="modeles-a-effets-aleatoires.html">effets aléatoires</a> (modèles mixtes) à l’aide de la fonction <code data-pkg="ordinal">clmm</code>.</p>
 <p>Pour une bonne introduction à l’extension <code class="pkg">ordinal</code>, on pourra se référer au tutoriel officiel (en anglais) : <a href="https://cran.r-project.org/web/packages/ordinal/vignettes/clm_tutorial.pdf" class="uri">https://cran.r-project.org/web/packages/ordinal/vignettes/clm_tutorial.pdf</a>.</p>
@@ -7284,14 +7290,14 @@ Coefficients du modèle ordinal
 </table>
 </div>
 </div>
-<div id="survey" class="section level2">
-<h2>Données pondérées et l’extension survey</h2>
+<div id="survey" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Données pondérées et l’extension survey<a href="#survey" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Lorsque l’on utilise des données pondérées, on aura recours à l’extension <code class="pkg">survey</code><a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>.</p>
 <p>Préparons des données d’exemple :</p>
 <div class="sourceCode" id="cb152"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb152-1"><a href="#cb152-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survey)</span>
 <span id="cb152-2"><a href="#cb152-2" aria-hidden="true" tabindex="-1"></a>dw <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span><span class="dv">1</span>, <span class="at">data =</span> d, <span class="at">weights =</span> <span class="sc">~</span>poids)</span></code></pre></div>
-<div id="régression-logistique-binaire-1" class="section level3">
-<h3>Régression logistique binaire</h3>
+<div id="régression-logistique-binaire-1" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Régression logistique binaire<a href="#régression-logistique-binaire-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">survey</code> fournit une fonction <code data-pkg="survey">svyglm</code> permettant de calculer un modèle statistique tout en prenant en compte le plan d’échantillonnage spécifié. La syntaxe de <code data-pkg="survey">svyglm</code> est proche de celle de <code data-pkg="stats">glm</code>. Cependant, le cadre d’une régression logistique, il est nécessaire d’utiliser <code>family = quasibinomial()</code> afin d’éviter un message d’erreur indiquant un nombre non entier de succès :</p>
 <div class="sourceCode" id="cb153"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb153-1"><a href="#cb153-1" aria-hidden="true" tabindex="-1"></a>reg <span class="ot">&lt;-</span> <span class="fu">svyglm</span>(sport <span class="sc">~</span> sexe <span class="sc">+</span> age <span class="sc">+</span> relig <span class="sc">+</span> heures.tv, dw, <span class="at">family =</span> <span class="fu">binomial</span>())</span></code></pre></div>
 <pre><code>Warning in eval(family$initialize): non-integer #successes
@@ -7769,8 +7775,8 @@ Représentation graphique d’un modèle svyglm
 <p>Dans ses dernières versions, <code class="pkg">survey</code> fournit une méthode <code data-pkg="survey" data-rdoc="anova.svyglm">AIC.svyglm</code> permettant d’estimer un <dfn>AIC</dfn> sur un modèle calculé avec <code data-pkg="survey">svyglm</code>. Il est dès lors possible d’utiliser la fonction <code data-pkg="stats">step</code> pour réaliser une <dfn>sélection descendante pas à pas</dfn><dfn data-index="pas à pas, sélection descendante"></dfn>.</p>
 <p>L’extension <code class="pkg">effects</code> n’est quant à elle pas compatible avec <code data-pkg="survey">svyglm</code><a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a>.</p>
 </div>
-<div id="régression-multinomiale" class="section level3">
-<h3>Régression multinomiale</h3>
+<div id="régression-multinomiale" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Régression multinomiale<a href="#régression-multinomiale" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">survey</code> ne fournit pas de fonction adaptée aux régressions multinomiales. Cependant, il est possible d’en réaliser une en ayant recours à des <dfn>poids de réplication</dfn><dfn data-index="réplication, poids"></dfn>, comme suggéré par Thomas Lumley dans son ouvrage <em>Complex Surveys: A Guide to Analysis Using R</em>. Thomas Lumley est par ailleurs l’auteur de l’extension <code class="pkg">survey</code>.</p>
 <p>L’extension <code class="pkg">svrepmisc</code> disponible sur <a href="https://github.com/carlganz/svrepmisc">GitHub</a> fournit quelques fonctions facilitant l’utilisation des poids de réplication avec <code class="pkg">survey</code>. Pour l’installer, on utilisera le code ci-dessous :</p>
 <div class="sourceCode" id="cb161"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb161-1"><a href="#cb161-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;carlganz/svrepmisc&quot;</span>)</span></code></pre></div>
@@ -7921,8 +7927,8 @@ Satisfaction.trav.impPeu                  7.1558222</code></pre>
   </script>
 </div>
 </div>
-<div id="régression-ordinale" class="section level3">
-<h3>Régression ordinale</h3>
+<div id="régression-ordinale" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Régression ordinale<a href="#régression-ordinale" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Pour un modèle ordinal, il existe une version simplifiée des modèles ordinaux directement disponible dans <code class="pkg">survey</code> via la fonction <code data-pkg="survey">svyolr</code>.</p>
 <div class="sourceCode" id="cb171"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb171-1"><a href="#cb171-1" aria-hidden="true" tabindex="-1"></a>rego <span class="ot">&lt;-</span> <span class="fu">svyolr</span>(trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etud <span class="sc">+</span> trav.imp, <span class="at">design =</span> dw)</span>
 <span id="cb171-2"><a href="#cb171-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(rego)</span></code></pre></div>
@@ -8033,7 +8039,7 @@ trav.impPeu                 -3.0929870  0.03220584</code></pre>
 </div>
 </div>
 </div>
-<div class="footnotes">
+<div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
 <li id="fn1"><p>Il existe également une fonction <code data-pkg="base">add.NA</code> fournie de base avec <strong>R</strong> et <code data-pkg="questionr">addNAstr</code> fournie par <code class="pkg">questionr</code>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>

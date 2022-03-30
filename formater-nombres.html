@@ -13,7 +13,7 @@
 
 <title>Mettre en forme des nombres avec scales</title>
 
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.12/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -32,8 +32,9 @@
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
@@ -80,6 +81,7 @@
   ul.task-list{list-style: none;}
       .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+
 
 
 <style type="text/css">
@@ -204,6 +206,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -382,6 +387,7 @@ pre code {
                   <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: un exemple de données longitudinales</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+                  <li><a href="analyse-textuelle.html">Analyse textuelle</a></li>
   	            </ul>
               </div>
             </div>
@@ -474,18 +480,18 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#number-ou-label_number">number() ou label_number() ?</a></li>
-<li><a href="#label_number">label_number()</a></li>
-<li><a href="#label_comma">label_comma()</a></li>
-<li><a href="#label_percent">label_percent()</a></li>
-<li><a href="#label_dollar">label_dollar()</a></li>
-<li><a href="#label_pvalue-style_pvalue-signif_stars">label_pvalue(), style_pvalue() &amp; signif_stars()</a></li>
-<li><a href="#label_number_si">label_number_si()</a></li>
-<li><a href="#label_scientific">label_scientific()</a></li>
-<li><a href="#label_bytes">label_bytes()</a></li>
-<li><a href="#label_ordinal">label_ordinal()</a></li>
-<li><a href="#label_date-label_date_short-label_time">label_date(), label_date_short() &amp; label_time()</a></li>
-<li><a href="#label_wrap">label_wrap()</a></li>
+<li><a href="#number-ou-label_number">number() ou label_number() ?<span></span></a></li>
+<li><a href="#label_number">label_number()<span></span></a></li>
+<li><a href="#label_comma">label_comma()<span></span></a></li>
+<li><a href="#label_percent">label_percent()<span></span></a></li>
+<li><a href="#label_dollar">label_dollar()<span></span></a></li>
+<li><a href="#label_pvalue-style_pvalue-signif_stars">label_pvalue(), style_pvalue() &amp; signif_stars()<span></span></a></li>
+<li><a href="#label_number_si">label_number_si()<span></span></a></li>
+<li><a href="#label_scientific">label_scientific()<span></span></a></li>
+<li><a href="#label_bytes">label_bytes()<span></span></a></li>
+<li><a href="#label_ordinal">label_ordinal()<span></span></a></li>
+<li><a href="#label_date-label_date_short-label_time">label_date(), label_date_short() &amp; label_time()<span></span></a></li>
+<li><a href="#label_wrap">label_wrap()<span></span></a></li>
 </ul>
 </div>
 
@@ -493,8 +499,8 @@ pre code {
 <p>Ce chapitre est évoqué dans le webin-R #09 (Graphiques uni- et bivariés avec ggplot2) sur <a href="https://youtu.be/73xvKXSnV1I">YouTube</a>.</p>
 </div>
 <p>Il existe de nombreuses fonctions pour mettre en forme des nombres sous <strong>R</strong>. La fonction de base est <code data-pkg="base">format</code>. Plusieurs packages proposent des variations pour rendre cette mise en forme plus facile. Cependant, s’il y a une extension à retenir, c’est l’extension <code class="pkg">scales</code>.</p>
-<div id="number-ou-label_number" class="section level2">
-<h2>number() ou label_number() ?</h2>
+<div id="number-ou-label_number" class="section level2 hasAnchor">
+<h2 class="hasAnchor">number() ou label_number() ?<a href="#number-ou-label_number" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Les deux fonctions de base sont <code data-pkg="scales">number</code> et <code data-pkg="scales">label_number</code>. Elles ont l’air très similaires et partagent un grand nombre de paramètres en commun. La différence est que <code data-pkg="scales">number</code> a besoin d’un vecteur numérique en entrée qu’elle va mettre en forme, tandis que que <code data-pkg="scales">label_number</code> renvoie une fonction que l’on pourra ensuite appliquer à un vecteur numérique.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.0023</span>, .<span class="dv">123</span>, <span class="fl">4.567</span>, <span class="fl">874.44</span>, <span class="dv">8957845</span>)</span>
@@ -510,8 +516,8 @@ pre code {
 [4] &quot;874.44&quot;       &quot;8 957 845.00&quot;</code></pre>
 <p>Dans de nombreux cas de figure (par exemple pour un graphique <code class="pkg">ggplot2</code> ou un tableau <code class="pkg">gtsummary</code>), il sera demandé de fournir une fonction, auquel cas on aura recours aux fonctions de <code class="pkg">scales</code> préfixées par <code>label_*()</code>.</p>
 </div>
-<div id="label_number" class="section level2">
-<h2>label_number()</h2>
+<div id="label_number" class="section level2 hasAnchor">
+<h2 class="hasAnchor">label_number()<a href="#label_number" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p><code data-pkg="scales">label_number</code> est la fonction de base de mise en forme de nombres dans <code class="pkg">scales</code>, une majorité des autres fonctions faisant appel à <code data-pkg="scales">label_number</code> et partageant les mêmes arguments.</p>
 <p>Le paramètre <code>accurary</code> permets de définir le niveau d’arrondi à utiliser. Par exemple, <code>.1</code> pour afficher une seule décimale. Il est aussi possible d’indiquer un nombre qui n’est pas une puissance de 10 (par exemple <code>.25</code>). Si on n’indique rien (<code>NULL</code>), alors <code data-pkg="scales">label_number</code> essaiera de deviner un nombre de décimales pertinent en fonction des valeurs du vecteur de nombres à mettre en forme.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">label_number</span>(<span class="at">accuracy =</span> <span class="cn">NULL</span>)(x)</span></code></pre></div>
@@ -546,22 +552,22 @@ pre code {
 [3] &quot;4.567|000|000&quot;         &quot;874.440|000|000&quot;      
 [5] &quot;8 957 845.000|000|000&quot;</code></pre>
 </div>
-<div id="label_comma" class="section level2">
-<h2>label_comma()</h2>
+<div id="label_comma" class="section level2 hasAnchor">
+<h2 class="hasAnchor">label_comma()<a href="#label_comma" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p><code data-pkg="scales">label_comma</code> (et <code data-pkg="scales">comma</code>) est une variante de <code data-pkg="scales">label_number</code> qui, par défaut, affiche les nombres à l’américaine, avec une virgule comme séparateur de milliers.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">label_comma</span>()(x)</span></code></pre></div>
 <pre><code>[1] &quot;0.00&quot;         &quot;0.12&quot;         &quot;4.57&quot;        
 [4] &quot;874.44&quot;       &quot;8,957,845.00&quot;</code></pre>
 </div>
-<div id="label_percent" class="section level2">
-<h2>label_percent()</h2>
+<div id="label_percent" class="section level2 hasAnchor">
+<h2 class="hasAnchor">label_percent()<a href="#label_percent" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p><code data-pkg="scales">label_percent</code> (et <code data-pkg="scales">percent</code>) est une variante de <code data-pkg="scales">label_number</code> qui affiche les nombres sous formes de pourcentages (<code>scale = 100, suffix = "%"</code>).</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">label_percent</span>()(x)</span></code></pre></div>
 <pre><code>[1] &quot;0%&quot;           &quot;12%&quot;          &quot;457%&quot;        
 [4] &quot;87 444%&quot;      &quot;895 784 500%&quot;</code></pre>
 </div>
-<div id="label_dollar" class="section level2">
-<h2>label_dollar()</h2>
+<div id="label_dollar" class="section level2 hasAnchor">
+<h2 class="hasAnchor">label_dollar()<a href="#label_dollar" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p><code data-pkg="scales">label_dollar</code> est adapté à l’affichage des valeurs monétaires.</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">label_dollar</span>()(x)</span></code></pre></div>
 <pre><code>[1] &quot;$0&quot;         &quot;$0&quot;         &quot;$5&quot;         &quot;$874&quot;      
@@ -575,8 +581,8 @@ pre code {
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">label_dollar</span>(<span class="at">negative_parens =</span> <span class="cn">TRUE</span>)(<span class="fu">c</span>(<span class="fl">12.5</span>, <span class="sc">-</span><span class="dv">4</span>, <span class="dv">21</span>, <span class="sc">-</span><span class="fl">56.36</span>))</span></code></pre></div>
 <pre><code>[1] &quot;$12.50&quot;   &quot;($4.00)&quot;  &quot;$21.00&quot;   &quot;($56.36)&quot;</code></pre>
 </div>
-<div id="label_pvalue-style_pvalue-signif_stars" class="section level2">
-<h2>label_pvalue(), style_pvalue() &amp; signif_stars()</h2>
+<div id="label_pvalue-style_pvalue-signif_stars" class="section level2 hasAnchor">
+<h2 class="hasAnchor">label_pvalue(), style_pvalue() &amp; signif_stars()<a href="#label_pvalue-style_pvalue-signif_stars" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p><code data-pkg="scales">label_pvalue</code> est adapté pour la mise en forme de p-valeurs.</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">label_pvalue</span>()(<span class="fu">c</span>(<span class="fl">0.000001</span>, <span class="fl">0.023</span>, <span class="fl">0.098</span>, <span class="fl">0.60</span>, <span class="fl">0.9998</span>))</span></code></pre></div>
 <pre><code>[1] &quot;&lt;0.001&quot; &quot;0.023&quot;  &quot;0.098&quot;  &quot;0.600&quot;  &quot;&gt;0.999&quot;</code></pre>
@@ -592,20 +598,20 @@ pre code {
 <div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>GGally<span class="sc">::</span><span class="fu">signif_stars</span>(p, <span class="at">one =</span> .<span class="dv">15</span>, <span class="at">point =</span> <span class="cn">NULL</span>)</span></code></pre></div>
 <pre><code>[1] &quot;&quot;    &quot;*&quot;   &quot;*&quot;   &quot;**&quot;  &quot;***&quot;</code></pre>
 </div>
-<div id="label_number_si" class="section level2">
-<h2>label_number_si()</h2>
+<div id="label_number_si" class="section level2 hasAnchor">
+<h2 class="hasAnchor">label_number_si()<a href="#label_number_si" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p><code data-pkg="scales">label_number_si</code> cherche le <a href="https://fr.wikipedia.org/wiki/Pr%C3%A9fixes_du_Syst%C3%A8me_international_d%27unit%C3%A9s">préfixe du Système international d’unités</a> le plus proche et arrondi chaque valeur en fonction, en ajoutant la précision correspondante.</p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">label_number_si</span>(<span class="at">unit =</span> <span class="st">&quot;g&quot;</span>)(<span class="fu">c</span>(.<span class="dv">00000145</span>, .<span class="dv">0034</span>, <span class="dv">5</span>, <span class="dv">12478</span>, <span class="dv">14569787</span>))</span></code></pre></div>
 <pre><code>[1] &quot;1.4 µg&quot;  &quot;3.4 mg&quot;  &quot;5.0 g&quot;   &quot;12.5 kg&quot; &quot;14.6 Mg&quot;</code></pre>
 </div>
-<div id="label_scientific" class="section level2">
-<h2>label_scientific()</h2>
+<div id="label_scientific" class="section level2 hasAnchor">
+<h2 class="hasAnchor">label_scientific()<a href="#label_scientific" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p><code data-pkg="scales">label_scientific</code> affiche les nombres dans un format scientifique (avec des puissances de 10).</p>
 <div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">label_scientific</span>(<span class="at">unit =</span> <span class="st">&quot;g&quot;</span>)(<span class="fu">c</span>(.<span class="dv">00000145</span>, .<span class="dv">0034</span>, <span class="dv">5</span>, <span class="dv">12478</span>, <span class="dv">14569787</span>))</span></code></pre></div>
 <pre><code>[1] &quot;1.45e-06&quot; &quot;3.40e-03&quot; &quot;5.00e+00&quot; &quot;1.25e+04&quot; &quot;1.46e+07&quot;</code></pre>
 </div>
-<div id="label_bytes" class="section level2">
-<h2>label_bytes()</h2>
+<div id="label_bytes" class="section level2 hasAnchor">
+<h2 class="hasAnchor">label_bytes()<a href="#label_bytes" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p><code data-pkg="scales">label_bytes</code> mets en forme des tailles exprimées en octets, utilisant au besoin des multiples de 1024.</p>
 <div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">478</span>, <span class="dv">1235468</span>, <span class="dv">546578944897</span>)</span>
 <span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">label_bytes</span>()(b)</span></code></pre></div>
@@ -613,8 +619,8 @@ pre code {
 <div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">label_bytes</span>(<span class="at">units =</span> <span class="st">&quot;auto_binary&quot;</span>)(b)</span></code></pre></div>
 <pre><code>[1] &quot;478 iB&quot;  &quot;1 MiB&quot;   &quot;509 GiB&quot;</code></pre>
 </div>
-<div id="label_ordinal" class="section level2">
-<h2>label_ordinal()</h2>
+<div id="label_ordinal" class="section level2 hasAnchor">
+<h2 class="hasAnchor">label_ordinal()<a href="#label_ordinal" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p><code data-pkg="scales">label_bytes</code> permets d’afficher des rangs ou nombres ordinaux. Plusieurs langues sont disponibles.</p>
 <div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">label_ordinal</span>()(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span></code></pre></div>
 <pre><code>[1] &quot;1st&quot; &quot;2nd&quot; &quot;3rd&quot; &quot;4th&quot; &quot;5th&quot;</code></pre>
@@ -623,8 +629,8 @@ pre code {
 <div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">label_ordinal</span>(<span class="at">rules =</span> <span class="fu">ordinal_french</span>(<span class="at">gender =</span> <span class="st">&quot;f&quot;</span>, <span class="at">plural =</span> <span class="cn">TRUE</span>))(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span></code></pre></div>
 <pre><code>[1] &quot;1res&quot; &quot;2es&quot;  &quot;3es&quot;  &quot;4es&quot;  &quot;5es&quot; </code></pre>
 </div>
-<div id="label_date-label_date_short-label_time" class="section level2">
-<h2>label_date(), label_date_short() &amp; label_time()</h2>
+<div id="label_date-label_date_short-label_time" class="section level2 hasAnchor">
+<h2 class="hasAnchor">label_date(), label_date_short() &amp; label_time()<a href="#label_date-label_date_short-label_time" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p><code data-pkg="scales">label_date</code>, <code data-pkg="scales">label_date_short</code> et <code data-pkg="scales">label_time</code> peuvent être utilisées pour la mise en forme de dates.</p>
 <div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">label_date</span>()(<span class="fu">as.Date</span>(<span class="st">&quot;2020-02-14&quot;</span>))</span></code></pre></div>
 <pre><code>[1] &quot;2020-02-14&quot;</code></pre>
@@ -634,8 +640,8 @@ pre code {
 <pre><code>[1] &quot;14\nfévr.\n2020&quot;</code></pre>
 <p>La mise en forme des dates est un peu complexe. Ne pas hésiter à consulter le fichier d’aide de la fonction <code data-pkg="base">strptime</code> pour plus d’informations.</p>
 </div>
-<div id="label_wrap" class="section level2">
-<h2>label_wrap()</h2>
+<div id="label_wrap" class="section level2 hasAnchor">
+<h2 class="hasAnchor">label_wrap()<a href="#label_wrap" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>La fonction <code data-pkg="scales">label_wrap</code> est un peu différente. Elle permets d’insérer des retours à la ligne (<code>\n</code>) dans des chaines de caractères. Elle tient compte des espaces pour identifier les mots et éviter ainsi des coupures au milieu d’un mot.</p>
 <div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="st">&quot;Ceci est un texte assez long et que l&#39;on souhaiterait afficher sur plusieurs lignes. Cependant, on souhaite éviter que des coupures apparaissent au milieu d&#39;un mot.&quot;</span></span>
 <span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="fu">label_wrap</span>(<span class="dv">80</span>)(x)</span></code></pre></div>

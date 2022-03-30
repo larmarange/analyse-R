@@ -13,7 +13,7 @@
 
 <title>Comparaisons (moyennes et proportions)</title>
 
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.12/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -32,8 +32,9 @@
 <script src="libs/navigation-1.1/tabsets.js"></script>
 <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 <meta name="robots" content="index, follow">
 <link rel="stylesheet" href="./include/analyse-R.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
@@ -80,6 +81,7 @@
   ul.task-list{list-style: none;}
       .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+
 
 
 <style type="text/css">
@@ -204,6 +206,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -382,6 +387,7 @@ pre code {
                   <li><a href="trajectoires-de-soins.html">Trajectoires de soins&nbsp;: un exemple de données longitudinales</a></li>
                   <li><a href="analyse-de-reseaux.html">Analyse de réseaux</a></li>
                   <li><a href="analyse-spatiale.html">Analyse spatiale</a></li>
+                  <li><a href="analyse-textuelle.html">Analyse textuelle</a></li>
   	            </ul>
               </div>
             </div>
@@ -474,12 +480,12 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#comp_moyennes">Comparaison de moyennes</a></li>
-<li><a href="#comparaison-des-rangs-ou-de-la-médiane">Comparaison des rangs ou de la médiane</a></li>
-<li><a href="#comp_prop">Comparaison de proportions</a></li>
-<li><a href="#chi2">χ² et dérivés</a></li>
-<li><a href="#survey">Données pondérées et l’extension survey</a></li>
-<li><a href="#tests-dans-les-tableaux-de-gtsummary">Tests dans les tableaux de <code>gtsummary</code></a></li>
+<li><a href="#comp_moyennes">Comparaison de moyennes<span></span></a></li>
+<li><a href="#comparaison-des-rangs-ou-de-la-médiane">Comparaison des rangs ou de la médiane<span></span></a></li>
+<li><a href="#comp_prop">Comparaison de proportions<span></span></a></li>
+<li><a href="#chi2">χ² et dérivés<span></span></a></li>
+<li><a href="#survey">Données pondérées et l’extension survey<span></span></a></li>
+<li><a href="#tests-dans-les-tableaux-de-gtsummary">Tests dans les tableaux de <code>gtsummary</code><span></span></a></li>
 </ul>
 </div>
 
@@ -490,8 +496,8 @@ pre code {
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(questionr)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;hdv2003&quot;</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> hdv2003</span></code></pre></div>
-<div id="comp_moyennes" class="section level2">
-<h2>Comparaison de moyennes</h2>
+<div id="comp_moyennes" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Comparaison de moyennes<a href="#comp_moyennes" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>On peut calculer la <dfn>moyenne</dfn> d’âge des deux groupes en utilisant la fonction <code data-pkg="base">tapply</code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> :</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(d<span class="sc">$</span>age, d<span class="sc">$</span>hard.rock, mean)</span></code></pre></div>
 <pre><code>     Non      Oui 
@@ -570,9 +576,10 @@ ratio of variances
           4.553644 </code></pre>
 <p>La différence est très significative. En toute rigueur le test <em>t</em> n’aurait donc pas pu être utilisé. Cela dit, il convient de rappeler que ce test statistique (1) suppose la normalité des distributions et (2) considère comme hypothèse nulle l’égalité des variances (parentes) – ce que l’on souhaiterait vérifier alors qu’on ne peut pas accepter l’hypothèse nulle dans un cadre d’inférence fréquentiste – sans que l’on définisse réellement ce que signifie des variances différentes sur le plan pratique. Est-ce qu’une variation de la variance du simple au double est pertinente au regard du domaine d’étude, ou bien faut-il décider qu’à partir d’un rapport de 4 on peut considérer qu’il y a bien une différence importante entre deux variances ? Sans avoir fixé au préalable cette hypothèse alternative, on ne peut guère conclure à partir de ce test. Une alternative consiste à comparer la forme des distributions à l’aide, par exemple, de diagrammes de type boîtes à moustaches.</p>
 </div>
-<div id="comparaison-des-rangs-ou-de-la-médiane" class="section level2">
-<h2>Comparaison des rangs ou de la médiane</h2>
-<p><em>Damned</em> ! Ces maudits tests statistiques vont-ils nous empêcher de faire connaître au monde entier notre fabuleuse découverte sur l’âge des fans de <em>Sepultura</em> ? Non ! Car voici qu’approche à l’horizon un nouveau test, connu sous le nom de <dfn data-index="test de Wilcoxon/Mann-Whitney">Wilcoxon/Mann-Whitney</dfn><dfn data-index="Wilcoxon, test"></dfn><dfn data-index="Mann-Whitney, test"></dfn><dfn data-index="médiane, test de comparaison"></dfn><dfn data-index="comparaison de médianes, test"></dfn>. Celui-ci a l’avantage d’être non-paramétrique, c’est à dire de ne faire aucune hypothèse sur la distribution des échantillons comparés, à l’exception que celles-ci ont des formes à peu près comparables (essentiellement en termes de variance). Attention, il ne s’agit pas d’un test comparant les différences de <dfn data-index="médiane">médianes</dfn> (pour cela il existe le test de Mood) mais d’un test reposant sur la somme des rangs des observations, au lieu des valeurs brutes, dans les deux groupes, via la fonction <code data-pkg="stats">wilcox.test</code> :</p>
+<div id="comparaison-des-rangs-ou-de-la-médiane" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Comparaison des rangs ou de la médiane<a href="#comparaison-des-rangs-ou-de-la-médiane" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><em>Damned</em> ! Ces maudits tests statistiques vont-ils nous empêcher de faire connaître au monde entier notre fabuleuse découverte sur l’âge des fans de <em>Sepultura</em> ? Non ! Car voici qu’approche à l’horizon un nouveau test, connu sous le nom de <dfn data-index="test de Wilcoxon/Mann-Whitney">Wilcoxon/Mann-Whitney</dfn><dfn data-index="Wilcoxon, test"></dfn><dfn data-index="Mann-Whitney, test"></dfn><dfn data-index="médiane, test de comparaison"></dfn><dfn data-index="comparaison de médianes, test"></dfn>. Celui-ci a l’avantage d’être non-paramétrique, c’est à dire de ne faire aucune hypothèse sur la distribution des échantillons comparés, à l’exception que celles-ci ont des formes à peu près comparables (essentiellement en termes de variance). Attention, il ne s’agit pas d’un test comparant les différences de <dfn data-index="médiane">médianes</dfn> (pour cela il existe le test de Mood) mais d’un test reposant sur la somme des rangs des observations, au lieu des valeurs
+brutes, dans les deux groupes, via la fonction <code data-pkg="stats">wilcox.test</code> :</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wilcox.test</span>(age <span class="sc">~</span> hard.rock, <span class="at">data =</span> d)</span></code></pre></div>
 <pre><code>
     Wilcoxon rank sum test with continuity correction
@@ -598,8 +605,8 @@ data:  age by hard.rock
 Z = -3.1425, p-value = 0.001675
 alternative hypothesis: two.sided</code></pre>
 </div>
-<div id="comp_prop" class="section level2">
-<h2>Comparaison de proportions</h2>
+<div id="comp_prop" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Comparaison de proportions<a href="#comp_prop" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>La fonction <code data-pkg="stats">prop.test</code>, que nous avons déjà rencontrée pour calculer l’intervalle de confiance d’une proportion (voir le chapitre dédié aux <a href="intervalles-de-confiance.html">intervalles de confiance</a>) permets également d’effectuer un <dfn>test de comparaison de deux proportions</dfn><dfn data-index="comparaison de proportions, test"></dfn><dfn data-index="proportion, test de comparaison"></dfn>.</p>
 <p>Supposons que l’on souhaite comparer la proportion de personnes faisant du sport entre ceux qui lisent des bandes dessinées et les autres :</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>tab <span class="ot">&lt;-</span> <span class="fu">xtabs</span>(<span class="sc">~</span> lecture.bd <span class="sc">+</span> sport, <span class="at">data =</span> d)</span>
@@ -656,8 +663,8 @@ odds ratio
 </div>
 <p>Note : pour le calcul du <dfn>risque relatif</dfn>, on pourra regarder du côté de la fonction <code data-pkg="mosaic">relrisk</code> de l’extension <code class="pkg">mosaic</code>.</p>
 </div>
-<div id="chi2" class="section level2">
-<h2>χ² et dérivés</h2>
+<div id="chi2" class="section level2 hasAnchor">
+<h2 class="hasAnchor">χ² et dérivés<a href="#chi2" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Dans le cadre d’un tableau croisé, on peut tester l’existence d’un lien entre les modalités de deux variables, avec le très classique <dfn data-index="test du Chi²">test du χ²</dfn><dfn data-index="Chi², test"></dfn> de Pearson<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>. Celui-ci s’obtient grâce à la fonction <code data-pkg="stats">chisq.test</code>, appliquée au tableau croisé obtenu avec <code data-pkg="base">table</code> ou <code data-pacakge="stats">xtabs</code><a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a> :</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>qualreg <span class="ot">&lt;-</span> <span class="fu">as.character</span>(d<span class="sc">$</span>qualif)</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>qualreg[d<span class="sc">$</span>qualif <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>)] <span class="ot">&lt;-</span> <span class="st">&quot;Ouvrier&quot;</span></span>
@@ -719,8 +726,8 @@ odds ratio
 <p>Le test du χ² de Pearson étant assez robuste quant aux déviations par rapport aux hypothèses d’applications du test (effectifs théoriques tous ≥ 5), le test de Fisher présente en général peu d’intérêt dans le cas de l’analyse des tableaux de contingence.</p>
 </div>
 </div>
-<div id="survey" class="section level2">
-<h2>Données pondérées et l’extension survey</h2>
+<div id="survey" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Données pondérées et l’extension survey<a href="#survey" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Lorsque l’on utilise des données pondérées, on aura recours à l’extension <code class="pkg">survey</code><a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>.</p>
 <p>Préparons des données d’exemple :</p>
 <div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survey)</span>
@@ -777,8 +784,8 @@ lecture.bd Non   Oui   Total
 data:  svychisq(~lecture.bd + sport, dw)
 F = 2.6213, ndf = 1, ddf = 1999, p-value = 0.1056</code></pre>
 </div>
-<div id="tests-dans-les-tableaux-de-gtsummary" class="section level2">
-<h2>Tests dans les tableaux de <code>gtsummary</code></h2>
+<div id="tests-dans-les-tableaux-de-gtsummary" class="section level2 hasAnchor">
+<h2 class="hasAnchor">Tests dans les tableaux de <code>gtsummary</code><a href="#tests-dans-les-tableaux-de-gtsummary" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Lorsque l’on réalise un tableau croisé avec <code data-pkg="gtsummary">tbl_summary</code> ou <code data-pkg="gtsummary">tbl_svysummary</code> de l’extension <code class="pkg">gtsummary</code>, il est possible d’ajouter des tests de comparaison avec <code data-pkg="gtsummary">add_p</code>.</p>
 <div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">&quot;fr&quot;</span>, <span class="at">decimal.mark =</span> <span class="st">&quot;,&quot;</span>, <span class="at">big.mark =</span> <span class="st">&quot; &quot;</span>)</span></code></pre></div>
@@ -1965,7 +1972,7 @@ F = 2.6213, ndf = 1, ddf = 1999, p-value = 0.1056</code></pre>
 </table>
 </div>
 </div>
-<div class="footnotes">
+<div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
 <li id="fn1"><p>La fonction <code data-pkg="base">tapply</code> est présentée plus en détails dans le chapitre <a href="pem_manipulation.html#tapply">Manipulation de données</a>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
