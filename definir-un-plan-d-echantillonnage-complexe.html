@@ -483,7 +483,10 @@ pre code {
 <li><a href="#différents-types-déchantillonnage">Différents types d’échantillonnage<span></span></a></li>
 <li><a href="#les-options-de-svydesign">Les options de svydesign<span></span></a></li>
 <li><a href="#quelques-exemples">Quelques exemples<span></span></a></li>
-<li><a href="#extraire-un-sous-échantillon">Extraire un sous-échantillon<span></span></a></li>
+<li><a href="#extraire-un-sous-échantillon">Extraire un sous-échantillon<span></span></a>
+<ul>
+<li><a href="#sous-échantillon-et-données-labellisées">Sous-échantillon et données labellisées<span></span></a></li>
+</ul></li>
 </ul>
 </div>
 
@@ -535,8 +538,68 @@ pre code {
 </div>
 <div id="extraire-un-sous-échantillon" class="section level2 hasAnchor">
 <h2 class="hasAnchor">Extraire un sous-échantillon<a href="#extraire-un-sous-échantillon" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>Si l’on souhaite travailler sur un <dfn>sous-échantillon</dfn> tout en gardant les informations d’échantillonnage, on utilisera la fonction <code data-pkg="survey" data-rdoc="subset.survey.design">subset</code> présentée en détail dans le chapitre <a href="pem_manipulation.html#subset">Manipulation de données</a>.</p>
+<p>Si l’on souhaite travailler sur un <dfn>sous-échantillon</dfn> tout en gardant les informations d’échantillonnage, on utilisera la fonction <code data-pkg="survey">subset</code> présentée en détail dans le chapitre <a href="pem_manipulation.html#subset">Manipulation de données</a>.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sous <span class="ot">&lt;-</span> <span class="fu">subset</span>(plan, sexe <span class="sc">==</span> <span class="st">&quot;Femme&quot;</span> <span class="sc">&amp;</span> age <span class="sc">&gt;=</span> <span class="dv">40</span>)</span></code></pre></div>
+<div id="sous-échantillon-et-données-labellisées" class="section level3 hasAnchor">
+<h3 class="hasAnchor">Sous-échantillon et données labellisées<a href="#sous-échantillon-et-données-labellisées" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Si vous utilisez des données labellisées (voir <a href="facteurs-et-vecteurs-labellises.html">chapitre dédié</a>), les étiquettes de variables risquent d’être perdues avec <code data-pkg="survey">subset</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;fecondite&quot;</span>, <span class="at">package =</span> <span class="st">&quot;questionr&quot;</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span><span class="dv">1</span>, <span class="at">data =</span> enfants, <span class="at">weights =</span> <span class="sc">~</span><span class="dv">1</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>variables <span class="sc">%&gt;%</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">look_for</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code></pre></div>
+<pre><code> pos variable       label           col_type values      
+ 1   id_enfant      Identifiant de~ dbl                  
+ 2   id_femme       Identifiant de~ dbl                  
+ 3   date_naissance Date de naissa~ date                 
+ 4   sexe           Sexe de l&#39;enfa~ dbl+lbl  [1] masculin
+                                             [2] féminin 
+ 5   survie         L&#39;enfant est-i~ dbl+lbl  [0] non     
+                                             [1] oui     
+ 6   age_deces      Age au décès (~ dbl                  </code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> <span class="fu">subset</span>(d, sexe <span class="sc">==</span> <span class="dv">2</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>d2<span class="sc">$</span>variables <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">look_for</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code></pre></div>
+<pre><code> pos variable       label           col_type values      
+ 1   id_enfant      —               dbl                  
+ 2   id_femme       —               dbl                  
+ 3   date_naissance —               date                 
+ 4   sexe           Sexe de l&#39;enfa~ dbl+lbl  [1] masculin
+                                             [2] féminin 
+ 5   survie         L&#39;enfant est-i~ dbl+lbl  [0] non     
+                                             [1] oui     
+ 6   age_deces      —               dbl                  </code></pre>
+<p>Dans ce cas là, il est préférable d’utiliser l’extension <code class="pkg">srvyr</code> et la fonction <code data-pkg="srvyr">filter</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(srvyr)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> enfants <span class="sc">%&gt;%</span> <span class="fu">as_survey</span>(<span class="at">weights =</span> <span class="dv">1</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>variables <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">look_for</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code></pre></div>
+<pre><code> pos variable       label           col_type values      
+ 1   id_enfant      Identifiant de~ dbl                  
+ 2   id_femme       Identifiant de~ dbl                  
+ 3   date_naissance Date de naissa~ date                 
+ 4   sexe           Sexe de l&#39;enfa~ dbl+lbl  [1] masculin
+                                             [2] féminin 
+ 5   survie         L&#39;enfant est-i~ dbl+lbl  [0] non     
+                                             [1] oui     
+ 6   age_deces      Age au décès (~ dbl                  </code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> d <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sexe <span class="sc">==</span> <span class="dv">2</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>d2<span class="sc">$</span>variables <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">look_for</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code></pre></div>
+<pre><code> pos variable       label           col_type values      
+ 1   id_enfant      Identifiant de~ dbl                  
+ 2   id_femme       Identifiant de~ dbl                  
+ 3   date_naissance Date de naissa~ date                 
+ 4   sexe           Sexe de l&#39;enfa~ dbl+lbl  [1] masculin
+                                             [2] féminin 
+ 5   survie         L&#39;enfant est-i~ dbl+lbl  [0] non     
+                                             [1] oui     
+ 6   age_deces      Age au décès (~ dbl                  </code></pre>
+</div>
 </div>
 <div class="footnotes footnotes-end-of-document">
 <hr />

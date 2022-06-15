@@ -137,9 +137,35 @@ Une autre possibilité et d'utiliser l'extension `srvyr`{.pkg} qui permet d'util
 ## Extraire un sous-échantillon
 
 Si l'on souhaite travailler sur un <dfn>sous-échantillon</dfn> tout en gardant les informations d'échantillonnage,
-on utilisera la fonction `subset`{data-pkg="survey" data-rdoc="subset.survey.design"}
+on utilisera la fonction `subset`{data-pkg="survey"}
 présentée en détail dans le chapitre [Manipulation de données](pem_manipulation.html#subset).
 
 ```{r, eval=FALSE}
 sous <- subset(plan, sexe == "Femme" & age >= 40)
 ```
+
+### Sous-échantillon et données labellisées
+
+Si vous utilisez des données labellisées (voir [chapitre dédié](facteurs-et-vecteurs-labellises.html)), les étiquettes de variables risquent d'être perdues avec `subset`{data-pkg="survey"}.
+
+```{r}
+data("fecondite", package = "questionr")
+
+d <- svydesign(ids = ~ 1, data = enfants, weights = ~ 1)
+d$variables %>% look_for() %>% print()
+
+d2 <- subset(d, sexe == 2)
+d2$variables %>% look_for() %>% print()
+```
+
+Dans ce cas là, il est préférable d'utiliser l'extension `srvyr`{.pkg} et la fonction `filter`{data-pkg="srvyr"}.
+
+```{r}
+library(srvyr)
+d <- enfants %>% as_survey(weights = 1)
+d$variables %>% look_for() %>% print()
+
+d2 <- d %>% filter(sexe == 2)
+d2$variables %>% look_for() %>% print()
+```
+
