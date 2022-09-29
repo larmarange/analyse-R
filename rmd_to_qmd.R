@@ -30,6 +30,9 @@ clean <- function(f) {
   pattern_dfn <- '</?dfn[^>]*>'
   content <- str_remove_all(content, pattern_dfn)
 
+  # pipe
+  content <- str_replace_all(content, "%>%", "|>")
+
   f2 <- paste0("qmd/", str_sub(f, 1, -5), ".qmd")
   writeLines(content, f2, useBytes = TRUE)
 }
