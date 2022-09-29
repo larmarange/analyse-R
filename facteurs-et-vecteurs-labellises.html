@@ -13,7 +13,7 @@
 
 <title>Facteurs et vecteurs labellisés</title>
 
-<script src="libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -165,13 +165,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -444,6 +451,7 @@ pre code {
           </ul>
         </li>
         <li><a href="analyse-R.pdf">PDF</a></li>
+        <li><a href="https://github.com/larmarange/guide-R/">guide-R</a></li>
         <li><a href="https://larmarange.github.io/webin-R/">webin-R</a></li>
         <li><a href="https://www.youtube.com/c/webinR"><i class="fa fa-youtube" aria-hidden="true"></i></a></li>
         <!--<li><a href="https://github.com/larmarange/analyse-R">GitHub</a></li>-->
@@ -480,13 +488,13 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#facteurs">Facteurs<span></span></a></li>
-<li><a href="#labelled">Vecteurs labellisés<span></span></a>
+<li><a href="#facteurs" id="toc-facteurs">Facteurs<span></span></a></li>
+<li><a href="#labelled" id="toc-labelled">Vecteurs labellisés<span></span></a>
 <ul>
-<li><a href="#les-étiquettes-de-variable">Les étiquettes de variable<span></span></a></li>
-<li><a href="#les-étiquettes-de-valeur">Les étiquettes de valeur<span></span></a></li>
-<li><a href="#assignation-et-condition">Assignation et condition<span></span></a></li>
-<li><a href="#quelques-fonctions-supplémentaires">Quelques fonctions supplémentaires<span></span></a></li>
+<li><a href="#les-étiquettes-de-variable" id="toc-les-étiquettes-de-variable">Les étiquettes de variable<span></span></a></li>
+<li><a href="#les-étiquettes-de-valeur" id="toc-les-étiquettes-de-valeur">Les étiquettes de valeur<span></span></a></li>
+<li><a href="#assignation-et-condition" id="toc-assignation-et-condition">Assignation et condition<span></span></a></li>
+<li><a href="#quelques-fonctions-supplémentaires" id="toc-quelques-fonctions-supplémentaires">Quelques fonctions supplémentaires<span></span></a></li>
 </ul></li>
 </ul>
 </div>
@@ -559,11 +567,9 @@ F H
 H F 
 3 1 </code></pre>
 <p>On peut aussi modifier l’ordre des niveaux d’une variable déjà existante :</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>qualif <span class="ot">&lt;-</span> <span class="fu">factor</span>(d<span class="sc">$</span>qualif, <span class="at">levels =</span> <span class="fu">c</span>(</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>,</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Employe&quot;</span>, <span class="st">&quot;Technicien&quot;</span>, <span class="st">&quot;Profession intermediaire&quot;</span>, <span class="st">&quot;Cadre&quot;</span>, <span class="st">&quot;Autre&quot;</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>))</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(d<span class="sc">$</span>qualif)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>qualif <span class="ot">&lt;-</span> <span class="fu">factor</span>(d<span class="sc">$</span>qualif, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>,</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Employe&quot;</span>, <span class="st">&quot;Technicien&quot;</span>, <span class="st">&quot;Profession intermediaire&quot;</span>, <span class="st">&quot;Cadre&quot;</span>, <span class="st">&quot;Autre&quot;</span>))</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(d<span class="sc">$</span>qualif)</span></code></pre></div>
 <pre><code>
       Ouvrier specialise         Ouvrier qualifie 
                      203                      292 
@@ -585,14 +591,10 @@ Profession intermediaire                    Cadre
 <p>Vous pouvez alors déplacer les modalités par glisser-déposer, vérifier le résultat dans l’onglet <em>Vérification</em> et, une fois le résultat satisfaisant, récupérer le code généré pour l’inclure dans votre script.</p>
 </div>
 <p>On peut également modifier les niveaux eux-mêmes. Imaginons que l’on souhaite créer une nouvelle variable <em>qualif.abr</em> contenant les noms abrégés des catégories socioprofessionnelles de <em>qualif</em>. On peut alors procéder comme suit :</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>qualif.abr <span class="ot">&lt;-</span> <span class="fu">factor</span>(d<span class="sc">$</span>qualif,</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>,</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Employe&quot;</span>, <span class="st">&quot;Technicien&quot;</span>, <span class="st">&quot;Profession intermediaire&quot;</span>, <span class="st">&quot;Cadre&quot;</span>, <span class="st">&quot;Autre&quot;</span></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;OS&quot;</span>, <span class="st">&quot;OQ&quot;</span>, <span class="st">&quot;Empl&quot;</span>, <span class="st">&quot;Tech&quot;</span>, <span class="st">&quot;Interm&quot;</span>, <span class="st">&quot;Cadre&quot;</span>, <span class="st">&quot;Autre&quot;</span>)</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(d<span class="sc">$</span>qualif.abr)</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>qualif.abr <span class="ot">&lt;-</span> <span class="fu">factor</span>(d<span class="sc">$</span>qualif, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;Ouvrier specialise&quot;</span>, <span class="st">&quot;Ouvrier qualifie&quot;</span>,</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Employe&quot;</span>, <span class="st">&quot;Technicien&quot;</span>, <span class="st">&quot;Profession intermediaire&quot;</span>, <span class="st">&quot;Cadre&quot;</span>, <span class="st">&quot;Autre&quot;</span>),</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a> <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;OS&quot;</span>, <span class="st">&quot;OQ&quot;</span>, <span class="st">&quot;Empl&quot;</span>, <span class="st">&quot;Tech&quot;</span>, <span class="st">&quot;Interm&quot;</span>, <span class="st">&quot;Cadre&quot;</span>, <span class="st">&quot;Autre&quot;</span>))</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(d<span class="sc">$</span>qualif.abr)</span></code></pre></div>
 <pre><code>
     OS     OQ   Empl   Tech Interm  Cadre  Autre 
    203    292    594     86    160    260     58 </code></pre>
@@ -691,23 +693,23 @@ min: 1 - max: 2000 - NAs: 0 (0%) - 2000 unique values</code></pre>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(femmes)</span></code></pre></div>
 <pre><code>Rows: 2,000
 Columns: 17
-$ id_femme       &lt;dbl&gt; 391, 1643, 85, 881, 1981, 1072, 197~
-$ id_menage      &lt;dbl&gt; 381, 1515, 85, 844, 1797, 1015, 179~
-$ poids          &lt;dbl&gt; 1.803150, 1.803150, 1.803150, 1.803~
-$ date_entretien &lt;date&gt; 2012-05-05, 2012-01-23, 2012-01-21~
-$ date_naissance &lt;date&gt; 1997-03-07, 1982-01-06, 1979-01-01~
-$ age            &lt;dbl&gt; 15, 30, 33, 43, 25, 18, 45, 23, 49,~
-$ milieu         &lt;dbl+lbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2~
-$ region         &lt;dbl+lbl&gt; 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3~
-$ educ           &lt;dbl+lbl&gt; 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0~
-$ travail        &lt;dbl+lbl&gt; 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1~
-$ matri          &lt;dbl+lbl&gt; 0, 2, 2, 2, 1, 0, 1, 1, 2, 5, 2~
-$ religion       &lt;dbl+lbl&gt; 1, 3, 2, 3, 2, 2, 3, 1, 3, 3, 2~
-$ journal        &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~
-$ radio          &lt;dbl+lbl&gt; 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1~
-$ tv             &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1~
-$ nb_enf_ideal   &lt;dbl+lbl&gt;  4,  4,  4,  4,  4,  5, 10,  5,~
-$ test           &lt;dbl+lbl&gt; 0, 9, 0, 0, 1, 0, 0, 0, 0, 1, 1~</code></pre>
+$ id_femme       &lt;dbl&gt; 391, 1643, 85, 881, 1981, 1072, 197…
+$ id_menage      &lt;dbl&gt; 381, 1515, 85, 844, 1797, 1015, 179…
+$ poids          &lt;dbl&gt; 1.803150, 1.803150, 1.803150, 1.803…
+$ date_entretien &lt;date&gt; 2012-05-05, 2012-01-23, 2012-01-21…
+$ date_naissance &lt;date&gt; 1997-03-07, 1982-01-06, 1979-01-01…
+$ age            &lt;dbl&gt; 15, 30, 33, 43, 25, 18, 45, 23, 49,…
+$ milieu         &lt;dbl+lbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2…
+$ region         &lt;dbl+lbl&gt; 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3…
+$ educ           &lt;dbl+lbl&gt; 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0…
+$ travail        &lt;dbl+lbl&gt; 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1…
+$ matri          &lt;dbl+lbl&gt; 0, 2, 2, 2, 1, 0, 1, 1, 2, 5, 2…
+$ religion       &lt;dbl+lbl&gt; 1, 3, 2, 3, 2, 2, 3, 1, 3, 3, 2…
+$ journal        &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
+$ radio          &lt;dbl+lbl&gt; 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1…
+$ tv             &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1…
+$ nb_enf_ideal   &lt;dbl+lbl&gt;  4,  4,  4,  4,  4,  5, 10,  5,…
+$ test           &lt;dbl+lbl&gt; 0, 9, 0, 0, 1, 0, 0, 0, 0, 1, 1…</code></pre>
 <p>Il apparaît que la variable <var>region</region> est de type <code data-pkg="labelled" data-rdoc="labelled">haven_labelled</code>. On peut le confirmer avec <code data-pkg="base">class</code>.</p>
 <div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(femmes<span class="sc">$</span>region)</span></code></pre></div>
 <pre><code>[1] &quot;haven_labelled&quot; &quot;vctrs_vctr&quot;     &quot;double&quot;        </code></pre>

@@ -13,7 +13,7 @@
 
 <title>Export de graphiques</title>
 
-<script src="libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -165,13 +165,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -444,6 +451,7 @@ pre code {
           </ul>
         </li>
         <li><a href="analyse-R.pdf">PDF</a></li>
+        <li><a href="https://github.com/larmarange/guide-R/">guide-R</a></li>
         <li><a href="https://larmarange.github.io/webin-R/">webin-R</a></li>
         <li><a href="https://www.youtube.com/c/webinR"><i class="fa fa-youtube" aria-hidden="true"></i></a></li>
         <!--<li><a href="https://github.com/larmarange/analyse-R">GitHub</a></li>-->
@@ -480,14 +488,14 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#via-linterface-de-rstudio">Via l’interface de RStudio<span></span></a>
+<li><a href="#via-linterface-de-rstudio" id="toc-via-linterface-de-rstudio">Via l’interface de RStudio<span></span></a>
 <ul>
-<li><a href="#sauvegarder-le-fichier-en-tant-quimage">Sauvegarder le fichier en tant qu’image<span></span></a></li>
-<li><a href="#sauvegarder-le-graphique-en-pdf">Sauvegarder le graphique en PDF<span></span></a></li>
-<li><a href="#copier-le-graphique-dans-le-presse-papier">Copier le graphique dans le presse-papier<span></span></a></li>
+<li><a href="#sauvegarder-le-fichier-en-tant-quimage" id="toc-sauvegarder-le-fichier-en-tant-quimage">Sauvegarder le fichier en tant qu’image<span></span></a></li>
+<li><a href="#sauvegarder-le-graphique-en-pdf" id="toc-sauvegarder-le-graphique-en-pdf">Sauvegarder le graphique en PDF<span></span></a></li>
+<li><a href="#copier-le-graphique-dans-le-presse-papier" id="toc-copier-le-graphique-dans-le-presse-papier">Copier le graphique dans le presse-papier<span></span></a></li>
 </ul></li>
-<li><a href="#export-avec-les-commandes-de-r">Export avec les commandes de R<span></span></a></li>
-<li><a href="#export-avec-ggplot2">Export avec ggplot2<span></span></a></li>
+<li><a href="#export-avec-les-commandes-de-r" id="toc-export-avec-les-commandes-de-r">Export avec les commandes de R<span></span></a></li>
+<li><a href="#export-avec-ggplot2" id="toc-export-avec-ggplot2">Export avec ggplot2<span></span></a></li>
 </ul>
 </div>
 
@@ -574,10 +582,8 @@ Copier un graphique dans le presse-papier avec RStudio
 <p>Les graphiques produits par <code class="pkg">ggplot2</code> peuvent être sauvegardés manuellement, comme vu précédemment, ou programmatiquement. Pour sauvegarder le dernier graphique affiché par <code class="pkg">ggplot2</code> au format PNG, il suffit d’utiliser la fonction <code data-pkg="ggplot2" data-rdoc="ggsave">ggsave</code>, qui permet d’en régler la taille (en pouces) et la résolution (en pixels par pouce ; 72 par défaut) :</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;mon_graphique.png&quot;</span>, <span class="at">width =</span> <span class="dv">11</span>, <span class="at">height =</span> <span class="dv">8</span>)</span></code></pre></div>
 <p>De la même manière, pour sauvegarder n’importe quel graphique construit avec <code class="pkg">ggplot2</code> et stocké dans un objet, il suffit de préciser le nom de cet objet, comme ci-dessous, où l’on sauvegarde le graphique contenu dans l’objet <code>p</code> au format vectoriel PDF, qui préserve la netteté du texte et des autres éléments du graphique à n’importe quelle résolution d’affichage :</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;mon_graphique.pdf&quot;</span>,</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> p,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">11</span>, <span class="at">height =</span> <span class="dv">8</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;mon_graphique.pdf&quot;</span>, <span class="at">plot =</span> p,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">width =</span> <span class="dv">11</span>, <span class="at">height =</span> <span class="dv">8</span>)</span></code></pre></div>
 </div>
 <div class="footnotes footnotes-end-of-document">
 <hr />

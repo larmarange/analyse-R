@@ -13,7 +13,7 @@
 
 <title>Visualiser ses données</title>
 
-<script src="libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -165,13 +165,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -444,6 +451,7 @@ pre code {
           </ul>
         </li>
         <li><a href="analyse-R.pdf">PDF</a></li>
+        <li><a href="https://github.com/larmarange/guide-R/">guide-R</a></li>
         <li><a href="https://larmarange.github.io/webin-R/">webin-R</a></li>
         <li><a href="https://www.youtube.com/c/webinR"><i class="fa fa-youtube" aria-hidden="true"></i></a></li>
         <!--<li><a href="https://github.com/larmarange/analyse-R">GitHub</a></li>-->
@@ -480,17 +488,17 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#inspecter">Inspection visuelle des données<span></span></a></li>
-<li><a href="#summary">summary<span></span></a></li>
-<li><a href="#str">str<span></span></a></li>
-<li><a href="#glimpse-dplyr">glimpse (dplyr)<span></span></a></li>
-<li><a href="#look_for-labelled">look_for (labelled)<span></span></a></li>
-<li><a href="#describe-questionr">describe (questionr)<span></span></a></li>
-<li><a href="#addins-de-codebook">Addins de codebook<span></span></a></li>
-<li><a href="#skim-skimr">skim (skimr)<span></span></a></li>
-<li><a href="#create_report-dataexplorer">create_report (DataExplorer)<span></span></a></li>
-<li><a href="#makecodebook-datamaid">makeCodebook (dataMaid)<span></span></a></li>
-<li><a href="#scan_data-pointblank">scan_data (pointblank)<span></span></a></li>
+<li><a href="#inspecter" id="toc-inspecter">Inspection visuelle des données<span></span></a></li>
+<li><a href="#summary" id="toc-summary">summary<span></span></a></li>
+<li><a href="#str" id="toc-str">str<span></span></a></li>
+<li><a href="#glimpse-dplyr" id="toc-glimpse-dplyr">glimpse (dplyr)<span></span></a></li>
+<li><a href="#look_for-labelled" id="toc-look_for-labelled">look_for (labelled)<span></span></a></li>
+<li><a href="#describe-questionr" id="toc-describe-questionr">describe (questionr)<span></span></a></li>
+<li><a href="#addins-de-codebook" id="toc-addins-de-codebook">Addins de codebook<span></span></a></li>
+<li><a href="#skim-skimr" id="toc-skim-skimr">skim (skimr)<span></span></a></li>
+<li><a href="#create_report-dataexplorer" id="toc-create_report-dataexplorer">create_report (DataExplorer)<span></span></a></li>
+<li><a href="#makecodebook-datamaid" id="toc-makecodebook-datamaid">makeCodebook (dataMaid)<span></span></a></li>
+<li><a href="#scan_data-pointblank" id="toc-scan_data-pointblank">scan_data (pointblank)<span></span></a></li>
 </ul>
 </div>
 
@@ -529,255 +537,14 @@ La visionneuse de données de RStudio
 <div id="summary" class="section level2 hasAnchor">
 <h2 class="hasAnchor">summary<a href="#summary" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>La fonction <code data-pkg="base">summary</code> permet d’avoir une vue résumée d’une variable. Elle s’applique à tout type d’objets (y compris un tableau de données entier) et s’adapte à celui-ci.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hdv2003<span class="sc">$</span>age)</span></code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th align="right">Min.</th>
-<th align="right">1st Qu.</th>
-<th align="right">Median</th>
-<th align="right">Mean</th>
-<th align="right">3rd Qu.</th>
-<th align="right">Max.</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">18</td>
-<td align="right">35</td>
-<td align="right">48</td>
-<td align="right">48.157</td>
-<td align="right">60</td>
-<td align="right">97</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hdv2003<span class="sc">$</span>qualif)</span></code></pre></div>
-<pre><code>      Ouvrier specialise         Ouvrier qualifie 
-                     203                      292 
-              Technicien Profession intermediaire 
-                      86                      160 
-                   Cadre                  Employe 
-                     260                      594 
-                   Autre                     NA&#39;s 
-                      58                      347 </code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hdv2003)</span></code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="center">id</th>
-<th align="center">age</th>
-<th align="center">sexe</th>
-<th align="center">nivetud</th>
-<th align="center">poids</th>
-<th align="center">occup</th>
-<th align="center">qualif</th>
-<th align="left">freres.soeurs</th>
-<th align="center">clso</th>
-<th align="center">relig</th>
-<th align="center">trav.imp</th>
-<th align="center">trav.satisf</th>
-<th align="left">hard.rock</th>
-<th align="left">lecture.bd</th>
-<th align="left">peche.chasse</th>
-<th align="left">cuisine</th>
-<th align="left">bricol</th>
-<th align="left">cinema</th>
-<th align="left">sport</th>
-<th align="center">heures.tv</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td></td>
-<td align="center">Min. : 1.0</td>
-<td align="center">Min. :18.00</td>
-<td align="center">Homme: 899</td>
-<td align="center">Enseignement technique ou professionnel court :463</td>
-<td align="center">Min. : 78.08</td>
-<td align="center">Exerce une profession:1049</td>
-<td align="center">Employe :594</td>
-<td align="left">Min. : 0.000</td>
-<td align="center">Oui : 936</td>
-<td align="center">Pratiquant regulier :266</td>
-<td align="center">Le plus important : 29</td>
-<td align="center">Satisfaction :480</td>
-<td align="left">Non:1986</td>
-<td align="left">Non:1953</td>
-<td align="left">Non:1776</td>
-<td align="left">Non:1119</td>
-<td align="left">Non:1147</td>
-<td align="left">Non:1174</td>
-<td align="left">Non:1277</td>
-<td align="center">Min. : 0.000</td>
-</tr>
-<tr class="even">
-<td></td>
-<td align="center">1st Qu.: 500.8</td>
-<td align="center">1st Qu.:35.00</td>
-<td align="center">Femme:1101</td>
-<td align="center">Enseignement superieur y compris technique superieur:441</td>
-<td align="center">1st Qu.: 2221.82</td>
-<td align="center">Chomeur : 134</td>
-<td align="center">Ouvrier qualifie :292</td>
-<td align="left">1st Qu.: 1.000</td>
-<td align="center">Non :1037</td>
-<td align="center">Pratiquant occasionnel :442</td>
-<td align="center">Aussi important que le reste:259</td>
-<td align="center">Insatisfaction:117</td>
-<td align="left">Oui: 14</td>
-<td align="left">Oui: 47</td>
-<td align="left">Oui: 224</td>
-<td align="left">Oui: 881</td>
-<td align="left">Oui: 853</td>
-<td align="left">Oui: 826</td>
-<td align="left">Oui: 723</td>
-<td align="center">1st Qu.: 1.000</td>
-</tr>
-<tr class="odd">
-<td></td>
-<td align="center">Median :1000.5</td>
-<td align="center">Median :48.00</td>
-<td align="center">NA</td>
-<td align="center">Derniere annee d’etudes primaires :341</td>
-<td align="center">Median : 4631.19</td>
-<td align="center">Etudiant, eleve : 94</td>
-<td align="center">Cadre :260</td>
-<td align="left">Median : 2.000</td>
-<td align="center">Ne sait pas: 27</td>
-<td align="center">Appartenance sans pratique :760</td>
-<td align="center">Moins important que le reste:708</td>
-<td align="center">Equilibre :451</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="center">Median : 2.000</td>
-</tr>
-<tr class="even">
-<td></td>
-<td align="center">Mean :1000.5</td>
-<td align="center">Mean :48.16</td>
-<td align="center">NA</td>
-<td align="center">1er cycle :204</td>
-<td align="center">Mean : 5535.61</td>
-<td align="center">Retraite : 392</td>
-<td align="center">Ouvrier specialise :203</td>
-<td align="left">Mean : 3.283</td>
-<td align="center">NA</td>
-<td align="center">Ni croyance ni appartenance:399</td>
-<td align="center">Peu important : 52</td>
-<td align="center">NA’s :952</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="center">Mean : 2.247</td>
-</tr>
-<tr class="odd">
-<td></td>
-<td align="center">3rd Qu.:1500.2</td>
-<td align="center">3rd Qu.:60.00</td>
-<td align="center">NA</td>
-<td align="center">2eme cycle :183</td>
-<td align="center">3rd Qu.: 7626.53</td>
-<td align="center">Retire des affaires : 77</td>
-<td align="center">Profession intermediaire:160</td>
-<td align="left">3rd Qu.: 5.000</td>
-<td align="center">NA</td>
-<td align="center">Rejet : 93</td>
-<td align="center">NA’s :952</td>
-<td align="center">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="center">3rd Qu.: 3.000</td>
-</tr>
-<tr class="even">
-<td></td>
-<td align="center">Max. :2000.0</td>
-<td align="center">Max. :97.00</td>
-<td align="center">NA</td>
-<td align="center">(Other) :256</td>
-<td align="center">Max. :31092.14</td>
-<td align="center">Au foyer : 171</td>
-<td align="center">(Other) :144</td>
-<td align="left">Max. :22.000</td>
-<td align="center">NA</td>
-<td align="center">NSP ou NVPR : 40</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="center">Max. :12.000</td>
-</tr>
-<tr class="odd">
-<td></td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">NA’s :112</td>
-<td align="center">NA</td>
-<td align="center">Autre inactif : 83</td>
-<td align="center">NA’s :347</td>
-<td align="left">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="center">NA’s :5</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hdv2003<span class="sc">$</span>age)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hdv2003<span class="sc">$</span>qualif)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hdv2003)</span></code></pre></div>
 </div>
 <div id="str" class="section level2 hasAnchor">
 <h2 class="hasAnchor">str<a href="#str" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>La fonction <code data-pkg="utils">str</code> est plus complète que <code data-pkg="base">names</code>. Elle liste les différentes variables, indique leur type et donne le cas échéant des informations supplémentaires ainsi qu’un échantillon des premières valeurs prises par cette variable :</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(hdv2003)</span></code></pre></div>
-<pre><code>&#39;data.frame&#39;:   2000 obs. of  20 variables:
- $ id           : int  1 2 3 4 5 6 7 8 9 10 ...
- $ age          : int  28 23 59 34 71 35 60 47 20 28 ...
- $ sexe         : Factor w/ 2 levels &quot;Homme&quot;,&quot;Femme&quot;: 2 2 1 1 2 2 2 1 2 1 ...
- $ nivetud      : Factor w/ 8 levels &quot;N&#39;a jamais fait d&#39;etudes&quot;,..: 8 NA 3 8 3 6 3 6 NA 7 ...
- $ poids        : num  2634 9738 3994 5732 4329 ...
- $ occup        : Factor w/ 7 levels &quot;Exerce une profession&quot;,..: 1 3 1 1 4 1 6 1 3 1 ...
- $ qualif       : Factor w/ 7 levels &quot;Ouvrier specialise&quot;,..: 6 NA 3 3 6 6 2 2 NA 7 ...
- $ freres.soeurs: int  8 2 2 1 0 5 1 5 4 2 ...
- $ clso         : Factor w/ 3 levels &quot;Oui&quot;,&quot;Non&quot;,&quot;Ne sait pas&quot;: 1 1 2 2 1 2 1 2 1 2 ...
- $ relig        : Factor w/ 6 levels &quot;Pratiquant regulier&quot;,..: 4 4 4 3 1 4 3 4 3 2 ...
- $ trav.imp     : Factor w/ 4 levels &quot;Le plus important&quot;,..: 4 NA 2 3 NA 1 NA 4 NA 3 ...
- $ trav.satisf  : Factor w/ 3 levels &quot;Satisfaction&quot;,..: 2 NA 3 1 NA 3 NA 2 NA 1 ...
- $ hard.rock    : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1 1 1 1 1 1 1 1 1 ...
- $ lecture.bd   : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1 1 1 1 1 1 1 1 1 ...
- $ peche.chasse : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1 1 1 1 1 2 2 1 1 ...
- $ cuisine      : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 2 1 1 2 1 1 2 2 1 1 ...
- $ bricol       : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 1 1 2 1 1 1 2 1 1 ...
- $ cinema       : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 2 1 2 1 2 1 1 2 2 ...
- $ sport        : Factor w/ 2 levels &quot;Non&quot;,&quot;Oui&quot;: 1 2 2 2 1 2 1 1 1 2 ...
- $ heures.tv    : num  0 1 0 2 3 2 2.9 1 2 2 ...</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(hdv2003)</span></code></pre></div>
 <div class="important">
 <p>La fonction <code data-pkg="utils">str</code> est essentielle à connaître et peut s’appliquer à n’importe quel type d’objet. C’est un excellent moyen de connaître en détail la <dfn>structure d’un objet</dfn>. Cependant, les résultats peuvent être parfois trop détaillés et on lui priviligiera dans certains cas les fonctions suivantes.</p>
 </div>
@@ -785,36 +552,14 @@ La visionneuse de données de RStudio
 <div id="glimpse-dplyr" class="section level2 hasAnchor">
 <h2 class="hasAnchor">glimpse (dplyr)<a href="#glimpse-dplyr" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">dplyr</code> (voir le <a href="manipuler-les-donnees-avec-dplyr.html">chapitre dédié</a>), propose une fonction <code data-pkg="tibble">glimpse</code> (ce qui signifie <q>aperçu</q> en anglais) qui permet de visualiser rapidement et de manière condensée le contenu d’un tableau de données.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(hdv2003)</span></code></pre></div>
-<pre><code>Rows: 2,000
-Columns: 20
-$ id            &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1~
-$ age           &lt;int&gt; 28, 23, 59, 34, 71, 35, 60, 47, 20, ~
-$ sexe          &lt;fct&gt; Femme, Femme, Homme, Homme, Femme, F~
-$ nivetud       &lt;fct&gt; &quot;Enseignement superieur y compris te~
-$ poids         &lt;dbl&gt; 2634.3982, 9738.3958, 3994.1025, 573~
-$ occup         &lt;fct&gt; &quot;Exerce une profession&quot;, &quot;Etudiant, ~
-$ qualif        &lt;fct&gt; Employe, NA, Technicien, Technicien,~
-$ freres.soeurs &lt;int&gt; 8, 2, 2, 1, 0, 5, 1, 5, 4, 2, 3, 4, ~
-$ clso          &lt;fct&gt; Oui, Oui, Non, Non, Oui, Non, Oui, N~
-$ relig         &lt;fct&gt; Ni croyance ni appartenance, Ni croy~
-$ trav.imp      &lt;fct&gt; Peu important, NA, Aussi important q~
-$ trav.satisf   &lt;fct&gt; Insatisfaction, NA, Equilibre, Satis~
-$ hard.rock     &lt;fct&gt; Non, Non, Non, Non, Non, Non, Non, N~
-$ lecture.bd    &lt;fct&gt; Non, Non, Non, Non, Non, Non, Non, N~
-$ peche.chasse  &lt;fct&gt; Non, Non, Non, Non, Non, Non, Oui, O~
-$ cuisine       &lt;fct&gt; Oui, Non, Non, Oui, Non, Non, Oui, O~
-$ bricol        &lt;fct&gt; Non, Non, Non, Oui, Non, Non, Non, O~
-$ cinema        &lt;fct&gt; Non, Oui, Non, Oui, Non, Oui, Non, N~
-$ sport         &lt;fct&gt; Non, Oui, Oui, Oui, Non, Oui, Non, N~
-$ heures.tv     &lt;dbl&gt; 0.0, 1.0, 0.0, 2.0, 3.0, 2.0, 2.9, 1~</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(hdv2003)</span></code></pre></div>
 </div>
 <div id="look_for-labelled" class="section level2 hasAnchor">
 <h2 class="hasAnchor">look_for (labelled)<a href="#look_for-labelled" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">labelled</code> propose une fonction <code data-pkg="labelled">look_for</code>, inspirée de Stata, qui permet de lister les différentes variables d’un fichier de données, ainsi que leurs principales caractéristiques :</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(labelled)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">look_for</span>(hdv2003)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(labelled)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">look_for</span>(hdv2003)</span></code></pre></div>
 <pre><code>pos   variable      label col_type values                                                         
 &lt;chr&gt; &lt;chr&gt;         &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;                                                          
 1     id            —     int      range: 1 - 2000                                                
@@ -877,7 +622,7 @@ $ heures.tv     &lt;dbl&gt; 0.0, 1.0, 0.0, 2.0, 3.0, 2.0, 2.9, 1~</code></pre>
 ​      ​              ​      ​         Oui                                                            
 20    heures.tv     —     dbl      range: 0 - 12   </code></pre>
 <p>Lorsque l’on a un gros tableau de données avec de nombreuses variables, il peut être difficile de retrouver la ou les variables d’intérêt. Il est possible d’indiquer à <code data-pkg="labelled">look_for</code> un mot-clé pour limiter la recherche. Par exemple :</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">look_for</span>(hdv2003, <span class="st">&quot;trav&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">look_for</span>(hdv2003, <span class="st">&quot;trav&quot;</span>)</span></code></pre></div>
 <pre><code>pos   variable    label col_type values                      
 &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;                       
 11    trav.imp    —     fct      Le plus important           
@@ -889,7 +634,7 @@ $ heures.tv     &lt;dbl&gt; 0.0, 1.0, 0.0, 2.0, 3.0, 2.0, 2.9, 1~</code></pre>
 ​      ​            ​      ​         Equilibre </code></pre>
 <p>Il est à noter que si la recherche n’est pas sensible à la casse (i.e. aux majuscules et aux minuscules), elle est sensible aux accents. Il est aussi possible de fournir plusieurs expressions de recherche.</p>
 <p>La fonction <code data-pkg="labelled">look_for</code> est par ailleurs compatible avec les étiquettes de variable de l’extension <code class="pkg">labelled</code>, les étiquettes étant prise en compte dans la recherche d’une variable.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">look_for</span>(femmes, <span class="st">&quot;rés&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">look_for</span>(femmes, <span class="st">&quot;rés&quot;</span>)</span></code></pre></div>
 <pre><code>pos   variable label               col_type values    
 &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;               &lt;chr&gt;    &lt;chr&gt;     
 7     milieu   Milieu de résidence dbl+lbl  [1] urbain
@@ -898,7 +643,7 @@ $ heures.tv     &lt;dbl&gt; 0.0, 1.0, 0.0, 2.0, 3.0, 2.0, 2.9, 1~</code></pre>
 ​      ​         ​                    ​         [2] Est   
 ​      ​         ​                    ​         [3] Sud   
 ​      ​         ​                    ​         [4] Ouest</code></pre>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">look_for</span>(femmes, <span class="st">&quot;rés&quot;</span>, <span class="st">&quot;nb&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">look_for</span>(femmes, <span class="st">&quot;rés&quot;</span>, <span class="st">&quot;nb&quot;</span>)</span></code></pre></div>
 <pre><code>pos   variable     label                  col_type values          
 &lt;chr&gt; &lt;chr&gt;        &lt;chr&gt;                  &lt;chr&gt;    &lt;chr&gt;           
 7     milieu       Milieu de résidence    dbl+lbl  [1] urbain      
@@ -914,790 +659,34 @@ $ heures.tv     &lt;dbl&gt; 0.0, 1.0, 0.0, 2.0, 3.0, 2.0, 2.9, 1~</code></pre>
 <div id="describe-questionr" class="section level2 hasAnchor">
 <h2 class="hasAnchor">describe (questionr)<a href="#describe-questionr" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">questionr</code> fournit également une fonction bien pratique pour décrire les différentes variables d’un tableau de données. Il s’agit de <code data-pkg="questionr">describe</code>. Faisons de suite un essai :</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(hdv2003)</span></code></pre></div>
-<pre><code>[2000 obs. x 20 variables] tbl_df tbl data.frame
-
-$id: 
-integer: 1 2 3 4 5 6 7 8 9 10 ...
-min: 1 - max: 2000 - NAs: 0 (0%) - 2000 unique values
-
-$age: 
-integer: 28 23 59 34 71 35 60 47 20 28 ...
-min: 18 - max: 97 - NAs: 0 (0%) - 78 unique values
-
-$sexe: 
-nominal factor: &quot;Femme&quot; &quot;Femme&quot; &quot;Homme&quot; &quot;Homme&quot; &quot;Femme&quot; &quot;Femme&quot; &quot;Femme&quot; &quot;Homme&quot; &quot;Femme&quot; &quot;Homme&quot; ...
-2 levels: Homme | Femme
-NAs: 0 (0%)
-
-$nivetud: 
-nominal factor: &quot;Enseignement superieur y compris technique superieur&quot; NA &quot;Derniere annee d&#39;etudes primaires&quot; &quot;Enseignement superieur y compris technique superieur&quot; &quot;Derniere annee d&#39;etudes primaires&quot; &quot;Enseignement technique ou professionnel court&quot; &quot;Derniere annee d&#39;etudes primaires&quot; &quot;Enseignement technique ou professionnel court&quot; NA &quot;Enseignement technique ou professionnel long&quot; ...
-8 levels: N&#39;a jamais fait d&#39;etudes | A arrete ses etudes, avant la derniere annee d&#39;etudes primaires | Derniere annee d&#39;etudes primaires | 1er cycle | 2eme cycle | Enseignement technique ou professionnel court | Enseignement technique ou professionnel long | Enseignement superieur y compris technique superieur
-NAs: 112 (5.6%)
-
-$poids: 
-numeric: 2634.3982157 9738.3957759 3994.1024587 5731.6615081 4329.0940022 8674.6993828 6165.8034861 12891.640759 7808.8720636 2277.160471 ...
-min: 78.0783403 - max: 31092.14132 - NAs: 0 (0%) - 1877 unique values
-
-$occup: 
-nominal factor: &quot;Exerce une profession&quot; &quot;Etudiant, eleve&quot; &quot;Exerce une profession&quot; &quot;Exerce une profession&quot; &quot;Retraite&quot; &quot;Exerce une profession&quot; &quot;Au foyer&quot; &quot;Exerce une profession&quot; &quot;Etudiant, eleve&quot; &quot;Exerce une profession&quot; ...
-7 levels: Exerce une profession | Chomeur | Etudiant, eleve | Retraite | Retire des affaires | Au foyer | Autre inactif
-NAs: 0 (0%)
-
-$qualif: 
-nominal factor: &quot;Employe&quot; NA &quot;Technicien&quot; &quot;Technicien&quot; &quot;Employe&quot; &quot;Employe&quot; &quot;Ouvrier qualifie&quot; &quot;Ouvrier qualifie&quot; NA &quot;Autre&quot; ...
-7 levels: Ouvrier specialise | Ouvrier qualifie | Technicien | Profession intermediaire | Cadre | Employe | Autre
-NAs: 347 (17.3%)
-
-$freres.soeurs: 
-integer: 8 2 2 1 0 5 1 5 4 2 ...
-min: 0 - max: 22 - NAs: 0 (0%) - 19 unique values
-
-$clso: 
-nominal factor: &quot;Oui&quot; &quot;Oui&quot; &quot;Non&quot; &quot;Non&quot; &quot;Oui&quot; &quot;Non&quot; &quot;Oui&quot; &quot;Non&quot; &quot;Oui&quot; &quot;Non&quot; ...
-3 levels: Oui | Non | Ne sait pas
-NAs: 0 (0%)
-
-$relig: 
-nominal factor: &quot;Ni croyance ni appartenance&quot; &quot;Ni croyance ni appartenance&quot; &quot;Ni croyance ni appartenance&quot; &quot;Appartenance sans pratique&quot; &quot;Pratiquant regulier&quot; &quot;Ni croyance ni appartenance&quot; &quot;Appartenance sans pratique&quot; &quot;Ni croyance ni appartenance&quot; &quot;Appartenance sans pratique&quot; &quot;Pratiquant occasionnel&quot; ...
-6 levels: Pratiquant regulier | Pratiquant occasionnel | Appartenance sans pratique | Ni croyance ni appartenance | Rejet | NSP ou NVPR
-NAs: 0 (0%)
-
-$trav.imp: 
-nominal factor: &quot;Peu important&quot; NA &quot;Aussi important que le reste&quot; &quot;Moins important que le reste&quot; NA &quot;Le plus important&quot; NA &quot;Peu important&quot; NA &quot;Moins important que le reste&quot; ...
-4 levels: Le plus important | Aussi important que le reste | Moins important que le reste | Peu important
-NAs: 952 (47.6%)
-
-$trav.satisf: 
-nominal factor: &quot;Insatisfaction&quot; NA &quot;Equilibre&quot; &quot;Satisfaction&quot; NA &quot;Equilibre&quot; NA &quot;Insatisfaction&quot; NA &quot;Satisfaction&quot; ...
-3 levels: Satisfaction | Insatisfaction | Equilibre
-NAs: 952 (47.6%)
-
-$hard.rock: 
-nominal factor: &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; ...
-2 levels: Non | Oui
-NAs: 0 (0%)
-
-$lecture.bd: 
-nominal factor: &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; ...
-2 levels: Non | Oui
-NAs: 0 (0%)
-
-$peche.chasse: 
-nominal factor: &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Oui&quot; &quot;Oui&quot; &quot;Non&quot; &quot;Non&quot; ...
-2 levels: Non | Oui
-NAs: 0 (0%)
-
-$cuisine: 
-nominal factor: &quot;Oui&quot; &quot;Non&quot; &quot;Non&quot; &quot;Oui&quot; &quot;Non&quot; &quot;Non&quot; &quot;Oui&quot; &quot;Oui&quot; &quot;Non&quot; &quot;Non&quot; ...
-2 levels: Non | Oui
-NAs: 0 (0%)
-
-$bricol: 
-nominal factor: &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Oui&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Oui&quot; &quot;Non&quot; &quot;Non&quot; ...
-2 levels: Non | Oui
-NAs: 0 (0%)
-
-$cinema: 
-nominal factor: &quot;Non&quot; &quot;Oui&quot; &quot;Non&quot; &quot;Oui&quot; &quot;Non&quot; &quot;Oui&quot; &quot;Non&quot; &quot;Non&quot; &quot;Oui&quot; &quot;Oui&quot; ...
-2 levels: Non | Oui
-NAs: 0 (0%)
-
-$sport: 
-nominal factor: &quot;Non&quot; &quot;Oui&quot; &quot;Oui&quot; &quot;Oui&quot; &quot;Non&quot; &quot;Oui&quot; &quot;Non&quot; &quot;Non&quot; &quot;Non&quot; &quot;Oui&quot; ...
-2 levels: Non | Oui
-NAs: 0 (0%)
-
-$heures.tv: 
-numeric: 0 1 0 2 3 2 2.9 1 2 2 ...
-min: 0 - max: 12 - NAs: 5 (0.2%) - 30 unique values</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(hdv2003)</span></code></pre></div>
 <p>Comme on le voit sur cet exemple, <code data-pkg="questionr">describe</code> nous affiche le type des variables, les premières valeurs de chacune, le nombre de valeurs manquantes, le nombre de valeurs différentes (uniques) ainsi que quelques autres informations suivant le type de variables.</p>
 <p>Il est possible de restreindre l’affichage à seulement quelques variables en indiquant le nom de ces dernières ou une expression de recherche (comme avec <code data-pkg="questionr">lookfor</code>).</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(hdv2003, <span class="st">&quot;age&quot;</span>, <span class="st">&quot;trav&quot;</span>)</span></code></pre></div>
-<pre><code>[2000 obs. x 20 variables] tbl_df tbl data.frame
-
-$age: 
-integer: 28 23 59 34 71 35 60 47 20 28 ...
-min: 18 - max: 97 - NAs: 0 (0%) - 78 unique values
-
-$trav.imp: 
-nominal factor: &quot;Peu important&quot; NA &quot;Aussi important que le reste&quot; &quot;Moins important que le reste&quot; NA &quot;Le plus important&quot; NA &quot;Peu important&quot; NA &quot;Moins important que le reste&quot; ...
-4 levels: Le plus important | Aussi important que le reste | Moins important que le reste | Peu important
-NAs: 952 (47.6%)
-
-$trav.satisf: 
-nominal factor: &quot;Insatisfaction&quot; NA &quot;Equilibre&quot; &quot;Satisfaction&quot; NA &quot;Equilibre&quot; NA &quot;Insatisfaction&quot; NA &quot;Satisfaction&quot; ...
-3 levels: Satisfaction | Insatisfaction | Equilibre
-NAs: 952 (47.6%)</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(hdv2003, <span class="st">&quot;age&quot;</span>, <span class="st">&quot;trav&quot;</span>)</span></code></pre></div>
 <p>On peut également transmettre juste une variable :</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(hdv2003<span class="sc">$</span>sexe)</span></code></pre></div>
-<pre><code>[2000 obs.] 
-nominal factor: &quot;Femme&quot; &quot;Femme&quot; &quot;Homme&quot; &quot;Homme&quot; &quot;Femme&quot; &quot;Femme&quot; &quot;Femme&quot; &quot;Homme&quot; &quot;Femme&quot; &quot;Homme&quot; ...
-2 levels: Homme | Femme
-NAs: 0 (0%)
-
-         n   %
-Homme  899  45
-Femme 1101  55
-Total 2000 100</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(hdv2003<span class="sc">$</span>sexe)</span></code></pre></div>
 <p>Enfin, <code data-pkg="questionr">describe</code> est également compatible avec les <a href="facteurs-et-vecteurs-labellises.html">vecteurs labellisés</a>.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(femmes, <span class="st">&quot;milieu&quot;</span>)</span></code></pre></div>
-<pre><code>[2000 obs. x 17 variables] tbl_df tbl data.frame
-
-$milieu: Milieu de résidence
-labelled double: 2 2 2 2 2 2 2 2 2 2 ...
-min: 1 - max: 2 - NAs: 0 (0%) - 2 unique values
-2 value labels: [1] urbain [2] rural</code></pre>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(femmes, <span class="st">&quot;milieu&quot;</span>)</span></code></pre></div>
 <p>À noter, l’argument <code>freq.n.max</code> permets d’indiquer le nombre de modalités en-dessous duquel <code data-pkg="questionr">describe</code> renverra également un tri à plat de la variable.</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(menages, <span class="at">freq.n.max =</span> <span class="dv">6</span>)</span></code></pre></div>
-<pre><code>[1814 obs. x 5 variables] tbl_df tbl data.frame
-
-$id_menage: Identifiant du ménage
-numeric: 1 2 3 4 5 6 7 8 9 10 ...
-min: 1 - max: 1814 - NAs: 0 (0%) - 1814 unique values
-
-$taille: Taille du ménage (nombre de membres)
-numeric: 7 3 6 5 7 6 15 6 5 19 ...
-min: 1 - max: 31 - NAs: 0 (0%) - 30 unique values
-
-$sexe_chef: Sexe du chef de ménage
-labelled double: 2 1 1 1 1 2 2 2 1 1 ...
-min: 1 - max: 2 - NAs: 0 (0%) - 2 unique values
-2 value labels: [1] homme [2] femme
-
-             n     %
-[1] homme 1420  78.3
-[2] femme  394  21.7
-Total     1814 100.0
-
-$structure: Structure démographique du ménage
-labelled double: 4 2 5 4 4 4 5 2 5 5 ...
-min: 1 - max: 5 - NAs: 0 (0%) - 5 unique values
-6 value labels: [0] pas d&#39;adulte [1] un adulte [2] deux adultes de sexe opposé [3] deux adultes de même sexe [4] trois adultes ou plus avec lien de parenté [5] adultes sans lien de parenté
-
-                                                  n     %
-[0] pas d&#39;adulte                                  0   0.0
-[1] un adulte                                    78   4.3
-[2] deux adultes de sexe opposé                 439  24.2
-[3] deux adultes de même sexe                    75   4.1
-[4] trois adultes ou plus avec lien de parenté  920  50.7
-[5] adultes sans lien de parenté                302  16.6
-Total                                          1814 100.0
-
-$richesse: Niveau de vie (quintiles)
-labelled double: 1 2 2 1 1 3 2 5 4 3 ...
-min: 1 - max: 5 - NAs: 0 (0%) - 5 unique values
-5 value labels: [1] très pauvre [2] pauvre [3] moyen [4] riche [5] très riche
-
-                   n     %
-[1] très pauvre  335  18.5
-[2] pauvre       357  19.7
-[3] moyen        402  22.2
-[4] riche        350  19.3
-[5] très riche   370  20.4
-Total           1814 100.0</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(menages, <span class="at">freq.n.max =</span> <span class="dv">6</span>)</span></code></pre></div>
 </div>
 <div id="addins-de-codebook" class="section level2 hasAnchor">
 <h2 class="hasAnchor">Addins de codebook<a href="#addins-de-codebook" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code>codebook</code> fournit plusieurs addins permettant d’explorer les étiquettes des différentes variables d’un tableau de données. Ils sont accessibles par le menu <strong>Addins</strong> de <strong>RStudio</strong>.</p>
 <p>On peut aussi lancer les addins manuellement, par exemple avec la commande suivante :</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>codebook<span class="sc">::</span><span class="fu">label_browser_static</span>(femmes)</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>codebook<span class="sc">::</span><span class="fu">label_browser_static</span>(femmes)</span></code></pre></div>
 </div>
 <div id="skim-skimr" class="section level2 hasAnchor">
 <h2 class="hasAnchor">skim (skimr)<a href="#skim-skimr" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">skimr</code> a pour objectif de fournir une fonction <code data-pkg="skimr">skim</code> comme alternative à <code>summary</code>{base} pour les vecteurs et les tableaux de données afin de fournir plus de statistiques dans un format plus compact. Elle peut être appliquée à un vecteur donné ou directement à un tableau de données.</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(hdv2003<span class="sc">$</span>cuisine)</span></code></pre></div>
-<table>
-<caption>Data summary</caption>
-<tbody>
-<tr class="odd">
-<td align="left">Name</td>
-<td align="left">hdv2003$cuisine</td>
-</tr>
-<tr class="even">
-<td align="left">Number of rows</td>
-<td align="left">2000</td>
-</tr>
-<tr class="odd">
-<td align="left">Number of columns</td>
-<td align="left">1</td>
-</tr>
-<tr class="even">
-<td align="left">_______________________</td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">Column type frequency:</td>
-<td align="left"></td>
-</tr>
-<tr class="even">
-<td align="left">factor</td>
-<td align="left">1</td>
-</tr>
-<tr class="odd">
-<td align="left">________________________</td>
-<td align="left"></td>
-</tr>
-<tr class="even">
-<td align="left">Group variables</td>
-<td align="left">None</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Variable type: factor</strong></p>
-<table>
-<thead>
-<tr class="header">
-<th align="left">skim_variable</th>
-<th align="right">n_missing</th>
-<th align="right">complete_rate</th>
-<th align="left">ordered</th>
-<th align="right">n_unique</th>
-<th align="left">top_counts</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">data</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="left">FALSE</td>
-<td align="right">2</td>
-<td align="left">Non: 1119, Oui: 881</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(hdv2003)</span></code></pre></div>
-<table>
-<caption>Data summary</caption>
-<tbody>
-<tr class="odd">
-<td align="left">Name</td>
-<td align="left">hdv2003</td>
-</tr>
-<tr class="even">
-<td align="left">Number of rows</td>
-<td align="left">2000</td>
-</tr>
-<tr class="odd">
-<td align="left">Number of columns</td>
-<td align="left">20</td>
-</tr>
-<tr class="even">
-<td align="left">_______________________</td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">Column type frequency:</td>
-<td align="left"></td>
-</tr>
-<tr class="even">
-<td align="left">factor</td>
-<td align="left">15</td>
-</tr>
-<tr class="odd">
-<td align="left">numeric</td>
-<td align="left">5</td>
-</tr>
-<tr class="even">
-<td align="left">________________________</td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">Group variables</td>
-<td align="left">None</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Variable type: factor</strong></p>
-<table>
-<thead>
-<tr class="header">
-<th align="left">skim_variable</th>
-<th align="right">n_missing</th>
-<th align="right">complete_rate</th>
-<th align="left">ordered</th>
-<th align="right">n_unique</th>
-<th align="left">top_counts</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">sexe</td>
-<td align="right">0</td>
-<td align="right">1.00</td>
-<td align="left">FALSE</td>
-<td align="right">2</td>
-<td align="left">Fem: 1101, Hom: 899</td>
-</tr>
-<tr class="even">
-<td align="left">nivetud</td>
-<td align="right">112</td>
-<td align="right">0.94</td>
-<td align="left">FALSE</td>
-<td align="right">8</td>
-<td align="left">Ens: 463, Ens: 441, Der: 341, 1er: 204</td>
-</tr>
-<tr class="odd">
-<td align="left">occup</td>
-<td align="right">0</td>
-<td align="right">1.00</td>
-<td align="left">FALSE</td>
-<td align="right">7</td>
-<td align="left">Exe: 1049, Ret: 392, Au : 171, Cho: 134</td>
-</tr>
-<tr class="even">
-<td align="left">qualif</td>
-<td align="right">347</td>
-<td align="right">0.83</td>
-<td align="left">FALSE</td>
-<td align="right">7</td>
-<td align="left">Emp: 594, Ouv: 292, Cad: 260, Ouv: 203</td>
-</tr>
-<tr class="odd">
-<td align="left">clso</td>
-<td align="right">0</td>
-<td align="right">1.00</td>
-<td align="left">FALSE</td>
-<td align="right">3</td>
-<td align="left">Non: 1037, Oui: 936, Ne : 27</td>
-</tr>
-<tr class="even">
-<td align="left">relig</td>
-<td align="right">0</td>
-<td align="right">1.00</td>
-<td align="left">FALSE</td>
-<td align="right">6</td>
-<td align="left">App: 760, Pra: 442, Ni : 399, Pra: 266</td>
-</tr>
-<tr class="odd">
-<td align="left">trav.imp</td>
-<td align="right">952</td>
-<td align="right">0.52</td>
-<td align="left">FALSE</td>
-<td align="right">4</td>
-<td align="left">Moi: 708, Aus: 259, Peu: 52, Le : 29</td>
-</tr>
-<tr class="even">
-<td align="left">trav.satisf</td>
-<td align="right">952</td>
-<td align="right">0.52</td>
-<td align="left">FALSE</td>
-<td align="right">3</td>
-<td align="left">Sat: 480, Equ: 451, Ins: 117</td>
-</tr>
-<tr class="odd">
-<td align="left">hard.rock</td>
-<td align="right">0</td>
-<td align="right">1.00</td>
-<td align="left">FALSE</td>
-<td align="right">2</td>
-<td align="left">Non: 1986, Oui: 14</td>
-</tr>
-<tr class="even">
-<td align="left">lecture.bd</td>
-<td align="right">0</td>
-<td align="right">1.00</td>
-<td align="left">FALSE</td>
-<td align="right">2</td>
-<td align="left">Non: 1953, Oui: 47</td>
-</tr>
-<tr class="odd">
-<td align="left">peche.chasse</td>
-<td align="right">0</td>
-<td align="right">1.00</td>
-<td align="left">FALSE</td>
-<td align="right">2</td>
-<td align="left">Non: 1776, Oui: 224</td>
-</tr>
-<tr class="even">
-<td align="left">cuisine</td>
-<td align="right">0</td>
-<td align="right">1.00</td>
-<td align="left">FALSE</td>
-<td align="right">2</td>
-<td align="left">Non: 1119, Oui: 881</td>
-</tr>
-<tr class="odd">
-<td align="left">bricol</td>
-<td align="right">0</td>
-<td align="right">1.00</td>
-<td align="left">FALSE</td>
-<td align="right">2</td>
-<td align="left">Non: 1147, Oui: 853</td>
-</tr>
-<tr class="even">
-<td align="left">cinema</td>
-<td align="right">0</td>
-<td align="right">1.00</td>
-<td align="left">FALSE</td>
-<td align="right">2</td>
-<td align="left">Non: 1174, Oui: 826</td>
-</tr>
-<tr class="odd">
-<td align="left">sport</td>
-<td align="right">0</td>
-<td align="right">1.00</td>
-<td align="left">FALSE</td>
-<td align="right">2</td>
-<td align="left">Non: 1277, Oui: 723</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Variable type: numeric</strong></p>
-<table>
-<thead>
-<tr class="header">
-<th align="left">skim_variable</th>
-<th align="right">n_missing</th>
-<th align="right">complete_rate</th>
-<th align="right">mean</th>
-<th align="right">sd</th>
-<th align="right">p0</th>
-<th align="right">p25</th>
-<th align="right">p50</th>
-<th align="right">p75</th>
-<th align="right">p100</th>
-<th align="left">hist</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">id</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">1000.50</td>
-<td align="right">577.49</td>
-<td align="right">1.00</td>
-<td align="right">500.75</td>
-<td align="right">1000.50</td>
-<td align="right">1500.25</td>
-<td align="right">2000.00</td>
-<td align="left">▇▇▇▇▇</td>
-</tr>
-<tr class="even">
-<td align="left">age</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">48.16</td>
-<td align="right">16.94</td>
-<td align="right">18.00</td>
-<td align="right">35.00</td>
-<td align="right">48.00</td>
-<td align="right">60.00</td>
-<td align="right">97.00</td>
-<td align="left">▆▇▇▅▁</td>
-</tr>
-<tr class="odd">
-<td align="left">poids</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">5535.61</td>
-<td align="right">4375.03</td>
-<td align="right">78.08</td>
-<td align="right">2221.82</td>
-<td align="right">4631.19</td>
-<td align="right">7626.54</td>
-<td align="right">31092.14</td>
-<td align="left">▇▃▁▁▁</td>
-</tr>
-<tr class="even">
-<td align="left">freres.soeurs</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">3.28</td>
-<td align="right">2.77</td>
-<td align="right">0.00</td>
-<td align="right">1.00</td>
-<td align="right">2.00</td>
-<td align="right">5.00</td>
-<td align="right">22.00</td>
-<td align="left">▇▂▁▁▁</td>
-</tr>
-<tr class="odd">
-<td align="left">heures.tv</td>
-<td align="right">5</td>
-<td align="right">1</td>
-<td align="right">2.25</td>
-<td align="right">1.78</td>
-<td align="right">0.00</td>
-<td align="right">1.00</td>
-<td align="right">2.00</td>
-<td align="right">3.00</td>
-<td align="right">12.00</td>
-<td align="left">▇▃▁▁▁</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(hdv2003<span class="sc">$</span>cuisine)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(hdv2003)</span></code></pre></div>
 <p>On peut noter que les variables sont regroupées par type.</p>
 <p>Il est possible de sélectionner des variables à la manière de <code class="pkg">dplyr</code>. Voir l’aide de <code data-pkg="dplyr" data-rdoc="select_helpers">contains</code>.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(hdv2003, <span class="fu">contains</span>(<span class="st">&quot;re&quot;</span>))</span></code></pre></div>
-<table>
-<caption>Data summary</caption>
-<tbody>
-<tr class="odd">
-<td align="left">Name</td>
-<td align="left">hdv2003</td>
-</tr>
-<tr class="even">
-<td align="left">Number of rows</td>
-<td align="left">2000</td>
-</tr>
-<tr class="odd">
-<td align="left">Number of columns</td>
-<td align="left">20</td>
-</tr>
-<tr class="even">
-<td align="left">_______________________</td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">Column type frequency:</td>
-<td align="left"></td>
-</tr>
-<tr class="even">
-<td align="left">factor</td>
-<td align="left">2</td>
-</tr>
-<tr class="odd">
-<td align="left">numeric</td>
-<td align="left">2</td>
-</tr>
-<tr class="even">
-<td align="left">________________________</td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">Group variables</td>
-<td align="left">None</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Variable type: factor</strong></p>
-<table>
-<thead>
-<tr class="header">
-<th align="left">skim_variable</th>
-<th align="right">n_missing</th>
-<th align="right">complete_rate</th>
-<th align="left">ordered</th>
-<th align="right">n_unique</th>
-<th align="left">top_counts</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">relig</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="left">FALSE</td>
-<td align="right">6</td>
-<td align="left">App: 760, Pra: 442, Ni : 399, Pra: 266</td>
-</tr>
-<tr class="even">
-<td align="left">lecture.bd</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="left">FALSE</td>
-<td align="right">2</td>
-<td align="left">Non: 1953, Oui: 47</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Variable type: numeric</strong></p>
-<table>
-<thead>
-<tr class="header">
-<th align="left">skim_variable</th>
-<th align="right">n_missing</th>
-<th align="right">complete_rate</th>
-<th align="right">mean</th>
-<th align="right">sd</th>
-<th align="right">p0</th>
-<th align="right">p25</th>
-<th align="right">p50</th>
-<th align="right">p75</th>
-<th align="right">p100</th>
-<th align="left">hist</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">freres.soeurs</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">3.28</td>
-<td align="right">2.77</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">2</td>
-<td align="right">5</td>
-<td align="right">22</td>
-<td align="left">▇▂▁▁▁</td>
-</tr>
-<tr class="even">
-<td align="left">heures.tv</td>
-<td align="right">5</td>
-<td align="right">1</td>
-<td align="right">2.25</td>
-<td align="right">1.78</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">2</td>
-<td align="right">3</td>
-<td align="right">12</td>
-<td align="left">▇▃▁▁▁</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(hdv2003, <span class="fu">contains</span>(<span class="st">&quot;re&quot;</span>))</span></code></pre></div>
 <p>Le support des vecteurs labellisés est encore en cours d’intégration.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(menages)</span></code></pre></div>
-<pre><code>Warning: Couldn&#39;t find skimmers for class: haven_labelled,
-vctrs_vctr, double, numeric; No user-defined `sfl` provided.
-Falling back to `character`.
-
-Warning: Couldn&#39;t find skimmers for class: haven_labelled,
-vctrs_vctr, double, numeric; No user-defined `sfl` provided.
-Falling back to `character`.
-
-Warning: Couldn&#39;t find skimmers for class: haven_labelled,
-vctrs_vctr, double, numeric; No user-defined `sfl` provided.
-Falling back to `character`.</code></pre>
-<table>
-<caption>Data summary</caption>
-<tbody>
-<tr class="odd">
-<td align="left">Name</td>
-<td align="left">menages</td>
-</tr>
-<tr class="even">
-<td align="left">Number of rows</td>
-<td align="left">1814</td>
-</tr>
-<tr class="odd">
-<td align="left">Number of columns</td>
-<td align="left">5</td>
-</tr>
-<tr class="even">
-<td align="left">_______________________</td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">Column type frequency:</td>
-<td align="left"></td>
-</tr>
-<tr class="even">
-<td align="left">character</td>
-<td align="left">3</td>
-</tr>
-<tr class="odd">
-<td align="left">numeric</td>
-<td align="left">2</td>
-</tr>
-<tr class="even">
-<td align="left">________________________</td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">Group variables</td>
-<td align="left">None</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Variable type: character</strong></p>
-<table>
-<thead>
-<tr class="header">
-<th align="left">skim_variable</th>
-<th align="right">n_missing</th>
-<th align="right">complete_rate</th>
-<th align="right">min</th>
-<th align="right">max</th>
-<th align="right">empty</th>
-<th align="right">n_unique</th>
-<th align="right">whitespace</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">sexe_chef</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">2</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">structure</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">5</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">richesse</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">5</td>
-<td align="right">0</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Variable type: numeric</strong></p>
-<table>
-<thead>
-<tr class="header">
-<th align="left">skim_variable</th>
-<th align="right">n_missing</th>
-<th align="right">complete_rate</th>
-<th align="right">mean</th>
-<th align="right">sd</th>
-<th align="right">p0</th>
-<th align="right">p25</th>
-<th align="right">p50</th>
-<th align="right">p75</th>
-<th align="right">p100</th>
-<th align="left">hist</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">id_menage</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">907.5</td>
-<td align="right">523.80</td>
-<td align="right">1</td>
-<td align="right">454.25</td>
-<td align="right">907.5</td>
-<td align="right">1360.75</td>
-<td align="right">1814</td>
-<td align="left">▇▇▇▇▇</td>
-</tr>
-<tr class="even">
-<td align="left">taille</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">7.5</td>
-<td align="right">4.42</td>
-<td align="right">1</td>
-<td align="right">4.00</td>
-<td align="right">6.0</td>
-<td align="right">9.00</td>
-<td align="right">31</td>
-<td align="left">▇▅▁▁▁</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(menages)</span></code></pre></div>
 <!------
 
 ## codebook (codebook)
@@ -1717,24 +706,24 @@ Le principe est d'utiliser la puissance de [R Markdown](rmarkdown-les-rapports-a
 <div id="create_report-dataexplorer" class="section level2 hasAnchor">
 <h2 class="hasAnchor">create_report (DataExplorer)<a href="#create_report-dataexplorer" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">DataExplorer</code> fournit des outils d’exploration graphique d’un fichier de données. En premier lieu, sa fonction <code data-pkg="DataExplorer">create_report</code> génère un rapport automatique à partir d’un tableau de données.</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DataExplorer)</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">create_report</span>(hdv2003)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DataExplorer)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">create_report</span>(hdv2003)</span></code></pre></div>
 <p>Le résultat de ce rapport est visible sur <a href="http://larmarange.github.io/analyse-R/data/hdv2003_DataExplorer_report.html" class="uri">http://larmarange.github.io/analyse-R/data/hdv2003_DataExplorer_report.html</a>.</p>
 <p>L’extension fournit également différentes fonctions graphiques, présentées en détail dans la vignette inclue dans l’extension et visible sur <a href="https://cran.r-project.org/web/packages/DataExplorer/vignettes/dataexplorer-intro.html" class="uri">https://cran.r-project.org/web/packages/DataExplorer/vignettes/dataexplorer-intro.html</a>.</p>
 </div>
 <div id="makecodebook-datamaid" class="section level2 hasAnchor">
 <h2 class="hasAnchor">makeCodebook (dataMaid)<a href="#makecodebook-datamaid" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">dataMaid</code> propose une fonction <code data-pkg="dataMaid">makeCodebook</code> permettant de générer une présentation de l’ensemble des variables d’un tableau de données, au format PDF, Word ou HTML.</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dataMaid)</span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">makeCodebook</span>(hdv2003)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dataMaid)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">makeCodebook</span>(hdv2003)</span></code></pre></div>
 <p>Vous pouvez cliquer sur ce lien pour voir <a href="data/codebook_hdv2003.pdf">le PDF produit par dataMaid</a>.</p>
 </div>
 <div id="scan_data-pointblank" class="section level2 hasAnchor">
 <h2 class="hasAnchor">scan_data (pointblank)<a href="#scan_data-pointblank" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code class="pkg">pointblank</code> propose une fonction <code data-pkg="pointblank">scan_data</code> permettant de générer un rapport automatisé sur un jeu de données. Le rapport est surtout détaillé pour les variables continues mais ne fournit que peu d’informations que les variables catégorielles. La fonction ne tient pas compte non plus des variables labellisées. La fonction <code data-pkg="pointblank">export_report</code> permet d’exporter le rapport obtenu au format HTML.</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pointblank)</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>rapport <span class="ot">&lt;-</span> <span class="fu">scan_data</span>(hdv2003)</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">export_report</span>(rapport, <span class="at">filename =</span> <span class="st">&quot;data/scan_data_hdv2003.html&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pointblank)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>rapport <span class="ot">&lt;-</span> <span class="fu">scan_data</span>(hdv2003)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">export_report</span>(rapport, <span class="at">filename =</span> <span class="st">&quot;data/scan_data_hdv2003.html&quot;</span>)</span></code></pre></div>
 <p>Vous pouvez cliquer sur ce lien pour voir <a href="data/scan_data_hdv2003.html">le fichier HTML produit par pointblank</a>.</p>
 </div>
 

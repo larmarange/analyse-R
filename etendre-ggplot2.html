@@ -13,7 +13,7 @@
 
 <title>Étendre ggplot2</title>
 
-<script src="libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -165,13 +165,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -444,6 +451,7 @@ pre code {
           </ul>
         </li>
         <li><a href="analyse-R.pdf">PDF</a></li>
+        <li><a href="https://github.com/larmarange/guide-R/">guide-R</a></li>
         <li><a href="https://larmarange.github.io/webin-R/">webin-R</a></li>
         <li><a href="https://www.youtube.com/c/webinR"><i class="fa fa-youtube" aria-hidden="true"></i></a></li>
         <!--<li><a href="https://github.com/larmarange/analyse-R">GitHub</a></li>-->
@@ -480,48 +488,48 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#nouvelles-géométries">Nouvelles géométries<span></span></a>
+<li><a href="#nouvelles-géométries" id="toc-nouvelles-géométries">Nouvelles géométries<span></span></a>
 <ul>
-<li><a href="#étiquettes-non-superposées">Étiquettes non superposées<span></span></a></li>
-<li><a href="#graphiques-en-sucettes-lollipop">Graphiques en sucettes (<em>lollipop</em>)<span></span></a></li>
-<li><a href="#graphique-dhaltères-dumbbell">Graphique d’haltères (<em>dumbbell</em>)<span></span></a></li>
-<li><a href="#points-reliés-pointpath">Points reliés (<em>pointpath</em>)<span></span></a></li>
-<li><a href="#accolades-de-comparaison-bracket">Accolades de comparaison (<em>bracket</em>)<span></span></a></li>
-<li><a href="#diagramme-en-crêtes-ridges">Diagramme en crêtes (<em>ridges</em>)<span></span></a></li>
-<li><a href="#graphique-en-gaufres-waffle">Graphique en gaufres (<em>waffle</em>)<span></span></a></li>
-<li><a href="#graphique-en-mosaïque-mosaic-plot">Graphique en mosaïque (<em>mosaic plot</em>)<span></span></a></li>
-<li><a href="#représentations-graphiques-des-distributions-et-de-lincertitude">Représentations graphiques des distributions et de l’incertitude<span></span></a></li>
-<li><a href="#graphique-de-pirates-alternative-aux-boîtes-à-moustache-pirat-plot">Graphique de pirates : alternative aux boîtes à moustache (<em>pirat plot</em>)<span></span></a></li>
-<li><a href="#nuages-de-pluie-raincloud-plots">Nuages de pluie (<em>raincloud plots</em>)<span></span></a></li>
-<li><a href="#demi-géométries">Demi-géométries<span></span></a></li>
-<li><a href="#annotations-avec-des-formes-gémoétriques">Annotations avec des formes gémoétriques<span></span></a></li>
+<li><a href="#étiquettes-non-superposées" id="toc-étiquettes-non-superposées">Étiquettes non superposées<span></span></a></li>
+<li><a href="#graphiques-en-sucettes-lollipop" id="toc-graphiques-en-sucettes-lollipop">Graphiques en sucettes (<em>lollipop</em>)<span></span></a></li>
+<li><a href="#graphique-dhaltères-dumbbell" id="toc-graphique-dhaltères-dumbbell">Graphique d’haltères (<em>dumbbell</em>)<span></span></a></li>
+<li><a href="#points-reliés-pointpath" id="toc-points-reliés-pointpath">Points reliés (<em>pointpath</em>)<span></span></a></li>
+<li><a href="#accolades-de-comparaison-bracket" id="toc-accolades-de-comparaison-bracket">Accolades de comparaison (<em>bracket</em>)<span></span></a></li>
+<li><a href="#diagramme-en-crêtes-ridges" id="toc-diagramme-en-crêtes-ridges">Diagramme en crêtes (<em>ridges</em>)<span></span></a></li>
+<li><a href="#graphique-en-gaufres-waffle" id="toc-graphique-en-gaufres-waffle">Graphique en gaufres (<em>waffle</em>)<span></span></a></li>
+<li><a href="#graphique-en-mosaïque-mosaic-plot" id="toc-graphique-en-mosaïque-mosaic-plot">Graphique en mosaïque (<em>mosaic plot</em>)<span></span></a></li>
+<li><a href="#représentations-graphiques-des-distributions-et-de-lincertitude" id="toc-représentations-graphiques-des-distributions-et-de-lincertitude">Représentations graphiques des distributions et de l’incertitude<span></span></a></li>
+<li><a href="#graphique-de-pirates-alternative-aux-boîtes-à-moustache-pirat-plot" id="toc-graphique-de-pirates-alternative-aux-boîtes-à-moustache-pirat-plot">Graphique de pirates : alternative aux boîtes à moustache (<em>pirat plot</em>)<span></span></a></li>
+<li><a href="#nuages-de-pluie-raincloud-plots" id="toc-nuages-de-pluie-raincloud-plots">Nuages de pluie (<em>raincloud plots</em>)<span></span></a></li>
+<li><a href="#demi-géométries" id="toc-demi-géométries">Demi-géométries<span></span></a></li>
+<li><a href="#annotations-avec-des-formes-gémoétriques" id="toc-annotations-avec-des-formes-gémoétriques">Annotations avec des formes gémoétriques<span></span></a></li>
 </ul></li>
-<li><a href="#axes-légende-et-facettes">Axes, légende et facettes<span></span></a>
+<li><a href="#axes-légende-et-facettes" id="toc-axes-légende-et-facettes">Axes, légende et facettes<span></span></a>
 <ul>
-<li><a href="#texte-mis-en-forme">Texte mis en forme<span></span></a></li>
-<li><a href="#axes-limités">Axes <q>limités</q><span></span></a></li>
-<li><a href="#répéter-les-étiquettes-des-axes-sur-des-facettes">Répéter les étiquettes des axes sur des facettes<span></span></a></li>
-<li><a href="#encoches-mineures-sur-les-axes">Encoches mineures sur les axes<span></span></a></li>
-<li><a href="#relations-imbriquées">Relations imbriquées<span></span></a></li>
-<li><a href="#combinaison-de-variables-sur-laxe-des-x">Combinaison de variables sur l’axe des X<span></span></a></li>
-<li><a href="#des-facettes-paginées-diviser-en-plusieurs-sous-graphiques">Des facettes paginées (diviser en plusieurs sous-graphiques)<span></span></a></li>
+<li><a href="#texte-mis-en-forme" id="toc-texte-mis-en-forme">Texte mis en forme<span></span></a></li>
+<li><a href="#axes-limités" id="toc-axes-limités">Axes <q>limités</q><span></span></a></li>
+<li><a href="#répéter-les-étiquettes-des-axes-sur-des-facettes" id="toc-répéter-les-étiquettes-des-axes-sur-des-facettes">Répéter les étiquettes des axes sur des facettes<span></span></a></li>
+<li><a href="#encoches-mineures-sur-les-axes" id="toc-encoches-mineures-sur-les-axes">Encoches mineures sur les axes<span></span></a></li>
+<li><a href="#relations-imbriquées" id="toc-relations-imbriquées">Relations imbriquées<span></span></a></li>
+<li><a href="#combinaison-de-variables-sur-laxe-des-x" id="toc-combinaison-de-variables-sur-laxe-des-x">Combinaison de variables sur l’axe des X<span></span></a></li>
+<li><a href="#des-facettes-paginées-diviser-en-plusieurs-sous-graphiques" id="toc-des-facettes-paginées-diviser-en-plusieurs-sous-graphiques">Des facettes paginées (diviser en plusieurs sous-graphiques)<span></span></a></li>
 </ul></li>
-<li><a href="#cartes">Cartes<span></span></a></li>
-<li><a href="#graphiques-complexes">Graphiques complexes<span></span></a>
+<li><a href="#cartes" id="toc-cartes">Cartes<span></span></a></li>
+<li><a href="#graphiques-complexes" id="toc-graphiques-complexes">Graphiques complexes<span></span></a>
 <ul>
-<li><a href="#graphiques-divergents">Graphiques divergents<span></span></a></li>
-<li><a href="#pyramides-des-âges">Pyramides des âges<span></span></a></li>
-<li><a href="#graphiques-interactifs">Graphiques interactifs<span></span></a></li>
-<li><a href="#graphiques-animés">Graphiques animés<span></span></a></li>
-<li><a href="#surligner-certaines-données">Surligner certaines données<span></span></a></li>
+<li><a href="#graphiques-divergents" id="toc-graphiques-divergents">Graphiques divergents<span></span></a></li>
+<li><a href="#pyramides-des-âges" id="toc-pyramides-des-âges">Pyramides des âges<span></span></a></li>
+<li><a href="#graphiques-interactifs" id="toc-graphiques-interactifs">Graphiques interactifs<span></span></a></li>
+<li><a href="#graphiques-animés" id="toc-graphiques-animés">Graphiques animés<span></span></a></li>
+<li><a href="#surligner-certaines-données" id="toc-surligner-certaines-données">Surligner certaines données<span></span></a></li>
 </ul></li>
-<li><a href="#thèmes-et-couleurs">Thèmes et couleurs<span></span></a>
+<li><a href="#thèmes-et-couleurs" id="toc-thèmes-et-couleurs">Thèmes et couleurs<span></span></a>
 <ul>
-<li><a href="#palettes-de-couleurs">Palettes de couleurs<span></span></a></li>
-<li><a href="#hrbrthemes">hrbrthemes<span></span></a></li>
-<li><a href="#ggthemes">ggthemes<span></span></a></li>
+<li><a href="#palettes-de-couleurs" id="toc-palettes-de-couleurs">Palettes de couleurs<span></span></a></li>
+<li><a href="#hrbrthemes" id="toc-hrbrthemes">hrbrthemes<span></span></a></li>
+<li><a href="#ggthemes" id="toc-ggthemes">ggthemes<span></span></a></li>
 </ul></li>
-<li><a href="#combiner-plusieurs-graphiques">Combiner plusieurs graphiques<span></span></a></li>
+<li><a href="#combiner-plusieurs-graphiques" id="toc-combiner-plusieurs-graphiques">Combiner plusieurs graphiques<span></span></a></li>
 </ul>
 </div>
 
@@ -548,19 +556,19 @@ pre code {
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(wt, mpg, <span class="at">label =</span> car) <span class="sc">+</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">&quot;red&quot;</span>)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">geom_text</span>() <span class="sc">+</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">geom_text</span>() <span class="sc">+</span> </span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;geom_text()&quot;</span>)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">geom_text_repel</span>() <span class="sc">+</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">geom_text_repel</span>() <span class="sc">+</span> </span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;geom_text_repel()&quot;</span>)</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>cowplot<span class="sc">::</span><span class="fu">plot_grid</span>(p1, p2, <span class="at">nrow =</span> <span class="dv">1</span>)</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-1-1.png" width="1050" /></p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <p>Pour plus d’informations : <a href="https://ggrepel.slowkow.com/" class="uri">https://ggrepel.slowkow.com/</a></p>
 </div>
 <div id="graphiques-en-sucettes-lollipop" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Graphiques en sucettes (<em>lollipop</em>)<a href="#graphiques-en-sucettes-lollipop" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">ggalt</code> propose une géométrie <code data-pkg="ggalt">geom_lollipop</code> permettant de réaliser des graphiques dit en <q>sucettes</q>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="at">text =</span> <span class="st">&quot;category,pct</span></span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="at">text=</span><span class="st">&quot;category,pct</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="st">Other,0.09</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="st">South Asian/South Asian Americans,0.12</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="st">Interngenerational/Generational,0.21</span></span>
@@ -581,8 +589,8 @@ pre code {
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="st">LBGTQ/Ally,0.79</span></span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="st">Mixed Race,0.80</span></span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="st">Jewish Heritage/Observance,0.85</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="st">International Students,0.87&quot;</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>, <span class="at">sep =</span> <span class="st">&quot;,&quot;</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="st">International Students,0.87&quot;</span>, <span class="at">stringsAsFactors=</span><span class="cn">FALSE</span>, <span class="at">sep=</span><span class="st">&quot;,&quot;</span>, <span class="at">header=</span><span class="cn">TRUE</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a> </span>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggalt)</span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
@@ -590,37 +598,37 @@ pre code {
 <span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
 <span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">reorder</span>(category, pct), <span class="at">x =</span> pct) <span class="sc">+</span></span>
 <span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_lollipop</span>(<span class="at">point.colour =</span> <span class="st">&quot;steelblue&quot;</span>, <span class="at">point.size =</span> <span class="dv">2</span>, <span class="at">horizontal =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>), <span class="at">labels =</span> percent, <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">by =</span> <span class="fl">0.2</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="at">labels=</span>percent, <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">by =</span> <span class="fl">0.2</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
 <span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;SUNY Cortland Multicultural Alumni survey results&quot;</span>,</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">&quot;Ranked by race, ethnicity, home land and orientation</span><span class="sc">\n</span><span class="st">among the top areas of concern&quot;</span>,</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">&quot;Data from http://stephanieevergreen.com/lollipop/&quot;</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="cn">NULL</span>, <span class="at">y=</span><span class="cn">NULL</span>, </span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">&quot;SUNY Cortland Multicultural Alumni survey results&quot;</span>,</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle=</span><span class="st">&quot;Ranked by race, ethnicity, home land and orientation</span><span class="sc">\n</span><span class="st">among the top areas of concern&quot;</span>,</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption=</span><span class="st">&quot;Data from http://stephanieevergreen.com/lollipop/&quot;</span></span>
 <span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-2-1.png" width="1050" /></p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 </div>
 <div id="graphique-dhaltères-dumbbell" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Graphique d’haltères (<em>dumbbell</em>)<a href="#graphique-dhaltères-dumbbell" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">ggalt</code> propose une géométrie <code data-pkg="ggalt">geom_dumbbell</code> permettant de réaliser des graphiques dit en <q>haltères</q>.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggalt)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">trt =</span> LETTERS[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>],</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">l =</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">10</span>, <span class="dv">30</span>, <span class="dv">50</span>),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">trt =</span> LETTERS[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>], </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">l =</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">10</span>, <span class="dv">30</span>, <span class="dv">50</span>), </span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">r =</span> <span class="fu">c</span>(<span class="dv">70</span>, <span class="dv">50</span>, <span class="dv">30</span>, <span class="dv">60</span>, <span class="dv">80</span>)</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">y =</span> trt, <span class="at">x =</span> l, <span class="at">xend =</span> r) <span class="sc">+</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">y =</span> trt, <span class="at">x =</span> l, <span class="at">xend =</span> r) <span class="sc">+</span> </span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_dumbbell</span>(</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">3</span>,</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">&quot;#e3e2e1&quot;</span>,</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour_x =</span> <span class="st">&quot;#5b8124&quot;</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">3</span>, </span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">&quot;#e3e2e1&quot;</span>, </span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour_x =</span> <span class="st">&quot;#5b8124&quot;</span>, </span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour_xend =</span> <span class="st">&quot;#bad744&quot;</span></span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-3-1.png" width="1050" /></p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 </div>
 <div id="points-reliés-pointpath" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Points reliés (<em>pointpath</em>)<a href="#points-reliés-pointpath" class="anchor-section" aria-label="Anchor link to header"></a></h3>
@@ -629,7 +637,7 @@ pre code {
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(pressure) <span class="sc">+</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> temperature, <span class="at">y =</span> pressure) <span class="sc">+</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointpath</span>()</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-4-1.png" width="1050" /></p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 </div>
 <div id="accolades-de-comparaison-bracket" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Accolades de comparaison (<em>bracket</em>)<a href="#accolades-de-comparaison-bracket" class="anchor-section" aria-label="Anchor link to header"></a></h3>
@@ -645,18 +653,18 @@ pre code {
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmin =</span> <span class="st">&quot;0.5&quot;</span>, <span class="at">xmax =</span> <span class="st">&quot;1&quot;</span>, <span class="at">y.position =</span> <span class="dv">30</span>,</span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="st">&quot;t-test, p &lt; 0.05&quot;</span></span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-5-1.png" width="1050" /></p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> dose, <span class="at">y =</span> len) <span class="sc">+</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bracket</span>(</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmin =</span> <span class="fu">c</span>(<span class="st">&quot;0.5&quot;</span>, <span class="st">&quot;1&quot;</span>),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmin =</span> <span class="fu">c</span>(<span class="st">&quot;0.5&quot;</span>, <span class="st">&quot;1&quot;</span>), </span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmax =</span> <span class="fu">c</span>(<span class="st">&quot;1&quot;</span>, <span class="st">&quot;2&quot;</span>),</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y.position =</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">35</span>),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y.position =</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">35</span>), </span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">c</span>(<span class="st">&quot;***&quot;</span>, <span class="st">&quot;**&quot;</span>),</span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">tip.length =</span> <span class="fl">0.01</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-5-2.png" width="1050" /></p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-13-2.png" width="672" /></p>
 <p>Plus d’informations : <a href="https://rpkgs.datanovia.com/ggpubr/" class="uri">https://rpkgs.datanovia.com/ggpubr/</a></p>
 </div>
 <div id="diagramme-en-crêtes-ridges" class="section level3 hasAnchor">
@@ -666,10 +674,10 @@ pre code {
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(lincoln_weather, <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">Mean Temperature [F]</span><span class="st">`</span>, <span class="at">y =</span> Month, <span class="at">fill =</span> <span class="fu">stat</span>(x))) <span class="sc">+</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density_ridges_gradient</span>(<span class="at">scale =</span> <span class="dv">3</span>, <span class="at">rel_min_height =</span> <span class="fl">0.01</span>) <span class="sc">+</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">name =</span> <span class="st">&quot;Temp. [F]&quot;</span>, <span class="at">option =</span> <span class="st">&quot;C&quot;</span>) <span class="sc">+</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Temperatures in Lincoln NE in 2016&quot;</span>) <span class="sc">+</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&#39;Temperatures in Lincoln NE in 2016&#39;</span>) <span class="sc">+</span></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_ridges</span>()</span></code></pre></div>
 <pre><code>Picking joint bandwidth of 3.37</code></pre>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-6-1.png" width="1050" /></p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <p>Plus d’informations : <a href="https://wilkelab.org/ggridges/" class="uri">https://wilkelab.org/ggridges/</a></p>
 </div>
 <div id="graphique-en-gaufres-waffle" class="section level3 hasAnchor">
@@ -678,7 +686,7 @@ pre code {
 <p>ATTENTION : elle s’installe avec la commande <code>install.packages("waffle", repos = "https://cinc.rud.is")</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(waffle)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>xdf <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">parts =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(month.abb[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>], <span class="dv">3</span>), <span class="at">levels =</span> month.abb[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">parts =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(month.abb[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>], <span class="dv">3</span>), <span class="at">levels=</span>month.abb[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]),</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">vals =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">6</span>, <span class="dv">14</span>, <span class="dv">40</span>, <span class="dv">30</span>, <span class="dv">20</span>, <span class="dv">10</span>),</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">fct =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">&quot;Thing 1&quot;</span>, <span class="dv">3</span>), <span class="fu">rep</span>(<span class="st">&quot;Thing 2&quot;</span>, <span class="dv">3</span>), <span class="fu">rep</span>(<span class="st">&quot;Thing 3&quot;</span>, <span class="dv">3</span>))</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -686,7 +694,7 @@ pre code {
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(xdf) <span class="sc">+</span></span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">fill =</span> parts, <span class="at">values =</span> vals) <span class="sc">+</span></span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_waffle</span>() <span class="sc">+</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>fct) <span class="sc">+</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> fct) <span class="sc">+</span></span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="cn">NULL</span>,</span>
 <span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;#a40000&quot;</span>, <span class="st">&quot;#c68958&quot;</span>, <span class="st">&quot;#ae6056&quot;</span>),</span>
@@ -695,7 +703,7 @@ pre code {
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_equal</span>() <span class="sc">+</span></span>
 <span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
 <span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_enhance_waffle</span>()</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-7-1.png" width="1050" /></p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 <p>Plus d’informations : <a href="https://github.com/hrbrmstr/waffle" class="uri">https://github.com/hrbrmstr/waffle</a></p>
 </div>
 <div id="graphique-en-mosaïque-mosaic-plot" class="section level3 hasAnchor">
@@ -707,10 +715,8 @@ pre code {
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> titanic) <span class="sc">+</span></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_mosaic</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">product</span>(Class), <span class="at">fill =</span> Survived))</span></code></pre></div>
 <pre><code>Warning: `unite_()` was deprecated in tidyr 1.2.0.
-Please use `unite()` instead.
-This warning is displayed once every 8 hours.
-Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</code></pre>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-8-1.png" width="1050" /></p>
+Please use `unite()` instead.</code></pre>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
 <p>Plus d’informations : <a href="https://cran.r-project.org/web/packages/ggmosaic/vignettes/ggmosaic.html" class="uri">https://cran.r-project.org/web/packages/ggmosaic/vignettes/ggmosaic.html</a></p>
 </div>
 <div id="représentations-graphiques-des-distributions-et-de-lincertitude" class="section level3 hasAnchor">
@@ -726,7 +732,7 @@ Call `lifecycle::last_lifecycle_warnings()` to see where this warning was genera
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mpg, <span class="fu">aes</span>(<span class="at">x =</span> class, <span class="at">y =</span> cty)) <span class="sc">+</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pirate</span>(<span class="fu">aes</span>(<span class="at">colour =</span> class, <span class="at">fill =</span> class)) <span class="sc">+</span></span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-9-1.png" width="1050" /></p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
 <p>Pour plus d’informations : <a href="https://github.com/mikabr/ggpirate" class="uri">https://github.com/mikabr/ggpirate</a></p>
 </div>
 <div id="nuages-de-pluie-raincloud-plots" class="section level3 hasAnchor">
@@ -741,7 +747,7 @@ Call `lifecycle::last_lifecycle_warnings()` to see where this warning was genera
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(iris, <span class="fu">aes</span>(<span class="at">x =</span> Species, <span class="at">y =</span> Sepal.Width)) <span class="sc">+</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_half_boxplot</span>(<span class="at">fill =</span> <span class="st">&quot;lightblue&quot;</span>) <span class="sc">+</span></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_half_violin</span>(<span class="at">side =</span> <span class="st">&quot;r&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;navajowhite&quot;</span>)</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-10-1.png" width="1050" /></p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
 </div>
 <div id="annotations-avec-des-formes-gémoétriques" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Annotations avec des formes gémoétriques<a href="#annotations-avec-des-formes-gémoétriques" class="anchor-section" aria-label="Anchor link to header"></a></h3>
@@ -750,11 +756,11 @@ Call `lifecycle::last_lifecycle_warnings()` to see where this warning was genera
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(iris, <span class="fu">aes</span>(Petal.Length, Petal.Width)) <span class="sc">+</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_mark_rect</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Species, <span class="at">label =</span> Species)) <span class="sc">+</span></span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-11-1.png" width="1050" /></p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(iris, <span class="fu">aes</span>(Petal.Length, Petal.Width)) <span class="sc">+</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_mark_hull</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Species, <span class="at">label =</span> Species)) <span class="sc">+</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-11-2.png" width="1050" /></p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-19-2.png" width="672" /></p>
 </div>
 </div>
 <div id="axes-légende-et-facettes" class="section level2 hasAnchor">
@@ -764,189 +770,220 @@ Call `lifecycle::last_lifecycle_warnings()` to see where this warning was genera
 <p>L’extension <code class="pkg">ggtext</code> permet d’utiliser du <em>markdown</em> et du <em>HTML</em> pour une mise en forme avancée de texte (axes, titres, légendes…).</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggtext)</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggtext)</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glue)</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">bactname =</span> <span class="fu">c</span>(<span class="st">&quot;Staphylococcaceae&quot;</span>, <span class="st">&quot;Moraxella&quot;</span>, <span class="st">&quot;Streptococcus&quot;</span>, <span class="st">&quot;Acinetobacter&quot;</span>),</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">OTUname =</span> <span class="fu">c</span>(<span class="st">&quot;OTU 1&quot;</span>, <span class="st">&quot;OTU 2&quot;</span>, <span class="st">&quot;OTU 3&quot;</span>, <span class="st">&quot;OTU 4&quot;</span>),</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">value =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span></span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="fu">c</span>(<span class="st">&quot;#009E73&quot;</span>, <span class="st">&quot;#D55E00&quot;</span>, <span class="st">&quot;#0072B2&quot;</span>, <span class="st">&quot;#000000&quot;</span>),</span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="fu">glue</span>(<span class="st">&quot;&lt;i style=&#39;color:{color}&#39;&gt;{bactname}&lt;/i&gt; ({OTUname})&quot;</span>),</span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="fu">fct_reorder</span>(name, value)</span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(value, name, <span class="at">fill =</span> color)) <span class="sc">+</span></span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_identity</span>() <span class="sc">+</span></span>
-<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">caption =</span> <span class="st">&quot;Example posted on **stackoverflow.com**&lt;br&gt;(using made-up data)&quot;</span>) <span class="sc">+</span></span>
-<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_markdown</span>(),</span>
-<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.caption =</span> <span class="fu">element_markdown</span>(<span class="at">lineheight =</span> <span class="fl">1.2</span>)</span>
-<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-12-1.png" width="1050" /></p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mtcars, <span class="fu">aes</span>(disp, mpg)) <span class="sc">+</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;&lt;b&gt;Fuel economy vs. engine displacement&lt;/b&gt;&lt;br&gt;</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;span style = &#39;font-size:10pt&#39;&gt;Lorem ipsum *dolor sit amet,*</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="st">    consectetur adipiscing elit, **sed do eiusmod tempor incididunt** ut</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="st">    labore et dolore magna aliqua. &lt;span style = &#39;color:red;&#39;&gt;Ut enim</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="st">    ad minim veniam,&lt;/span&gt; quis nostrud exercitation ullamco laboris nisi</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="st">    ut aliquip ex ea commodo consequat.&lt;/span&gt;&quot;</span>,</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">&quot;displacement (in&lt;sup&gt;3&lt;/sup&gt;)&quot;</span>,</span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">&quot;Miles per gallon (mpg)&lt;br&gt;&lt;span style = &#39;font-size:8pt&#39;&gt;A measure of</span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="st">    the car&#39;s fuel efficiency.&lt;/span&gt;&quot;</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">&quot;plot&quot;</span>,</span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_textbox_simple</span>(</span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">13</span>,</span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">lineheight =</span> <span class="dv">1</span>,</span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">padding =</span> <span class="fu">margin</span>(<span class="fl">5.5</span>, <span class="fl">5.5</span>, <span class="fl">5.5</span>, <span class="fl">5.5</span>),</span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">5.5</span>, <span class="dv">0</span>),</span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">fill =</span> <span class="st">&quot;cornsilk&quot;</span></span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.x =</span> <span class="fu">element_textbox_simple</span>(</span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">width =</span> <span class="cn">NULL</span>,</span>
-<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">padding =</span> <span class="fu">margin</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">4</span>),</span>
-<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">4</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>),</span>
-<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>      <span class="at">linetype =</span> <span class="dv">1</span>,</span>
-<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>      <span class="at">r =</span> grid<span class="sc">::</span><span class="fu">unit</span>(<span class="dv">8</span>, <span class="st">&quot;pt&quot;</span>),</span>
-<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>      <span class="at">fill =</span> <span class="st">&quot;azure1&quot;</span></span>
-<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.y =</span> <span class="fu">element_textbox_simple</span>(</span>
-<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="dv">0</span>,</span>
-<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>      <span class="at">orientation =</span> <span class="st">&quot;left-rotated&quot;</span>,</span>
-<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">minwidth =</span> <span class="fu">unit</span>(<span class="dv">1</span>, <span class="st">&quot;in&quot;</span>),</span>
-<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>      <span class="at">maxwidth =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">&quot;in&quot;</span>),</span>
-<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>      <span class="at">padding =</span> <span class="fu">margin</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">4</span>),</span>
-<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>      <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">0</span>),</span>
-<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>      <span class="at">fill =</span> <span class="st">&quot;lightsteelblue1&quot;</span></span>
-<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-12-2.png" width="1050" /></p>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
+<pre><code>── Attaching packages ─────────────────── tidyverse 1.3.2 ──
+✔ tibble  3.1.8     ✔ purrr   0.3.4
+✔ tidyr   1.2.1     ✔ forcats 0.5.2
+✔ readr   2.1.2     
+── Conflicts ────────────────────── tidyverse_conflicts() ──
+✖ lubridate::as.difftime() masks base::as.difftime()
+✖ dplyr::between()         masks data.table::between()
+✖ readr::col_factor()      masks scales::col_factor()
+✖ lubridate::date()        masks base::date()
+✖ purrr::discard()         masks scales::discard()
+✖ dplyr::filter()          masks stats::filter()
+✖ dplyr::first()           masks data.table::first()
+✖ lubridate::hour()        masks data.table::hour()
+✖ lubridate::intersect()   masks base::intersect()
+✖ lubridate::isoweek()     masks data.table::isoweek()
+✖ dplyr::lag()             masks stats::lag()
+✖ dplyr::last()            masks data.table::last()
+✖ lubridate::mday()        masks data.table::mday()
+✖ lubridate::minute()      masks data.table::minute()
+✖ lubridate::month()       masks data.table::month()
+✖ lubridate::quarter()     masks data.table::quarter()
+✖ dplyr::recode()          masks car::recode()
+✖ lubridate::second()      masks data.table::second()
+✖ dplyr::select()          masks MASS::select(), gtsummary::select()
+✖ lubridate::setdiff()     masks base::setdiff()
+✖ purrr::some()            masks car::some()
+✖ purrr::transpose()       masks data.table::transpose()
+✖ lubridate::union()       masks base::union()
+✖ lubridate::wday()        masks data.table::wday()
+✖ lubridate::week()        masks data.table::week()
+✖ lubridate::yday()        masks data.table::yday()
+✖ lubridate::year()        masks data.table::year()</code></pre>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggtext)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glue)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">bactname =</span> <span class="fu">c</span>(<span class="st">&quot;Staphylococcaceae&quot;</span>, <span class="st">&quot;Moraxella&quot;</span>, <span class="st">&quot;Streptococcus&quot;</span>, <span class="st">&quot;Acinetobacter&quot;</span>),</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">OTUname =</span> <span class="fu">c</span>(<span class="st">&quot;OTU 1&quot;</span>, <span class="st">&quot;OTU 2&quot;</span>, <span class="st">&quot;OTU 3&quot;</span>, <span class="st">&quot;OTU 4&quot;</span>),</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">value =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">color =</span> <span class="fu">c</span>(<span class="st">&quot;#009E73&quot;</span>, <span class="st">&quot;#D55E00&quot;</span>, <span class="st">&quot;#0072B2&quot;</span>, <span class="st">&quot;#000000&quot;</span>),</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="fu">glue</span>(<span class="st">&quot;&lt;i style=&#39;color:{color}&#39;&gt;{bactname}&lt;/i&gt; ({OTUname})&quot;</span>),</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="fu">fct_reorder</span>(name, value)</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>)  <span class="sc">%&gt;%</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(value, name, <span class="at">fill =</span> color)) <span class="sc">+</span> </span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> </span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_identity</span>() <span class="sc">+</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">caption =</span> <span class="st">&quot;Example posted on **stackoverflow.com**&lt;br&gt;(using made-up data)&quot;</span>) <span class="sc">+</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_markdown</span>(),</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.caption =</span> <span class="fu">element_markdown</span>(<span class="at">lineheight =</span> <span class="fl">1.2</span>)</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mtcars, <span class="fu">aes</span>(disp, mpg)) <span class="sc">+</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;&lt;b&gt;Fuel economy vs. engine displacement&lt;/b&gt;&lt;br&gt;</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;span style = &#39;font-size:10pt&#39;&gt;Lorem ipsum *dolor sit amet,*</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="st">    consectetur adipiscing elit, **sed do eiusmod tempor incididunt** ut</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="st">    labore et dolore magna aliqua. &lt;span style = &#39;color:red;&#39;&gt;Ut enim</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="st">    ad minim veniam,&lt;/span&gt; quis nostrud exercitation ullamco laboris nisi</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="st">    ut aliquip ex ea commodo consequat.&lt;/span&gt;&quot;</span>,</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">&quot;displacement (in&lt;sup&gt;3&lt;/sup&gt;)&quot;</span>,</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">&quot;Miles per gallon (mpg)&lt;br&gt;&lt;span style = &#39;font-size:8pt&#39;&gt;A measure of</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="st">    the car&#39;s fuel efficiency.&lt;/span&gt;&quot;</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">&quot;plot&quot;</span>,</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_textbox_simple</span>(</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">13</span>,</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">lineheight =</span> <span class="dv">1</span>,</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">padding =</span> <span class="fu">margin</span>(<span class="fl">5.5</span>, <span class="fl">5.5</span>, <span class="fl">5.5</span>, <span class="fl">5.5</span>),</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">5.5</span>, <span class="dv">0</span>),</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">fill =</span> <span class="st">&quot;cornsilk&quot;</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.x =</span> <span class="fu">element_textbox_simple</span>(</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">width =</span> <span class="cn">NULL</span>,</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">padding =</span> <span class="fu">margin</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">4</span>),</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">4</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>      <span class="at">linetype =</span> <span class="dv">1</span>,</span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>      <span class="at">r =</span> grid<span class="sc">::</span><span class="fu">unit</span>(<span class="dv">8</span>, <span class="st">&quot;pt&quot;</span>),</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>      <span class="at">fill =</span> <span class="st">&quot;azure1&quot;</span></span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.y =</span> <span class="fu">element_textbox_simple</span>(</span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="dv">0</span>,</span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>      <span class="at">orientation =</span> <span class="st">&quot;left-rotated&quot;</span>,</span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">minwidth =</span> <span class="fu">unit</span>(<span class="dv">1</span>, <span class="st">&quot;in&quot;</span>),</span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>      <span class="at">maxwidth =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">&quot;in&quot;</span>),</span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>      <span class="at">padding =</span> <span class="fu">margin</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">4</span>),</span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a>      <span class="at">margin =</span> <span class="fu">margin</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">0</span>),</span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a>      <span class="at">fill =</span> <span class="st">&quot;lightsteelblue1&quot;</span></span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-20-2.png" width="672" /></p>
 </div>
 <div id="axes-limités" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Axes <q>limités</q><a href="#axes-limités" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><code data-pkg="lemon">coord_capped_cart</code> et <code data-pkg="lemon" data-rdoc="coord_capped_cart">coord_capped_flip</code> de l’extension <code class="pkg">lemon</code> permet de limiter le dessin des axes au minimum et au maximum. Voir l’exemple ci-dessous.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lemon)</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mtcars) <span class="sc">+</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> cyl, <span class="at">y =</span> mpg) <span class="sc">+</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Axes classiques&quot;</span>)</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>pcapped <span class="ot">&lt;-</span> p <span class="sc">+</span></span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_capped_cart</span>(<span class="at">bottom =</span> <span class="st">&quot;both&quot;</span>, <span class="at">left =</span> <span class="st">&quot;both&quot;</span>) <span class="sc">+</span></span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Axes limités&quot;</span>)</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>cowplot<span class="sc">::</span><span class="fu">plot_grid</span>(p, pcapped, <span class="at">nrow =</span> <span class="dv">1</span>)</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-13-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lemon)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mtcars) <span class="sc">+</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x=</span>cyl, <span class="at">y=</span>mpg) <span class="sc">+</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Axes classiques&quot;</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>pcapped <span class="ot">&lt;-</span> p <span class="sc">+</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_capped_cart</span>(<span class="at">bottom =</span> <span class="st">&quot;both&quot;</span>, <span class="at">left =</span> <span class="st">&quot;both&quot;</span>) <span class="sc">+</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Axes limités&quot;</span>)</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>cowplot<span class="sc">::</span><span class="fu">plot_grid</span>(p, pcapped, <span class="at">nrow =</span> <span class="dv">1</span>)</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
 <p>Une autre possibilité est d’avoir recours à la fonction <code data-pkg="ggh4x">guide_axis_truncated</code> de l’extension <code class="pkg">ggh4x</code>.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggh4x)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mtcars) <span class="sc">+</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> cyl, <span class="at">y =</span> mpg) <span class="sc">+</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">20</span>, <span class="dv">25</span>, <span class="dv">30</span>)) <span class="sc">+</span></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">guide_axis_truncated</span>(<span class="at">trunc_lower =</span> <span class="dv">5</span>, <span class="at">trunc_upper =</span> <span class="dv">7</span>),</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">guide_axis_truncated</span>()</span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-14-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggh4x)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mtcars) <span class="sc">+</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x=</span>cyl, <span class="at">y=</span>mpg) <span class="sc">+</span> </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">20</span>, <span class="dv">25</span>, <span class="dv">30</span>)) <span class="sc">+</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">guide_axis_truncated</span>(<span class="at">trunc_lower =</span> <span class="dv">5</span>, <span class="at">trunc_upper =</span> <span class="dv">7</span>),</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">guide_axis_truncated</span>()</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
 </div>
 <div id="répéter-les-étiquettes-des-axes-sur-des-facettes" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Répéter les étiquettes des axes sur des facettes<a href="#répéter-les-étiquettes-des-axes-sur-des-facettes" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Lorsque l’on réalise des facettes, les étiquettes des axes ne sont pas répétées.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mpg) <span class="sc">+</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(displ, cty) <span class="sc">+</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>cyl)</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-15-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mpg) <span class="sc">+</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(displ, cty) <span class="sc">+</span> </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> cyl)</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
 <p>L’extension <code class="pkg">lemon</code> propose <code data-pkg="lemon">facet_rep_grid</code> et <code data-pkg="lemon" data-rdoc="facet_rep_grid">facet_rep_wrap</code> qui répètent les axes sur chaque facette.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lemon)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mpg) <span class="sc">+</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(displ, cty) <span class="sc">+</span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>cyl, <span class="at">repeat.tick.labels =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-16-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lemon)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mpg) <span class="sc">+</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(displ, cty) <span class="sc">+</span> </span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span> cyl, <span class="at">repeat.tick.labels =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-24-1.png" width="672" /></p>
 </div>
 <div id="encoches-mineures-sur-les-axes" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Encoches mineures sur les axes<a href="#encoches-mineures-sur-les-axes" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Par défaut, des encoches (<em>ticks</em>) sont dessinées sur les axes uniquement pour la grille principale (<em>major breaks</em>). La fonction <code data-pkg="ggh4x">guide_axis_minor</code> de l’extension <code class="pkg">ggh4x</code> permet de rajouter des encoches aux points de la grille mineure (<em>minor breaks</em>).</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mtcars) <span class="sc">+</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> cyl, <span class="at">y =</span> mpg) <span class="sc">+</span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-17-1.png" width="1050" /></p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggh4x)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>p <span class="sc">+</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">minor_breaks =</span> <span class="dv">16</span><span class="sc">:</span><span class="dv">32</span> <span class="sc">/</span> <span class="dv">4</span>,</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">guide =</span> <span class="fu">guide_axis_minor</span>()</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># to control relative length of minor ticks</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">ggh4x.axis.ticks.length.minor =</span> <span class="fu">rel</span>(.<span class="dv">8</span>))</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-17-2.png" width="1050" /></p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mtcars) <span class="sc">+</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x=</span>cyl, <span class="at">y=</span>mpg) <span class="sc">+</span> </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggh4x)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>p <span class="sc">+</span> </span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">minor_breaks =</span> <span class="dv">16</span><span class="sc">:</span><span class="dv">32</span><span class="sc">/</span><span class="dv">4</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">guide =</span> <span class="fu">guide_axis_minor</span>()</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># to control relative length of minor ticks</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">ggh4x.axis.ticks.length.minor =</span> <span class="fu">rel</span>(.<span class="dv">8</span>))</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-25-2.png" width="672" /></p>
 </div>
 <div id="relations-imbriquées" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Relations imbriquées<a href="#relations-imbriquées" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>La fonction <code data-pkg="ggh4x">guide_axis_nested</code> de l’extension <code class="pkg">ggh4x</code> permet d’afficher sur un axe des relations imbriquées.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggh4x)</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">item =</span> <span class="fu">c</span>(<span class="st">&quot;Coffee&quot;</span>, <span class="st">&quot;Tea&quot;</span>, <span class="st">&quot;Apple&quot;</span>, <span class="st">&quot;Pear&quot;</span>, <span class="st">&quot;Car&quot;</span>),</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="fu">c</span>(<span class="st">&quot;Drink&quot;</span>, <span class="st">&quot;Drink&quot;</span>, <span class="st">&quot;Fruit&quot;</span>, <span class="st">&quot;Fruit&quot;</span>, <span class="st">&quot;&quot;</span>),</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">amount =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">1</span>),</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">interaction</span>(item, type), <span class="at">y =</span> amount) <span class="sc">+</span></span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">x =</span> <span class="fu">guide_axis_nested</span>())</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-18-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggh4x)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">item =</span> <span class="fu">c</span>(<span class="st">&quot;Coffee&quot;</span>, <span class="st">&quot;Tea&quot;</span>, <span class="st">&quot;Apple&quot;</span>, <span class="st">&quot;Pear&quot;</span>, <span class="st">&quot;Car&quot;</span>),</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="fu">c</span>(<span class="st">&quot;Drink&quot;</span>, <span class="st">&quot;Drink&quot;</span>, <span class="st">&quot;Fruit&quot;</span>, <span class="st">&quot;Fruit&quot;</span>, <span class="st">&quot;&quot;</span>),</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">amount =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">1</span>),</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">interaction</span>(item, type), <span class="at">y =</span> amount) <span class="sc">+</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">x =</span> <span class="fu">guide_axis_nested</span>())</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
 </div>
 <div id="combinaison-de-variables-sur-laxe-des-x" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Combinaison de variables sur l’axe des X<a href="#combinaison-de-variables-sur-laxe-des-x" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="upset">ggupset</code> fournie une fonction <code data-pkg="ggupset">scale_x_upset</code> permettant de représenter des combinaisons de variables sur l’axe des x, combinaisons de variables stockées sous forme d’une colonne de type liste. Pour plus d’informations, voir <a href="https://github.com/const-ae/ggupset" class="uri">https://github.com/const-ae/ggupset</a>.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggupset)</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>tidy_movies <span class="sc">%&gt;%</span></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(title, year, length, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Genres)) <span class="sc">+</span></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_upset</span>(<span class="at">n_intersections =</span> <span class="dv">20</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggupset)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>tidy_movies <span class="sc">%&gt;%</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(title, year, length, <span class="at">.keep_all=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Genres)) <span class="sc">+</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_upset</span>(<span class="at">n_intersections =</span> <span class="dv">20</span>)</span></code></pre></div>
 <pre><code>Warning: Removed 100 rows containing non-finite values
 (stat_count).</code></pre>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-19-1.png" width="1050" /> ### Zoom sur un axe</p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-27-1.png" width="672" /> ### Zoom sur un axe</p>
 <p>L’extension <code class="pkg">ggforce</code> propose une fonction <code data-pkg="ggforce">facet_zoom</code> permettant de zoomer une partie d’un axe.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggforce)</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(iris, <span class="fu">aes</span>(Petal.Length, Petal.Width, <span class="at">colour =</span> Species)) <span class="sc">+</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_zoom</span>(<span class="at">x =</span> Species <span class="sc">==</span> <span class="st">&quot;versicolor&quot;</span>)</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-20-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggforce)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(iris, <span class="fu">aes</span>(Petal.Length, Petal.Width, <span class="at">colour =</span> Species)) <span class="sc">+</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_zoom</span>(<span class="at">x =</span> Species <span class="sc">==</span> <span class="st">&quot;versicolor&quot;</span>)</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
 </div>
 <div id="des-facettes-paginées-diviser-en-plusieurs-sous-graphiques" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Des facettes paginées (diviser en plusieurs sous-graphiques)<a href="#des-facettes-paginées-diviser-en-plusieurs-sous-graphiques" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Les fonctions <code data-pkg="ggforce">facet_wrap_paginate</code> et <code data-pkg="ggforce">facet_grid_paginate</code> de <code class="pkg">ggforce</code> permet de découper facilement un graphique en facettes en plusieurs pages.</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(diamonds) <span class="sc">+</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(carat, price), <span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap_paginate</span>(<span class="sc">~</span> cut<span class="sc">:</span>clarity, <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">page =</span> <span class="dv">1</span>)</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-21-1.png" width="1050" /></p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(diamonds) <span class="sc">+</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(carat, price), <span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap_paginate</span>(<span class="sc">~</span> cut<span class="sc">:</span>clarity, <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">page =</span> <span class="dv">2</span>)</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-21-2.png" width="1050" /></p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(diamonds) <span class="sc">+</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(carat, price), <span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap_paginate</span>(<span class="sc">~</span> cut<span class="sc">:</span>clarity, <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">page =</span> <span class="dv">3</span>)</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-21-3.png" width="1050" /></p>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(carat, price), <span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap_paginate</span>(<span class="sc">~</span> cut<span class="sc">:</span>clarity, <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">page =</span> <span class="dv">1</span>)</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-29-1.png" width="672" /></p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(diamonds) <span class="sc">+</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(carat, price), <span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap_paginate</span>(<span class="sc">~</span> cut<span class="sc">:</span>clarity, <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">page =</span> <span class="dv">2</span>)</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-29-2.png" width="672" /></p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(diamonds) <span class="sc">+</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(carat, price), <span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap_paginate</span>(<span class="sc">~</span> cut<span class="sc">:</span>clarity, <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">page =</span> <span class="dv">3</span>)</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-29-3.png" width="672" /></p>
 </div>
 </div>
 <div id="cartes" class="section level2 hasAnchor">
@@ -958,32 +995,32 @@ Call `lifecycle::last_lifecycle_warnings()` to see where this warning was genera
 <div id="graphiques-divergents" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Graphiques divergents<a href="#graphiques-divergents" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code>ggcharts</code> fournit plusieurs fonctions de haut niveau pour faciliter la réalisation de graphiques divergents en barres (<code data-pkg="ggcharts">diverging_bar_chart</code>), en sucettes (<code data-pkg="ggcharts">diverging_lollipop_chart</code>) voire même une pyramide des âges (<code data-pkg="ggcharts">pyramid_chart</code>).</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggcharts)</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(mtcars)</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>mtcars_z <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">transmute</span>(</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">.data =</span> mtcars,</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="fu">row.names</span>(mtcars),</span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">hpz =</span> <span class="fu">scale</span>(hp)</span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="fu">diverging_bar_chart</span>(<span class="at">data =</span> mtcars_z, <span class="at">x =</span> model, <span class="at">y =</span> hpz)</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-22-1.png" width="1050" /></p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">diverging_lollipop_chart</span>(</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> mtcars_z,</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> model,</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> hpz,</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">lollipop_colors =</span> <span class="fu">c</span>(<span class="st">&quot;#006400&quot;</span>, <span class="st">&quot;#b32134&quot;</span>),</span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">text_color =</span> <span class="fu">c</span>(<span class="st">&quot;#006400&quot;</span>, <span class="st">&quot;#b32134&quot;</span>)</span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-23-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggcharts)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(mtcars)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>mtcars_z <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">transmute</span>(</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">.data =</span> mtcars,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="fu">row.names</span>(mtcars),</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">hpz =</span> <span class="fu">scale</span>(hp)</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="fu">diverging_bar_chart</span>(<span class="at">data =</span> mtcars_z, <span class="at">x =</span> model, <span class="at">y =</span> hpz)</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-30-1.png" width="672" /></p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">diverging_lollipop_chart</span>(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> mtcars_z,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> model,</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> hpz,</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">lollipop_colors =</span> <span class="fu">c</span>(<span class="st">&quot;#006400&quot;</span>, <span class="st">&quot;#b32134&quot;</span>),</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">text_color =</span> <span class="fu">c</span>(<span class="st">&quot;#006400&quot;</span>, <span class="st">&quot;#b32134&quot;</span>)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-31-1.png" width="672" /></p>
 </div>
 <div id="pyramides-des-âges" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Pyramides des âges<a href="#pyramides-des-âges" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Plussieurs solutions sont disponible pour réaliser une <dfn>pyramide des âges</dfn>.</p>
 <p>Tout d’abord, <code class="pkg">ggcharts</code> propose une fonction <code class="ggcharts">pyramid_chart</code>.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggcharts)</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;popch&quot;</span>)</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">pyramid_chart</span>(<span class="at">data =</span> popch, <span class="at">x =</span> age, <span class="at">y =</span> pop, <span class="at">group =</span> sex)</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggcharts)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;popch&quot;</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">pyramid_chart</span>(<span class="at">data =</span> popch, <span class="at">x =</span> age, <span class="at">y =</span> pop, <span class="at">group =</span> sex)</span></code></pre></div>
 <pre><code>Warning: `expand_scale()` is deprecated; use `expansion()`
 instead.
 
@@ -995,12 +1032,12 @@ instead.
 
 Warning: `expand_scale()` is deprecated; use `expansion()`
 instead.</code></pre>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-24-1.png" width="1050" /></p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
 <p>L’extension <code class="pkg">apyramid</code> dédiée aux pyramides des âges fournit une fonction <code data-pkg="apyramid">age_pyramid</code>.</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(apyramid)</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(us_2018)</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">age_pyramid</span>(us_2018, <span class="at">age_group =</span> age, <span class="at">split_by =</span> gender, <span class="at">count =</span> count)</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-25-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(apyramid)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(us_2018)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="fu">age_pyramid</span>(us_2018, <span class="at">age_group =</span> age, <span class="at">split_by =</span> gender, <span class="at">count =</span> count)</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-33-1.png" width="672" /></p>
 <p>Pour aller plus loin, notamment avec <code class="pkg">ggplot2</code>, on pourra se référer (en anglais), au <a href="https://epirhandbook.com/demographic-pyramids-and-likert-scales.html">chapitre dédié du <em>Epidemiologist R Handbook</em></a>, par exemple pour savoir comme réaliser deux pyramides superposées :</p>
 <p><img src="images/exemple_pyramide_age_avancee.png" /></p>
 </div>
@@ -1012,118 +1049,119 @@ instead.</code></pre>
 <h3 class="hasAnchor">Graphiques animés<a href="#graphiques-animés" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">gganimate</code> permets de réaliser des graphiques animés.</p>
 <p>Voici un exemple :</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gapminder)</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(gapminder, <span class="fu">aes</span>(gdpPercap, lifeExp, <span class="at">size =</span> pop, <span class="at">colour =</span> country)) <span class="sc">+</span></span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> country_colors) <span class="sc">+</span></span>
-<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">12</span>)) <span class="sc">+</span></span>
-<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_log10</span>() <span class="sc">+</span></span>
-<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>continent) <span class="sc">+</span></span>
-<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Here comes the gganimate specific bits</span></span>
-<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Year: {frame_time}&quot;</span>, <span class="at">x =</span> <span class="st">&quot;GDP per capita&quot;</span>, <span class="at">y =</span> <span class="st">&quot;life expectancy&quot;</span>) <span class="sc">+</span></span>
-<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_time</span>(year) <span class="sc">+</span></span>
-<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ease_aes</span>(<span class="st">&quot;linear&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gapminder)</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(gapminder, <span class="fu">aes</span>(gdpPercap, lifeExp, <span class="at">size =</span> pop, <span class="at">colour =</span> country)) <span class="sc">+</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> country_colors) <span class="sc">+</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">12</span>)) <span class="sc">+</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_log10</span>() <span class="sc">+</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>continent) <span class="sc">+</span></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Here comes the gganimate specific bits</span></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&#39;Year: {frame_time}&#39;</span>, <span class="at">x =</span> <span class="st">&#39;GDP per capita&#39;</span>, <span class="at">y =</span> <span class="st">&#39;life expectancy&#39;</span>) <span class="sc">+</span></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_time</span>(year) <span class="sc">+</span></span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ease_aes</span>(<span class="st">&#39;linear&#39;</span>)</span></code></pre></div>
 <pre><code>
-Rendering [------------------------] at 2.6 fps ~ eta: 38s
-Rendering [------------------------] at 2.3 fps ~ eta: 43s
-Rendering [&gt;-----------------------] at 2.2 fps ~ eta: 44s
-Rendering [&gt;-----------------------] at 2.1 fps ~ eta: 45s
-Rendering [=&gt;----------------------] at 2.1 fps ~ eta: 45s
-Rendering [=&gt;------------------------] at 2 fps ~ eta: 45s
-Rendering [==&gt;-----------------------] at 2 fps ~ eta: 44s
-Rendering [==&gt;---------------------] at 2.1 fps ~ eta: 43s
-Rendering [==&gt;---------------------] at 2.1 fps ~ eta: 42s
-Rendering [===&gt;--------------------] at 2.1 fps ~ eta: 41s
-Rendering [===&gt;--------------------] at 2.1 fps ~ eta: 40s
-Rendering [====&gt;-------------------] at 2.1 fps ~ eta: 39s
-Rendering [====&gt;-------------------] at 2.1 fps ~ eta: 38s
-Rendering [=====&gt;------------------] at 2.1 fps ~ eta: 37s
-Rendering [=====&gt;------------------] at 2.1 fps ~ eta: 36s
-Rendering [=====&gt;------------------] at 2.1 fps ~ eta: 35s
-Rendering [======&gt;-----------------] at 2.1 fps ~ eta: 35s
-Rendering [======&gt;-----------------] at 2.1 fps ~ eta: 34s
-Rendering [======&gt;-----------------] at 2.1 fps ~ eta: 33s
-Rendering [=======&gt;----------------] at 2.1 fps ~ eta: 33s
-Rendering [=======&gt;----------------] at 2.1 fps ~ eta: 32s
-Rendering [=======&gt;----------------] at 2.1 fps ~ eta: 31s
-Rendering [========&gt;---------------] at 2.1 fps ~ eta: 31s
-Rendering [========&gt;---------------] at 2.1 fps ~ eta: 30s
-Rendering [========&gt;---------------] at 2.1 fps ~ eta: 29s
-Rendering [=========&gt;--------------] at 2.1 fps ~ eta: 29s
-Rendering [=========&gt;--------------] at 2.1 fps ~ eta: 28s
-Rendering [=========&gt;--------------] at 2.1 fps ~ eta: 27s
-Rendering [==========&gt;-------------] at 2.1 fps ~ eta: 27s
-Rendering [==========&gt;-------------] at 2.1 fps ~ eta: 26s
-Rendering [==========&gt;-------------] at 2.1 fps ~ eta: 25s
-Rendering [===========&gt;------------] at 2.1 fps ~ eta: 25s
-Rendering [===========&gt;------------] at 2.1 fps ~ eta: 24s
-Rendering [===========&gt;------------] at 2.1 fps ~ eta: 23s
-Rendering [============&gt;-----------] at 2.1 fps ~ eta: 22s
-Rendering [============&gt;-----------] at 2.1 fps ~ eta: 21s
-Rendering [=============&gt;----------] at 2.1 fps ~ eta: 20s
-Rendering [=============&gt;----------] at 2.1 fps ~ eta: 19s
-Rendering [==============&gt;---------] at 2.1 fps ~ eta: 19s
-Rendering [==============&gt;---------] at 2.1 fps ~ eta: 18s
-Rendering [==============&gt;---------] at 2.1 fps ~ eta: 17s
-Rendering [===============&gt;--------] at 2.1 fps ~ eta: 17s
-Rendering [===============&gt;--------] at 2.1 fps ~ eta: 16s
-Rendering [===============&gt;--------] at 2.1 fps ~ eta: 15s
-Rendering [================&gt;-------] at 2.1 fps ~ eta: 15s
-Rendering [================&gt;-------] at 2.1 fps ~ eta: 14s
-Rendering [==================&gt;-------] at 2 fps ~ eta: 13s
-Rendering [===================&gt;------] at 2 fps ~ eta: 12s
-Rendering [===================&gt;------] at 2 fps ~ eta: 11s
-Rendering [====================&gt;-----] at 2 fps ~ eta: 10s
-Rendering [====================&gt;-----] at 2 fps ~ eta:  9s
-Rendering [=====================&gt;----] at 2 fps ~ eta:  8s
-Rendering [=====================&gt;----] at 2 fps ~ eta:  7s
-Rendering [======================&gt;---] at 2 fps ~ eta:  6s
-Rendering [======================&gt;---] at 2 fps ~ eta:  5s
-Rendering [=======================&gt;--] at 2 fps ~ eta:  4s
-Rendering [=======================&gt;--] at 2 fps ~ eta:  3s
-Rendering [========================&gt;-] at 2 fps ~ eta:  2s
-Rendering [======================&gt;-] at 2.1 fps ~ eta:  2s
-Rendering [======================&gt;-] at 2.1 fps ~ eta:  1s
-Rendering [=======================&gt;] at 2.1 fps ~ eta:  1s
-Rendering [=======================&gt;] at 2.1 fps ~ eta:  0s
-Rendering [==========================] at 2 fps ~ eta:  0s
+Rendering [------------------------] at 2.4 fps ~ eta: 42s
+Rendering [------------------------] at 1.7 fps ~ eta:  1m
+Rendering [&gt;-----------------------] at 1.8 fps ~ eta:  1m
+Rendering [=&gt;----------------------] at 1.6 fps ~ eta:  1m
+Rendering [=&gt;----------------------] at 1.7 fps ~ eta:  1m
+Rendering [==&gt;---------------------] at 1.8 fps ~ eta:  1m
+Rendering [==&gt;---------------------] at 1.8 fps ~ eta: 49s
+Rendering [==&gt;---------------------] at 1.8 fps ~ eta: 47s
+Rendering [==&gt;---------------------] at 1.9 fps ~ eta: 46s
+Rendering [===&gt;--------------------] at 1.9 fps ~ eta: 45s
+Rendering [===&gt;--------------------] at 1.9 fps ~ eta: 44s
+Rendering [===&gt;--------------------] at 1.9 fps ~ eta: 43s
+Rendering [===&gt;--------------------] at 1.9 fps ~ eta: 42s
+Rendering [====&gt;-------------------] at 1.9 fps ~ eta: 42s
+Rendering [====&gt;---------------------] at 2 fps ~ eta: 41s
+Rendering [====&gt;---------------------] at 2 fps ~ eta: 40s
+Rendering [=====&gt;--------------------] at 2 fps ~ eta: 40s
+Rendering [=====&gt;--------------------] at 2 fps ~ eta: 39s
+Rendering [=====&gt;--------------------] at 2 fps ~ eta: 38s
+Rendering [======&gt;-------------------] at 2 fps ~ eta: 38s
+Rendering [======&gt;-------------------] at 2 fps ~ eta: 37s
+Rendering [======&gt;-----------------] at 1.9 fps ~ eta: 37s
+Rendering [======&gt;-----------------] at 1.9 fps ~ eta: 36s
+Rendering [=======&gt;----------------] at 1.9 fps ~ eta: 35s
+Rendering [=======&gt;----------------] at 1.9 fps ~ eta: 34s
+Rendering [========&gt;---------------] at 1.9 fps ~ eta: 33s
+Rendering [========&gt;---------------] at 1.9 fps ~ eta: 32s
+Rendering [=========&gt;--------------] at 1.9 fps ~ eta: 32s
+Rendering [=========&gt;--------------] at 1.9 fps ~ eta: 31s
+Rendering [=========&gt;--------------] at 1.9 fps ~ eta: 30s
+Rendering [==========&gt;-------------] at 1.9 fps ~ eta: 30s
+Rendering [==========&gt;-------------] at 1.9 fps ~ eta: 29s
+Rendering [==========&gt;-------------] at 1.9 fps ~ eta: 28s
+Rendering [===========&gt;------------] at 1.9 fps ~ eta: 27s
+Rendering [===========&gt;------------] at 1.9 fps ~ eta: 26s
+Rendering [===========&gt;------------] at 1.9 fps ~ eta: 25s
+Rendering [============&gt;-----------] at 1.9 fps ~ eta: 25s
+Rendering [============&gt;-----------] at 1.9 fps ~ eta: 24s
+Rendering [============&gt;-----------] at 1.9 fps ~ eta: 23s
+Rendering [=============&gt;----------] at 1.9 fps ~ eta: 23s
+Rendering [=============&gt;----------] at 1.9 fps ~ eta: 22s
+Rendering [=============&gt;----------] at 1.9 fps ~ eta: 21s
+Rendering [==============&gt;---------] at 1.9 fps ~ eta: 21s
+Rendering [==============&gt;---------] at 1.9 fps ~ eta: 20s
+Rendering [==============&gt;---------] at 1.9 fps ~ eta: 19s
+Rendering [===============&gt;--------] at 1.9 fps ~ eta: 18s
+Rendering [===============&gt;--------] at 1.9 fps ~ eta: 17s
+Rendering [================&gt;-------] at 1.9 fps ~ eta: 16s
+Rendering [================&gt;-------] at 1.9 fps ~ eta: 15s
+Rendering [=================&gt;------] at 1.9 fps ~ eta: 14s
+Rendering [=================&gt;------] at 1.9 fps ~ eta: 13s
+Rendering [=================&gt;------] at 1.9 fps ~ eta: 12s
+Rendering [==================&gt;-----] at 1.9 fps ~ eta: 11s
+Rendering [==================&gt;-----] at 1.9 fps ~ eta: 10s
+Rendering [===================&gt;----] at 1.9 fps ~ eta:  9s
+Rendering [===================&gt;----] at 1.9 fps ~ eta:  8s
+Rendering [====================&gt;---] at 1.9 fps ~ eta:  7s
+Rendering [====================&gt;---] at 1.9 fps ~ eta:  6s
+Rendering [=====================&gt;--] at 1.9 fps ~ eta:  5s
+Rendering [=====================&gt;--] at 1.9 fps ~ eta:  4s
+Rendering [======================&gt;-] at 1.9 fps ~ eta:  3s
+Rendering [======================&gt;-] at 1.9 fps ~ eta:  2s
+Rendering [=======================&gt;] at 1.9 fps ~ eta:  1s
+Rendering [========================] at 1.9 fps ~ eta:  0s
                                                           </code></pre>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-27-1.gif" /><!-- --></p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-35-1.gif" /><!-- --></p>
 <p>Voir le site de l’extension (<a href="https://gganimate.com/" class="uri">https://gganimate.com/</a>) pour la documentation et des tutoriels. Il est conseillé d’installer également l’extension <code class="pkg">gifski</code> avec <code class="pkg">gganimate</code>.</p>
 </div>
 <div id="surligner-certaines-données" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Surligner certaines données<a href="#surligner-certaines-données" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">gghighlight</code> fournit une fonction <code data-pkg="gghiglight">gghiglight</code> qui permets de <q>surligner</q> les données qui remplissent des conditions spécifiées.</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map_dfr</span>(</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  letters,</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> <span class="fu">data.frame</span>(</span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">idx =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">400</span>,</span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">value =</span> <span class="fu">cumsum</span>(<span class="fu">runif</span>(<span class="dv">400</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)),</span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> .,</span>
-<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">flag =</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>), <span class="at">size =</span> <span class="dv">400</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
-<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
-<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> idx, <span class="at">y =</span> value, <span class="at">colour =</span> type) <span class="sc">+</span></span>
-<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>()</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-28-1.png" width="1050" /></p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gghighlight)</span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> idx, <span class="at">y =</span> value, <span class="at">colour =</span> type) <span class="sc">+</span></span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
-<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gghighlight</span>(<span class="fu">max</span>(value) <span class="sc">&gt;</span> <span class="dv">20</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map_dfr</span>(</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  letters,</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> <span class="fu">data.frame</span>(</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">idx =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">400</span>,</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">value =</span> <span class="fu">cumsum</span>(<span class="fu">runif</span>(<span class="dv">400</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)),</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">type =</span> .,</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">flag =</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>), <span class="at">size =</span> <span class="dv">400</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> idx, <span class="at">y =</span> value, <span class="at">colour =</span> type) <span class="sc">+</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>()</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-36-1.png" width="672" /></p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gghighlight)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> idx, <span class="at">y =</span> value, <span class="at">colour =</span> type) <span class="sc">+</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gghighlight</span>(<span class="fu">max</span>(value) <span class="sc">&gt;</span> <span class="dv">20</span>)</span></code></pre></div>
 <pre><code>label_key: type</code></pre>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-29-1.png" width="1050" /></p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(iris, <span class="fu">aes</span>(Sepal.Length, <span class="at">fill =</span> Species)) <span class="sc">+</span></span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>() <span class="sc">+</span></span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gghighlight</span>() <span class="sc">+</span></span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Species)</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-30-1.png" width="1050" /></p>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-37-1.png" width="672" /></p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(iris, <span class="fu">aes</span>(Sepal.Length, <span class="at">fill =</span> Species)) <span class="sc">+</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>() <span class="sc">+</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gghighlight</span>() <span class="sc">+</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Species)</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-38-1.png" width="672" /></p>
 </div>
 </div>
 <div id="thèmes-et-couleurs" class="section level2 hasAnchor">
@@ -1135,39 +1173,41 @@ Rendering [==========================] at 2 fps ~ eta:  0s
 <div id="hrbrthemes" class="section level3 hasAnchor">
 <h3 class="hasAnchor">hrbrthemes<a href="#hrbrthemes" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">hrbrthemes</code> fournit plusieurs thèmes graphiques pour <code class="pkg">ggplot2</code>. Un exemple ci-dessous. Pour plus d’informations, voir <a href="https://github.com/hrbrmstr/hrbrthemes" class="uri">https://github.com/hrbrmstr/hrbrthemes</a>.</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(hrbrthemes)</span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mtcars, <span class="fu">aes</span>(mpg, wt)) <span class="sc">+</span></span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> <span class="fu">factor</span>(carb))) <span class="sc">+</span></span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">&quot;Fuel efficiency (mpg)&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Weight (tons)&quot;</span>,</span>
-<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Seminal ggplot2 scatterplot example&quot;</span>,</span>
-<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">&quot;A plot that is only useful for demonstration purposes&quot;</span>,</span>
-<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">&quot;Brought to you by the letter &#39;g&#39;&quot;</span></span>
-<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_ipsum</span>() <span class="sc">+</span></span>
-<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_ipsum_rc</span>()</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-32-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(hrbrthemes)</span></code></pre></div>
+<pre><code>Registering Windows fonts with R</code></pre>
+<pre><code>NOTE: Either Arial Narrow or Roboto Condensed fonts are required to use these themes.</code></pre>
+<pre><code>      Please use hrbrthemes::import_roboto_condensed() to install Roboto Condensed and</code></pre>
+<pre><code>      if Arial Narrow is not on your system, please see https://bit.ly/arialnarrow</code></pre>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mtcars, <span class="fu">aes</span>(mpg, wt)) <span class="sc">+</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color=</span><span class="fu">factor</span>(carb))) <span class="sc">+</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">&quot;Fuel efficiency (mpg)&quot;</span>, <span class="at">y=</span><span class="st">&quot;Weight (tons)&quot;</span>,</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">&quot;Seminal ggplot2 scatterplot example&quot;</span>,</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle=</span><span class="st">&quot;A plot that is only useful for demonstration purposes&quot;</span>,</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">caption=</span><span class="st">&quot;Brought to you by the letter &#39;g&#39;&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_ipsum</span>() <span class="sc">+</span></span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_ipsum_rc</span>()</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-40-1.png" width="672" /></p>
 </div>
 <div id="ggthemes" class="section level3 hasAnchor">
 <h3 class="hasAnchor">ggthemes<a href="#ggthemes" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><code class="pkg">ggthemes</code> propose une vingtaine de thèmes différentes présentés sur le site de l’extension : <a href="https://jrnold.github.io/ggthemes/" class="uri">https://jrnold.github.io/ggthemes/</a>.</p>
 <p>Voir ci-dessous un exemple du thème <code data-pkg="ggthemes">theme_tufte</code> inspiré d’Edward Tufte.</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggthemes)</span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mtcars, <span class="fu">aes</span>(<span class="at">x =</span> wt, <span class="at">y =</span> mpg)) <span class="sc">+</span></span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">extended_range_breaks</span>()(mtcars<span class="sc">$</span>wt)) <span class="sc">+</span></span>
-<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">extended_range_breaks</span>()(mtcars<span class="sc">$</span>mpg)) <span class="sc">+</span></span>
-<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Cars&quot;</span>)</span>
-<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>p <span class="sc">+</span> <span class="fu">geom_rangeframe</span>() <span class="sc">+</span></span>
-<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_tufte</span>()</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-33-1.png" width="1050" /></p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>p <span class="sc">+</span> <span class="fu">geom_rug</span>() <span class="sc">+</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_tufte</span>(<span class="at">ticks =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
-<p><img src="graphs/etendre-ggplot2/unnamed-chunk-33-2.png" width="1050" /></p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggthemes)</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mtcars, <span class="fu">aes</span>(<span class="at">x =</span> wt, <span class="at">y =</span> mpg)) <span class="sc">+</span></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">extended_range_breaks</span>()(mtcars<span class="sc">$</span>wt)) <span class="sc">+</span></span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">extended_range_breaks</span>()(mtcars<span class="sc">$</span>mpg)) <span class="sc">+</span></span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Cars&quot;</span>)</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>p <span class="sc">+</span> <span class="fu">geom_rangeframe</span>() <span class="sc">+</span></span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_tufte</span>()</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-41-1.png" width="672" /></p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>p <span class="sc">+</span> <span class="fu">geom_rug</span>() <span class="sc">+</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">theme_tufte</span>(<span class="at">ticks =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<p><img src="etendre-ggplot2_files/figure-html/unnamed-chunk-41-2.png" width="672" /></p>
 </div>
 </div>
 <div id="combiner-plusieurs-graphiques" class="section level2 hasAnchor">

@@ -13,7 +13,7 @@
 
 <title>Introduction au tidyverse</title>
 
-<script src="libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -165,13 +165,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -444,6 +451,7 @@ pre code {
           </ul>
         </li>
         <li><a href="analyse-R.pdf">PDF</a></li>
+        <li><a href="https://github.com/larmarange/guide-R/">guide-R</a></li>
         <li><a href="https://larmarange.github.io/webin-R/">webin-R</a></li>
         <li><a href="https://www.youtube.com/c/webinR"><i class="fa fa-youtube" aria-hidden="true"></i></a></li>
         <!--<li><a href="https://github.com/larmarange/analyse-R">GitHub</a></li>-->
@@ -480,10 +488,10 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#extensions">Extensions<span></span></a></li>
-<li><a href="#installation">Installation<span></span></a></li>
-<li><a href="#tidydata">tidy data<span></span></a></li>
-<li><a href="#tibbles">tibbles<span></span></a></li>
+<li><a href="#extensions" id="toc-extensions">Extensions<span></span></a></li>
+<li><a href="#installation" id="toc-installation">Installation<span></span></a></li>
+<li><a href="#tidydata" id="toc-tidydata">tidy data<span></span></a></li>
+<li><a href="#tibbles" id="toc-tibbles">tibbles<span></span></a></li>
 </ul>
 </div>
 
@@ -552,7 +560,7 @@ pre code {
 <p>Pour autant, les tibbles restent compatibles avec les <em>data frames</em>. On peut ainsi facilement convertir un <em>data frame</em> en tibble avec <code data-pkg="tibble">as_tibble</code> :</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">as_tibble</span>(mtcars)</span></code></pre></div>
-<pre><code># A tibble: 32 x 12
+<pre><code># A tibble: 32 × 12
      mpg   cyl  disp    hp  drat    wt  qsec    vs    am
    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
  1  21       6  160    110  3.9   2.62  16.5     0     1
@@ -565,25 +573,25 @@ pre code {
  8  24.4     4  147.    62  3.69  3.19  20       1     0
  9  22.8     4  141.    95  3.92  3.15  22.9     1     0
 10  19.2     6  168.   123  3.92  3.44  18.3     1     0
-# ... with 22 more rows, and 3 more variables: gear &lt;dbl&gt;,
+# … with 22 more rows, and 3 more variables: gear &lt;dbl&gt;,
 #   carb &lt;dbl&gt;, name &lt;chr&gt;</code></pre>
 <p>Si le <em>data frame</em> d’origine a des <em>rownames</em>, on peut d’abord les convertir en colonnes avec <code data-pkg="tibble">rownames_to_columns</code> :</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(<span class="fu">rownames_to_column</span>(mtcars))</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>d</span></code></pre></div>
-<pre><code># A tibble: 32 x 13
+<pre><code># A tibble: 32 × 13
    rowname     mpg   cyl  disp    hp  drat    wt  qsec    vs
    &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
  1 Mazda RX4  21       6  160    110  3.9   2.62  16.5     0
- 2 Mazda RX~  21       6  160    110  3.9   2.88  17.0     0
- 3 Datsun 7~  22.8     4  108     93  3.85  2.32  18.6     1
- 4 Hornet 4~  21.4     6  258    110  3.08  3.22  19.4     1
- 5 Hornet S~  18.7     8  360    175  3.15  3.44  17.0     0
+ 2 Mazda RX…  21       6  160    110  3.9   2.88  17.0     0
+ 3 Datsun 7…  22.8     4  108     93  3.85  2.32  18.6     1
+ 4 Hornet 4…  21.4     6  258    110  3.08  3.22  19.4     1
+ 5 Hornet S…  18.7     8  360    175  3.15  3.44  17.0     0
  6 Valiant    18.1     6  225    105  2.76  3.46  20.2     1
- 7 Duster 3~  14.3     8  360    245  3.21  3.57  15.8     0
+ 7 Duster 3…  14.3     8  360    245  3.21  3.57  15.8     0
  8 Merc 240D  24.4     4  147.    62  3.69  3.19  20       1
  9 Merc 230   22.8     4  141.    95  3.92  3.15  22.9     1
 10 Merc 280   19.2     6  168.   123  3.92  3.44  18.3     1
-# ... with 22 more rows, and 4 more variables: am &lt;dbl&gt;,
+# … with 22 more rows, and 4 more variables: am &lt;dbl&gt;,
 #   gear &lt;dbl&gt;, carb &lt;dbl&gt;, name &lt;chr&gt;</code></pre>
 <p>À l’inverse, on peut à tout moment convertir un tibble en <em>data frame</em> avec <code data-pkg="tibble" data-rdoc="tibble">as.data.frame</code> :</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.data.frame</span>(d)</span></code></pre></div>

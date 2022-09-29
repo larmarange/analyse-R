@@ -13,7 +13,7 @@
 
 <title>Structures conditionnelles</title>
 
-<script src="libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -165,13 +165,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -444,6 +451,7 @@ pre code {
           </ul>
         </li>
         <li><a href="analyse-R.pdf">PDF</a></li>
+        <li><a href="https://github.com/larmarange/guide-R/">guide-R</a></li>
         <li><a href="https://larmarange.github.io/webin-R/">webin-R</a></li>
         <li><a href="https://www.youtube.com/c/webinR"><i class="fa fa-youtube" aria-hidden="true"></i></a></li>
         <!--<li><a href="https://github.com/larmarange/analyse-R">GitHub</a></li>-->
@@ -480,17 +488,17 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#les-boucles-avec-while">Les boucles avec while<span></span></a></li>
-<li><a href="#les-boucles-avec-for">Les boucles avec for<span></span></a></li>
-<li><a href="#les-conditions">Les conditions<span></span></a>
+<li><a href="#les-boucles-avec-while" id="toc-les-boucles-avec-while">Les boucles avec while<span></span></a></li>
+<li><a href="#les-boucles-avec-for" id="toc-les-boucles-avec-for">Les boucles avec for<span></span></a></li>
+<li><a href="#les-conditions" id="toc-les-conditions">Les conditions<span></span></a>
 <ul>
-<li><a href="#les-instructions-if-else">Les instructions if … else<span></span></a></li>
-<li><a href="#la-fonction-switch">La fonction switch<span></span></a></li>
+<li><a href="#les-instructions-if-else" id="toc-les-instructions-if-else">Les instructions if … else<span></span></a></li>
+<li><a href="#la-fonction-switch" id="toc-la-fonction-switch">La fonction switch<span></span></a></li>
 </ul></li>
-<li><a href="#linstruction-repeat-break">L’instruction repeat … break<span></span></a></li>
-<li><a href="#linstruction-next">L’instruction next<span></span></a></li>
-<li><a href="#barre-de-progression">Barre de progression<span></span></a></li>
-<li><a href="#pour-approfondir">Pour approfondir<span></span></a></li>
+<li><a href="#linstruction-repeat-break" id="toc-linstruction-repeat-break">L’instruction repeat … break<span></span></a></li>
+<li><a href="#linstruction-next" id="toc-linstruction-next">L’instruction next<span></span></a></li>
+<li><a href="#barre-de-progression" id="toc-barre-de-progression">Barre de progression<span></span></a></li>
+<li><a href="#pour-approfondir" id="toc-pour-approfondir">Pour approfondir<span></span></a></li>
 </ul>
 </div>
 
@@ -502,43 +510,36 @@ pre code {
 <div id="les-boucles-avec-while" class="section level2 hasAnchor">
 <h2 class="hasAnchor">Les boucles avec while<a href="#les-boucles-avec-while" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Quand on souhaite répéter un calcul tant qu’une condition est satisfaite, on utilise la fonction <code data-pkg="base" data-rdoc="Control">while</code>, avec la syntaxte suivante :</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (condition) {</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  instruction</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span>(condition) {instruction}</span></code></pre></div>
 <p>avec <code>condition</code> une valeur logique (<code>TRUE</code> ou <code>FALSE</code>), et <code>instruction</code> du code, qui peut être entouré d’accolades si on souhaite évaluer plusieurs instructions.</p>
 <p>Le code <code>instruction</code> sera répété tant que <code>condition</code> est vrai. Prenons l’exemple d’une plante qui mesure 10 centimètres et qui va grandir de 10 % tous les ans jusqu’à atteindre 2 mètres.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>taille <span class="ot">&lt;-</span> <span class="fl">0.10</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>duree <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (taille <span class="sc">&lt;</span> <span class="dv">2</span>) {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span>(taille <span class="sc">&lt;</span> <span class="dv">2</span>){</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  taille <span class="ot">&lt;-</span> taille <span class="sc">*</span> <span class="fl">1.1</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  duree <span class="ot">&lt;-</span> duree <span class="sc">+</span> <span class="dv">1</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">&quot;La plante a atteint {round(taille, 1)} mètres en {duree} années.&quot;</span>))</span></code></pre></div>
-<pre><code>La plante a atteint 2.1 mètres en 32 années.</code></pre>
 </div>
 <div id="les-boucles-avec-for" class="section level2 hasAnchor">
 <h2 class="hasAnchor">Les boucles avec for<a href="#les-boucles-avec-for" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Quand on connaît le nombre d’itérations à l’avance, on peut utiliser la boucle <code data-pkg="base" data-rdoc="Control">for</code>. La syntaxe est la suivante :</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (variable <span class="cf">in</span> vector) {</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  instruction</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(variable <span class="cf">in</span> vector) {instruction}</span></code></pre></div>
 <p>avec <code>variable</code> le nom d’une variable locale à la boucle <code data-pkg="base" data-rdoc="Control">for</code>, <code>vector</code> un vecteur à <code>n</code> éléments définissant les valeurs que prendra variable pour chacun des <code>n</code> tours, et <code>instruction</code> le code à exécuter à chaque itération.</p>
 <p>On peut utiliser <code data-pkg="base" data-rdoc="Control">for</code> pour remplir les éléments d’une liste, ou d’un vecteur.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mauvaise manière</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>resultat <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) {</span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mauvaise manière</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>resultat <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) {</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  resultat[i] <span class="ot">&lt;-</span> i</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>resultat</span></code></pre></div>
+<p>À chaque itération, <strong>R</strong> doit trouver le vecteur de destination en mémoire, créer un nouveau vecteur qui permettra de contenir plus de données, copier données depuis l’ancien vecteur pour les insérer dans le nouveau, et enfin supprimer l’ancien vecteur (Ross, 2014). C’est une opération coûteuse en temps. Un moyen de rendre cette allocation plus efficace est de créer a priori le vecteur ou la liste en le remplissant avec des données manquantes. Ainsi, R n’aura pas besoin de ré-allouer la mémoire à chaque itération.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Manière plus économique</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>resultat <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, <span class="dv">3</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) {</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  resultat[i] <span class="ot">&lt;-</span> i</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>resultat</span></code></pre></div>
-<pre><code>[1] 1 2 3</code></pre>
-<p>À chaque itération, <strong>R</strong> doit trouver le vecteur de destination en mémoire, créer un nouveau vecteur qui permettra de contenir plus de données, copier données depuis l’ancien vecteur pour les insérer dans le nouveau, et enfin supprimer l’ancien vecteur (Ross, 2014). C’est une opération coûteuse en temps. Un moyen de rendre cette allocation plus efficace est de créer a priori le vecteur ou la liste en le remplissant avec des données manquantes. Ainsi, R n’aura pas besoin de ré-allouer la mémoire à chaque itération.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Manière plus économique</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>resultat <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, <span class="dv">3</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) {</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  resultat[i] <span class="ot">&lt;-</span> i</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>resultat</span></code></pre></div>
-<pre><code>[1] 1 2 3</code></pre>
 </div>
 <div id="les-conditions" class="section level2 hasAnchor">
 <h2 class="hasAnchor">Les conditions<a href="#les-conditions" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -546,29 +547,28 @@ pre code {
 <div id="les-instructions-if-else" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Les instructions if … else<a href="#les-instructions-if-else" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Les instructions <code data-pkg="base" data-rdoc="Control">if</code> et <code data-pkg="base" data-rdoc="Control">else</code> fournissent un moyen d’exécuter du code si une condition est respectée ou non. La syntaxe prend deux formes :</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Première forme (pas de code si condition == FALSE)</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (condition) {instruction si vrai}</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Seconde forme</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (condition) {instruction si vrai} <span class="cf">else</span> {instruction si faux}</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Première forme (pas de code si condition == FALSE)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (condition) {instruction si vrai}</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Seconde forme</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (condition) {instruction si vrai} <span class="cf">else</span> {instruction si faux}</span></code></pre></div>
 <p>avec <code>condition</code> un logique, <code>instruction si vrai</code> le code à exécuter si la condition est vérifiée et <code>instruction si faux</code> le code à exécuter si la condition n’est pas remplie. À nouveau, on peut avoir recours aux accolades pour créer des regroupements.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simple condition</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">2</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (x <span class="sc">==</span> <span class="dv">2</span>) <span class="fu">print</span>(<span class="st">&quot;Hello&quot;</span>)</span></code></pre></div>
-<pre><code>[1] &quot;Hello&quot;</code></pre>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">3</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (x <span class="sc">==</span> <span class="dv">2</span>) <span class="fu">print</span>(<span class="st">&quot;Hello&quot;</span>)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Avec des instructions dans le cas contraire</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (x <span class="sc">==</span> <span class="dv">2</span>) <span class="fu">print</span>(<span class="st">&quot;Hello&quot;</span>) <span class="cf">else</span> <span class="fu">print</span>(<span class="st">&quot;x est différent de 2&quot;</span>)</span></code></pre></div>
-<pre><code>[1] &quot;x est différent de 2&quot;</code></pre>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (x <span class="sc">==</span> <span class="dv">2</span>) {</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hello&quot;</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> x <span class="sc">-</span> <span class="dv">1</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">paste0</span>(<span class="st">&quot;La nouvelle valeur de x : &quot;</span>, x))</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<pre><code>[1] &quot;La nouvelle valeur de x : 2&quot;</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simple condition</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(x <span class="sc">==</span> <span class="dv">2</span>) <span class="fu">print</span>(<span class="st">&quot;Hello&quot;</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(x <span class="sc">==</span> <span class="dv">2</span>) <span class="fu">print</span>(<span class="st">&quot;Hello&quot;</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Avec des instructions dans le cas contraire</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(x <span class="sc">==</span> <span class="dv">2</span>) <span class="fu">print</span>(<span class="st">&quot;Hello&quot;</span>) <span class="cf">else</span> <span class="fu">print</span>(<span class="st">&quot;x est différent de 2&quot;</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (x <span class="sc">==</span> <span class="dv">2</span>){</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Hello&quot;</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> x<span class="dv">-1</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">paste0</span>(<span class="st">&quot;La nouvelle valeur de x : &quot;</span>, x))</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <div class="important">
 <p>Attention, lorsque l’on fait des regroupements et qu’on utilise la structure <code>if</code> et <code>else</code>, il est nécessaire d’écrire le mot <code>else</code> sur la même ligne que la parenthèse fermante du groupe d’instructions à réaliser dans le cas où la condition du <code>if</code> est vérifiée.</p>
 </div>
@@ -576,104 +576,77 @@ pre code {
 <div id="la-fonction-switch" class="section level3 hasAnchor">
 <h3 class="hasAnchor">La fonction switch<a href="#la-fonction-switch" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Avec la fonction <code data-pkg="base">switch</code>, on peut indiquer à <strong>R</strong> d’exécuter un code en fonction du résultat obtenu lors d’un test. La syntaxe est la suivante :</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="cf">switch</span>(valeur_test,</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">cas_1 =</span> {</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    instruction_cas_1</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  },</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">cas_2 =</span> {</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    instruction_cas_2</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  },</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  ...</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">switch</span>(valeur_test,</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">cas_1 =</span> {</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    instruction_cas_1</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">cas_2 =</span> {</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    instruction_cas_2</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  ...</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>avec <code>valeur_test</code> un nombre ou une chaîne de caractères. Si <code>valeur_test</code> vaut <code>cas_1</code>, alors uniquement <code>instruction_cas_1</code> sera évaluée, si <code>valeur_test</code> vaut <code>cas_2</code>, alors ce sera <code>instruction_cas_2</code> qui le sera, et ainsi de suite. On peut rajouter une valeur par défaut en utilisant la syntaxte suivante :</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="cf">switch</span>(valeur_test,</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">cas_1 =</span> {</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    instruction_cas_1</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  },</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">cas_2 =</span> {</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    instruction_cas_2</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  },</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  ...,</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  {</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    instruction_defaut</span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cf">switch</span>(valeur_test,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">cas_1 =</span> {</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    instruction_cas_1</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">cas_2 =</span> {</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    instruction_cas_2</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  ...,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    instruction_defaut</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>Voici un exemple d’utilisation, issu de la page d’aide de la fonction.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>centre <span class="ot">&lt;-</span> <span class="cf">function</span>(x, type) {</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">switch</span>(type,</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> <span class="fu">mean</span>(x),</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">median =</span> <span class="fu">median</span>(x),</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">trimmed =</span> <span class="fu">mean</span>(x, <span class="at">trim =</span> .<span class="dv">1</span>)</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rcauchy</span>(<span class="dv">10</span>)</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="fu">centre</span>(x, <span class="st">&quot;mean&quot;</span>)</span></code></pre></div>
-<pre><code>[1] 2.178666</code></pre>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">centre</span>(x, <span class="st">&quot;median&quot;</span>)</span></code></pre></div>
-<pre><code>[1] 0.8209592</code></pre>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">centre</span>(x, <span class="st">&quot;trimmed&quot;</span>)</span></code></pre></div>
-<pre><code>[1] 1.122283</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>centre <span class="ot">&lt;-</span> <span class="cf">function</span>(x, type) {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">switch</span>(type,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">mean =</span> <span class="fu">mean</span>(x),</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">median =</span> <span class="fu">median</span>(x),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">trimmed =</span> <span class="fu">mean</span>(x, <span class="at">trim =</span> .<span class="dv">1</span>))</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rcauchy</span>(<span class="dv">10</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">centre</span>(x, <span class="st">&quot;mean&quot;</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">centre</span>(x, <span class="st">&quot;median&quot;</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">centre</span>(x, <span class="st">&quot;trimmed&quot;</span>)</span></code></pre></div>
 </div>
 </div>
 <div id="linstruction-repeat-break" class="section level2 hasAnchor">
 <h2 class="hasAnchor">L’instruction repeat … break<a href="#linstruction-repeat-break" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’instruction <code data-pkg="base" data-rdoc="Control">repeat</code> permet de répéter une expression. Il est nécessaire d’ajouter un test d’arrêt, à l’aide de l’instruction <code data-pkg="base" data-rdoc="Control">break</code>.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>i <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="cf">repeat</span> {</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  i <span class="ot">&lt;-</span> i <span class="sc">+</span> <span class="dv">1</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (i <span class="sc">==</span> <span class="dv">3</span>) <span class="cf">break</span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>i</span></code></pre></div>
-<pre><code>[1] 3</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>i <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="cf">repeat</span> {</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  i <span class="ot">&lt;-</span> i <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(i <span class="sc">==</span> <span class="dv">3</span>) <span class="cf">break</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>i</span></code></pre></div>
 </div>
 <div id="linstruction-next" class="section level2 hasAnchor">
 <h2 class="hasAnchor">L’instruction next<a href="#linstruction-next" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’instruction <code data-pkg="base" data-rdoc="Control">next</code> autorise de passer immédiatement à l’itération suivante d’une boucle <code data-pkg="base" data-rdoc="Control">for</code>, <code data-pkg="base" data-rdoc="Control">while</code> ou <code data-pkg="base" data-rdoc="Control">repeat</code>.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, <span class="dv">10</span>)</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>) {</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (i <span class="sc">==</span> <span class="dv">5</span>) <span class="cf">next</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  result[i] <span class="ot">&lt;-</span> i</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Le 5e élément de result n&#39;a pas été traité</span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>result</span></code></pre></div>
-<pre><code> [1]  1  2  3  4 NA  6  7  8  9 10</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, <span class="dv">10</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>) {</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(i <span class="sc">==</span> <span class="dv">5</span>) <span class="cf">next</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  result[i] <span class="ot">&lt;-</span> i</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Le 5e élément de result n&#39;a pas été traité</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>result</span></code></pre></div>
 </div>
 <div id="barre-de-progression" class="section level2 hasAnchor">
 <h2 class="hasAnchor">Barre de progression<a href="#barre-de-progression" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Lorsque l’exécution d’une boucle prend du temps, il peut être intéressant d’avoir une idée de l’état d’avancement des itérations. Pour cela, il est bien sûr possible d’afficher une valeur dans la console à chaque tour, chaque 10 tours, etc.</p>
 <p>La fonction <code data-pkg="utils">txtProgressBar</code> de l’extension <code class="pkg">utils</code> permet un affichage d’une barre de progression dans la console. Il suffit de lui fournir une valeur minimale et maximale, et de la mettre à jour à chaque itération. Le paramètre style autorise de surcroit à choisir un <q>style</q> pour la barre. Le style numéro 3 affiche un pourcentage de progression, et est utile lorsque d’autres résultats sont affichés dans la console lors de l’exécution de la boucle, dans la mesure où la barre est de nouveau affichée au complet dans la console si nécessaire.</p>
 <p>Dans l’exemple qui suit, à chacun des dix tours, une pause de 0.1 seconde est effectuée, puis la barre de progression est mise à jour.</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>nb_tours <span class="ot">&lt;-</span> <span class="dv">10</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>pb <span class="ot">&lt;-</span> <span class="fu">txtProgressBar</span>(<span class="at">min =</span> <span class="dv">1</span>, <span class="at">max =</span> nb_tours, <span class="at">style =</span> <span class="dv">3</span>)</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nb_tours) {</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">Sys.sleep</span>(<span class="fl">0.1</span>)</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setTxtProgressBar</span>(pb, i)</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<pre><code>
-  |                                                        
-  |                                                  |   0%
-  |                                                        
-  |======                                            |  11%
-  |                                                        
-  |===========                                       |  22%
-  |                                                        
-  |=================                                 |  33%
-  |                                                        
-  |======================                            |  44%
-  |                                                        
-  |============================                      |  56%
-  |                                                        
-  |=================================                 |  67%
-  |                                                        
-  |=======================================           |  78%
-  |                                                        
-  |============================================      |  89%
-  |                                                        
-  |==================================================| 100%</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>nb_tours <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  pb <span class="ot">&lt;-</span> <span class="fu">txtProgressBar</span>(<span class="at">min =</span> <span class="dv">1</span>, <span class="at">max =</span> nb_tours, <span class="at">style =</span> <span class="dv">3</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nb_tours){</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">Sys.sleep</span>(<span class="fl">0.1</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setTxtProgressBar</span>(pb, i)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Pour plus d’options, on pourra se référer à la fonction <code data-pkg="progress">progress_bar</code> de l’extension <code class="pkg">progress</code>, présentée en détail sur <a href="https://r-pkg.org/pkg/progress" class="uri">https://r-pkg.org/pkg/progress</a>.</p>
 <p>Si l’exécution est vraiment longue, et qu’on est impatient de connaître les résultats, il existe de plus une fonction amusante dans l’extension <code class="pkg">beepr</code>, qui porte le nom de <code data-pkg="beepr">beep</code>. Plusieurs sons peuvent être utilisés (voir la page d’aide de la fonction).</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(beepr)</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">beep</span>(<span class="st">&quot;mario&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(beepr)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">beep</span>(<span class="st">&quot;mario&quot;</span>)</span></code></pre></div>
 </div>
 <div id="pour-approfondir" class="section level2 hasAnchor">
 <h2 class="hasAnchor">Pour approfondir<a href="#pour-approfondir" class="anchor-section" aria-label="Anchor link to header"></a></h2>

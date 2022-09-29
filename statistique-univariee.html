@@ -13,7 +13,7 @@
 
 <title>Statistique univariée</title>
 
-<script src="libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -165,13 +165,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -444,6 +451,7 @@ pre code {
           </ul>
         </li>
         <li><a href="analyse-R.pdf">PDF</a></li>
+        <li><a href="https://github.com/larmarange/guide-R/">guide-R</a></li>
         <li><a href="https://larmarange.github.io/webin-R/">webin-R</a></li>
         <li><a href="https://www.youtube.com/c/webinR"><i class="fa fa-youtube" aria-hidden="true"></i></a></li>
         <!--<li><a href="https://github.com/larmarange/analyse-R">GitHub</a></li>-->
@@ -480,20 +488,20 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#variable-quantitative">Variable quantitative<span></span></a>
+<li><a href="#variable-quantitative" id="toc-variable-quantitative">Variable quantitative<span></span></a>
 <ul>
-<li><a href="#principaux-indicateurs">Principaux indicateurs<span></span></a></li>
-<li><a href="#histogramme">Histogramme<span></span></a></li>
-<li><a href="#densité-et-répartition-cumulée">Densité et répartition cumulée<span></span></a></li>
-<li><a href="#boîtes-à-moustaches">Boîtes à moustaches<span></span></a></li>
+<li><a href="#principaux-indicateurs" id="toc-principaux-indicateurs">Principaux indicateurs<span></span></a></li>
+<li><a href="#histogramme" id="toc-histogramme">Histogramme<span></span></a></li>
+<li><a href="#densité-et-répartition-cumulée" id="toc-densité-et-répartition-cumulée">Densité et répartition cumulée<span></span></a></li>
+<li><a href="#boîtes-à-moustaches" id="toc-boîtes-à-moustaches">Boîtes à moustaches<span></span></a></li>
 </ul></li>
-<li><a href="#variable-qualitative">Variable qualitative<span></span></a>
+<li><a href="#variable-qualitative" id="toc-variable-qualitative">Variable qualitative<span></span></a>
 <ul>
-<li><a href="#tris-à-plat">Tris à plat<span></span></a></li>
-<li><a href="#représentation-graphique">Représentation graphique<span></span></a></li>
+<li><a href="#tris-à-plat" id="toc-tris-à-plat">Tris à plat<span></span></a></li>
+<li><a href="#représentation-graphique" id="toc-représentation-graphique">Représentation graphique<span></span></a></li>
 </ul></li>
-<li><a href="#tableaux-faciles-avec-gtsummary">Tableaux faciles avec <code>gtsummary</code><span></span></a></li>
-<li><a href="#exporter-les-graphiques-obtenus">Exporter les graphiques obtenus<span></span></a></li>
+<li><a href="#tableaux-faciles-avec-gtsummary" id="toc-tableaux-faciles-avec-gtsummary">Tableaux faciles avec <code>gtsummary</code><span></span></a></li>
+<li><a href="#exporter-les-graphiques-obtenus" id="toc-exporter-les-graphiques-obtenus">Exporter les graphiques obtenus<span></span></a></li>
 </ul>
 </div>
 
@@ -510,49 +518,16 @@ pre code {
 <div id="principaux-indicateurs" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Principaux indicateurs<a href="#principaux-indicateurs" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Comme la fonction <code data-pkg="utils">str</code> nous l’a indiqué, notre tableau <code>d</code> contient plusieurs <dfn data-index="variable numérique">variables numériques</dfn><dfn data-index="numérique, variable"></dfn> ou <dfn data-index="variable quantitative">variables quantitatives</dfn><dfn data-index="quantitative, variable"></dfn>, dont la variable <em>heures.tv</em> qui représente le nombre moyen passé par les enquêtés à regarder la télévision quotidiennement. On peut essayer de déterminer quelques caractéristiques de cette variable, en utilisant les fonctions <code data-pkg="base">mean</code> (<dfn>moyenne</dfn>), <code data-pkg="stats">sd</code> (<dfn>écart-type</dfn>), <code data-pkg="base" data-rdoc="Extremes">min</code> (<dfn>minimum</dfn>), <code data-pkg="base" data-rdoc="Extremes">max</code> (<dfn>maximum</dfn>) et <code data-pkg="base">range</code> (<dfn>étendue</dfn>) :</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(d<span class="sc">$</span>heures.tv)</span></code></pre></div>
-<pre><code>[1] NA</code></pre>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<pre><code>[1] 2.246566</code></pre>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<pre><code>[1] 1.775853</code></pre>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">min</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<pre><code>[1] 0</code></pre>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">max</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<pre><code>[1] 12</code></pre>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<pre><code>[1]  0 12</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(d<span class="sc">$</span>heures.tv)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">min</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">max</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>On peut lui ajouter la fonction <code data-pkg="stats">median</code> qui donne la valeur <dfn>médiane</dfn>, <code data-pkg="stats">quantile</code> qui calcule plus généralement tout type de <dfn data-index="quantile">quantiles</dfn>, et le très utile <code data-pkg="base">summary</code> qui donne toutes ces informations ou presque en une seule fois, avec en prime le nombre de <dfn data-index="valeur manquante">valeurs manquantes</dfn> (<code>NA</code>) :</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<pre><code>[1] 2</code></pre>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<pre><code>  0%  25%  50%  75% 100% 
-   0    1    2    3   12 </code></pre>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(d<span class="sc">$</span>heures.tv)</span></code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th align="right">Min.</th>
-<th align="right">1st Qu.</th>
-<th align="right">Median</th>
-<th align="right">Mean</th>
-<th align="right">3rd Qu.</th>
-<th align="right">Max.</th>
-<th align="right">NA’s</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">2</td>
-<td align="right">2.246566</td>
-<td align="right">3</td>
-<td align="right">12</td>
-<td align="right">5</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(d<span class="sc">$</span>heures.tv)</span></code></pre></div>
 <p>La fonction <code data-pkg="base">summary</code> est une fonction générique qui peut être utilisée sur tout type d’objet, y compris un tableau de données. Essayez donc <code>summary(d)</code>.</p>
 </div>
 <div id="histogramme" class="section level3 hasAnchor">
@@ -560,8 +535,7 @@ pre code {
 <p>Tout cela est bien pratique, mais pour pouvoir observer la <dfn>distribution</dfn> des valeurs d’une variable quantitative, il n’y a quand même rien de mieux qu’un bon graphique.</p>
 <p>On peut commencer par un <dfn>histogramme</dfn> de la répartition des valeurs. Celui-ci peut être généré très facilement avec la fonction <code data-pkg="graphics">hist</code> :</p>
 <figure>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(d<span class="sc">$</span>heures.tv, <span class="at">main =</span> <span class="st">&quot;Nombre d&#39;heures passées devant la télé par jour&quot;</span>, <span class="at">xlab =</span> <span class="st">&quot;Heures&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Effectif&quot;</span>)</span></code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-4-1.png" width="1050" />
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(d<span class="sc">$</span>heures.tv, <span class="at">main =</span> <span class="st">&quot;Nombre d&#39;heures passées devant la télé par jour&quot;</span>, <span class="at">xlab =</span> <span class="st">&quot;Heures&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Effectif&quot;</span>)</span></code></pre></div>
 <figcaption>
 Exemple d’histogramme
 </figcaption>
@@ -575,15 +549,13 @@ Exemple d’histogramme
 </ul>
 <p>Voir la page d’aide de la fonction <code data-pkg="graphics">hist</code> pour plus de détails sur les différentes options. Les deux figures ci-après sont deux autres exemples d’histogramme.</p>
 <figure>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(d<span class="sc">$</span>heures.tv, <span class="at">main =</span> <span class="st">&quot;Heures de télé en 7 classes&quot;</span>, <span class="at">breaks =</span> <span class="dv">7</span>, <span class="at">xlab =</span> <span class="st">&quot;Heures&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Proportion&quot;</span>, <span class="at">probability =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">&quot;orange&quot;</span>)</span></code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-5-1.png" width="1050" />
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(d<span class="sc">$</span>heures.tv, <span class="at">main =</span> <span class="st">&quot;Heures de télé en 7 classes&quot;</span>, <span class="at">breaks =</span> <span class="dv">7</span>, <span class="at">xlab =</span> <span class="st">&quot;Heures&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Proportion&quot;</span>, <span class="at">probability =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">&quot;orange&quot;</span>)</span></code></pre></div>
 <figcaption>
 Un autre exemple d’histogramme
 </figcaption>
 </figure>
 <figure>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(d<span class="sc">$</span>heures.tv, <span class="at">main =</span> <span class="st">&quot;Heures de télé avec classes spécifiées&quot;</span>, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">9</span>, <span class="dv">12</span>), <span class="at">xlab =</span> <span class="st">&quot;Heures&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Proportion&quot;</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span></code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-6-1.png" width="1050" />
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(d<span class="sc">$</span>heures.tv, <span class="at">main =</span> <span class="st">&quot;Heures de télé avec classes spécifiées&quot;</span>, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">9</span>, <span class="dv">12</span>), <span class="at">xlab =</span> <span class="st">&quot;Heures&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Proportion&quot;</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span></code></pre></div>
 <figcaption>
 Encore un autre exemple d’histogramme
 </figcaption>
@@ -594,16 +566,14 @@ Encore un autre exemple d’histogramme
 <p>La fonction <code data-pkg="stats">density</code> permet d’obtenir une <dfn>estimation par noyau</dfn><dfn data-index="noyau, estimation"></dfn><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> de la distribution du nombre d’heures consacrées à regarder la télévision. Le paramètre <code>na.rm = TRUE</code> indique que l’on souhaite retirer les valeurs manquantes avant de calculer cette courbe de densité.</p>
 <p>Le résultat de cette estimation est ensuite représenté graphiquement à l’aide de <code data-pkg="stats" data-rdoc="plot.density">plot</code>. L’argument <code>main</code> permet de spécifier le titre du graphique.</p>
 <figure>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">main =</span> <span class="st">&quot;Heures consacrées à la télévision&quot;</span>)</span></code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-7-1.png" width="1050" />
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">main =</span> <span class="st">&quot;Heures consacrées à la télévision&quot;</span>)</span></code></pre></div>
 <figcaption>
 Courbe de densité
 </figcaption>
 </figure>
 <p>De manière similaire, on peut calculer la <dfn>fonction de répartition empirique</dfn><dfn data-index="répartition empirique, fonction"></dfn> ou <dfn lang="en">empirical cumulative distribution function</dfn> en anglais avec la fonction <code class="pkg">ecdf</code>. Le résultat obtenu peut, une fois encore, être représenté sur un graphique à l’aide de la fonction <code data-pkg="stats" data-rdoc="ecdf">plot</code>.</p>
 <figure>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">ecdf</span>(d<span class="sc">$</span>heures.tv))</span></code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-8-1.png" width="1050" />
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">ecdf</span>(d<span class="sc">$</span>heures.tv))</span></code></pre></div>
 <figcaption>
 Fonction de répartition empirique cumulée
 </figcaption>
@@ -613,31 +583,29 @@ Fonction de répartition empirique cumulée
 <h3 class="hasAnchor">Boîtes à moustaches<a href="#boîtes-à-moustaches" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Les <dfn data-index="boîte à moustaches">boîtes à moustaches</dfn><dfn data-index="moustaches, boîte"></dfn>, ou <dfn data-index="boxplot" lang="en">boxplots</dfn> en anglais, sont une autre représentation graphique de la répartition des valeurs d’une variable quantitative. Elles sont particulièrement utiles pour comparer les distributions de plusieurs variables ou d’une même variable entre différents groupes, mais peuvent aussi être utilisées pour représenter la dispersion d’une unique variable. La fonction qui produit ces graphiques est la fonction <code data-pkg="graphics">boxplot</code>.</p>
 <figure>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(d<span class="sc">$</span>heures.tv, <span class="at">main =</span> <span class="st">&quot;Nombre d&#39;heures passées devant la télé par jour&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Heures&quot;</span>)</span></code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-9-1.png" width="1050" />
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(d<span class="sc">$</span>heures.tv, <span class="at">main =</span> <span class="st">&quot;Nombre d&#39;heures passées devant la télé par jour&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Heures&quot;</span>)</span></code></pre></div>
 <figcaption>
 Exemple de boîte à moustaches
 </figcaption>
 </figure>
 <p>Comment interpréter ce graphique ? On le comprendra mieux à partir de la figure ci-après<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>.</p>
 <figure>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(d<span class="sc">$</span>heures.tv, <span class="at">col =</span> <span class="fu">grey</span>(<span class="fl">0.8</span>), <span class="at">main =</span> <span class="st">&quot;Nombre d&#39;heures passées devant la télé par jour&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Heures&quot;</span>)</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="fu">median</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">col =</span> <span class="st">&quot;navy&quot;</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fl">1.35</span>, <span class="fu">median</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fl">0.15</span>, <span class="st">&quot;Médiane&quot;</span>, <span class="at">col =</span> <span class="st">&quot;navy&quot;</span>)</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>Q1 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(d<span class="sc">$</span>heures.tv, <span class="at">probs =</span> <span class="fl">0.25</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> Q1, <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>)</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fl">1.35</span>, Q1 <span class="sc">+</span> <span class="fl">0.15</span>, <span class="st">&quot;Q1 : premier quartile&quot;</span>, <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>Q3 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(d<span class="sc">$</span>heures.tv, <span class="at">probs =</span> <span class="fl">0.75</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> Q3, <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>)</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fl">1.35</span>, Q3 <span class="sc">+</span> <span class="fl">0.15</span>, <span class="st">&quot;Q3 : troisième quartile&quot;</span>, <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> <span class="fl">0.7</span>, <span class="at">y0 =</span> <span class="fu">quantile</span>(d<span class="sc">$</span>heures.tv, <span class="at">probs =</span> <span class="fl">0.75</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">x1 =</span> <span class="fl">0.7</span>, <span class="at">y1 =</span> <span class="fu">quantile</span>(d<span class="sc">$</span>heures.tv, <span class="at">probs =</span> <span class="fl">0.25</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">code =</span> <span class="dv">3</span>)</span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fl">0.7</span>, Q1 <span class="sc">+</span> (Q3 <span class="sc">-</span> Q1) <span class="sc">/</span> <span class="dv">2</span> <span class="sc">+</span> <span class="fl">0.15</span>, <span class="st">&quot;h&quot;</span>, <span class="at">pos =</span> <span class="dv">2</span>)</span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="fu">mtext</span>(<span class="st">&quot;L&#39;écart inter-quartile h contient 50 % des individus&quot;</span>, <span class="at">side =</span> <span class="dv">1</span>)</span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> Q1 <span class="sc">-</span> <span class="fl">1.5</span> <span class="sc">*</span> (Q3 <span class="sc">-</span> Q1), <span class="at">col =</span> <span class="st">&quot;darkgreen&quot;</span>)</span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fl">1.35</span>, Q1 <span class="sc">-</span> <span class="fl">1.5</span> <span class="sc">*</span> (Q3 <span class="sc">-</span> Q1) <span class="sc">+</span> <span class="fl">0.15</span>, <span class="st">&quot;Q1 -1.5 h&quot;</span>, <span class="at">col =</span> <span class="st">&quot;darkgreen&quot;</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> Q3 <span class="sc">+</span> <span class="fl">1.5</span> <span class="sc">*</span> (Q3 <span class="sc">-</span> Q1), <span class="at">col =</span> <span class="st">&quot;darkgreen&quot;</span>)</span>
-<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fl">1.35</span>, Q3 <span class="sc">+</span> <span class="fl">1.5</span> <span class="sc">*</span> (Q3 <span class="sc">-</span> Q1) <span class="sc">+</span> <span class="fl">0.15</span>, <span class="st">&quot;Q3 +1.5 h&quot;</span>, <span class="at">col =</span> <span class="st">&quot;darkgreen&quot;</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-10-1.png" width="1050" />
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(d<span class="sc">$</span>heures.tv, <span class="at">col =</span> <span class="fu">grey</span>(<span class="fl">0.8</span>), <span class="at">main =</span> <span class="st">&quot;Nombre d&#39;heures passées devant la télé par jour&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Heures&quot;</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="fu">median</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">col =</span> <span class="st">&quot;navy&quot;</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fl">1.35</span>, <span class="fu">median</span>(d<span class="sc">$</span>heures.tv, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fl">0.15</span>, <span class="st">&quot;Médiane&quot;</span>, <span class="at">col =</span> <span class="st">&quot;navy&quot;</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>Q1 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(d<span class="sc">$</span>heures.tv, <span class="at">probs =</span> <span class="fl">0.25</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> Q1, <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fl">1.35</span>, Q1 <span class="sc">+</span> <span class="fl">0.15</span>, <span class="st">&quot;Q1 : premier quartile&quot;</span>, <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>Q3 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(d<span class="sc">$</span>heures.tv, <span class="at">probs =</span> <span class="fl">0.75</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> Q3, <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fl">1.35</span>, Q3 <span class="sc">+</span> <span class="fl">0.15</span>, <span class="st">&quot;Q3 : troisième quartile&quot;</span>, <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> <span class="fl">0.7</span>, <span class="at">y0 =</span> <span class="fu">quantile</span>(d<span class="sc">$</span>heures.tv, <span class="at">probs =</span> <span class="fl">0.75</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">x1 =</span> <span class="fl">0.7</span>, <span class="at">y1 =</span> <span class="fu">quantile</span>(d<span class="sc">$</span>heures.tv, <span class="at">probs =</span> <span class="fl">0.25</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">code =</span> <span class="dv">3</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fl">0.7</span>, Q1 <span class="sc">+</span> (Q3 <span class="sc">-</span> Q1)<span class="sc">/</span><span class="dv">2</span> <span class="sc">+</span> <span class="fl">0.15</span>, <span class="st">&quot;h&quot;</span>, <span class="at">pos =</span> <span class="dv">2</span>)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="fu">mtext</span>(<span class="st">&quot;L&#39;écart inter-quartile h contient 50 % des individus&quot;</span>, <span class="at">side =</span> <span class="dv">1</span>)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> Q1 <span class="sc">-</span> <span class="fl">1.5</span> <span class="sc">*</span> (Q3 <span class="sc">-</span> Q1), <span class="at">col =</span> <span class="st">&quot;darkgreen&quot;</span>)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fl">1.35</span>, Q1 <span class="sc">-</span> <span class="fl">1.5</span> <span class="sc">*</span> (Q3 <span class="sc">-</span> Q1) <span class="sc">+</span> <span class="fl">0.15</span>, <span class="st">&quot;Q1 -1.5 h&quot;</span>, <span class="at">col =</span> <span class="st">&quot;darkgreen&quot;</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> Q3 <span class="sc">+</span> <span class="fl">1.5</span> <span class="sc">*</span> (Q3 <span class="sc">-</span> Q1), <span class="at">col =</span> <span class="st">&quot;darkgreen&quot;</span>)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fl">1.35</span>, Q3 <span class="sc">+</span> <span class="fl">1.5</span> <span class="sc">*</span> (Q3 <span class="sc">-</span> Q1) <span class="sc">+</span> <span class="fl">0.15</span>, <span class="st">&quot;Q3 +1.5 h&quot;</span>, <span class="at">col =</span> <span class="st">&quot;darkgreen&quot;</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code></pre></div>
 <figcaption>
 Interprétation d’une boîte à moustaches
 </figcaption>
@@ -645,9 +613,8 @@ Interprétation d’une boîte à moustaches
 <p>Le carré au centre du graphique est délimité par les premiers et troisième <dfn data-index="quartile">quartiles</dfn>, avec la <dfn>médiane</dfn> représentée par une ligne plus sombre au milieu. Les « fourchettes » s’étendant de part et d’autres vont soit jusqu’à la valeur minimale ou maximale, soit jusqu’à une valeur approximativement égale au quartile le plus proche plus 1,5 fois l’<dfn>écart interquartile</dfn><dfn data-index="interquartilen écart"></dfn>. Les points se situant en-dehors de cette fourchette sont représentés par des petits ronds et sont généralement considérés comme des valeurs extrêmes, potentiellement aberrantes.</p>
 <p>On peut ajouter la représentation des valeurs sur le graphique pour en faciliter la lecture avec des petits traits dessinés sur l’axe vertical (fonction <code data-pkg="graphics">rug</code>) :</p>
 <figure>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(d<span class="sc">$</span>heures.tv, <span class="at">main =</span> <span class="st">&quot;Nombre d&#39;heures passées devant la télé par</span><span class="sc">\n</span><span class="st">jour&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Heures&quot;</span>)</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rug</span>(d<span class="sc">$</span>heures.tv, <span class="at">side =</span> <span class="dv">2</span>)</span></code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-11-1.png" width="1050" />
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(d<span class="sc">$</span>heures.tv, <span class="at">main =</span> <span class="st">&quot;Nombre d&#39;heures passées devant la télé par</span><span class="sc">\n</span><span class="st">jour&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Heures&quot;</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rug</span>(d<span class="sc">$</span>heures.tv, <span class="at">side =</span> <span class="dv">2</span>)</span></code></pre></div>
 <figcaption>
 Boîte à moustaches avec représentation des valeurs
 </figcaption>
@@ -659,98 +626,12 @@ Boîte à moustaches avec représentation des valeurs
 <div id="tris-à-plat" class="section level3 hasAnchor">
 <h3 class="hasAnchor">Tris à plat<a href="#tris-à-plat" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>La fonction la plus utilisée pour le traitement et l’analyse des <dfn data-index="variable qualitative">variables qualitatives</dfn><dfn data-index="qualitative, variable"></dfn> (variable prenant ses valeurs dans un ensemble de <dfn data-index="modalité">modalités</dfn>) est sans aucun doute la fonction <code data-pkg="base">table</code>, qui donne les effectifs de chaque modalité de la variable, ce qu’on appelle un <dfn>tri à plat</dfn> ou <dfn>tableau de fréquences</dfn><dfn data-index="fréquence, tableau"></dfn>.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(d<span class="sc">$</span>sexe)</span></code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th align="right">Homme</th>
-<th align="right">Femme</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">899</td>
-<td align="right">1101</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(d<span class="sc">$</span>sexe)</span></code></pre></div>
 <p>La tableau précédent nous indique que parmi nos enquêtés on trouve 899 hommes et 1101 femmes.</p>
 <p>Quand le nombre de modalités est élevé, on peut ordonner le tri à plat selon les effectifs à l’aide de la fonction <code data-pkg="base">sort</code>.</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(d<span class="sc">$</span>occup)</span></code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th align="right">Exerce une profession</th>
-<th align="right">Chomeur</th>
-<th align="right">Etudiant, eleve</th>
-<th align="right">Retraite</th>
-<th align="right">Retire des affaires</th>
-<th align="right">Au foyer</th>
-<th align="right">Autre inactif</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">1049</td>
-<td align="right">134</td>
-<td align="right">94</td>
-<td align="right">392</td>
-<td align="right">77</td>
-<td align="right">171</td>
-<td align="right">83</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(<span class="fu">table</span>(d<span class="sc">$</span>occup))</span></code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th align="right">Retire des affaires</th>
-<th align="right">Autre inactif</th>
-<th align="right">Etudiant, eleve</th>
-<th align="right">Chomeur</th>
-<th align="right">Au foyer</th>
-<th align="right">Retraite</th>
-<th align="right">Exerce une profession</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">77</td>
-<td align="right">83</td>
-<td align="right">94</td>
-<td align="right">134</td>
-<td align="right">171</td>
-<td align="right">392</td>
-<td align="right">1049</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(<span class="fu">table</span>(d<span class="sc">$</span>occup), <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th align="right">Exerce une profession</th>
-<th align="right">Retraite</th>
-<th align="right">Au foyer</th>
-<th align="right">Chomeur</th>
-<th align="right">Etudiant, eleve</th>
-<th align="right">Autre inactif</th>
-<th align="right">Retire des affaires</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">1049</td>
-<td align="right">392</td>
-<td align="right">171</td>
-<td align="right">134</td>
-<td align="right">94</td>
-<td align="right">83</td>
-<td align="right">77</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(d<span class="sc">$</span>occup)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(<span class="fu">table</span>(d<span class="sc">$</span>occup))</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(<span class="fu">table</span>(d<span class="sc">$</span>occup), <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>À noter que la fonction <code data-pkg="base">table</code> exclut par défaut les non-réponses du tableau résultat. L’argument <code>useNA</code> de cette fonction permet de modifier ce comportement :</p>
 <ul>
 <li>avec <code>useNA="no"</code> (valeur par défaut), les valeurs manquantes ne sont jamais incluses dans le tri à plat ;</li>
@@ -758,274 +639,20 @@ Boîte à moustaches avec représentation des valeurs
 <li>avec <code>useNA="always"</code>, une colonne <code>NA</code> est toujours ajoutée, même s’il n’y a pas de valeurs manquantes dans les données.</li>
 </ul>
 <p>On peut donc utiliser :</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(d<span class="sc">$</span>trav.satisf, <span class="at">useNA =</span> <span class="st">&quot;ifany&quot;</span>)</span></code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th align="right">Satisfaction</th>
-<th align="right">Insatisfaction</th>
-<th align="right">Equilibre</th>
-<th align="right">NA</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">480</td>
-<td align="right">117</td>
-<td align="right">451</td>
-<td align="right">952</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(d<span class="sc">$</span>trav.satisf, <span class="at">useNA =</span> <span class="st">&quot;ifany&quot;</span>)</span></code></pre></div>
 <p>L’utilisation de <code data-pkg="base">summary</code> permet également l’affichage du tri à plat et du nombre de non-réponses :</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(d<span class="sc">$</span>trav.satisf)</span></code></pre></div>
-<pre><code>  Satisfaction Insatisfaction      Equilibre           NA&#39;s 
-           480            117            451            952 </code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(d<span class="sc">$</span>trav.satisf)</span></code></pre></div>
 <p>Pour obtenir un tableau avec la répartition en pourcentages, on peut utiliser la fonction <code data-pkg="questionr">freq</code> de l’extension <code class="pkg">questionr</code><a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(d<span class="sc">$</span>qualif)</span></code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">n</th>
-<th align="right">%</th>
-<th align="right">val%</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Ouvrier specialise</td>
-<td align="right">203</td>
-<td align="right">10.2</td>
-<td align="right">12.3</td>
-</tr>
-<tr class="even">
-<td>Ouvrier qualifie</td>
-<td align="right">292</td>
-<td align="right">14.6</td>
-<td align="right">17.7</td>
-</tr>
-<tr class="odd">
-<td>Technicien</td>
-<td align="right">86</td>
-<td align="right">4.3</td>
-<td align="right">5.2</td>
-</tr>
-<tr class="even">
-<td>Profession intermediaire</td>
-<td align="right">160</td>
-<td align="right">8.0</td>
-<td align="right">9.7</td>
-</tr>
-<tr class="odd">
-<td>Cadre</td>
-<td align="right">260</td>
-<td align="right">13.0</td>
-<td align="right">15.7</td>
-</tr>
-<tr class="even">
-<td>Employe</td>
-<td align="right">594</td>
-<td align="right">29.7</td>
-<td align="right">35.9</td>
-</tr>
-<tr class="odd">
-<td>Autre</td>
-<td align="right">58</td>
-<td align="right">2.9</td>
-<td align="right">3.5</td>
-</tr>
-<tr class="even">
-<td>NA</td>
-<td align="right">347</td>
-<td align="right">17.3</td>
-<td align="right">NA</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(d<span class="sc">$</span>qualif)</span></code></pre></div>
 <p>La colonne <code>n</code> donne les effectifs bruts, la colonne <code>%</code> la répartition en pourcentages et <code>val%</code> la répartition en pourcentages, données manquantes exclues. La fonction accepte plusieurs paramètres permettant d’afficher les totaux, les pourcentages cumulés, de trier selon les effectifs ou de contrôler l’affichage. Par exemple :</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(d<span class="sc">$</span>qualif, <span class="at">cum =</span> <span class="cn">TRUE</span>, <span class="at">total =</span> <span class="cn">TRUE</span>, <span class="at">sort =</span> <span class="st">&quot;inc&quot;</span>, <span class="at">digits =</span> <span class="dv">2</span>, <span class="at">exclude =</span> <span class="cn">NA</span>)</span></code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">n</th>
-<th align="right">%</th>
-<th align="right">%cum</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Autre</td>
-<td align="right">58</td>
-<td align="right">3.51</td>
-<td align="right">3.51</td>
-</tr>
-<tr class="even">
-<td>Technicien</td>
-<td align="right">86</td>
-<td align="right">5.20</td>
-<td align="right">8.71</td>
-</tr>
-<tr class="odd">
-<td>Profession intermediaire</td>
-<td align="right">160</td>
-<td align="right">9.68</td>
-<td align="right">18.39</td>
-</tr>
-<tr class="even">
-<td>Ouvrier specialise</td>
-<td align="right">203</td>
-<td align="right">12.28</td>
-<td align="right">30.67</td>
-</tr>
-<tr class="odd">
-<td>Cadre</td>
-<td align="right">260</td>
-<td align="right">15.73</td>
-<td align="right">46.40</td>
-</tr>
-<tr class="even">
-<td>Ouvrier qualifie</td>
-<td align="right">292</td>
-<td align="right">17.66</td>
-<td align="right">64.07</td>
-</tr>
-<tr class="odd">
-<td>Employe</td>
-<td align="right">594</td>
-<td align="right">35.93</td>
-<td align="right">100.00</td>
-</tr>
-<tr class="even">
-<td>Total</td>
-<td align="right">1653</td>
-<td align="right">100.00</td>
-<td align="right">100.00</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(d<span class="sc">$</span>qualif, <span class="at">cum =</span> <span class="cn">TRUE</span>, <span class="at">total =</span> <span class="cn">TRUE</span>, <span class="at">sort =</span> <span class="st">&quot;inc&quot;</span>, <span class="at">digits =</span> <span class="dv">2</span>, <span class="at">exclude =</span> <span class="cn">NA</span>)</span></code></pre></div>
 <p>La colonne <code>%cum</code> indique ici le pourcentage cumulé, ce qui est ici une très mauvaise idée puisque pour ce type de variable cela n’a aucun sens. Les lignes du tableau résultat ont été triés par effectifs croissants, les totaux ont été ajoutés, les non-réponses exclues et les pourcentages arrondis à deux décimales.</p>
 <p>La fonction <code data-pkg="questionr">freq</code> est également en mesure de tenir compte des étiquettes de valeurs lorsqu’on utilise des <a href="facteurs-et-vecteurs-labellises.html">données labellisées</a>. Ainsi :</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(fecondite)</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(femmes<span class="sc">$</span>region)</span></code></pre></div>
-<pre><code>[2000 obs.] Région de résidence
-labelled double: 4 4 4 4 4 3 3 3 3 3 ...
-min: 1 - max: 4 - NAs: 0 (0%) - 4 unique values
-4 value labels: [1] Nord [2] Est [3] Sud [4] Ouest
-
-             n     %
-[1] Nord   707  35.4
-[2] Est    324  16.2
-[3] Sud    407  20.3
-[4] Ouest  562  28.1
-Total     2000 100.0</code></pre>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(femmes<span class="sc">$</span>region)</span></code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">n</th>
-<th align="right">%</th>
-<th align="right">val%</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>[1] Nord</td>
-<td align="right">707</td>
-<td align="right">35.4</td>
-<td align="right">35.4</td>
-</tr>
-<tr class="even">
-<td>[2] Est</td>
-<td align="right">324</td>
-<td align="right">16.2</td>
-<td align="right">16.2</td>
-</tr>
-<tr class="odd">
-<td>[3] Sud</td>
-<td align="right">407</td>
-<td align="right">20.3</td>
-<td align="right">20.3</td>
-</tr>
-<tr class="even">
-<td>[4] Ouest</td>
-<td align="right">562</td>
-<td align="right">28.1</td>
-<td align="right">28.1</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(femmes<span class="sc">$</span>region, <span class="at">levels =</span> <span class="st">&quot;labels&quot;</span>)</span></code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">n</th>
-<th align="right">%</th>
-<th align="right">val%</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Nord</td>
-<td align="right">707</td>
-<td align="right">35.4</td>
-<td align="right">35.4</td>
-</tr>
-<tr class="even">
-<td>Est</td>
-<td align="right">324</td>
-<td align="right">16.2</td>
-<td align="right">16.2</td>
-</tr>
-<tr class="odd">
-<td>Sud</td>
-<td align="right">407</td>
-<td align="right">20.3</td>
-<td align="right">20.3</td>
-</tr>
-<tr class="even">
-<td>Ouest</td>
-<td align="right">562</td>
-<td align="right">28.1</td>
-<td align="right">28.1</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(femmes<span class="sc">$</span>region, <span class="at">levels =</span> <span class="st">&quot;values&quot;</span>)</span></code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th align="right">n</th>
-<th align="right">%</th>
-<th align="right">val%</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">707</td>
-<td align="right">35.4</td>
-<td align="right">35.4</td>
-</tr>
-<tr class="even">
-<td align="right">324</td>
-<td align="right">16.2</td>
-<td align="right">16.2</td>
-</tr>
-<tr class="odd">
-<td align="right">407</td>
-<td align="right">20.3</td>
-<td align="right">20.3</td>
-</tr>
-<tr class="even">
-<td align="right">562</td>
-<td align="right">28.1</td>
-<td align="right">28.1</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(fecondite)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(femmes<span class="sc">$</span>region)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(femmes<span class="sc">$</span>region)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(femmes<span class="sc">$</span>region, <span class="at">levels =</span> <span class="st">&quot;labels&quot;</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">freq</span>(femmes<span class="sc">$</span>region, <span class="at">levels =</span> <span class="st">&quot;values&quot;</span>)</span></code></pre></div>
 <p>Pour plus d’informations sur la fonction <code data-pkg="questionr">freq</code>, consultez sa page d’aide en ligne avec <code>?freq</code> ou <code>help("freq")</code>.</p>
 </div>
 <div id="représentation-graphique" class="section level3 hasAnchor">
@@ -1034,42 +661,36 @@ Total     2000 100.0</code></pre>
 <p>On privilégiera donc d’autres formes de représentations, à savoir les <dfn data-index="diagramme en bâtons">diagrammes en bâtons</dfn><dfn data-index="bâton, diagramme"></dfn> et les <dfn data-index="diagramme de Cleveland">diagrammes de Cleveland</dfn><dfn data-index="Cleveland, diagramme"></dfn>.</p>
 <p>Les diagrammes en bâtons sont utilisés automatiquement par <strong>R</strong> lorsqu’on applique la fonction générique <code data-pkg="graphics" data-rdoc="plot.table">plot</code> à un tri à plat obtenu avec <code data-pkg="base">table</code>. On privilégiera cependant ce type de représentations pour les variables de type numérique comportant un nombre fini de valeurs. Le nombre de frères, soeurs, demi-frères et demi-soeurs est un bon exemple :</p>
 <figure>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">table</span>(d<span class="sc">$</span>freres.soeurs), <span class="at">main =</span> <span class="st">&quot;Nombre de frères, soeurs, demi-frères et demi-soeurs&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Effectif&quot;</span>)</span></code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-19-1.png" width="1050" />
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">table</span>(d<span class="sc">$</span>freres.soeurs), <span class="at">main =</span> <span class="st">&quot;Nombre de frères, soeurs, demi-frères et demi-soeurs&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Effectif&quot;</span>)</span></code></pre></div>
 <figcaption>
 Exemple de diagramme en bâtons
 </figcaption>
 </figure>
 <p>Pour les autres types de variables qualitatives, on privilégiera les diagrammes de Cleveland, obtenus avec la fonction <code data-pkg="graphics">dotchart</code>. On doit appliquer cette fonction au tri à plat de la variable, obtenu avec <code data-pkg="base">table</code><a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a> :</p>
 <figure>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dotchart</span>(<span class="fu">as.matrix</span>(<span class="fu">table</span>(d<span class="sc">$</span>clso))[, <span class="dv">1</span>], <span class="at">main =</span> <span class="st">&quot;Sentiment d&#39;appartenance à une classe sociale&quot;</span>, <span class="at">pch =</span> <span class="dv">19</span>)</span></code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-20-1.png" width="1050" />
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dotchart</span>(<span class="fu">as.matrix</span>(<span class="fu">table</span>(d<span class="sc">$</span>clso))[, <span class="dv">1</span>], <span class="at">main =</span> <span class="st">&quot;Sentiment d&#39;appartenance à une classe sociale&quot;</span>, <span class="at">pch =</span> <span class="dv">19</span>)</span></code></pre></div>
 <figcaption>
 Exemple de diagramme de Cleveland
 </figcaption>
 </figure>
 <div class="note">
 <p>Il est possible d’entrer directement la commande suivante dans la console :</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dotchart</span>(<span class="fu">table</span>(d<span class="sc">$</span>clso))</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dotchart</span>(<span class="fu">table</span>(d<span class="sc">$</span>clso))</span></code></pre></div>
 <p><strong>R</strong> produira bien le diagramme de Cleveland désiré mais affichera un message d’avertissement (<em>Warning</em>) car pour des raisons liées au fonctionnement interne de la fonction <code data-pkg="graphics">dotchart</code>, il est attendu une matrice ou un vecteur, non un objet de type table. Pour éviter cet avertissement, il est nécessaire de faire appel à la fonction <code data-pkg="base" data-rdoc="matrix">as.matrix</code>.</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dotchart</span>(<span class="fu">as.matrix</span>(<span class="fu">table</span>(d<span class="sc">$</span>clso)))</span></code></pre></div>
-<p><img src="graphs/statistique-univariee/unnamed-chunk-22-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dotchart</span>(<span class="fu">as.matrix</span>(<span class="fu">table</span>(d<span class="sc">$</span>clso)))</span></code></pre></div>
 <p>Dans le cas présent, on voit apparaître un chiffre 1 au-dessus des modalités. En fait, <code data-pkg="graphics">dotchart</code> peut être appliqué au résultat d’un tableau croisé à deux entrées, auquel cas il présentera les résultats pour chaque colonne. Comme dans l’exemple ci-après.</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dotchart</span>(<span class="fu">as.matrix</span>(<span class="fu">table</span>(d<span class="sc">$</span>clso, d<span class="sc">$</span>sexe)))</span></code></pre></div>
-<p><img src="graphs/statistique-univariee/unnamed-chunk-23-1.png" width="1050" /></p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dotchart</span>(<span class="fu">as.matrix</span>(<span class="fu">table</span>(d<span class="sc">$</span>clso, d<span class="sc">$</span>sexe)))</span></code></pre></div>
 <p>Cela ne résoud pas le problème pour notre diagramme de Cleveland issu d’un tri à plat simple. Pour bien comprendre, la fonction <code data-pkg="base" data-rdoc="matrix">as.matrix</code> a produit un objet à deux dimensions ayant une colonne et plusieurs lignes. On indiquera à <strong>R</strong> que l’on ne souhaite extraire la première colonne avec <code>[, 1]</code> (juste après l’appel à <code data-pkg="base" data-rdoc="matrix">as.matrix</code>). C’est ce qu’on appelle l’<em>indexation</em>, abordée plus en détail dans le chapitre <a href="listes-et-tableaux-de-donnees.html">Listes et tableaux de données</a>.</p>
 </div>
 <p>Quand la variable comprend un grand nombre de modalités, il est préférable d’<dfn>ordonner le tri à plat</dfn><dfn data-index="tri à plat, ordonner"></dfn> obtenu à l’aide de la fonction <code data-pkg="base">sort</code> :</p>
 <figure>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dotchart</span>(<span class="fu">as.matrix</span>(<span class="fu">sort</span>(<span class="fu">table</span>(d<span class="sc">$</span>qualif)))[, <span class="dv">1</span>], <span class="at">main =</span> <span class="st">&quot;Niveau de qualification&quot;</span>)</span></code></pre></div>
-<img src="graphs/statistique-univariee/unnamed-chunk-24-1.png" width="1050" />
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dotchart</span>(<span class="fu">as.matrix</span>(<span class="fu">sort</span>(<span class="fu">table</span>(d<span class="sc">$</span>qualif)))[, <span class="dv">1</span>], <span class="at">main =</span> <span class="st">&quot;Niveau de qualification&quot;</span>)</span></code></pre></div>
 <figcaption>
 Exemple de diagramme de Cleveland ordonné
 </figcaption>
 </figure>
 <div class="note">
 <p>L’agument <code>pch</code>, qui est utilisé par la plupart des graphiques de type points, permet de spécifier le symbole à utiliser. Il peut prendre soit un nombre entier compris entre 0 et 25, soit un charactère textuel (voir ci-dessous).</p>
-<p><img src="graphs/statistique-univariee/unnamed-chunk-25-1.png" width="1050" /></p>
 </div>
 </div>
 </div>
@@ -1077,806 +698,17 @@ Exemple de diagramme de Cleveland ordonné
 <h2 class="hasAnchor">Tableaux faciles avec <code>gtsummary</code><a href="#tableaux-faciles-avec-gtsummary" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>L’extension <code>gtsummary</code> permets de réaliser facilement des tableaux univariés grace à la fonction <code data-pkg="gtsummary">tbl_summary</code>. Le résultat produit des tableaux très propres, notamment dans le cadre de rapports automatisés au format Rmarkdown (voir le <a href="rmarkdown-les-rapports-automatises.html">chapitre dédié</a>).</p>
 <p>On peut indiquer à la fois des variables quantitatives et qualitatives.</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">tbl_summary</span>(<span class="at">include =</span> <span class="fu">c</span>(<span class="st">&quot;heures.tv&quot;</span>, <span class="st">&quot;occup&quot;</span>, <span class="st">&quot;qualif&quot;</span>))</span></code></pre></div>
-<div id="jwfpsyznlw" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>html {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-}
-
-#jwfpsyznlw .gt_table {
-  display: table;
-  border-collapse: collapse;
-  margin-left: auto;
-  margin-right: auto;
-  color: #333333;
-  font-size: 16px;
-  font-weight: normal;
-  font-style: normal;
-  background-color: #FFFFFF;
-  width: auto;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #A8A8A8;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #A8A8A8;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-}
-
-#jwfpsyznlw .gt_heading {
-  background-color: #FFFFFF;
-  text-align: center;
-  border-bottom-color: #FFFFFF;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-
-#jwfpsyznlw .gt_title {
-  color: #333333;
-  font-size: 125%;
-  font-weight: initial;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  border-bottom-color: #FFFFFF;
-  border-bottom-width: 0;
-}
-
-#jwfpsyznlw .gt_subtitle {
-  color: #333333;
-  font-size: 85%;
-  font-weight: initial;
-  padding-top: 0;
-  padding-bottom: 6px;
-  border-top-color: #FFFFFF;
-  border-top-width: 0;
-}
-
-#jwfpsyznlw .gt_bottom_border {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-}
-
-#jwfpsyznlw .gt_col_headings {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-
-#jwfpsyznlw .gt_col_heading {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 6px;
-  padding-left: 5px;
-  padding-right: 5px;
-  overflow-x: hidden;
-}
-
-#jwfpsyznlw .gt_column_spanner_outer {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 4px;
-  padding-right: 4px;
-}
-
-#jwfpsyznlw .gt_column_spanner_outer:first-child {
-  padding-left: 0;
-}
-
-#jwfpsyznlw .gt_column_spanner_outer:last-child {
-  padding-right: 0;
-}
-
-#jwfpsyznlw .gt_column_spanner {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  overflow-x: hidden;
-  display: inline-block;
-  width: 100%;
-}
-
-#jwfpsyznlw .gt_group_heading {
-  padding: 8px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-}
-
-#jwfpsyznlw .gt_empty_group_heading {
-  padding: 0.5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: middle;
-}
-
-#jwfpsyznlw .gt_from_md > :first-child {
-  margin-top: 0;
-}
-
-#jwfpsyznlw .gt_from_md > :last-child {
-  margin-bottom: 0;
-}
-
-#jwfpsyznlw .gt_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  margin: 10px;
-  border-top-style: solid;
-  border-top-width: 1px;
-  border-top-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-  overflow-x: hidden;
-}
-
-#jwfpsyznlw .gt_stub {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  padding-left: 12px;
-}
-
-#jwfpsyznlw .gt_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#jwfpsyznlw .gt_first_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-}
-
-#jwfpsyznlw .gt_grand_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#jwfpsyznlw .gt_first_grand_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-style: double;
-  border-top-width: 6px;
-  border-top-color: #D3D3D3;
-}
-
-#jwfpsyznlw .gt_striped {
-  background-color: rgba(128, 128, 128, 0.05);
-}
-
-#jwfpsyznlw .gt_table_body {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-}
-
-#jwfpsyznlw .gt_footnotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-
-#jwfpsyznlw .gt_footnote {
-  margin: 0px;
-  font-size: 90%;
-  padding: 4px;
-}
-
-#jwfpsyznlw .gt_sourcenotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-
-#jwfpsyznlw .gt_sourcenote {
-  font-size: 90%;
-  padding: 4px;
-}
-
-#jwfpsyznlw .gt_left {
-  text-align: left;
-}
-
-#jwfpsyznlw .gt_center {
-  text-align: center;
-}
-
-#jwfpsyznlw .gt_right {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-#jwfpsyznlw .gt_font_normal {
-  font-weight: normal;
-}
-
-#jwfpsyznlw .gt_font_bold {
-  font-weight: bold;
-}
-
-#jwfpsyznlw .gt_font_italic {
-  font-style: italic;
-}
-
-#jwfpsyznlw .gt_super {
-  font-size: 65%;
-}
-
-#jwfpsyznlw .gt_footnote_marks {
-  font-style: italic;
-  font-weight: normal;
-  font-size: 65%;
-}
-</style>
-<table class="gt_table">
-  
-  <thead class="gt_col_headings">
-    <tr>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1"><strong>Caractéristique</strong></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"><strong>N = 2 000</strong><sup class="gt_footnote_marks">1</sup></th>
-    </tr>
-  </thead>
-  <tbody class="gt_table_body">
-    <tr><td class="gt_row gt_left">heures.tv</td>
-<td class="gt_row gt_center">2,00 (1,00 – 3,00)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Manquant</td>
-<td class="gt_row gt_center">5</td></tr>
-    <tr><td class="gt_row gt_left">occup</td>
-<td class="gt_row gt_center"></td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Exerce une profession</td>
-<td class="gt_row gt_center">1 049 (52%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Chomeur</td>
-<td class="gt_row gt_center">134 (6,7%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Etudiant, eleve</td>
-<td class="gt_row gt_center">94 (4,7%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Retraite</td>
-<td class="gt_row gt_center">392 (20%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Retire des affaires</td>
-<td class="gt_row gt_center">77 (3,9%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Au foyer</td>
-<td class="gt_row gt_center">171 (8,6%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Autre inactif</td>
-<td class="gt_row gt_center">83 (4,2%)</td></tr>
-    <tr><td class="gt_row gt_left">qualif</td>
-<td class="gt_row gt_center"></td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Ouvrier specialise</td>
-<td class="gt_row gt_center">203 (12%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Ouvrier qualifie</td>
-<td class="gt_row gt_center">292 (18%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Technicien</td>
-<td class="gt_row gt_center">86 (5,2%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Profession intermediaire</td>
-<td class="gt_row gt_center">160 (9,7%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Cadre</td>
-<td class="gt_row gt_center">260 (16%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Employe</td>
-<td class="gt_row gt_center">594 (36%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Autre</td>
-<td class="gt_row gt_center">58 (3,5%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Manquant</td>
-<td class="gt_row gt_center">347</td></tr>
-  </tbody>
-  
-  <tfoot>
-    <tr class="gt_footnotes">
-      <td colspan="2">
-        <p class="gt_footnote">
-          <sup class="gt_footnote_marks">
-            <em>1</em>
-          </sup>
-           
-          Médiane (EI); n (%)
-          <br />
-        </p>
-      </td>
-    </tr>
-  </tfoot>
-</table>
-</div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">tbl_summary</span>(<span class="at">include =</span> <span class="fu">c</span>(<span class="st">&quot;heures.tv&quot;</span>, <span class="st">&quot;occup&quot;</span>, <span class="st">&quot;qualif&quot;</span>))</span></code></pre></div>
 <p>Il est possible de personnaliser les statisques présentées (par exemple moyenne et écart-type à la place de la médiane et l’intervale inter-quartile). De plus, <code data-pkg="gtsummary">tbl_summary</code> prend en compte les étiquettes de variables si elles ont été définies (voir le <a href="facfacteurs-et-vecteurs-labellises.html">chapitre dédié</a>). Il est aussi possible de franciser la présentation des résultats.</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(labelled)</span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">var_label</span>(d<span class="sc">$</span>heures.tv) <span class="ot">&lt;-</span> <span class="st">&quot;Heures quotidiennes devant la télévision&quot;</span></span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">var_label</span>(d<span class="sc">$</span>occup) <span class="ot">&lt;-</span> <span class="st">&quot;Activité&quot;</span></span>
-<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">&quot;fr&quot;</span>, <span class="at">decimal.mark =</span> <span class="st">&quot;,&quot;</span>, <span class="at">big.mark =</span> <span class="st">&quot; &quot;</span>)</span></code></pre></div>
-<pre><code>Setting theme `language: fr`</code></pre>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">tbl_summary</span>(</span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">include =</span> <span class="fu">c</span>(<span class="st">&quot;heures.tv&quot;</span>, <span class="st">&quot;occup&quot;</span>),</span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">statistic =</span> <span class="fu">list</span>(<span class="fu">all_continuous</span>() <span class="sc">~</span> <span class="st">&quot;{mean} ({sd})&quot;</span>)</span>
-<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-<div id="vfdwfbggwk" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>html {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-}
-
-#vfdwfbggwk .gt_table {
-  display: table;
-  border-collapse: collapse;
-  margin-left: auto;
-  margin-right: auto;
-  color: #333333;
-  font-size: 16px;
-  font-weight: normal;
-  font-style: normal;
-  background-color: #FFFFFF;
-  width: auto;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #A8A8A8;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #A8A8A8;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-}
-
-#vfdwfbggwk .gt_heading {
-  background-color: #FFFFFF;
-  text-align: center;
-  border-bottom-color: #FFFFFF;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-
-#vfdwfbggwk .gt_title {
-  color: #333333;
-  font-size: 125%;
-  font-weight: initial;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  border-bottom-color: #FFFFFF;
-  border-bottom-width: 0;
-}
-
-#vfdwfbggwk .gt_subtitle {
-  color: #333333;
-  font-size: 85%;
-  font-weight: initial;
-  padding-top: 0;
-  padding-bottom: 6px;
-  border-top-color: #FFFFFF;
-  border-top-width: 0;
-}
-
-#vfdwfbggwk .gt_bottom_border {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-}
-
-#vfdwfbggwk .gt_col_headings {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-
-#vfdwfbggwk .gt_col_heading {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 6px;
-  padding-left: 5px;
-  padding-right: 5px;
-  overflow-x: hidden;
-}
-
-#vfdwfbggwk .gt_column_spanner_outer {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 4px;
-  padding-right: 4px;
-}
-
-#vfdwfbggwk .gt_column_spanner_outer:first-child {
-  padding-left: 0;
-}
-
-#vfdwfbggwk .gt_column_spanner_outer:last-child {
-  padding-right: 0;
-}
-
-#vfdwfbggwk .gt_column_spanner {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  overflow-x: hidden;
-  display: inline-block;
-  width: 100%;
-}
-
-#vfdwfbggwk .gt_group_heading {
-  padding: 8px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-}
-
-#vfdwfbggwk .gt_empty_group_heading {
-  padding: 0.5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: middle;
-}
-
-#vfdwfbggwk .gt_from_md > :first-child {
-  margin-top: 0;
-}
-
-#vfdwfbggwk .gt_from_md > :last-child {
-  margin-bottom: 0;
-}
-
-#vfdwfbggwk .gt_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  margin: 10px;
-  border-top-style: solid;
-  border-top-width: 1px;
-  border-top-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-  overflow-x: hidden;
-}
-
-#vfdwfbggwk .gt_stub {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  padding-left: 12px;
-}
-
-#vfdwfbggwk .gt_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#vfdwfbggwk .gt_first_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-}
-
-#vfdwfbggwk .gt_grand_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#vfdwfbggwk .gt_first_grand_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-style: double;
-  border-top-width: 6px;
-  border-top-color: #D3D3D3;
-}
-
-#vfdwfbggwk .gt_striped {
-  background-color: rgba(128, 128, 128, 0.05);
-}
-
-#vfdwfbggwk .gt_table_body {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-}
-
-#vfdwfbggwk .gt_footnotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-
-#vfdwfbggwk .gt_footnote {
-  margin: 0px;
-  font-size: 90%;
-  padding: 4px;
-}
-
-#vfdwfbggwk .gt_sourcenotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-
-#vfdwfbggwk .gt_sourcenote {
-  font-size: 90%;
-  padding: 4px;
-}
-
-#vfdwfbggwk .gt_left {
-  text-align: left;
-}
-
-#vfdwfbggwk .gt_center {
-  text-align: center;
-}
-
-#vfdwfbggwk .gt_right {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-#vfdwfbggwk .gt_font_normal {
-  font-weight: normal;
-}
-
-#vfdwfbggwk .gt_font_bold {
-  font-weight: bold;
-}
-
-#vfdwfbggwk .gt_font_italic {
-  font-style: italic;
-}
-
-#vfdwfbggwk .gt_super {
-  font-size: 65%;
-}
-
-#vfdwfbggwk .gt_footnote_marks {
-  font-style: italic;
-  font-weight: normal;
-  font-size: 65%;
-}
-</style>
-<table class="gt_table">
-  
-  <thead class="gt_col_headings">
-    <tr>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1"><strong>Caractéristique</strong></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"><strong>N = 2 000</strong><sup class="gt_footnote_marks">1</sup></th>
-    </tr>
-  </thead>
-  <tbody class="gt_table_body">
-    <tr><td class="gt_row gt_left">Heures quotidiennes devant la télévision</td>
-<td class="gt_row gt_center">2,25 (1,78)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Manquant</td>
-<td class="gt_row gt_center">5</td></tr>
-    <tr><td class="gt_row gt_left">Activité</td>
-<td class="gt_row gt_center"></td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Exerce une profession</td>
-<td class="gt_row gt_center">1 049 (52%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Chomeur</td>
-<td class="gt_row gt_center">134 (6,7%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Etudiant, eleve</td>
-<td class="gt_row gt_center">94 (4,7%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Retraite</td>
-<td class="gt_row gt_center">392 (20%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Retire des affaires</td>
-<td class="gt_row gt_center">77 (3,9%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Au foyer</td>
-<td class="gt_row gt_center">171 (8,6%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Autre inactif</td>
-<td class="gt_row gt_center">83 (4,2%)</td></tr>
-  </tbody>
-  
-  <tfoot>
-    <tr class="gt_footnotes">
-      <td colspan="2">
-        <p class="gt_footnote">
-          <sup class="gt_footnote_marks">
-            <em>1</em>
-          </sup>
-           
-          Moyenne (ET); n (%)
-          <br />
-        </p>
-      </td>
-    </tr>
-  </tfoot>
-</table>
-</div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(labelled)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">var_label</span>(d<span class="sc">$</span>heures.tv) <span class="ot">&lt;-</span> <span class="st">&quot;Heures quotidiennes devant la télévision&quot;</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">var_label</span>(d<span class="sc">$</span>occup) <span class="ot">&lt;-</span> <span class="st">&quot;Activité&quot;</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">&quot;fr&quot;</span>, <span class="at">decimal.mark =</span> <span class="st">&quot;,&quot;</span>, <span class="at">big.mark =</span> <span class="st">&quot; &quot;</span>)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">tbl_summary</span>(</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">include =</span> <span class="fu">c</span>(<span class="st">&quot;heures.tv&quot;</span>, <span class="st">&quot;occup&quot;</span>),</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">statistic =</span> <span class="fu">list</span>(<span class="fu">all_continuous</span>() <span class="sc">~</span> <span class="st">&quot;{mean} ({sd})&quot;</span>)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>Pour une présentation de toutes les possibilités offertes, voir la vignette dédiée sur <a href="http://www.danieldsjoberg.com/gtsummary/articles/tbl_summary.html" class="uri">http://www.danieldsjoberg.com/gtsummary/articles/tbl_summary.html</a>.</p>
 </div>
 <div id="exporter-les-graphiques-obtenus" class="section level2 hasAnchor">

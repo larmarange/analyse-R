@@ -13,7 +13,7 @@
 
 <title>Multicolinéarité dans la régression</title>
 
-<script src="libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -165,13 +165,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -444,6 +451,7 @@ pre code {
           </ul>
         </li>
         <li><a href="analyse-R.pdf">PDF</a></li>
+        <li><a href="https://github.com/larmarange/guide-R/">guide-R</a></li>
         <li><a href="https://larmarange.github.io/webin-R/">webin-R</a></li>
         <li><a href="https://www.youtube.com/c/webinR"><i class="fa fa-youtube" aria-hidden="true"></i></a></li>
         <!--<li><a href="https://github.com/larmarange/analyse-R">GitHub</a></li>-->
@@ -480,9 +488,9 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#définition">Définition<span></span></a></li>
-<li><a href="#mesure-de-la-colinéarité">Mesure de la colinéarité<span></span></a></li>
-<li><a href="#la-multicolinéarité-est-elle-toujours-un-problème">La multicolinéarité est-elle toujours un problème ?<span></span></a></li>
+<li><a href="#définition" id="toc-définition">Définition<span></span></a></li>
+<li><a href="#mesure-de-la-colinéarité" id="toc-mesure-de-la-colinéarité">Mesure de la colinéarité<span></span></a></li>
+<li><a href="#la-multicolinéarité-est-elle-toujours-un-problème" id="toc-la-multicolinéarité-est-elle-toujours-un-problème">La multicolinéarité est-elle toujours un problème ?<span></span></a></li>
 </ul>
 </div>
 
@@ -517,26 +525,13 @@ pre code {
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>sexe <span class="ot">&lt;-</span> <span class="fu">relevel</span>(d<span class="sc">$</span>sexe, <span class="st">&quot;Femme&quot;</span>)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>grpage <span class="ot">&lt;-</span> <span class="fu">cut</span>(d<span class="sc">$</span>age, <span class="fu">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">99</span>), <span class="at">right =</span> <span class="cn">FALSE</span>, <span class="at">include.lowest =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>etud <span class="ot">&lt;-</span> d<span class="sc">$</span>nivetud</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(d<span class="sc">$</span>etud) <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Supérieur&quot;</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>etud <span class="ot">&lt;-</span> <span class="fu">addNAstr</span>(d<span class="sc">$</span>etud, <span class="st">&quot;Manquant&quot;</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">glm</span>(sport <span class="sc">~</span> sexe <span class="sc">+</span> grpage <span class="sc">+</span> etud <span class="sc">+</span> heures.tv <span class="sc">+</span> relig, <span class="at">data =</span> d, <span class="at">family =</span> <span class="fu">binomial</span>())</span></code></pre></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(d<span class="sc">$</span>etud) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Supérieur&quot;</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>etud <span class="ot">&lt;-</span> <span class="fu">addNAstr</span>(d<span class="sc">$</span>etud, <span class="st">&quot;Manquant&quot;</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">glm</span>(sport <span class="sc">~</span> sexe <span class="sc">+</span> grpage <span class="sc">+</span> etud <span class="sc">+</span> heures.tv <span class="sc">+</span> relig, <span class="at">data =</span> d, <span class="at">family =</span> <span class="fu">binomial</span>())</span></code></pre></div>
 <p>Le calcul des FIV se fait simplement en passant le modèle à la fonction <code data-pkg="car">vif</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span></code></pre></div>
-<pre><code>
-Attachement du package : &#39;car&#39;</code></pre>
-<pre><code>L&#39;objet suivant est masqué _par_ &#39;.GlobalEnv&#39;:
-
-    logit</code></pre>
-<pre><code>L&#39;objet suivant est masqué depuis &#39;package:purrr&#39;:
-
-    some</code></pre>
-<pre><code>L&#39;objet suivant est masqué depuis &#39;package:dplyr&#39;:
-
-    recode</code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(mod)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(mod)</span></code></pre></div>
 <pre><code>           GVIF Df GVIF^(1/(2*Df))
 sexe      1.048  1           1.024
 grpage    1.842  3           1.107
