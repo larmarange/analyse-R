@@ -40,3 +40,7 @@ clean <- function(f) {
 for (f in fichiers) {
   clean(f)
 }
+
+qmd_files <- list.files(pattern = ".qmd", path = "qmd/")
+for (f in qmd_files)
+  knitr::convert_chunk_header(paste0("qmd/", f), output = identity)
