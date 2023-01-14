@@ -10,7 +10,7 @@ source("verification_installation_dependances.R")
 chapitres <- list.files(pattern = "Rmd$")
 for (f in chapitres) {
   set.seed(100);
-  rmarkdown::render(f, encoding = "UTF-8")
+  rmarkdown::render(f, encoding = "UTF-8", envir = new.env())
 }
 
 # Générer le PDF
