@@ -1,5 +1,7 @@
 if(!require(devtools))
   install.packages("devtools")
+if(!require(devtools))
+  install.packages("remotes")
 if(!require(stringr))
   install.packages("stringr")
 
@@ -36,10 +38,10 @@ thru_github <- c("larmarange/JLutils", "carlganz/svrepmisc", "mikabr/ggpirate", 
 github_pkgs <- str_sub(thru_github, str_locate(thru_github, "/")[, 1] + 1)
 
 for (i in m[!m %in% github_pkgs])
-  install.packages(i, dependencies = TRUE)
+  remotes::install_cran(i, dependencies = TRUE)
 
 for (i in m[m %in% github_pkgs])
-  install_github(thru_github[which(github_pkgs == i)])
+  remotes::install_github(thru_github[which(github_pkgs == i)])
 
 if (any(!p %in% installed.packages()[, 1]))
   warning("Certaines installations de package ont échoué.")
