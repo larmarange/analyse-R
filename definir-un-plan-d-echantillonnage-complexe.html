@@ -13,7 +13,7 @@
 
 <title>Définir un plan d’échantillonnage complexe avec survey</title>
 
-<script src="libs/header-attrs-2.16/header-attrs.js"></script>
+<script src="libs/header-attrs-2.19/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -131,7 +131,7 @@ code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
 code span.at { color: #7d9029; } /* Attribute */
 code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
+code span.bu { color: #008000; } /* BuiltIn */
 code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
 code span.ch { color: #4070a0; } /* Char */
 code span.cn { color: #880000; } /* Constant */
@@ -144,7 +144,7 @@ code span.er { color: #ff0000; font-weight: bold; } /* Error */
 code span.ex { } /* Extension */
 code span.fl { color: #40a070; } /* Float */
 code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
+code span.im { color: #008000; font-weight: bold; } /* Import */
 code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 code span.kw { color: #007020; font-weight: bold; } /* Keyword */
 code span.op { color: #666666; } /* Operator */
@@ -236,8 +236,8 @@ pre code {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -245,16 +245,9 @@ pre code {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "&#xe258;";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -342,7 +335,7 @@ pre code {
                   <li><a href="fonctions-a-fenetre.html">Fonctions à fenêtre</a></li>
                   <li><a href="manipuler-du-texte.html">Manipuler du texte avec <strong>stringr</strong></a></li>
                   <li><a href="reorganiser-ses-donnees-avec-tidyr.html">Réorganiser ses données avec <strong>tidyr</strong></a></li>
-                  <li><a href="scraping.html">Scraping</a></li>
+                  <!--<li><a href="scraping.html">Scraping</a></li>-->
   	            </ul>
               </div>
               <div class="col-sm-4">
@@ -488,12 +481,12 @@ pre code {
 
 <div id="TOC">
 <ul>
-<li><a href="#différents-types-déchantillonnage" id="toc-différents-types-déchantillonnage">Différents types d’échantillonnage<span></span></a></li>
-<li><a href="#les-options-de-svydesign" id="toc-les-options-de-svydesign">Les options de svydesign<span></span></a></li>
-<li><a href="#quelques-exemples" id="toc-quelques-exemples">Quelques exemples<span></span></a></li>
-<li><a href="#extraire-un-sous-échantillon" id="toc-extraire-un-sous-échantillon">Extraire un sous-échantillon<span></span></a>
+<li><a href="#différents-types-déchantillonnage" id="toc-différents-types-déchantillonnage">Différents types d’échantillonnage</a></li>
+<li><a href="#les-options-de-svydesign" id="toc-les-options-de-svydesign">Les options de svydesign</a></li>
+<li><a href="#quelques-exemples" id="toc-quelques-exemples">Quelques exemples</a></li>
+<li><a href="#extraire-un-sous-échantillon" id="toc-extraire-un-sous-échantillon">Extraire un sous-échantillon</a>
 <ul>
-<li><a href="#sous-échantillon-et-données-labellisées" id="toc-sous-échantillon-et-données-labellisées">Sous-échantillon et données labellisées<span></span></a></li>
+<li><a href="#sous-échantillon-et-données-labellisées" id="toc-sous-échantillon-et-données-labellisées">Sous-échantillon et données labellisées</a></li>
 </ul></li>
 </ul>
 </div>
@@ -580,11 +573,16 @@ pre code {
                                              [1] oui     
  6   age_deces      —               dbl                  </code></pre>
 <p>Dans ce cas là, il est préférable d’utiliser l’extension <code class="pkg">srvyr</code> et la fonction <code data-pkg="srvyr">filter</code>.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(srvyr)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> enfants <span class="sc">%&gt;%</span> <span class="fu">as_survey</span>(<span class="at">weights =</span> <span class="dv">1</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>variables <span class="sc">%&gt;%</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">look_for</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(srvyr)</span></code></pre></div>
+<pre><code>
+Attachement du package : &#39;srvyr&#39;</code></pre>
+<pre><code>L&#39;objet suivant est masqué depuis &#39;package:stats&#39;:
+
+    filter</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> enfants <span class="sc">%&gt;%</span> <span class="fu">as_survey</span>(<span class="at">weights =</span> <span class="dv">1</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>variables <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">look_for</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code></pre></div>
 <pre><code> pos variable       label           col_type values      
  1   id_enfant      Identifiant de~ dbl                  
  2   id_femme       Identifiant de~ dbl                  
@@ -594,10 +592,10 @@ pre code {
  5   survie         L&#39;enfant est-i~ dbl+lbl  [0] non     
                                              [1] oui     
  6   age_deces      Age au décès (~ dbl                  </code></pre>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> d <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sexe <span class="sc">==</span> <span class="dv">2</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>d2<span class="sc">$</span>variables <span class="sc">%&gt;%</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">look_for</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> d <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sexe <span class="sc">==</span> <span class="dv">2</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>d2<span class="sc">$</span>variables <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">look_for</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code></pre></div>
 <pre><code> pos variable       label           col_type values      
  1   id_enfant      Identifiant de~ dbl                  
  2   id_femme       Identifiant de~ dbl                  

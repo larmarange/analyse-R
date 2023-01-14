@@ -426,7 +426,7 @@ seqtree_m18 <- as.seqtree(arbre_m18, seqdata = seq_m18, diss = dist_m18, ncluste
 seqtreedisplay(seqtree_m18, type="I", border=NA, show.depth=TRUE)
 ```
 
-```{r, include=FALSE}
+```{r, include=FALSE, eval = FALSE}
 library(WeightedCluster, quietly = TRUE)
 seqtree_m18 <- as.seqtree(arbre_m18, seqdata = seq_m18, diss = dist_m18, ncluster = 7)
 seqtreedisplay(seqtree_m18, type="I", border=NA, show.depth=TRUE, filename = "images/trajectoires_soins_seqtreedisplay_m18.png", show.tree = FALSE)
@@ -467,6 +467,7 @@ obtenir la meilleure partition d’un ensemble de données en un nombre prédéf
 Ayant décidé de retenir 4 classes au regard de notre classification ascendante hiérarchique, nous pouvons voir si l'algorithme PAM permets d'améliorer nos 4 classes. Nous allons utiliser la fonction `wcKMedoids`{data-pkg="WeightedCluster"} de l'extension `WeightedCluster`{.pkg} en lui indiquant comme partition initiale celle obtenue avec la classigication hiérarchique.
 
 ```{r}
+library(WeightedCluster)
 pam_m18 <- wcKMedoids(dist_m18, k = 4, initialclust = arbre_m18)
 large_m18$typo_pam <- pam_m18$clustering
 ```
@@ -1171,6 +1172,7 @@ ms_mod_mult <- msm(
 
 ```{r include=FALSE}
 load("data/trajectoires_ms_mod_mult.RData")
+library(msm)
 ```
 
 Les <dfn data-index="risque relatif">risques relatifs</dfn>, ou <dfn data-index="hazard ratio" lang="en">hazard ratios</dfn> en anglais, associés à chaque covariable et à chaque transition s'obtiennent avec `hazard.msm`{data-pkg="msm"}. Une fois encore, le format de sortie n'est pas le plus adapté pour un traitement graphique, mais on pourra avoir recours à `tidy.hazard.msm`{data-pkg="JLutils"} de `JLutils`{.pkg}.
@@ -1211,6 +1213,12 @@ head(hr)
 ```
 
 Vu le nombre de coefficients (un risque relatif par covariable et par transition), on va organiser le graphique en distinguant les transitions acsendantes et les transitions descendantes, d'une part, et en regroupant les risques relatifs d'une même covariable, d'autre part. Pour alléger le graphique, nous allons également retirer la covariable `timeperiod` créé par l'argument `pci`, en ayant recours à `str_detect`{data-pkg="stringr"} de l'extension `stringr`{.pkg} pour repérer les lignes en questions (voir le chapitre sur la [manipulation de texte](manipuler-du-texte.html#str_detect)).
+
+```{r, include=FALSE}
+levels(hr$transition) <- enc2utf8(levels(hr$transition))
+levels(hr$term) <- enc2utf8(levels(hr$term))
+```
+
 
 ```{r, fig.width=8, fig.height=5}
 ggplot(data = hr[!str_detect(hr$term, "time"), ]) +
