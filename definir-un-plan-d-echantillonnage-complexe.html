@@ -13,7 +13,7 @@
 
 <title>Définir un plan d’échantillonnage complexe avec survey</title>
 
-<script src="libs/header-attrs-2.19/header-attrs.js"></script>
+<script src="libs/header-attrs-2.20/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -335,7 +335,7 @@ pre code {
                   <li><a href="fonctions-a-fenetre.html">Fonctions à fenêtre</a></li>
                   <li><a href="manipuler-du-texte.html">Manipuler du texte avec <strong>stringr</strong></a></li>
                   <li><a href="reorganiser-ses-donnees-avec-tidyr.html">Réorganiser ses données avec <strong>tidyr</strong></a></li>
-                  <!--<li><a href="scraping.html">Scraping</a></li>-->
+                  <!--<li><a href="scraping.html.old">Scraping</a></li>-->
   	            </ul>
               </div>
               <div class="col-sm-4">
@@ -521,12 +521,12 @@ pre code {
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>plan <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span><span class="dv">1</span>, <span class="at">data =</span> donnees, <span class="at">fpc =</span> <span class="sc">~</span>taille)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Échantillonnage en grappes avec tirages à quatre degrés (departement, commune, quartier, individus). La probabilité de tirage de chaque niveau de cluster est connue.</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>plan <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span>id_departement <span class="sc">+</span> id_commune <span class="sc">+</span> id_quartier, <span class="at">data =</span> donnees, <span class="at">probs =</span> <span class="sc">~</span>proba_departement <span class="sc">+</span> proba_commune <span class="sc">+</span> proba_quartier)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>plan <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span> id_departement <span class="sc">+</span> id_commune <span class="sc">+</span> id_quartier, <span class="at">data =</span> donnees, <span class="at">probs =</span> <span class="sc">~</span> proba_departement <span class="sc">+</span> proba_commune <span class="sc">+</span> proba_quartier)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Échantillonnage stratifié avec tirage à deux degrés (clusters et individus). Le poids statistiques de chaque observation est connu.</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>plan <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span>id_cluster, <span class="at">data =</span> donnees, <span class="at">strata =</span> <span class="sc">~</span>id_strate, <span class="at">weights =</span> <span class="sc">~</span>poids)</span></code></pre></div>
 <p>Prenons l’exemple d’une <em>Enquête Démographique et de Santé</em>. Le nom des différentes variables est standardisé et commun quelle que soit l’enquête. Nous supposerons que vous avez importé le fichier <em>individus</em> dans un tableau de données nommés <code>eds</code>. Le poids statistique de chaque individu est fourni par la variable <em>V005</em> qui doit au préalable être divisée par un million. Les grappes d’échantillonnage au premier degré sont fournies par la variable <em>V021 (primary sample unit)</em>. Si elle n’est pas renseignée, on pourra utilisier le numéro de grappe <em>V001</em>. Enfin, le milieu de résidence (urbain / rural) est fourni par <em>V025</em> et la région par <em>V024</em>. Pour rappel, l’échantillon a été stratifié à la fois par région et par mileu de résidence. Certaines enquêtes fournissent directement un numéro de strate via <em>V022</em>. Si tel est le cas, on pourra préciser le plan d’échantillonnage ainsi :</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>eds<span class="sc">$</span>poids <span class="ot">&lt;-</span> eds<span class="sc">$</span>V005<span class="sc">/</span><span class="dv">1000000</span></span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>eds<span class="sc">$</span>poids <span class="ot">&lt;-</span> eds<span class="sc">$</span>V005 <span class="sc">/</span> <span class="dv">1000000</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>design.eds <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span>V021, <span class="at">data =</span> eds, <span class="at">strata =</span> <span class="sc">~</span>V022, <span class="at">weights =</span> <span class="sc">~</span>poids)</span></code></pre></div>
 <p>Si <em>V022</em> n’est pas fourni mais que l’enquête a bien été stratifiée par région et milieu de résidence (vérifiez toujours le premier chapitre du rapport d’enquête), on pourra créer une variable strate ainsi<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> :</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>eds<span class="sc">$</span>strate <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(<span class="fu">as.integer</span>(eds<span class="sc">$</span>V024) <span class="sc">*</span> <span class="dv">10</span> <span class="sc">+</span> <span class="fu">as.integer</span>(eds<span class="sc">$</span>V025))</span>
@@ -559,28 +559,50 @@ Attachement du package : &#39;survey&#39;</code></pre>
     dotchart</code></pre>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;fecondite&quot;</span>, <span class="at">package =</span> <span class="st">&quot;questionr&quot;</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> enfants, <span class="at">weights =</span> <span class="sc">~</span> <span class="dv">1</span>)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>variables <span class="sc">%&gt;%</span> <span class="fu">look_for</span>() <span class="sc">%&gt;%</span> <span class="fu">print</span>()</span></code></pre></div>
-<pre><code> pos variable       label           col_type values      
- 1   id_enfant      Identifiant de~ dbl                  
- 2   id_femme       Identifiant de~ dbl                  
- 3   date_naissance Date de naissa~ date                 
- 4   sexe           Sexe de l&#39;enfa~ dbl+lbl  [1] masculin
-                                             [2] féminin 
- 5   survie         L&#39;enfant est-i~ dbl+lbl  [0] non     
-                                             [1] oui     
- 6   age_deces      Age au décès (~ dbl                  </code></pre>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span><span class="dv">1</span>, <span class="at">data =</span> enfants, <span class="at">weights =</span> <span class="sc">~</span><span class="dv">1</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>variables <span class="sc">%&gt;%</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">look_for</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code></pre></div>
+<pre><code> pos variable       label           col_type missing
+ 1   id_enfant      Identifiant de~ dbl      0      
+ 2   id_femme       Identifiant de~ dbl      0      
+ 3   date_naissance Date de naissa~ date     0      
+ 4   sexe           Sexe de l&#39;enfa~ dbl+lbl  0      
+                                                    
+ 5   survie         L&#39;enfant est-i~ dbl+lbl  0      
+                                                    
+ 6   age_deces      Age au décès (~ dbl      1442   
+ values      
+             
+             
+             
+ [1] masculin
+ [2] féminin 
+ [0] non     
+ [1] oui     
+             </code></pre>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> <span class="fu">subset</span>(d, sexe <span class="sc">==</span> <span class="dv">2</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>d2<span class="sc">$</span>variables <span class="sc">%&gt;%</span> <span class="fu">look_for</span>() <span class="sc">%&gt;%</span> <span class="fu">print</span>()</span></code></pre></div>
-<pre><code> pos variable       label           col_type values      
- 1   id_enfant      —               dbl                  
- 2   id_femme       —               dbl                  
- 3   date_naissance —               date                 
- 4   sexe           Sexe de l&#39;enfa~ dbl+lbl  [1] masculin
-                                             [2] féminin 
- 5   survie         L&#39;enfant est-i~ dbl+lbl  [0] non     
-                                             [1] oui     
- 6   age_deces      —               dbl                  </code></pre>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>d2<span class="sc">$</span>variables <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">look_for</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code></pre></div>
+<pre><code> pos variable       label           col_type missing
+ 1   id_enfant      —               dbl      0      
+ 2   id_femme       —               dbl      0      
+ 3   date_naissance —               date     0      
+ 4   sexe           Sexe de l&#39;enfa~ dbl+lbl  0      
+                                                    
+ 5   survie         L&#39;enfant est-i~ dbl+lbl  0      
+                                                    
+ 6   age_deces      —               dbl      774    
+ values      
+             
+             
+             
+ [1] masculin
+ [2] féminin 
+ [0] non     
+ [1] oui     
+             </code></pre>
 <p>Dans ce cas là, il est préférable d’utiliser l’extension <code class="pkg">srvyr</code> et la fonction <code data-pkg="srvyr">filter</code>.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(srvyr)</span></code></pre></div>
 <pre><code>
@@ -592,27 +614,49 @@ Attachement du package : &#39;srvyr&#39;</code></pre>
 
     filter</code></pre>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> enfants <span class="sc">%&gt;%</span> <span class="fu">as_survey</span>(<span class="at">weights =</span> <span class="dv">1</span>)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>variables <span class="sc">%&gt;%</span> <span class="fu">look_for</span>() <span class="sc">%&gt;%</span> <span class="fu">print</span>()</span></code></pre></div>
-<pre><code> pos variable       label           col_type values      
- 1   id_enfant      Identifiant de~ dbl                  
- 2   id_femme       Identifiant de~ dbl                  
- 3   date_naissance Date de naissa~ date                 
- 4   sexe           Sexe de l&#39;enfa~ dbl+lbl  [1] masculin
-                                             [2] féminin 
- 5   survie         L&#39;enfant est-i~ dbl+lbl  [0] non     
-                                             [1] oui     
- 6   age_deces      Age au décès (~ dbl                  </code></pre>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>variables <span class="sc">%&gt;%</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">look_for</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code></pre></div>
+<pre><code> pos variable       label           col_type missing
+ 1   id_enfant      Identifiant de~ dbl      0      
+ 2   id_femme       Identifiant de~ dbl      0      
+ 3   date_naissance Date de naissa~ date     0      
+ 4   sexe           Sexe de l&#39;enfa~ dbl+lbl  0      
+                                                    
+ 5   survie         L&#39;enfant est-i~ dbl+lbl  0      
+                                                    
+ 6   age_deces      Age au décès (~ dbl      1442   
+ values      
+             
+             
+             
+ [1] masculin
+ [2] féminin 
+ [0] non     
+ [1] oui     
+             </code></pre>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> d <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sexe <span class="sc">==</span> <span class="dv">2</span>)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>d2<span class="sc">$</span>variables <span class="sc">%&gt;%</span> <span class="fu">look_for</span>() <span class="sc">%&gt;%</span> <span class="fu">print</span>()</span></code></pre></div>
-<pre><code> pos variable       label           col_type values      
- 1   id_enfant      Identifiant de~ dbl                  
- 2   id_femme       Identifiant de~ dbl                  
- 3   date_naissance Date de naissa~ date                 
- 4   sexe           Sexe de l&#39;enfa~ dbl+lbl  [1] masculin
-                                             [2] féminin 
- 5   survie         L&#39;enfant est-i~ dbl+lbl  [0] non     
-                                             [1] oui     
- 6   age_deces      Age au décès (~ dbl                  </code></pre>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>d2<span class="sc">$</span>variables <span class="sc">%&gt;%</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">look_for</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code></pre></div>
+<pre><code> pos variable       label           col_type missing
+ 1   id_enfant      Identifiant de~ dbl      0      
+ 2   id_femme       Identifiant de~ dbl      0      
+ 3   date_naissance Date de naissa~ date     0      
+ 4   sexe           Sexe de l&#39;enfa~ dbl+lbl  0      
+                                                    
+ 5   survie         L&#39;enfant est-i~ dbl+lbl  0      
+                                                    
+ 6   age_deces      Age au décès (~ dbl      774    
+ values      
+             
+             
+             
+ [1] masculin
+ [2] féminin 
+ [0] non     
+ [1] oui     
+             </code></pre>
 </div>
 </div>
 <div class="footnotes footnotes-end-of-document">
