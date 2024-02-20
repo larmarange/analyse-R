@@ -1,5 +1,5 @@
 # Suppression des fichiers HTML
-unlink("graphs/", recursive = TRUE)
+#unlink("graphs/", recursive = TRUE)
 for (f in  list.files(pattern = "html$"))
   unlink(f)
 

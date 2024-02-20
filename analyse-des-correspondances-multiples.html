@@ -13,7 +13,7 @@
 
 <title>Analyse des correspondances multiples (ACM)</title>
 
-<script src="libs/header-attrs-2.21/header-attrs.js"></script>
+<script src="libs/header-attrs-2.25/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
@@ -495,6 +495,9 @@ pre code {
 </ul>
 </div>
 
+<div class="guide-R">
+<p>Une version actualisée de ce chapitre est disponible sur <strong>guide-R</strong> : <a href="https://larmarange.github.io/guide-R/analyses_avancees/analyse-factorielle.html">Analyse factorielle</a></p>
+</div>
 <div class="webin-R">
 <p>Ce chapitre est évoqué dans le webin-R #11 (Analyse des Correspondances Multiples sur <a href="https://youtu.be/fIZblrfenz0">YouTube</a>.</p>
 </div>
@@ -555,33 +558,33 @@ concentrées sur les premiers axes. Les deux-trois premiers axes permettront d�
 <div id="acm-avec-ade4" class="section level2 hasAnchor">
 <h2 class="hasAnchor">ACM avec ade4<a href="#acm-avec-ade4" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Si l’extension <code class="pkg">ade4</code> n’est pas présente sur votre PC, il vous faut l’installer :</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;ade4&quot;</span>, <span class="at">dep =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;ade4&quot;</span>, <span class="at">dep =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>Dans tous les cas, il faut penser à la charger en mémoire :</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ade4)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(ade4)</span></code></pre></div>
 <p>Comme précédemment, nous utiliserons le fichier de données <code>hdv2003</code> fourni avec l’extension <code class="pkg">questionr</code>.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(questionr)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(hdv2003)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> hdv2003</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">library</span>(questionr)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">data</span>(hdv2003)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>d <span class="ot">&lt;-</span> hdv2003</span></code></pre></div>
 <p>En premier lieu, comme dans le <a href="regression-logistique.html">chapitre sur la régression logistique</a>, nous allons créer une variable groupe d’âges et regrouper les modalités de la variable « niveau d’étude ».</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>grpage <span class="ot">&lt;-</span> <span class="fu">cut</span>(d<span class="sc">$</span>age, <span class="fu">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">93</span>), <span class="at">right =</span> <span class="cn">FALSE</span>, <span class="at">include.lowest =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>etud <span class="ot">&lt;-</span> d<span class="sc">$</span>nivetud</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(d<span class="sc">$</span>etud) <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Supérieur&quot;</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>d<span class="sc">$</span>grpage <span class="ot">&lt;-</span> <span class="fu">cut</span>(d<span class="sc">$</span>age, <span class="fu">c</span>(<span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">93</span>), <span class="at">right =</span> <span class="cn">FALSE</span>, <span class="at">include.lowest =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>d<span class="sc">$</span>etud <span class="ot">&lt;-</span> d<span class="sc">$</span>nivetud</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">levels</span>(d<span class="sc">$</span>etud) <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Primaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>, <span class="st">&quot;Secondaire&quot;</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Technique/Professionnel&quot;</span>, <span class="st">&quot;Supérieur&quot;</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>)</span></code></pre></div>
 <p>Ensuite, nous allons créer un tableau de données ne contenant que les variables que nous souhaitons prendre en compte pour notre analyse factorielle.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> d[, <span class="fu">c</span>(<span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;peche.chasse&quot;</span>, <span class="st">&quot;cinema&quot;</span>, <span class="st">&quot;cuisine&quot;</span>, <span class="st">&quot;bricol&quot;</span>, <span class="st">&quot;sport&quot;</span>, <span class="st">&quot;lecture.bd&quot;</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> d[, <span class="fu">c</span>(<span class="st">&quot;grpage&quot;</span>, <span class="st">&quot;sexe&quot;</span>, <span class="st">&quot;etud&quot;</span>, <span class="st">&quot;peche.chasse&quot;</span>, <span class="st">&quot;cinema&quot;</span>, <span class="st">&quot;cuisine&quot;</span>, <span class="st">&quot;bricol&quot;</span>, <span class="st">&quot;sport&quot;</span>, <span class="st">&quot;lecture.bd&quot;</span>)]</span></code></pre></div>
 <p>Le calcul de l’ACM se fait tout simplement avec la fonction <code data-pkg="ade4">dudi.acm</code>.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>acm <span class="ot">&lt;-</span> <span class="fu">dudi.acm</span>(d2)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>acm <span class="ot">&lt;-</span> <span class="fu">dudi.acm</span>(d2)</span></code></pre></div>
 <p>Par défaut, la fonction affichera le graphique des <dfn data-index="valeur propre, ACM">valeurs propres</dfn> de chaque axe (nous y reviendrons) et vous demandera le nombre d’axes que vous souhaitez conserver dans les résultats. Le plus souvent, cinq axes seront largement plus que suffisants. Vous pouvez également éviter cette étape en indiquant directement à <code data-pkg="ade4">dudi.acm</code> de vous renvoyer les cinq premiers axes ainsi :</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>acm <span class="ot">&lt;-</span> <span class="fu">dudi.acm</span>(d2, <span class="at">scannf =</span> <span class="cn">FALSE</span>, <span class="at">nf =</span> <span class="dv">5</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>acm <span class="ot">&lt;-</span> <span class="fu">dudi.acm</span>(d2, <span class="at">scannf =</span> <span class="cn">FALSE</span>, <span class="at">nf =</span> <span class="dv">5</span>)</span></code></pre></div>
 <div class="note">
 <p>Si vous souhaitez explorer visuellement et interacticement les résultats, vous pouvez utiliser l’extension <code class="pkg">explor</code> et sa fonction homonyme <code data-pkg="explor">explor</code>.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>explor<span class="sc">::</span><span class="fu">explor</span>(acm)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>explor<span class="sc">::</span><span class="fu">explor</span>(acm)</span></code></pre></div>
 </div>
 <p>Le graphique des valeurs propres peut être reproduit avec <code data-pkg="ade4" data-rdoc="scatter">screeplot</code> :</p>
 <figure>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">screeplot</span>(acm)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">screeplot</span>(acm)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-9-1.png" width="1050" />
 <figcaption>
 Valeurs propres ou inertie de chaque axe avec screeplot()
@@ -589,23 +592,23 @@ Valeurs propres ou inertie de chaque axe avec screeplot()
 </figure>
 <p>Pour des grahiques reposant sur <code class="pkg">ggplot2</code>, on pourra avoir recours à l’extension <code class="pkg">factoextra</code> qui fournit plusieurs fonctions graphiques dont <code data-pkg="factorextra">fviz_screeplot</code></p>
 <figure>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(factoextra)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_screeplot</span>(acm, <span class="at">choice =</span> <span class="st">&quot;eigenvalue&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">library</span>(factoextra)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">fviz_screeplot</span>(acm, <span class="at">choice =</span> <span class="st">&quot;eigenvalue&quot;</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-10-1.png" width="1050" />
 <figcaption>
 Valeurs propres des axe avec fviz_screeplot()
 </figcaption>
 </figure>
 <figure>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(factoextra)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_screeplot</span>(acm)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">library</span>(factoextra)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">fviz_screeplot</span>(acm)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-11-1.png" width="1050" />
 <figcaption>
 Pourcentage de variance expliquée avec fviz_screeplot()
 </figcaption>
 </figure>
 <p>Les mêmes valeurs pour les premiers axes s’obtiennent également avec <code data-pkg="ade4" data-rdoc="dudi">summary</code>. On pourra également avoir recours à la fonction <code data-pkg="ade4">inertia.dudi</code> pour l’ensemble des axes.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(acm)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">summary</span>(acm)</span></code></pre></div>
 <pre><code>Class: acm dudi
 Call: dudi.acm(df = d2, scannf = FALSE, nf = 5)
 
@@ -624,7 +627,7 @@ Cumulative projected inertia (%):
   17.06   28.58   37.60   46.31   54.42 
 
 (Only 5 dimensions (out of 15) are shown)</code></pre>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">inertia.dudi</span>(acm)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">inertia.dudi</span>(acm)</span></code></pre></div>
 <pre><code>Inertia information:
 Call: inertia.dudi(x = acm)
 
@@ -648,7 +651,7 @@ Ax15 0.0001104  1.4508  100.00</code></pre>
 <p>L’<dfn>inertie</dfn> totale est de 1,451 et l’axe 1 en explique 0,1474 soit 17 %. L’inertie projetée cumulée nous indique que les deux premiers axes expliquent à eux seuls 29 % des variations observées dans notre échantillon.</p>
 <p>Pour comprendre la signification des différents axes, il importe d’identifier quelles sont les variables/ modalités qui contribuent le plus à chaque axe. Une première représentation graphique est le <dfn>cercle de corrélation</dfn><dfn data-index="corrélation, cercle"></dfn> des modalités. Pour cela, on aura recours à <code data-pkg="ade4">s.corcicle</code>. On indiquera d’abord <code>acm$co</code> si l’on souhaite représenter les modalités ou <code>acm$li</code> si l’on souhaite représenter les individus. Les deux chiffres suivant indiquent les deux axes que l’on souhaite afficher (dans le cas présent les deux premiers axes). Enfin, le paramètre <code>clabel</code> permet de modifier la taille des étiquettes.</p>
 <figure>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">s.corcircle</span>(acm<span class="sc">$</span>co, <span class="dv">1</span>, <span class="dv">2</span>, <span class="at">clabel =</span> <span class="fl">0.7</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">s.corcircle</span>(acm<span class="sc">$</span>co, <span class="dv">1</span>, <span class="dv">2</span>, <span class="at">clabel =</span> <span class="fl">0.7</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-13-1.png" width="1050" />
 <figcaption>
 Cercle de corrélations des modalités sur les deux premiers axes
@@ -656,7 +659,7 @@ Cercle de corrélations des modalités sur les deux premiers axes
 </figure>
 <p>Il est aussi possible d’utiliser <code data-pkg="factoextra">fviz_mca_var</code> de <code class="pkg">factoextra</code>. L’option <code>repel = TRUE</code> permets d’éviter que les étiquettes ne se superposent.</p>
 <figure>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_mca_var</span>(acm, <span class="at">repel =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">fviz_mca_var</span>(acm, <span class="at">repel =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-14-1.png" width="1050" />
 <figcaption>
 Représentation des modalités sur les deux premiers axes
@@ -664,14 +667,14 @@ Représentation des modalités sur les deux premiers axes
 </figure>
 <p>On pourra avoir également recours à <code data-pkg="ade4" data-rdoc="dudi.acm">boxplot</code> pour visualiser comment se répartissent les modalités de chaque variable sur un axe donné<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>.</p>
 <figure>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(acm)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">boxplot</span>(acm)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-15-1.png" width="1050" />
 <figcaption>
 Répartition des modalités selon le premier axe
 </figcaption>
 </figure>
 <figure>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(acm, <span class="dv">2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">boxplot</span>(acm, <span class="dv">2</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-16-1.png" width="1050" />
 <figcaption>
 Répartition des modalités selon le second axe
@@ -679,9 +682,9 @@ Répartition des modalités selon le second axe
 </figure>
 <p>La fonction <code data-pkg="factoextra">fviz_contrib</code> de <code class="pkg">factoextra</code> peut être utilisée pour représenter la contribution des différentes variables sur un axe.</p>
 <figure>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_contrib</span>(acm, <span class="at">choice =</span> <span class="st">&quot;var&quot;</span>, <span class="at">axes =</span> <span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">fviz_contrib</span>(acm, <span class="at">choice =</span> <span class="st">&quot;var&quot;</span>, <span class="at">axes =</span> <span class="dv">1</span>)</span></code></pre></div>
 <p><img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-17-1.png" width="1050" /></p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_contrib</span>(acm, <span class="at">choice =</span> <span class="st">&quot;var&quot;</span>, <span class="at">axes =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">fviz_contrib</span>(acm, <span class="at">choice =</span> <span class="st">&quot;var&quot;</span>, <span class="at">axes =</span> <span class="dv">2</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-17-2.png" width="1050" />
 <figcaption>
 Représentation de la contribution des différentes variables
@@ -689,10 +692,10 @@ Représentation de la contribution des différentes variables
 </figure>
 <p>Le tableau <code>acm$cr</code> contient les rapports de corrélation (variant de 0 à 1) entre les variables et les axes choisis au départ de l’ACM. Pour représenter graphiquement ces rapports, utiliser la fonction <code data-pkg="graphics">barplot</code> ainsi : <code>barplot(acm$cr[,num],names.arg=row.names( acm$cr),las=2)</code> où <code>num</code> est le numéro de l’axe à représenter. Pour l’interprétation des axes, se concentrer sur les variables les plus structurantes, c’est-à-dire dont le rapport de corrélation est le plus proche de 1.</p>
 <figure>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>) <span class="fu">barplot</span>(acm<span class="sc">$</span>cr[, i], <span class="at">names.arg =</span> <span class="fu">row.names</span>(acm<span class="sc">$</span>cr), <span class="at">las =</span> <span class="dv">2</span>, <span class="at">main =</span> <span class="fu">paste</span>(<span class="st">&quot;Axe&quot;</span>, i))</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>) <span class="fu">barplot</span>(acm<span class="sc">$</span>cr[, i], <span class="at">names.arg =</span> <span class="fu">row.names</span>(acm<span class="sc">$</span>cr), <span class="at">las =</span> <span class="dv">2</span>, <span class="at">main =</span> <span class="fu">paste</span>(<span class="st">&quot;Axe&quot;</span>, i))</span></code></pre></div>
 <p><img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-18-1.png" width="1050" /></p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span></code></pre></div>
 <figcaption>
 Rapports de corrélation des variables sur les 4 premiers axes
 </figcaption>
@@ -703,7 +706,7 @@ Rapports de corrélation des variables sur les 4 premiers axes
 </div>
 <p>Pour représenter, les modalités dans le <dfn>plan factoriel</dfn><dfn data-index="factoriel, plan"></dfn>, on utilisera la fonction <code data-pkg="ade4">s.label</code>. Par défaut, les deux premiers axes sont représentés.</p>
 <figure>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">s.label</span>(acm<span class="sc">$</span>co, <span class="at">clabel =</span> <span class="fl">0.7</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="fu">s.label</span>(acm<span class="sc">$</span>co, <span class="at">clabel =</span> <span class="fl">0.7</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-19-1.png" width="1050" />
 <figcaption>
 Répartition des modalités selon les deux premiers axes
@@ -711,7 +714,7 @@ Répartition des modalités selon les deux premiers axes
 </figure>
 <p>Il est bien sur possible de préciser les axes à représenter. L’argument <code>boxes</code> permet quant à lui d’indiquer si l’on souhaite tracer une boîte pour chaque modalité.</p>
 <figure>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">s.label</span>(acm<span class="sc">$</span>co, <span class="dv">3</span>, <span class="dv">4</span>, <span class="at">clabel =</span> <span class="fl">0.7</span>, <span class="at">boxes =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="fu">s.label</span>(acm<span class="sc">$</span>co, <span class="dv">3</span>, <span class="dv">4</span>, <span class="at">clabel =</span> <span class="fl">0.7</span>, <span class="at">boxes =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-20-1.png" width="1050" />
 <figcaption>
 Répartition des modalités selon les axes 3 et 4
@@ -719,7 +722,7 @@ Répartition des modalités selon les axes 3 et 4
 </figure>
 <p>Bien entendu, on peut également représenter les individus. En indiquant <code>clabel=0</code> (une taille nulle pour les étiquettes), <code data-pkg="ade4">s.label</code> remplace chaque observation par un symbole qui peut être spécifié avec <code>pch</code>.</p>
 <figure>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">s.label</span>(acm<span class="sc">$</span>li, <span class="at">clabel =</span> <span class="dv">0</span>, <span class="at">pch =</span> <span class="dv">17</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="fu">s.label</span>(acm<span class="sc">$</span>li, <span class="at">clabel =</span> <span class="dv">0</span>, <span class="at">pch =</span> <span class="dv">17</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-21-1.png" width="1050" />
 <figcaption>
 Répartition des individus selon les deux premiers axes
@@ -731,7 +734,7 @@ Répartition des individus selon les deux premiers axes
 </div>
 <p>Il est également possible d’avoir recours à <code data-pkg="factoextra">fviz_mca_ind</code> de <code class="pkg">factoextra</code>. <code>geom = "point"</code> permets de de ne réprésenter que les points sans leur étiquette. <code>alpha.ind = .25</code> permets d’appliquer une transparance.</p>
 <figure>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_mca_ind</span>(acm, <span class="at">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="at">alpha.ind =</span> .<span class="dv">25</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="fu">fviz_mca_ind</span>(acm, <span class="at">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="at">alpha.ind =</span> .<span class="dv">25</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-23-1.png" width="1050" />
 <figcaption>
 Répartition des individus selon les deux premiers axes avec fviz_mca_ind()
@@ -741,11 +744,11 @@ Répartition des individus selon les deux premiers axes avec fviz_mca_ind()
 <p>Lorsque l’on réalise une ACM, il n’est pas rare que plusieurs observations soient identiques, c’est-à-dire correspondent à la même combinaison de modalités. Dès lors, ces observations seront projetées sur le même point dans le plan factoriel. Une représentation classique des observations avec <code data-pkg="ade4">s.label</code> ne permettra pas de rendre compte les effectifs de chaque point.</p>
 <p>Le package <code class="pkg">JLutils</code>, disponible seulement sur <strong><a href="https://github.com/larmarange/JLutils">GitHub</a></strong>, propose une fonction <code data-pkg="JLutils">s.freq</code> représentant chaque point par un carré proportionnel au nombre d’individus.</p>
 <p>Pour installer <code class="pkg">JLutils</code>, on aura recours au package <code class="pkg">devtools</code> et à sa fonction <code data-pkg="devtools">install_github</code> :</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
+<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a><span class="fu">install_github</span>(<span class="st">&quot;larmarange/JLutils&quot;</span>)</span></code></pre></div>
 <p>La fonction <code data-pkg="JLutils">s.freq</code> s’emploie de manière similaire aux autres fonctions graphiques de <code class="pkg">ade4</code>. Le paramètre <code>csize</code> permet d’ajuster la taille des carrés.</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(JLutils)</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">s.freq</span>(acm<span class="sc">$</span>li)</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="fu">library</span>(JLutils)</span>
+<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a><span class="fu">s.freq</span>(acm<span class="sc">$</span>li)</span></code></pre></div>
 <p><img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-25-1.png" width="1050" /></p>
 <p>L’interprétation est tout autre, non ?</p>
 </div>
@@ -754,7 +757,7 @@ Répartition des individus selon les deux premiers axes avec fviz_mca_ind()
 </div>
 <p>La fonction <code data-pkg="ade4">s.value</code> permet notamment de représenter un troisième axe factoriel. Dans l’exemple ci-après, nous projettons les individus selon les deux premiers axes factoriels. La taille et la couleur des carrés dépendent pour leur part de la coordonnée des individus sur le troisième axe factoriel. Le paramètre <code>csi</code> permet d’ajuster la taille des carrés.</p>
 <figure>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">s.value</span>(acm<span class="sc">$</span>li, acm<span class="sc">$</span>li[, <span class="dv">3</span>], <span class="dv">1</span>, <span class="dv">2</span>, <span class="at">csi =</span> <span class="fl">0.5</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="fu">s.value</span>(acm<span class="sc">$</span>li, acm<span class="sc">$</span>li[, <span class="dv">3</span>], <span class="dv">1</span>, <span class="dv">2</span>, <span class="at">csi =</span> <span class="fl">0.5</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-26-1.png" width="1050" />
 <figcaption>
 Répartition des individus selon les trois premiers axes
@@ -762,7 +765,7 @@ Répartition des individus selon les trois premiers axes
 </figure>
 <p><code data-pkg="ade4">s.arrow</code> permet de représenter les vecteurs variables ou les vecteurs individus sous la forme d’une flèche allant de l’origine du plan factoriel aux coordonnées des variables/individus :</p>
 <figure>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">s.arrow</span>(acm<span class="sc">$</span>co, <span class="at">clabel =</span> <span class="fl">0.7</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a><span class="fu">s.arrow</span>(acm<span class="sc">$</span>co, <span class="at">clabel =</span> <span class="fl">0.7</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-27-1.png" width="1050" />
 <figcaption>
 Vecteurs des modalités selon les deux premiers axes
@@ -770,7 +773,7 @@ Vecteurs des modalités selon les deux premiers axes
 </figure>
 <p><code data-pkg="ade4">s.hist</code> permet de représenter des individus (ou des modalités) sur le plan factoriel et d’afficher leur distribution sur chaque axe :</p>
 <figure>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">s.hist</span>(acm<span class="sc">$</span>li, <span class="at">clabel =</span> <span class="dv">0</span>, <span class="at">pch =</span> <span class="dv">15</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="fu">s.hist</span>(acm<span class="sc">$</span>li, <span class="at">clabel =</span> <span class="dv">0</span>, <span class="at">pch =</span> <span class="dv">15</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-28-1.png" width="1050" />
 <figcaption>
 Distribution des individus dans le plan factoriel
@@ -779,8 +782,8 @@ Distribution des individus dans le plan factoriel
 <p><code data-pkg="ade4">s.class</code> et <code data-pkg="ade4">s.chull</code> permettent de représenter les différentes observations classées en plusieurs catégories. Cela permet notamment de projeter certaines variables.</p>
 <p><code data-pkg="ade4">s.class</code> représente les observations par des points, lie chaque observation au barycentre de la modalité à laquelle elle appartient et dessine une ellipse représentant la forme générale du nuage de points :</p>
 <figure>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">s.class</span>(acm<span class="sc">$</span>li, d2<span class="sc">$</span>sexe, <span class="at">col =</span> <span class="fu">brewer.pal</span>(<span class="dv">4</span>, <span class="st">&quot;Set1&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span>
+<span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a><span class="fu">s.class</span>(acm<span class="sc">$</span>li, d2<span class="sc">$</span>sexe, <span class="at">col =</span> <span class="fu">brewer.pal</span>(<span class="dv">4</span>, <span class="st">&quot;Set1&quot;</span>))</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-29-1.png" width="1050" />
 <figcaption>
 Individus dans le plan factoriel selon le sexe (s.class)
@@ -788,7 +791,7 @@ Individus dans le plan factoriel selon le sexe (s.class)
 </figure>
 <p><code data-pkg="ade4">s.chull</code> représente les barycentres de chaque catégorie et dessine des lignes de niveaux représentant la distribution des individus de cette catégorie. Les individus ne sont pas directement représentés :</p>
 <figure>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">s.chull</span>(acm<span class="sc">$</span>li, d2<span class="sc">$</span>sexe, <span class="at">col =</span> <span class="fu">brewer.pal</span>(<span class="dv">4</span>, <span class="st">&quot;Set1&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="fu">s.chull</span>(acm<span class="sc">$</span>li, d2<span class="sc">$</span>sexe, <span class="at">col =</span> <span class="fu">brewer.pal</span>(<span class="dv">4</span>, <span class="st">&quot;Set1&quot;</span>))</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-30-1.png" width="1050" />
 <figcaption>
 Individus dans le plan factoriel selon le sexe (s.chull)
@@ -796,15 +799,15 @@ Individus dans le plan factoriel selon le sexe (s.chull)
 </figure>
 <div class="note">
 <p>Il est préférable de fournir une liste de couleurs (via le paramètre <code>col</code>) pour rendre le graphique plus lisible. Si vous avez installé l’extension <code class="pkg">RColorBrewer</code>, vous pouvez utiliser les différentes palettes de couleurs proposées. Pour afficher les palettes disponibles, utilisez <code data-pkg="RColorBrewer" data-rdoc="RColorsBrewer">display.brewer.all</code>.</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">display.brewer.all</span>(<span class="dv">8</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span>
+<span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a><span class="fu">display.brewer.all</span>(<span class="dv">8</span>)</span></code></pre></div>
 <p><img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-31-1.png" width="1050" /></p>
 <p>Pour obtenir une <dfn>palette de couleurs</dfn><dfn data-index="couleur, palette"></dfn>, utilisez la fonction <code data-pkg="RColorBrewer" data-rdoc="RColorsBrewer">brewer.pal</code> avec les arguments <code>n</code> (nombre de couleurs demandées) et <code>pal</code>(nom de la palette de couleurs désirée).</p>
 <p>Pour plus d’informations sur les palettes de couleurs de <strong>R</strong>, voir le <a href="couleurs.html">chapitre dédié</a>.</p>
 </div>
 <p>Il est aussi possible de passer à <code data-pkg="factoextra">fviz_mca_ind</code> une variable de regroupement via le paramètre <code>habillage</code>.</p>
 <figure>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_mca_ind</span>(acm, <span class="at">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="at">alpha.ind =</span> .<span class="dv">25</span>, <span class="at">habillage =</span> d2<span class="sc">$</span>sexe, <span class="at">addEllipses =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a><span class="fu">fviz_mca_ind</span>(acm, <span class="at">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="at">alpha.ind =</span> .<span class="dv">25</span>, <span class="at">habillage =</span> d2<span class="sc">$</span>sexe, <span class="at">addEllipses =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-32-1.png" width="1050" />
 <figcaption>
 Individus dans le plan factoriel selon le sexe (fviz_mca_ind)
@@ -812,7 +815,7 @@ Individus dans le plan factoriel selon le sexe (fviz_mca_ind)
 </figure>
 <p>La variable catégorielle transmise à <code data-pkg="ade4">s.class</code> ou <code data-pkg="ade4">s.chull</code> n’est pas obligatoirement une des variables retenues pour l’ACM. Il est tout à fait possible d’utiliser une autre variable. Par exemple :</p>
 <figure>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">s.class</span>(acm<span class="sc">$</span>li, d<span class="sc">$</span>trav.imp, <span class="at">col =</span> <span class="fu">brewer.pal</span>(<span class="dv">4</span>, <span class="st">&quot;Set1&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a><span class="fu">s.class</span>(acm<span class="sc">$</span>li, d<span class="sc">$</span>trav.imp, <span class="at">col =</span> <span class="fu">brewer.pal</span>(<span class="dv">4</span>, <span class="st">&quot;Set1&quot;</span>))</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-33-1.png" width="1050" />
 <figcaption>
 Individus dans le plan factoriel selon l’importance donnée au travail
@@ -820,7 +823,7 @@ Individus dans le plan factoriel selon l’importance donnée au travail
 </figure>
 <p>Les fonctions <code data-pkg="ade4">scatter</code> et <code data-pkg="ade4" data-rdoc="scatter">biplot</code> sont équivalentes : elles appliquent <code data-pkg="ade4">s.class</code> à chaque variable utilisée pour l’ACM.</p>
 <figure>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter</span>(acm, <span class="at">col =</span> <span class="fu">brewer.pal</span>(<span class="dv">4</span>, <span class="st">&quot;Set1&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a><span class="fu">scatter</span>(acm, <span class="at">col =</span> <span class="fu">brewer.pal</span>(<span class="dv">4</span>, <span class="st">&quot;Set1&quot;</span>))</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-34-1.png" width="1050" />
 <figcaption>
 La fonction scatter appliquée au résultat d’une ACM
@@ -831,9 +834,9 @@ La fonction scatter appliquée au résultat d’une ACM
 <h2 class="hasAnchor">ACM avec FactoMineR<a href="#factominer" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Comme avec <code class="pkg">ade4</code>, il est nécessaire de préparer les données au préalable (voir section précédente).</p>
 <p>L’ACM se calcule avec la fonction <code data-pkg="FactoMineR">MCA</code>, l’argument <code>ncp</code> permettant de choisir le nombre d’axes à retenir :</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(FactoMineR)</span></code></pre></div>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>acm2 <span class="ot">&lt;-</span> <span class="fu">MCA</span>(d2, <span class="at">ncp =</span> <span class="dv">5</span>, <span class="at">graph =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>acm2</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a><span class="fu">library</span>(FactoMineR)</span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" tabindex="-1"></a>acm2 <span class="ot">&lt;-</span> <span class="fu">MCA</span>(d2, <span class="at">ncp =</span> <span class="dv">5</span>, <span class="at">graph =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" tabindex="-1"></a>acm2</span></code></pre></div>
 <pre><code>**Results of the Multiple Correspondence Analysis (MCA)**
 The analysis was performed on 2000 individuals, described by 9 variables
 *The results are available in the following objects:
@@ -852,7 +855,7 @@ The analysis was performed on 2000 individuals, described by 9 variables
 11 &quot;$call&quot;           &quot;intermediate results&quot;            
 12 &quot;$call$marge.col&quot; &quot;weights of columns&quot;              
 13 &quot;$call$marge.li&quot;  &quot;weights of rows&quot;                 </code></pre>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>acm2<span class="sc">$</span>eig</span></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a>acm2<span class="sc">$</span>eig</span></code></pre></div>
 <pre><code>       eigenvalue percentage of variance
 dim 1  0.25757489              15.454493
 dim 2  0.18363502              11.018101
@@ -885,11 +888,11 @@ dim 12                          90.62838
 dim 13                          94.22962
 dim 14                          97.72883
 dim 15                         100.00000</code></pre>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(acm2<span class="sc">$</span>eig[, <span class="dv">1</span>])</span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" tabindex="-1"></a><span class="fu">sum</span>(acm2<span class="sc">$</span>eig[, <span class="dv">1</span>])</span></code></pre></div>
 <pre><code>[1] 1.666667</code></pre>
 <p>En premier lieu, il apparait que l’inertie totale obtenue avec <code data-pkg="FactoMineR">MCA</code> est différente de celle observée avec <code data-pkg="ade4">dudi.acm</code>. Cela est dû à un traitement différents des <dfn data-index="valeur manquante">valeurs manquantes</dfn><dfn data-index="manquante, valeur"></dfn>. Alors que <code data-pkg="ade4">dudi.acm</code> exclu les valeurs manquantes, <code data-pkg="FactoMineR">MCA</code> les considèrent, par défaut, comme une modalité additionnelle. Pour calculer l’ACM uniquement sur les individus n’ayant pas de valeur manquante, on aura recours à <code data-pkg="stats">complete.cases</code> :</p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>acm2 <span class="ot">&lt;-</span> <span class="fu">MCA</span>(d2[<span class="fu">complete.cases</span>(d2), ], <span class="at">ncp =</span> <span class="dv">5</span>, <span class="at">graph =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>acm2<span class="sc">$</span>eig</span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" tabindex="-1"></a>acm2 <span class="ot">&lt;-</span> <span class="fu">MCA</span>(d2[<span class="fu">complete.cases</span>(d2), ], <span class="at">ncp =</span> <span class="dv">5</span>, <span class="at">graph =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb46-2"><a href="#cb46-2" tabindex="-1"></a>acm2<span class="sc">$</span>eig</span></code></pre></div>
 <pre><code>       eigenvalue percentage of variance
 dim 1  0.24790700              17.162792
 dim 2  0.16758465              11.602014
@@ -918,39 +921,39 @@ dim 10                          87.45311
 dim 11                          92.02905
 dim 12                          96.14873
 dim 13                         100.00000</code></pre>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(acm2<span class="sc">$</span>eig[, <span class="dv">1</span>])</span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" tabindex="-1"></a><span class="fu">sum</span>(acm2<span class="sc">$</span>eig[, <span class="dv">1</span>])</span></code></pre></div>
 <pre><code>[1] 1.444444</code></pre>
 <p>Les possibilités graphiques de <code class="pkg">FactoMineR</code> sont différentes de celles de <code class="pkg">ade4</code>. Un recours à la fonction <code data-pkg="FactoMineR" data-rdoc="plot.MCA">plot</code> affichera par défaut les individus, les modalités et les variables. La commande <code>?plot.MCA</code> permet d’accéder au fichier d’aide de cette fonction (i.e. de la méthode générique <code>plot</code> appliquée aux objets de type <code>MCA</code>) et de voir toutes les options graphiques. L’argument <code>choix</code> permet de spécifier ce que l’on souhaite afficher (« ind » pour les individus et les catégories, « var » pour les variables). L’argument <code>invisible</code> quant à lui permet de spécifier ce que l’on souhaite masquer. Les axes à afficher se précisent avec <code>axes</code>. Voir les exemples ci-dessous.</p>
 <figure>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(acm2)</span></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" tabindex="-1"></a><span class="fu">plot</span>(acm2)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-38-1.png" width="1050" />
 <figcaption>
 Plan factoriel (deux premiers axes)
 </figcaption>
 </figure>
 <figure>
-<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(acm2, <span class="at">axes =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" tabindex="-1"></a><span class="fu">plot</span>(acm2, <span class="at">axes =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>))</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-39-1.png" width="1050" />
 <figcaption>
 Plan factoriel (axes 3 et 4)
 </figcaption>
 </figure>
 <figure>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(acm2, <span class="at">choix =</span> <span class="st">&quot;ind&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" tabindex="-1"></a><span class="fu">plot</span>(acm2, <span class="at">choix =</span> <span class="st">&quot;ind&quot;</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-40-1.png" width="1050" />
 <figcaption>
 Plan factoriel (seulement les individus et les catégories)
 </figcaption>
 </figure>
 <figure>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(acm2, <span class="at">choix =</span> <span class="st">&quot;ind&quot;</span>, <span class="at">invisible =</span> <span class="st">&quot;ind&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" tabindex="-1"></a><span class="fu">plot</span>(acm2, <span class="at">choix =</span> <span class="st">&quot;ind&quot;</span>, <span class="at">invisible =</span> <span class="st">&quot;ind&quot;</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-41-1.png" width="1050" />
 <figcaption>
 Plan factoriel (seulement les catégories)
 </figcaption>
 </figure>
 <figure>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(acm2, <span class="at">choix =</span> <span class="st">&quot;var&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" tabindex="-1"></a><span class="fu">plot</span>(acm2, <span class="at">choix =</span> <span class="st">&quot;var&quot;</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-42-1.png" width="1050" />
 <figcaption>
 Plan factoriel (seulement les variables)
@@ -959,7 +962,7 @@ Plan factoriel (seulement les variables)
 <p>La fonction <code data-pkg="FactoMineR">plotellipses</code> trace des ellipses de confiance atour des modalités de variables qualitatives. L’objectif est de voir si les modalités d’une variable qualitative sont significativement différentes les unes des autres.</p>
 <p>Par défaut (<code>means=TRUE</code>), les ellipses de confiance sont calculées pour les coordonnées moyennes de chaque catégorie.</p>
 <figure>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotellipses</span>(acm2)</span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" tabindex="-1"></a><span class="fu">plotellipses</span>(acm2)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-43-1.png" width="1050" />
 <figcaption>
 Ellipses de confiance (means=TRUE) dans le plan factoriel
@@ -967,7 +970,7 @@ Ellipses de confiance (means=TRUE) dans le plan factoriel
 </figure>
 <p>L’option <code>means=FALSE</code> calculera les ellipses de confiance pour l’ensemble des coordonnées des observations relevant de chaque catégorie.</p>
 <figure>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotellipses</span>(acm2, <span class="at">means =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" tabindex="-1"></a><span class="fu">plotellipses</span>(acm2, <span class="at">means =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <img src="graphs/analyse-des-correspondances-multiples/unnamed-chunk-44-1.png" width="1050" />
 <figcaption>
 Ellipses de confiance (means=FALSE) dans le plan factoriel
@@ -980,8 +983,8 @@ Ellipses de confiance (means=FALSE) dans le plan factoriel
 Source : <a href="http://factominer.free.fr/factosbest/description-des-dimensions.html" class="uri">http://factominer.free.fr/factosbest/description-des-dimensions.html</a>
 </footer>
 </blockquote>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>dd <span class="ot">&lt;-</span> <span class="fu">dimdesc</span>(acm2, <span class="at">axes =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>)</span>
-<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>dd<span class="sc">$</span><span class="st">`</span><span class="at">Dim 1</span><span class="st">`</span></span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" tabindex="-1"></a>dd <span class="ot">&lt;-</span> <span class="fu">dimdesc</span>(acm2, <span class="at">axes =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>)</span>
+<span id="cb57-2"><a href="#cb57-2" tabindex="-1"></a>dd<span class="sc">$</span><span class="st">`</span><span class="at">Dim 1</span><span class="st">`</span></span></code></pre></div>
 </div>
 <div id="extensions-complémentaires" class="section level2 hasAnchor">
 <h2 class="hasAnchor">Extensions complémentaires<a href="#extensions-complémentaires" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -993,9 +996,9 @@ Source : <a href="http://factominer.free.fr/factosbest/description-des-dimensio
 <div id="explor" class="section level3 hasAnchor">
 <h3 class="hasAnchor">explor<a href="#explor" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>L’extension <code class="pkg">explor</code> fournit une interface graphique pour explorer les résultats d’une analyse factorielle, réalisée avec <code class="pkg">ade4</code> ou <code class="pkg">FactoMineR</code>.</p>
-<div class="figure">
-<img src="https://raw.githubusercontent.com/juba/explor/master/resources/screencast_0.3.gif" alt="" />
-<p class="caption">Interface graphique de explor</p>
+<div class="float">
+<img src="https://raw.githubusercontent.com/juba/explor/master/resources/screencast_0.3.gif" alt="Interface graphique de explor" />
+<div class="figcaption">Interface graphique de explor</div>
 </div>
 <p>Plus d’informations sur <a href="https://github.com/juba/explor/" class="uri">https://github.com/juba/explor/</a>.</p>
 </div>
